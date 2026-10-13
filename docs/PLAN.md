@@ -18,8 +18,8 @@ Proyecto en `D:\Code Projects 2\ERPNext`. Git 2.56 y Docker 29.8 instalados.
 |---|---|
 | 0 — Entorno y descarga | ✅ Hecho. Versiones verificadas: frappe v16.51.1, erpnext v16.50.0, hrms v16.50.0. Se usa Docker local (imagen propia) en lugar de devcontainer. |
 | 1 — Despliegue | 🟡 Local listo: `deploy/Containerfile` + `deploy/compose.yaml`, sitio `erp.localhost` en http://localhost:8090 con las 4 apps en una sola base MariaDB. **Pendiente:** repo en GitHub, CI (`build-image.yml`, `ci.yml`), Dokploy, backups. |
-| 2 — Base fiscal DGII | ⏳ Siguiente |
-| 3 — Reportes DGII | ⏳ |
+| 2 — Base fiscal DGII | 🟡 Implementado en `feature/dgii-fiscal`: tipos de comprobante (21), Secuencia NCF con bloqueo, NCF en ventas/compras, RNC/Cédula, padrón (793 985 registros), 16 tests. **Pendiente:** prueba de punta a punta con facturas reales, NCF en POS Invoice, formato de impresión. |
+| 3 — Reportes DGII | ⏳ Siguiente |
 | 4 — e-CF | ⏳ |
 | 5 — Nómina RD | ⏳ |
 
@@ -110,6 +110,8 @@ No existe una app de ERPNext que cubra todo (e-CF + reportes + nómina RD). Toma
 | [CarlsRemy/DGII-UTILS](https://github.com/CarlsRemy/DGII-UTILS), [franklinmdev/dgii-ts](https://github.com/franklinmdev/dgii-ts) | Algoritmos de validación de RNC, cédula, NCF y e-NCF, para portarlos a Python | Revisar licencia |
 | [alexander0205/vera PR #69](https://github.com/alexander0205/vera/pull/69) | Referencia de cálculo de nómina RD (AFP, SFS, ISR, INFOTEP, SRL, topes) con tasas 2026 | Otro stack; verificar tasas con TSS/DGII |
 | Instructivo oficial DGII "Firmado de e-CF" + XSD oficiales | **Fuente de verdad** para la firma y el XML | Oficial |
+
+Evaluación (2026-10-12): `dgii-compliance` es v15, sin bloqueo de secuencia (NCF duplicables), solo B01/B02/B14/B15 y con errores de sintaxis → **no se adopta**; se escribió `dgii_fiscal` propio tomando ideas (URL del padrón, excluir facturas POS consolidadas).
 
 Reglas: solo se copia código con licencia compatible (GPL-3/LGPL-3/MIT); lo que no tenga licencia se usa únicamente como referencia. Primer paso de la Fase 2: clonar `dgii-compliance` en el devcontainer, instalarlo en v16 y decidir entre **adoptarlo como base del módulo `dgii_fiscal`** o reescribirlo tomando sus ideas.
 

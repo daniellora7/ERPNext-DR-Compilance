@@ -61,7 +61,12 @@ docker build -f deploy/Containerfile -t erpnext-rd:local .
 docker compose -f deploy/compose.yaml --env-file deploy/.env up -d
 docker compose -f deploy/compose.yaml --env-file deploy/.env down
 
-# Aplicar cambios de erpnext_rd: rebuild + up (create-site corre migrate si el sitio existe)
+# DESARROLLO (recomendado): monta apps/erpnext_rd dentro de los contenedores, sin rebuild
+docker compose -f deploy/compose.yaml -f deploy/compose.dev.yaml --env-file deploy/.env up -d
+#   cambios Python   -> docker restart deploy-backend-1 deploy-queue-short-1 deploy-queue-long-1 deploy-scheduler-1
+#   DocTypes/campos  -> docker exec deploy-backend-1 bench --site erp.localhost migrate
+
+# Imagen de producción con el código actual (create-site corre migrate si el sitio existe)
 docker compose -f deploy/compose.yaml --env-file deploy/.env up -d --build
 
 # Bench dentro del contenedor
@@ -85,7 +90,11 @@ docker logs deploy-create-site-1
 
 ## Notas técnicas
 
-- El código de `erpnext_rd` se copia dentro de la imagen; cualquier cambio requiere rebuild. Si el desarrollo se vuelve lento, montar `apps/erpnext_rd` como volumen en un override de desarrollo.
+- La imagen copia `erpnext_rd` dentro; para desarrollar usar `deploy/compose.dev.yaml`, que monta el código del repo.
+- Campos personalizados y catálogos se crean por código en `erpnext_rd/install.py` (`after_install` / `after_migrate`, idempotente), no con fixtures exportados.
+- DocTypes nuevos: se escriben como JSON en `<modulo>/doctype/<nombre>/` (ver los existentes) y se aplican con `migrate`.
+- Padrón RNC: `bench --site erp.localhost execute erpnext_rd.padron_rnc.padron.sincronizar_padron` (~3 min, ~800 mil registros). El servidor de la DGII a veces corta la descarga; hay reintentos.
+- El sitio local ya tiene la empresa real del usuario (**Dynamics Plastics**): no crear documentos de prueba en él sin permiso. Los tests de integración hacen rollback.
 - Al crear DocTypes desde la UI hay que tener `developer_mode` activo en el sitio para que se exporten a JSON en la app. Como la app vive dentro del contenedor, los archivos generados deben copiarse de vuelta al repo (`docker cp`) o, preferiblemente, crearse directamente en el repo.
 - En el Containerfile, `sites/apps.txt` no termina en salto de línea: al agregar apps usar `printf '\n<app>\n'` y limpiar líneas vacías.
 - El repo fuerza finales de línea LF (`.gitattributes`); los scripts `.sh` deben quedar en LF o fallan en el contenedor.
