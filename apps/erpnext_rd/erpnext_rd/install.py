@@ -20,6 +20,8 @@ from erpnext_rd.dgii_fiscal.catalogos import (
 	TIPOS_RETENCION_ISR,
 	TIPOS_SERVICIO_EXTERIOR,
 )
+from erpnext_rd.nomina_rd import salario
+from erpnext_rd.nomina_rd.salario import CONCEPTOS as CONCEPTOS_NOMINA
 
 MODULO = "DGII Fiscal"
 
@@ -267,13 +269,37 @@ def campos_personalizados() -> dict:
 		"Supplier": [
 			tipo_identificacion,
 			tipo_comprobante_defecto("rd_tipo_identificacion"),
-			{**bienes_servicios, "insert_after": "rd_tipo_comprobante", "label": "Tipo de bienes y servicios por defecto (606)"},
+			{
+				**bienes_servicios,
+				"insert_after": "rd_tipo_comprobante",
+				"label": "Tipo de bienes y servicios por defecto (606)",
+			},
 			{
 				"fieldname": "rd_parte_relacionada",
 				"fieldtype": "Check",
 				"label": "Parte relacionada (609)",
 				"insert_after": "rd_tipo_bienes_servicios",
 				"description": "Art. 281 del Código Tributario. Solo aplica a proveedores del exterior.",
+			},
+		],
+		"Salary Component": [
+			{
+				"fieldname": "rd_concepto_nomina",
+				"fieldtype": "Select",
+				"label": "Cálculo de ley RD",
+				"options": _opciones(CONCEPTOS_NOMINA),
+				"insert_after": "type",
+				"description": "Si se indica, ERPNext RD calcula el monto (TSS / ISR) según la Configuración Nómina RD",
+			},
+			{
+				"fieldname": "rd_cotiza_tss",
+				"fieldtype": "Check",
+				"label": "Cotiza a la TSS",
+				"default": "1",
+				"insert_after": "rd_concepto_nomina",
+				"depends_on": "eval:doc.type == 'Earning'",
+				"description": "Suma al salario cotizable de AFP, SFS y SRL. Desmarcar para regalía pascual, "
+				"bonificaciones y otros ingresos no cotizables.",
 			},
 		],
 		"Mode of Payment": [
@@ -358,9 +384,22 @@ def inicializar_formas_pago():
 
 
 def inicializar_configuracion():
-	"""Guarda la Configuracion DGII una vez para que sus valores por defecto queden en la base."""
+	"""Guarda las configuraciones una vez para que sus valores por defecto queden en la base."""
 	if not frappe.db.exists("Singles", {"doctype": "Configuracion DGII"}):
 		frappe.get_single("Configuracion DGII").save(ignore_permissions=True)
+
+	# Campos Check agregados después de guardar la configuración: quedan con su valor por defecto
+	for campo in ("calcular_deducciones",):
+		if not frappe.db.exists("Singles", {"doctype": "Configuracion Nomina RD", "field": campo}):
+			frappe.db.set_single_value("Configuracion Nomina RD", campo, 1)
+
+	conf = frappe.get_single("Configuracion Nomina RD")
+	if not conf.escala_isr:
+		from erpnext_rd.nomina_rd.calculos import ESCALA_ISR_2026
+
+		for desde, hasta, tasa, cuota in ESCALA_ISR_2026:
+			conf.append("escala_isr", {"desde": desde, "hasta": hasta, "tasa": tasa, "cuota_fija": cuota})
+		conf.save(ignore_permissions=True)
 
 
 # Formatos que deja el asistente de configuración de ERPNext; se reemplazan por los fiscales.
@@ -380,7 +419,12 @@ def formato_impresion_por_defecto():
 		)
 		if not actual or actual in reemplazables:
 			make_property_setter(
-				doctype, None, "default_print_format", formato, "Data", for_doctype=True,
+				doctype,
+				None,
+				"default_print_format",
+				formato,
+				"Data",
+				for_doctype=True,
 				validate_fields_for_doctype=False,
 			)
 
@@ -395,7 +439,9 @@ def asegurar_navegacion():
 		return
 	from frappe.modules.import_file import import_file_by_path
 
-	ruta = frappe.get_app_path("erpnext_rd", "rd_compliance", "sidebar", "rd_compliance", "rd_compliance.json")
+	ruta = frappe.get_app_path(
+		"erpnext_rd", "rd_compliance", "sidebar", "rd_compliance", "rd_compliance.json"
+	)
 	import_file_by_path(ruta, force=True)
 
 
@@ -408,6 +454,7 @@ def setup():
 	asegurar_navegacion()
 	frappe.clear_cache()
 	catalogo_cuentas.aplicar_a_empresas_rd()
+	salario.crear_componentes()
 
 
 def after_install():

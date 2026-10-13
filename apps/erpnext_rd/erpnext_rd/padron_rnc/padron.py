@@ -39,7 +39,9 @@ def descargar_padron(intentos: int = 4) -> bytes:
 	"""Descarga el ZIP. El servidor de la DGII a veces corta la conexión: se reintenta."""
 	for intento in range(1, intentos + 1):
 		try:
-			respuesta = requests.get(URL_PADRON, timeout=300, headers={"User-Agent": "Mozilla/5.0 ERPNext-RD"})
+			respuesta = requests.get(
+				URL_PADRON, timeout=300, headers={"User-Agent": "Mozilla/5.0 ERPNext-RD"}
+			)
 			respuesta.raise_for_status()
 			zipfile.ZipFile(io.BytesIO(respuesta.content)).testzip()
 			return respuesta.content

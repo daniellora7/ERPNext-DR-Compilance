@@ -21,7 +21,9 @@ class SecuenciaNCF(Document):
 		if self.is_new() or not self.siguiente:
 			self.siguiente = self.siguiente or self.desde
 		if not (self.desde <= self.siguiente <= self.hasta + 1):
-			frappe.throw(_("El siguiente secuencial debe estar entre {0} y {1}").format(self.desde, self.hasta + 1))
+			frappe.throw(
+				_("El siguiente secuencial debe estar entre {0} y {1}").format(self.desde, self.hasta + 1)
+			)
 
 		self.disponibles = self.hasta - self.siguiente + 1
 		if self.disponibles == 0:

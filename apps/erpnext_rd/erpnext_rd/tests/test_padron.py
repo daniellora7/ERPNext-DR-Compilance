@@ -8,7 +8,18 @@ class TestPadron(UnitTestCase):
 		fila = parsear_linea(
 			"03101823817|MARCO SERGIO RICARDO||SERVICIOS PERSONALES| | | | |25/06/2003|ACTIVO|NORMAL\r\n"
 		)
-		self.assertEqual(fila, ("03101823817", "MARCO SERGIO RICARDO", "", "SERVICIOS PERSONALES", "25/06/2003", "ACTIVO", "NORMAL"))
+		self.assertEqual(
+			fila,
+			(
+				"03101823817",
+				"MARCO SERGIO RICARDO",
+				"",
+				"SERVICIOS PERSONALES",
+				"25/06/2003",
+				"ACTIVO",
+				"NORMAL",
+			),
+		)
 
 	def test_linea_invalida(self):
 		self.assertIsNone(parsear_linea("ROOM ARCE|X||Y| | | | ||ACTIVO|NORMAL"))

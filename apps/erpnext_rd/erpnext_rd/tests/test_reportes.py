@@ -36,7 +36,9 @@ def _crear(doc: dict):
 
 
 def _campo_nombre(doctype: str) -> str:
-	return {"Customer": "customer_name", "Supplier": "supplier_name", "Item": "item_code"}.get(doctype, "name")
+	return {"Customer": "customer_name", "Supplier": "supplier_name", "Item": "item_code"}.get(
+		doctype, "name"
+	)
 
 
 class TestReportesDGII(IntegrationTestCase):
@@ -70,7 +72,9 @@ class TestReportesDGII(IntegrationTestCase):
 			).insert()
 
 		uom = frappe.db.get_value("UOM", {"enabled": 1}) or "Nos"
-		grupo = frappe.db.sql("SELECT name FROM `tabItem Group` WHERE IFNULL(parent_item_group, '') = ''")[0][0]
+		grupo = frappe.db.sql("SELECT name FROM `tabItem Group` WHERE IFNULL(parent_item_group, '') = ''")[0][
+			0
+		]
 		for codigo, clase in (("_Test Servicio DGII", "Servicio"), ("_Test Bien DGII", "Bien")):
 			_crear(
 				{
@@ -84,7 +88,14 @@ class TestReportesDGII(IntegrationTestCase):
 				}
 			)
 
-		_crear({"doctype": "Supplier", "supplier_name": "_Test Proveedor RD", "country": "Dominican Republic", "tax_id": RNC_TERCERO})
+		_crear(
+			{
+				"doctype": "Supplier",
+				"supplier_name": "_Test Proveedor RD",
+				"country": "Dominican Republic",
+				"tax_id": RNC_TERCERO,
+			}
+		)
 		_crear(
 			{
 				"doctype": "Supplier",
@@ -121,13 +132,25 @@ class TestReportesDGII(IntegrationTestCase):
 				"bill_date": "2026-09-09",
 				"rd_ncf": "B0100000123",
 				"items": [
-					{"item_code": "_Test Servicio DGII", "qty": 1, "rate": 1000, "expense_account": cuenta("6201")},
-					{"item_code": "_Test Bien DGII", "qty": 1, "rate": 500, "expense_account": cuenta("6207")},
+					{
+						"item_code": "_Test Servicio DGII",
+						"qty": 1,
+						"rate": 1000,
+						"expense_account": cuenta("6201"),
+					},
+					{
+						"item_code": "_Test Bien DGII",
+						"qty": 1,
+						"rate": 500,
+						"expense_account": cuenta("6207"),
+					},
 				],
 			}
 		)
 		con_impuestos(
-			pi, "Purchase Taxes and Charges Template", "Servicios de Persona Jurídica - Retención 30% del ITBIS"
+			pi,
+			"Purchase Taxes and Charges Template",
+			"Servicios de Persona Jurídica - Retención 30% del ITBIS",
 		)
 		pi.insert()
 		pi.submit()
@@ -202,7 +225,14 @@ class TestReportesDGII(IntegrationTestCase):
 				"rd_tipo_bienes_servicios": "02 - Gastos por trabajos, suministros y servicios",
 				"rd_tipo_servicio_exterior": "02 - Gastos por trabajos, suministros y servicios",
 				"rd_detalle_servicio_exterior": "21 - Honorarios por servicios profesionales (personas morales)",
-				"items": [{"item_code": "_Test Servicio DGII", "qty": 1, "rate": 2000, "expense_account": cuenta("6212")}],
+				"items": [
+					{
+						"item_code": "_Test Servicio DGII",
+						"qty": 1,
+						"rate": 2000,
+						"expense_account": cuenta("6212"),
+					}
+				],
 			}
 		)
 		pi.insert()
@@ -371,12 +401,19 @@ class TestReportesDGII(IntegrationTestCase):
 				"rd_ncf": "B0100000456",
 				"rd_tipo_retencion_isr": "02 - Honorarios por servicios",
 				"items": [
-					{"item_code": "_Test Servicio DGII", "qty": 1, "rate": 5000, "expense_account": cuenta("6201")}
+					{
+						"item_code": "_Test Servicio DGII",
+						"qty": 1,
+						"rate": 5000,
+						"expense_account": cuenta("6201"),
+					}
 				],
 			}
 		)
 		con_impuestos(
-			pi, "Purchase Taxes and Charges Template", "Servicios de Persona Física - Retención 100% ITBIS y 15% ISR"
+			pi,
+			"Purchase Taxes and Charges Template",
+			"Servicios de Persona Física - Retención 100% ITBIS y 15% ISR",
 		)
 		pi.insert()
 		pi.submit()

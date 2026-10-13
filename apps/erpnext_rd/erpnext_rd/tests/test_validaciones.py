@@ -75,7 +75,11 @@ class TestImpresion(UnitTestCase):
 		from erpnext_rd.dgii_fiscal.impresion import url_timbre_ecf
 
 		url = url_timbre_ecf(
-			rnc_emisor="101010632", encf="E320000000005", monto_total=500, codigo_seguridad="XyZ789", ambiente="eCF"
+			rnc_emisor="101010632",
+			encf="E320000000005",
+			monto_total=500,
+			codigo_seguridad="XyZ789",
+			ambiente="eCF",
 		)
 		self.assertEqual(
 			url,
