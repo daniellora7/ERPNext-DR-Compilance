@@ -4,13 +4,14 @@ import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import getdate, nowdate
 
-from erpnext_rd.dgii_reportes import datos, formatos
+from erpnext_rd.dgii_reportes import datos, declaraciones, formatos
 
 EMPRESA = "_Test Reportes RD"
 ABBR = "TRRD"
 RNC_EMPRESA = "101543231"
 RNC_TERCERO = "101003723"
 SEPTIEMBRE = (2026, 9)
+OCTUBRE = (2026, 10)
 
 
 def cuenta(numero: str) -> str:
@@ -328,3 +329,79 @@ class TestReportesDGII(IntegrationTestCase):
 	def test_empresa_de_otro_pais(self):
 		with self.assertRaises(frappe.ValidationError):
 			formatos.obtener("606", "Dynamics Plastics MX inexistente", 2026, 9)
+
+	# ------------------------------------------------------------------ IT-1 / IR-17
+
+	def test_it1_liquidacion(self):
+		r = declaraciones.resumen_it1(EMPRESA, *SEPTIEMBRE)
+		self.assertEqual(r.ventas_brutas, 11000)  # crédito fiscal + consumo, sin la anulada
+		self.assertEqual(r.notas_credito, 0)
+		self.assertAlmostEqual(r.gravadas[18.0], 11000)
+		self.assertAlmostEqual(r.exentas, 0)
+		self.assertEqual(r.itbis_facturado, 1980)
+		self.assertAlmostEqual(r.formas["cheque_transferencia"], 11800)
+		self.assertAlmostEqual(r.formas["venta_credito"], 1180)
+		self.assertEqual(r.itbis_compras, 270)  # el pago al exterior (B17) no lleva ITBIS
+		self.assertEqual(r.itbis_deducible, 270)
+		self.assertAlmostEqual(r.itbis_retenido_por_terceros, 540)
+		self.assertAlmostEqual(r.itbis_a_pagar, 1980 - 270 - 540)
+		self.assertAlmostEqual(r.itbis_retenido_a_terceros, 81)
+		self.assertAlmostEqual(r.total_a_pagar, 1170 + 81)
+		self.assertEqual(str(r.vence), "2026-10-20")
+
+	def test_it1_saldo_a_favor(self):
+		r = declaraciones.resumen_it1(EMPRESA, *SEPTIEMBRE, saldo_favor_anterior=2000)
+		self.assertEqual(r.itbis_a_pagar, 0)
+		self.assertAlmostEqual(r.nuevo_saldo_favor, 2000 - 1170)
+		self.assertAlmostEqual(r.total_a_pagar, 81)  # la retención a terceros se paga igual
+
+	def test_ir17_retencion_isr_pagada(self):
+		from erpnext.accounts.doctype.payment_entry.payment_entry import get_payment_entry
+
+		self.assertEqual(declaraciones.resumen_ir17(EMPRESA, *OCTUBRE).total_isr, 0)
+
+		pi = frappe.get_doc(
+			{
+				"doctype": "Purchase Invoice",
+				"company": EMPRESA,
+				"supplier": "_Test Proveedor RD",
+				"set_posting_time": 1,
+				"posting_date": "2026-10-05",
+				"bill_date": "2026-10-05",
+				"rd_ncf": "B0100000456",
+				"rd_tipo_retencion_isr": "02 - Honorarios por servicios",
+				"items": [
+					{"item_code": "_Test Servicio DGII", "qty": 1, "rate": 5000, "expense_account": cuenta("6201")}
+				],
+			}
+		)
+		con_impuestos(
+			pi, "Purchase Taxes and Charges Template", "Servicios de Persona Física - Retención 100% ITBIS y 10% ISR"
+		)
+		pi.insert()
+		pi.submit()
+
+		# Sin pagar todavía: la retención no se declara
+		self.assertEqual(declaraciones.resumen_ir17(EMPRESA, *OCTUBRE).total_isr, 0)
+
+		pe = get_payment_entry("Purchase Invoice", pi.name)
+		pe.posting_date = "2026-10-08"
+		pe.mode_of_payment = "Wire Transfer"
+		pe.reference_no = "TRF-3"
+		pe.reference_date = "2026-10-08"
+		pe.insert()
+		pe.submit()
+
+		r = declaraciones.resumen_ir17(EMPRESA, *OCTUBRE)
+		self.assertAlmostEqual(r.total_isr, 500)
+		self.assertEqual(len(r.grupos), 1)
+		self.assertEqual(r.grupos[0].concepto, "02 - Honorarios por servicios")
+		self.assertEqual(r.grupos[0].base, 5000)
+		self.assertEqual(str(r.vence), "2026-11-10")
+
+		filas = declaraciones.filas_ir17(r)
+		self.assertEqual(filas[1]["documento"], pi.name)
+		self.assertEqual(filas[1]["tasa"], 10)
+
+		it1 = declaraciones.resumen_it1(EMPRESA, *OCTUBRE)
+		self.assertAlmostEqual(it1.itbis_retenido_a_terceros, 900)  # 100% del ITBIS de 5,000
