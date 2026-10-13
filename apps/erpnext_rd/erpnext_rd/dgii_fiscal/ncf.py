@@ -5,10 +5,13 @@ from frappe import _
 from frappe.utils import add_days, cint, flt, getdate, nowdate
 
 from erpnext_rd.dgii_fiscal.identificacion import identificacion_valida
+from erpnext_rd.dgii_fiscal.impuestos import montos_impuestos, tipo_desde_cuentas
 from erpnext_rd.dgii_fiscal.validaciones import es_ncf_valido, formatear_ncf, tipo_identificacion
 
 NOTA_CREDITO = {"B": "B04", "E": "E34"}
 NOTA_DEBITO = {"B": "B03", "E": "E33"}
+PAGOS_EXTERIOR = {"B": "B17", "E": "E47"}
+PAIS = "Dominican Republic"
 
 
 # ---------------------------------------------------------------------------
@@ -113,8 +116,16 @@ def _serie_de(codigo: str | None) -> str:
 	return (codigo or "")[:1] or frappe.db.get_single_value("Configuracion DGII", "serie_por_defecto") or "B"
 
 
+def es_empresa_rd(company: str | None) -> bool:
+	"""La lógica fiscal DGII solo aplica a empresas con país República Dominicana."""
+	return bool(company) and frappe.get_cached_value("Company", company, "country") == PAIS
+
+
 def _no_aplica(doc) -> bool:
-	"""Factura consolidada del cierre de caja (modo POS Invoice): el NCF ya está en cada POS Invoice."""
+	"""Empresa de otro país, o factura consolidada del cierre de caja (modo POS Invoice):
+	en este último caso el NCF ya está en cada POS Invoice."""
+	if not es_empresa_rd(doc.company):
+		return True
 	return doc.doctype == "Sales Invoice" and cint(doc.get("is_consolidated"))
 
 
@@ -150,6 +161,8 @@ def tipo_por_defecto_venta(doc) -> str:
 
 def validar_venta(doc, method=None):
 	"""doc_events: Sales Invoice / POS Invoice -> validate."""
+	if not es_empresa_rd(doc.company):
+		return
 	if _no_aplica(doc):
 		doc.rd_tipo_comprobante = doc.rd_ncf = doc.rd_ncf_vencimiento = doc.rd_secuencia_ncf = None
 		return
@@ -170,7 +183,10 @@ def validar_venta(doc, method=None):
 	_validar_nota(doc, tipo)
 
 	if not doc.rd_tipo_ingreso:
-		doc.rd_tipo_ingreso = "01 - Ingresos por operaciones (No financieros)"
+		doc.rd_tipo_ingreso = (
+			tipo_desde_cuentas(doc, "income_account", "rd_tipo_ingreso")
+			or "01 - Ingresos por operaciones (No financieros)"
+		)
 
 
 def asignar_ncf_venta(doc, method=None):
@@ -182,11 +198,17 @@ def asignar_ncf_venta(doc, method=None):
 
 def antes_de_cancelar_venta(doc, method=None):
 	"""doc_events: Sales Invoice / POS Invoice -> before_cancel. El NCF anulado se reporta en el 608."""
-	if doc.rd_ncf and not doc.rd_tipo_anulacion:
+	if doc.rd_ncf and es_empresa_rd(doc.company):
+		_registrar_anulacion(doc)
+
+
+def _registrar_anulacion(doc):
+	if not doc.rd_tipo_anulacion:
 		frappe.throw(
-			_("Indique el 'Tipo de anulación' (formato 608) antes de cancelar una factura con NCF"),
+			_("Indique el 'Tipo de anulación' (formato 608) antes de cancelar un comprobante con NCF"),
 			title=_("Falta tipo de anulación"),
 		)
+	doc.rd_fecha_anulacion = nowdate()
 
 
 # ---------------------------------------------------------------------------
@@ -198,11 +220,13 @@ def tipo_por_defecto_compra(doc) -> str:
 	if doc.is_return:
 		return NOTA_CREDITO[_serie_de(None)]
 
-	del_proveedor = frappe.db.get_value("Supplier", doc.supplier, "rd_tipo_comprobante")
-	if del_proveedor:
-		return del_proveedor
+	proveedor = frappe.db.get_value("Supplier", doc.supplier, ["rd_tipo_comprobante", "country"], as_dict=True)
+	if proveedor.rd_tipo_comprobante:
+		return proveedor.rd_tipo_comprobante
 
 	serie = _serie_de(None)
+	if es_proveedor_exterior(proveedor.country):
+		return PAGOS_EXTERIOR[serie]
 	if identificacion_valida(doc.tax_id):
 		return f"{serie}{'01' if serie == 'B' else '31'}"
 	# Proveedor informal sin RNC: la empresa emite el comprobante de compras
@@ -211,6 +235,8 @@ def tipo_por_defecto_compra(doc) -> str:
 
 def validar_compra(doc, method=None):
 	"""doc_events: Purchase Invoice -> validate."""
+	if not es_empresa_rd(doc.company):
+		return
 	if not doc.rd_tipo_comprobante:
 		doc.rd_tipo_comprobante = tipo_por_defecto_compra(doc)
 	tipo = _tipo(doc.rd_tipo_comprobante)
@@ -221,7 +247,7 @@ def validar_compra(doc, method=None):
 	if not doc.rd_tipo_bienes_servicios:
 		doc.rd_tipo_bienes_servicios = frappe.db.get_value(
 			"Supplier", doc.supplier, "rd_tipo_bienes_servicios"
-		)
+		) or tipo_desde_cuentas(doc, "expense_account", "rd_tipo_bienes_servicios")
 
 	_validar_nota(doc, tipo)
 
@@ -251,10 +277,23 @@ def validar_compra(doc, method=None):
 
 def antes_de_validar_compra(doc, method=None):
 	"""doc_events: Purchase Invoice -> before_submit."""
+	if not es_empresa_rd(doc.company):
+		return
 	tipo = _tipo(doc.rd_tipo_comprobante)
 
 	if not doc.rd_tipo_bienes_servicios:
 		frappe.throw(_("Indique el 'Tipo de bienes y servicios' (formato 606)"))
+
+	if montos_impuestos(doc).isr_retenido and not doc.rd_tipo_retencion_isr:
+		frappe.throw(_("Indique el 'Tipo de retención ISR' (formato 606)"), title=_("Falta tipo de retención"))
+
+	if tipo.name in PAGOS_EXTERIOR.values() and not (
+		doc.rd_tipo_servicio_exterior and doc.rd_detalle_servicio_exterior
+	):
+		frappe.throw(
+			_("Indique el tipo y el detalle del servicio del exterior (formato 609)"),
+			title=_("Faltan datos del 609"),
+		)
 
 	if tipo.emitido_por_comprador:
 		if not doc.rd_ncf:
@@ -263,6 +302,18 @@ def antes_de_validar_compra(doc, method=None):
 
 	if not doc.rd_ncf and frappe.db.get_single_value("Configuracion DGII", "exigir_ncf_en_compras"):
 		frappe.throw(_("Indique el NCF del comprobante del proveedor"), title=_("Falta NCF"))
+
+
+def antes_de_cancelar_compra(doc, method=None):
+	"""doc_events: Purchase Invoice -> before_cancel. Los B11 / B13 / B17 anulados van al 608."""
+	if doc.rd_ncf and doc.rd_tipo_comprobante and es_empresa_rd(doc.company) and frappe.get_cached_value(
+		"Tipo Comprobante Fiscal", doc.rd_tipo_comprobante, "emitido_por_comprador"
+	):
+		_registrar_anulacion(doc)
+
+
+def es_proveedor_exterior(pais: str | None) -> bool:
+	return bool(pais) and pais != PAIS
 
 
 def _validar_ncf_duplicado_compra(doc):

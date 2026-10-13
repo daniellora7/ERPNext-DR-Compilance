@@ -66,6 +66,67 @@ TIPOS_ANULACION = [
 
 TIPOS_IDENTIFICACION = ["RNC", "Cédula", "Pasaporte"]
 
+# Formato 606: tipo de retención en ISR
+TIPOS_RETENCION_ISR = [
+	"01 - Alquileres",
+	"02 - Honorarios por servicios",
+	"03 - Otras rentas",
+	"04 - Otras rentas (rentas presuntas)",
+	"05 - Intereses pagados a personas jurídicas residentes",
+	"06 - Intereses pagados a personas físicas residentes",
+	"07 - Retención por proveedores del Estado",
+	"08 - Juegos telefónicos",
+	"09 - Retenciones subsector de ganadería de carne bovina",
+]
+
+# Forma de pago de un Modo de Pago. Define la columna del 607 y el código del 606.
+EFECTIVO = "Efectivo"
+CHEQUE_TRANSFERENCIA = "Cheque / Transferencia / Depósito"
+TARJETA = "Tarjeta de crédito / débito"
+BONOS = "Bonos o certificados de regalo"
+PERMUTA = "Permuta"
+OTRAS_FORMAS = "Otras formas"
+FORMAS_PAGO = [EFECTIVO, CHEQUE_TRANSFERENCIA, TARJETA, BONOS, PERMUTA, OTRAS_FORMAS]
+
+# Formato 609: tipo y detalle del servicio adquirido en el exterior
+TIPOS_SERVICIO_EXTERIOR = [
+	"01 - Gastos de personal",
+	"02 - Gastos por trabajos, suministros y servicios",
+	"03 - Arrendamientos",
+	"04 - Gastos de activos fijos",
+	"05 - Gastos de representación",
+	"06 - Gastos financieros",
+	"07 - Gastos de seguros",
+	"08 - Gastos por regalías y otros intangibles",
+]
+DETALLES_SERVICIO_EXTERIOR = [
+	"11 - Sueldos y salarios",
+	"12 - Otros gastos de personal",
+	"21 - Honorarios por servicios profesionales (personas morales)",
+	"22 - Honorarios por servicios profesionales (personas físicas)",
+	"23 - Seguridad, mensajería, transporte y otros servicios (personas físicas)",
+	"24 - Seguridad, mensajería, transporte y otros servicios (personas morales)",
+	"31 - De inmuebles (a personas físicas)",
+	"32 - De inmuebles (a personas morales)",
+	"33 - Otros arrendamientos",
+	"41 - Reparación",
+	"42 - Mantenimiento",
+	"51 - Relaciones públicas",
+	"52 - Publicidad",
+	"53 - Promociones",
+	"54 - Otros gastos de representación",
+	"61 - Por préstamos con bancos",
+	"62 - Por préstamos con financieras",
+	"63 - Por préstamos con personas físicas",
+	"64 - Por préstamos con organismos internacionales",
+	"65 - Otros gastos financieros",
+	"71 - Gastos de seguros",
+	"81 - Cesión / uso de marca",
+	"82 - Transferencia de know-how",
+	"83 - Cesión / uso de patente",
+	"84 - Otras regalías",
+]
+
 # Concepto fiscal de una cuenta de impuesto: define en qué columna del 606 / 607 cae su monto
 ITBIS = "ITBIS"
 ITBIS_RETENIDO = "ITBIS retenido a terceros"

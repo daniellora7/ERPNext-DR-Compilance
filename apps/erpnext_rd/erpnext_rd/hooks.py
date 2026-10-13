@@ -60,6 +60,7 @@ doc_events = {
 	"Purchase Invoice": {
 		"validate": "erpnext_rd.dgii_fiscal.ncf.validar_compra",
 		"before_submit": "erpnext_rd.dgii_fiscal.ncf.antes_de_validar_compra",
+		"before_cancel": "erpnext_rd.dgii_fiscal.ncf.antes_de_cancelar_compra",
 	},
 }
 

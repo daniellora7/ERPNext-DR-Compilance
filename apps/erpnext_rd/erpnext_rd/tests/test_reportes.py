@@ -1,0 +1,330 @@
+"""Reportes DGII 606 / 607 / 608 / 609 con facturas reales en una empresa de prueba (rollback)."""
+
+import frappe
+from frappe.tests import IntegrationTestCase
+from frappe.utils import getdate, nowdate
+
+from erpnext_rd.dgii_reportes import datos, formatos
+
+EMPRESA = "_Test Reportes RD"
+ABBR = "TRRD"
+RNC_EMPRESA = "101543231"
+RNC_TERCERO = "101003723"
+SEPTIEMBRE = (2026, 9)
+
+
+def cuenta(numero: str) -> str:
+	return frappe.db.get_value("Account", {"company": EMPRESA, "account_number": numero})
+
+
+def plantilla(doctype: str, titulo: str) -> str:
+	return frappe.db.get_value(doctype, {"company": EMPRESA, "title": titulo})
+
+
+def con_impuestos(doc, doctype_plantilla: str, titulo: str):
+	from erpnext.controllers.accounts_controller import get_taxes_and_charges
+
+	doc.taxes_and_charges = plantilla(doctype_plantilla, titulo)
+	doc.set("taxes", get_taxes_and_charges(doctype_plantilla, doc.taxes_and_charges))
+	return doc
+
+
+def _crear(doc: dict):
+	if not frappe.db.exists(doc["doctype"], doc.get("name") or doc.get(_campo_nombre(doc["doctype"]))):
+		return frappe.get_doc(doc).insert(ignore_permissions=True)
+
+
+def _campo_nombre(doctype: str) -> str:
+	return {"Customer": "customer_name", "Supplier": "supplier_name", "Item": "item_code"}.get(doctype, "name")
+
+
+class TestReportesDGII(IntegrationTestCase):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		frappe.db.set_single_value("Configuracion DGII", "aplicar_catalogo_cuentas", 1)
+		frappe.get_doc(
+			{
+				"doctype": "Company",
+				"company_name": EMPRESA,
+				"abbr": ABBR,
+				"country": "Dominican Republic",
+				"default_currency": "DOP",
+				"tax_id": RNC_EMPRESA,
+				"chart_of_accounts": "Standard",
+				"create_chart_of_accounts_based_on": "Standard Template",
+			}
+		).insert()
+
+		for tipo in ("B01", "B02", "B04", "B17"):
+			frappe.get_doc(
+				{
+					"doctype": "Secuencia NCF",
+					"company": EMPRESA,
+					"tipo_comprobante": tipo,
+					"desde": 1,
+					"hasta": 100,
+					"fecha_vencimiento": "2027-12-31",
+				}
+			).insert()
+
+		uom = frappe.db.get_value("UOM", {"enabled": 1}) or "Nos"
+		grupo = frappe.db.sql("SELECT name FROM `tabItem Group` WHERE IFNULL(parent_item_group, '') = ''")[0][0]
+		for codigo, clase in (("_Test Servicio DGII", "Servicio"), ("_Test Bien DGII", "Bien")):
+			_crear(
+				{
+					"doctype": "Item",
+					"item_code": codigo,
+					"item_name": codigo,
+					"item_group": grupo,
+					"stock_uom": uom,
+					"is_stock_item": 0,
+					"rd_bien_o_servicio": clase,
+				}
+			)
+
+		_crear({"doctype": "Supplier", "supplier_name": "_Test Proveedor RD", "country": "Dominican Republic", "tax_id": RNC_TERCERO})
+		_crear(
+			{
+				"doctype": "Supplier",
+				"supplier_name": "_Test Proveedor Exterior",
+				"country": "United States",
+				"supplier_type": "Company",
+				"tax_id": "98-7654321",
+			}
+		)
+		_crear({"doctype": "Customer", "customer_name": "_Test Cliente RD", "tax_id": RNC_TERCERO})
+		_crear({"doctype": "Customer", "customer_name": "_Test Consumidor RD"})
+
+		cls.compra = cls._compra()
+		cls.pago_compra = cls._pagar_compra(cls.compra)
+		cls.venta = cls._venta("_Test Cliente RD", 10000, "2026-09-12")
+		cls.cobro = cls._cobrar_con_retencion(cls.venta)
+		cls.consumo = cls._venta("_Test Consumidor RD", 1000, "2026-09-15")
+		cls.anulada = cls._venta("_Test Cliente RD", 500, "2026-09-16")
+		cls.anulada.rd_tipo_anulacion = "04 - Corrección de la información"
+		cls.anulada.cancel()
+		cls.exterior = cls._compra_exterior()
+
+	# ------------------------------------------------------------------ datos
+
+	@staticmethod
+	def _compra():
+		pi = frappe.get_doc(
+			{
+				"doctype": "Purchase Invoice",
+				"company": EMPRESA,
+				"supplier": "_Test Proveedor RD",
+				"set_posting_time": 1,
+				"posting_date": "2026-09-10",
+				"bill_date": "2026-09-09",
+				"rd_ncf": "B0100000123",
+				"items": [
+					{"item_code": "_Test Servicio DGII", "qty": 1, "rate": 1000, "expense_account": cuenta("6201")},
+					{"item_code": "_Test Bien DGII", "qty": 1, "rate": 500, "expense_account": cuenta("6207")},
+				],
+			}
+		)
+		con_impuestos(
+			pi, "Purchase Taxes and Charges Template", "Servicios de Persona Jurídica - Retención 30% del ITBIS"
+		)
+		pi.insert()
+		pi.submit()
+		return pi
+
+	@staticmethod
+	def _pagar_compra(pi):
+		from erpnext.accounts.doctype.payment_entry.payment_entry import get_payment_entry
+
+		pe = get_payment_entry("Purchase Invoice", pi.name)
+		pe.posting_date = "2026-09-20"
+		pe.mode_of_payment = "Wire Transfer"
+		pe.reference_no = "TRF-1"
+		pe.reference_date = "2026-09-20"
+		pe.insert()
+		pe.submit()
+		return pe
+
+	@staticmethod
+	def _venta(cliente, monto, fecha):
+		si = frappe.get_doc(
+			{
+				"doctype": "Sales Invoice",
+				"company": EMPRESA,
+				"customer": cliente,
+				"set_posting_time": 1,
+				"posting_date": fecha,
+				"due_date": fecha,
+				"items": [{"item_code": "_Test Servicio DGII", "qty": 1, "rate": monto}],
+			}
+		)
+		con_impuestos(si, "Sales Taxes and Charges Template", "ITBIS 18%")
+		si.insert()
+		si.submit()
+		return si
+
+	@staticmethod
+	def _cobrar_con_retencion(si):
+		"""El cliente retiene el 30% del ITBIS y paga el resto por transferencia."""
+		from erpnext.accounts.doctype.payment_entry.payment_entry import get_payment_entry
+
+		retencion = si.base_total_taxes_and_charges * 0.30
+		pe = get_payment_entry("Sales Invoice", si.name)
+		pe.posting_date = "2026-09-25"
+		pe.mode_of_payment = "Wire Transfer"
+		pe.reference_no = "TRF-2"
+		pe.reference_date = "2026-09-25"
+		pe.paid_amount = pe.received_amount = si.base_grand_total - retencion
+		pe.append(
+			"deductions",
+			{
+				"account": cuenta("110504"),
+				"cost_center": frappe.get_cached_value("Company", EMPRESA, "cost_center"),
+				"amount": retencion,
+			},
+		)
+		pe.insert()
+		pe.submit()
+		return pe
+
+	@staticmethod
+	def _compra_exterior():
+		pi = frappe.get_doc(
+			{
+				"doctype": "Purchase Invoice",
+				"company": EMPRESA,
+				"supplier": "_Test Proveedor Exterior",
+				"set_posting_time": 1,
+				"posting_date": "2026-09-18",
+				"bill_no": "INV-US-77",
+				"bill_date": "2026-09-17",
+				"rd_tipo_bienes_servicios": "02 - Gastos por trabajos, suministros y servicios",
+				"rd_tipo_servicio_exterior": "02 - Gastos por trabajos, suministros y servicios",
+				"rd_detalle_servicio_exterior": "21 - Honorarios por servicios profesionales (personas morales)",
+				"items": [{"item_code": "_Test Servicio DGII", "qty": 1, "rate": 2000, "expense_account": cuenta("6212")}],
+			}
+		)
+		pi.insert()
+		pi.submit()
+		return pi
+
+	# ------------------------------------------------------------------ 606
+
+	def test_606_compra_con_retencion_pagada(self):
+		filas = {f["_documento"]: f for f in datos.datos_606(EMPRESA, *SEPTIEMBRE)}
+		fila = filas[self.compra.name]
+
+		self.assertEqual(fila["rnc_cedula"], RNC_TERCERO)
+		self.assertEqual(fila["tipo_id"], "1")
+		self.assertEqual(fila["tipo_bienes_servicios"], "02")  # sugerido por la cuenta 6201
+		self.assertEqual(fila["ncf"], "B0100000123")
+		self.assertEqual(fila["fecha_comprobante"], "20260909")
+		self.assertEqual(fila["fecha_pago"], "20260920")
+		self.assertEqual(fila["monto_servicios"], 1000)
+		self.assertEqual(fila["monto_bienes"], 500)
+		self.assertEqual(fila["total_monto_facturado"], 1500)
+		self.assertEqual(fila["itbis_facturado"], 270)
+		self.assertEqual(fila["itbis_retenido"], 81)
+		self.assertEqual(fila["itbis_adelantar"], 270)
+		self.assertEqual(fila["forma_pago"], "02")
+		self.assertEqual(fila["_avisos"], "")
+
+	def test_606_pago_exterior_usa_rnc_de_la_empresa(self):
+		filas = {f["_documento"]: f for f in datos.datos_606(EMPRESA, *SEPTIEMBRE)}
+		fila = filas[self.exterior.name]
+		self.assertTrue(fila["ncf"].startswith("B17"))
+		self.assertEqual(fila["rnc_cedula"], RNC_EMPRESA)
+		self.assertEqual(fila["forma_pago"], "04")  # sin pagar: compra a crédito
+
+	# ------------------------------------------------------------------ 607
+
+	def test_607_venta_con_retencion_del_cliente(self):
+		filas = {f["_documento"]: f for f in datos.datos_607(EMPRESA, *SEPTIEMBRE)}
+		fila = filas[self.venta.name]
+
+		self.assertEqual(fila["ncf"], self.venta.rd_ncf)
+		self.assertTrue(fila["ncf"].startswith("B01"))
+		self.assertEqual(fila["tipo_id"], "1")
+		self.assertEqual(fila["tipo_ingreso"], "01")  # sugerido por la cuenta 4101
+		self.assertEqual(fila["monto_facturado"], 10000)
+		self.assertEqual(fila["itbis_facturado"], 1800)
+		self.assertAlmostEqual(fila["itbis_retenido_terceros"], 540)
+		self.assertEqual(fila["fecha_retencion"], "20260925")
+		self.assertAlmostEqual(fila["cheque_transferencia"], 11800)
+		self.assertAlmostEqual(fila["venta_credito"], 0)
+		self.assertTrue(fila["_en_txt"])
+
+	def test_607_consumo_menor_al_umbral_va_al_resumen(self):
+		filas = datos.datos_607(EMPRESA, *SEPTIEMBRE)
+		fila = next(f for f in filas if f["_documento"] == self.consumo.name)
+		self.assertTrue(fila["ncf"].startswith("B02"))
+		self.assertFalse(fila["_en_txt"])
+		self.assertEqual(fila["venta_credito"], 1180)
+
+		resumen = datos.resumen_consumo(filas)
+		self.assertEqual(resumen["cantidad"], 1)
+		self.assertEqual(resumen["monto_facturado"], 1000)
+		self.assertEqual(resumen["itbis_facturado"], 180)
+
+	def test_607_excluye_anuladas(self):
+		documentos = {f["_documento"] for f in datos.datos_607(EMPRESA, *SEPTIEMBRE)}
+		self.assertNotIn(self.anulada.name, documentos)
+
+	# ------------------------------------------------------------------ 608
+
+	def test_608_factura_anulada(self):
+		hoy = getdate(nowdate())
+		filas = datos.datos_608(EMPRESA, hoy.year, hoy.month)
+		fila = next(f for f in filas if f["_documento"] == self.anulada.name)
+		self.assertEqual(fila["ncf"], self.anulada.rd_ncf)
+		self.assertEqual(fila["fecha_comprobante"], "20260916")
+		self.assertEqual(fila["tipo_anulacion"], "04")
+
+	# ------------------------------------------------------------------ 609
+
+	def test_609_pago_al_exterior(self):
+		filas = datos.datos_609(EMPRESA, *SEPTIEMBRE)
+		self.assertEqual(len(filas), 1)
+		fila = filas[0]
+		self.assertEqual(fila["razon_social"], "_Test Proveedor Exterior")
+		self.assertEqual(fila["tipo_id_tributaria"], "2")
+		self.assertEqual(fila["id_tributaria"], "98-7654321")
+		self.assertEqual(fila["pais_destino"], "840")
+		self.assertEqual(fila["tipo_servicio"], "02")
+		self.assertEqual(fila["detalle_servicio"], "21")
+		self.assertEqual(fila["parte_relacionada"], "0")
+		self.assertEqual(fila["numero_documento"], "INV-US-77")
+		self.assertEqual(fila["fecha_documento"], "20260917")
+		self.assertEqual(fila["monto_facturado"], 2000)
+
+	# ------------------------------------------------------------------ TXT
+
+	def test_txt_606(self):
+		nombre, contenido = formatos.generar_txt("606", EMPRESA, *SEPTIEMBRE)
+		self.assertEqual(nombre, f"DGII_F_606_{RNC_EMPRESA}_202609.TXT")
+		lineas = contenido.split("\r\n")[:-1]
+		self.assertEqual(lineas[0], f"606|{RNC_EMPRESA}|202609|2")
+		self.assertEqual(len(lineas), 3)
+		for linea in lineas[1:]:
+			self.assertEqual(len(linea.split("|")), 23)
+		compra = next(l for l in lineas[1:] if "B0100000123" in l)
+		self.assertEqual(
+			compra,
+			f"{RNC_TERCERO}|1|02|B0100000123||20260909|20260920|1000.00|500.00|1500.00|270.00|81.00|0.00|0.00|270.00|"
+			"||0.00||0.00|0.00|0.00|02",
+		)
+
+	def test_txt_607_sin_consumo_menor(self):
+		_nombre, contenido = formatos.generar_txt("607", EMPRESA, *SEPTIEMBRE)
+		lineas = contenido.split("\r\n")[:-1]
+		self.assertEqual(lineas[0], f"607|{RNC_EMPRESA}|202609|1")
+		self.assertEqual(len(lineas[1].split("|")), 23)
+		self.assertNotIn(self.consumo.rd_ncf, contenido)
+
+	def test_txt_sin_registros(self):
+		with self.assertRaises(frappe.ValidationError):
+			formatos.generar_txt("608", EMPRESA, 2026, 1)
+
+	def test_empresa_de_otro_pais(self):
+		with self.assertRaises(frappe.ValidationError):
+			formatos.obtener("606", "Dynamics Plastics MX inexistente", 2026, 9)
