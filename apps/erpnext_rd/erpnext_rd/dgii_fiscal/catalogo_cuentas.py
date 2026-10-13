@@ -379,21 +379,41 @@ PLANTILLAS_COMPRA = [
 			("On Previous Row Amount", "210302", 30, 1, 1, "Retención 30% del ITBIS"),
 		],
 	),
+	# Tasas de ISR del art. 309 del Código Tributario, modificado por la Ley 30-26 (vigentes desde el
+	# 1/7/2026): 15% a honorarios, comisiones y alquileres de personas físicas; servicios técnicos de
+	# personas físicas: 15% sobre una renta presunta del 20% (3% efectivo). Antes eran 10% y 2%.
 	(
-		"Servicios de Persona Física - Retención 100% ITBIS y 10% ISR",
+		"Servicios de Persona Física - Retención 100% ITBIS y 15% ISR",
 		0,
 		[
 			("On Net Total", "110501", 18, None, 0, "ITBIS 18%"),
 			("On Previous Row Amount", "210302", 100, 1, 1, "Retención 100% del ITBIS"),
-			("On Net Total", "210303", 10, None, 1, "Retención ISR 10%"),
+			("On Net Total", "210303", 15, None, 1, "Retención ISR 15%"),
 		],
 	),
 	(
-		"Retención ISR 10% (sin ITBIS)",
+		"Servicios Técnicos de Persona Física - Retención 100% ITBIS y 3% ISR",
 		0,
-		[("On Net Total", "210303", 10, None, 1, "Retención ISR 10%")],
+		[
+			("On Net Total", "110501", 18, None, 0, "ITBIS 18%"),
+			("On Previous Row Amount", "210302", 100, 1, 1, "Retención 100% del ITBIS"),
+			("On Net Total", "210303", 3, None, 1, "Retención ISR 3% (15% sobre renta presunta del 20%)"),
+		],
+	),
+	(
+		"Retención ISR 15% (sin ITBIS)",
+		0,
+		[("On Net Total", "210303", 15, None, 1, "Retención ISR 15%")],
 	),
 ]
+
+# Plantillas creadas por versiones anteriores de la app con tasas derogadas: título viejo -> nuevo
+PLANTILLAS_RENOMBRADAS = {
+	"Servicios de Persona Física - Retención 100% ITBIS y 10% ISR": (
+		"Servicios de Persona Física - Retención 100% ITBIS y 15% ISR"
+	),
+	"Retención ISR 10% (sin ITBIS)": "Retención ISR 15% (sin ITBIS)",
+}
 
 # Documentos que indican que la empresa ya tiene operaciones: con ellos no se reemplaza el catálogo
 DOCTYPES_MOVIMIENTOS = [
