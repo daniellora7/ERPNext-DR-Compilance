@@ -27,7 +27,9 @@ def identificacion_valida(numero: str | None, tipo: str | None = None) -> bool:
 	if tipo == "Cédula" and es_cedula_valida(numero):
 		return True
 
-	if tipo in ("RNC", "Cédula") and frappe.db.get_single_value("Configuracion DGII", "validar_contra_padron"):
+	if tipo in ("RNC", "Cédula") and frappe.db.get_single_value(
+		"Configuracion DGII", "validar_contra_padron"
+	):
 		return existe_en_padron(numero)
 
 	return False

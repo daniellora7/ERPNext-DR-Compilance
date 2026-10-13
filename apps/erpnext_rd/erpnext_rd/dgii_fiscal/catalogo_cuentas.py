@@ -139,7 +139,13 @@ CUENTAS = [
 	("210204", "Gastos Acumulados por Pagar", "", "Other Current Liabilities", {}),
 	("210205", "Intereses por Pagar", "", "Other Current Liabilities", {}),
 	("2103", "Impuestos por Pagar", "Tax", "Current Tax Liabilities", {}),
-	("210301", "ITBIS por Pagar (Cobrado en Ventas)", "Tax", "Current Tax Liabilities", {"concepto": cat.ITBIS}),
+	(
+		"210301",
+		"ITBIS por Pagar (Cobrado en Ventas)",
+		"Tax",
+		"Current Tax Liabilities",
+		{"concepto": cat.ITBIS},
+	),
 	(
 		"210302",
 		"ITBIS Retenido a Terceros por Pagar",
@@ -616,7 +622,9 @@ def _asignar_cuentas_por_defecto(company: str, cuentas: dict[str, str]):
 			if frappe.db.exists("Expense Claim Account", {"parent": tipo, "company": company}):
 				continue
 			tipo_doc = frappe.get_doc("Expense Claim Type", tipo)
-			tipo_doc.append("accounts", {"company": company, "default_account": cuentas[CUENTA_RECLAMOS_GASTOS]})
+			tipo_doc.append(
+				"accounts", {"company": company, "default_account": cuentas[CUENTA_RECLAMOS_GASTOS]}
+			)
 			tipo_doc.save(ignore_permissions=True)
 
 
@@ -670,7 +678,9 @@ def al_actualizar_empresa(doc, method=None):
 		return
 	if aplicar_catalogo_dgii(doc.name):
 		frappe.msgprint(
-			_("Se aplicó el catálogo de cuentas DGII ({0}) a la empresa {1}.").format(NOMBRE_CATALOGO, doc.name),
+			_("Se aplicó el catálogo de cuentas DGII ({0}) a la empresa {1}.").format(
+				NOMBRE_CATALOGO, doc.name
+			),
 			alert=True,
 			indicator="green",
 		)
@@ -680,9 +690,7 @@ def aplicar_a_empresas_rd():
 	"""after_install / after_migrate: aplica el catálogo a las empresas RD que aún no lo tienen."""
 	if not aplicar_automaticamente():
 		return
-	for company in frappe.get_all(
-		"Company", filters={"country": PAIS, "rd_catalogo_dgii": 0}, pluck="name"
-	):
+	for company in frappe.get_all("Company", filters={"country": PAIS, "rd_catalogo_dgii": 0}, pluck="name"):
 		if aplicar_catalogo_dgii(company):
 			print(f"erpnext_rd: catálogo de cuentas DGII aplicado a {company}")
 		else:

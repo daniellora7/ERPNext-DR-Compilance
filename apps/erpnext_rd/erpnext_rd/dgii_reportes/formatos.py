@@ -210,7 +210,9 @@ def columnas_reporte(formato: str) -> list[dict]:
 	if formato == "607":
 		columnas.append({"fieldname": "_en_txt", "label": _("En TXT"), "fieldtype": "Check", "width": 70})
 	columnas.append({"fieldname": "_avisos", "label": _("Observaciones"), "fieldtype": "Data", "width": 320})
-	columnas.append({"fieldname": "_doctype", "label": _("Tipo de documento"), "fieldtype": "Data", "hidden": 1})
+	columnas.append(
+		{"fieldname": "_doctype", "label": _("Tipo de documento"), "fieldtype": "Data", "hidden": 1}
+	)
 	return columnas
 
 

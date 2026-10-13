@@ -154,7 +154,9 @@ def filas_it1(r: frappe._dict) -> list[dict]:
 		filas.append({"concepto": concepto, "monto": flt(monto, 2), "nota": nota, "indent": 1})
 
 	seccion(_("I. Ingresos por operaciones"))
-	linea(_("Ventas del período (sin ITBIS)"), r.ventas_brutas, _("Total del 607, incluye facturas de consumo"))
+	linea(
+		_("Ventas del período (sin ITBIS)"), r.ventas_brutas, _("Total del 607, incluye facturas de consumo")
+	)
 	linea(_("Notas de crédito emitidas"), -r.notas_credito)
 	linea(_("Total de operaciones"), r.total_operaciones)
 	linea(_("Exportaciones de bienes y servicios"), r.exportaciones, _("B16 / E46"))
@@ -181,7 +183,7 @@ def filas_it1(r: frappe._dict) -> list[dict]:
 	linea(_("ITBIS pagado en compras locales"), r.itbis_compras, _("Total del 606"))
 	linea(_("ITBIS llevado al costo (no deducible)"), -r.itbis_costo)
 	linea(_("ITBIS pagado deducible (por adelantar)"), r.itbis_deducible)
-	linea(_("Diferencia: ITBIS de ventas − ITBIS deducible"), r.diferencia)
+	linea(_("Diferencia: ITBIS de ventas - ITBIS deducible"), r.diferencia)
 	linea(
 		_("Saldo a favor del período anterior"),
 		-r.saldo_favor_anterior,
@@ -306,7 +308,9 @@ def reporte_it1(filters: dict | None):
 	)
 	resumen = [
 		{
-			"label": _("ITBIS a pagar") if r.itbis_a_pagar or not r.nuevo_saldo_favor else _("Nuevo saldo a favor"),
+			"label": _("ITBIS a pagar")
+			if r.itbis_a_pagar or not r.nuevo_saldo_favor
+			else _("Nuevo saldo a favor"),
 			"value": r.itbis_a_pagar or r.nuevo_saldo_favor,
 			"datatype": "Currency",
 			"indicator": "Red" if r.itbis_a_pagar else "Green",
@@ -349,8 +353,18 @@ def reporte_ir17(filters: dict | None):
 
 	r = resumen_ir17(filters.company, filters.anio, filters.mes)
 	resumen = [
-		{"label": _("ISR retenido a terceros"), "value": r.total_isr, "datatype": "Currency", "indicator": "Red"},
-		{"label": _("Monto pagado sujeto a retención"), "value": r.total_base, "datatype": "Currency", "indicator": "Blue"},
+		{
+			"label": _("ISR retenido a terceros"),
+			"value": r.total_isr,
+			"datatype": "Currency",
+			"indicator": "Red",
+		},
+		{
+			"label": _("Monto pagado sujeto a retención"),
+			"value": r.total_base,
+			"datatype": "Currency",
+			"indicator": "Blue",
+		},
 		{"label": _("Vence"), "value": r.vence, "datatype": "Date", "indicator": "Blue"},
 	]
 	if r.grupos:

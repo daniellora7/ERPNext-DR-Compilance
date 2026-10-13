@@ -93,7 +93,9 @@ def _avisar_estado_secuencia(seq, disponibles: int):
 	dias = cint(config.dias_alerta_vencimiento or 30)
 	if seq.fecha_vencimiento and getdate(seq.fecha_vencimiento) <= getdate(add_days(nowdate(), dias)):
 		frappe.msgprint(
-			_("La secuencia {0} vence el {1}.").format(seq.name, frappe.format(seq.fecha_vencimiento, "Date")),
+			_("La secuencia {0} vence el {1}.").format(
+				seq.name, frappe.format(seq.fecha_vencimiento, "Date")
+			),
 			title=_("Secuencia NCF por vencer"),
 			indicator="orange",
 		)
@@ -220,7 +222,9 @@ def tipo_por_defecto_compra(doc) -> str:
 	if doc.is_return:
 		return NOTA_CREDITO[_serie_de(None)]
 
-	proveedor = frappe.db.get_value("Supplier", doc.supplier, ["rd_tipo_comprobante", "country"], as_dict=True)
+	proveedor = frappe.db.get_value(
+		"Supplier", doc.supplier, ["rd_tipo_comprobante", "country"], as_dict=True
+	)
 	if proveedor.rd_tipo_comprobante:
 		return proveedor.rd_tipo_comprobante
 
@@ -285,7 +289,9 @@ def antes_de_validar_compra(doc, method=None):
 		frappe.throw(_("Indique el 'Tipo de bienes y servicios' (formato 606)"))
 
 	if montos_impuestos(doc).isr_retenido and not doc.rd_tipo_retencion_isr:
-		frappe.throw(_("Indique el 'Tipo de retención ISR' (formato 606)"), title=_("Falta tipo de retención"))
+		frappe.throw(
+			_("Indique el 'Tipo de retención ISR' (formato 606)"), title=_("Falta tipo de retención")
+		)
 
 	if tipo.name in PAGOS_EXTERIOR.values() and not (
 		doc.rd_tipo_servicio_exterior and doc.rd_detalle_servicio_exterior
@@ -306,8 +312,13 @@ def antes_de_validar_compra(doc, method=None):
 
 def antes_de_cancelar_compra(doc, method=None):
 	"""doc_events: Purchase Invoice -> before_cancel. Los B11 / B13 / B17 anulados van al 608."""
-	if doc.rd_ncf and doc.rd_tipo_comprobante and es_empresa_rd(doc.company) and frappe.get_cached_value(
-		"Tipo Comprobante Fiscal", doc.rd_tipo_comprobante, "emitido_por_comprador"
+	if (
+		doc.rd_ncf
+		and doc.rd_tipo_comprobante
+		and es_empresa_rd(doc.company)
+		and frappe.get_cached_value(
+			"Tipo Comprobante Fiscal", doc.rd_tipo_comprobante, "emitido_por_comprador"
+		)
 	):
 		_registrar_anulacion(doc)
 
@@ -361,11 +372,13 @@ def _validar_nota(doc, tipo):
 def _asignar(doc):
 	reservado = tomar_siguiente_ncf(doc.company, doc.rd_tipo_comprobante)
 
-	if frappe.db.exists(doc.doctype, {"company": doc.company, "rd_ncf": reservado.ncf, "name": ("!=", doc.name)}):
+	if frappe.db.exists(
+		doc.doctype, {"company": doc.company, "rd_ncf": reservado.ncf, "name": ("!=", doc.name)}
+	):
 		frappe.throw(
-			_("El NCF {0} ya fue usado en otro documento. Revise el campo 'Siguiente' de la secuencia {1}").format(
-				reservado.ncf, reservado.secuencia
-			),
+			_(
+				"El NCF {0} ya fue usado en otro documento. Revise el campo 'Siguiente' de la secuencia {1}"
+			).format(reservado.ncf, reservado.secuencia),
 			title=_("NCF duplicado"),
 		)
 

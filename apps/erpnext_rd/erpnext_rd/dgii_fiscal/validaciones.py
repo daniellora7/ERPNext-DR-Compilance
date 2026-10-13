@@ -25,7 +25,7 @@ def es_rnc_valido(rnc: str | None) -> bool:
 	if len(rnc) != 9:
 		return False
 
-	suma = sum(int(d) * p for d, p in zip(rnc[:8], PESOS_RNC))
+	suma = sum(int(d) * p for d, p in zip(rnc[:8], PESOS_RNC, strict=False))
 	resto = suma % 11
 	if resto == 0:
 		verificador = 2

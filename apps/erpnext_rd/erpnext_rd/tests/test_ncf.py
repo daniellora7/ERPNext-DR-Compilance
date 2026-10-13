@@ -65,7 +65,12 @@ class TestSecuenciaNCF(IntegrationTestCase):
 class TestIdentificacionParty(IntegrationTestCase):
 	def _cliente(self, tax_id, tipo=None):
 		return frappe.get_doc(
-			{"doctype": "Customer", "customer_name": "_Test RD", "tax_id": tax_id, "rd_tipo_identificacion": tipo}
+			{
+				"doctype": "Customer",
+				"customer_name": "_Test RD",
+				"tax_id": tax_id,
+				"rd_tipo_identificacion": tipo,
+			}
 		)
 
 	def test_normaliza_rnc(self):
@@ -106,7 +111,9 @@ class TestIdentificacionParty(IntegrationTestCase):
 		validar_party(proveedor)
 		self.assertEqual(proveedor.tax_id, "98-7654321")
 
-		empresa = frappe.get_doc({"doctype": "Company", "company_name": "_Test MX", "country": "Mexico", "tax_id": "EKU9003173C9"})
+		empresa = frappe.get_doc(
+			{"doctype": "Company", "company_name": "_Test MX", "country": "Mexico", "tax_id": "EKU9003173C9"}
+		)
 		validar_party(empresa)
 		self.assertEqual(empresa.tax_id, "EKU9003173C9")
 
@@ -118,6 +125,8 @@ class TestIdentificacionParty(IntegrationTestCase):
 			self.assertFalse(es_empresa_rd(empresa_mx))
 		self.assertFalse(es_empresa_rd(None))
 
-		factura = frappe.get_doc({"doctype": "Sales Invoice", "company": "_Empresa inexistente", "customer": "x"})
+		factura = frappe.get_doc(
+			{"doctype": "Sales Invoice", "company": "_Empresa inexistente", "customer": "x"}
+		)
 		validar_venta(factura)  # no exige secuencia NCF ni tipo de comprobante
 		self.assertFalse(factura.get("rd_tipo_comprobante"))

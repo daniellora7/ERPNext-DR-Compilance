@@ -62,7 +62,9 @@ def qr_data_uri(texto: str, escala: int = 4) -> str:
 	import pyqrcode
 
 	buffer = io.BytesIO()
-	pyqrcode.create(texto, error="M").svg(buffer, scale=escala, quiet_zone=2, xmldecl=False, svgns=True, background="#ffffff")
+	pyqrcode.create(texto, error="M").svg(
+		buffer, scale=escala, quiet_zone=2, xmldecl=False, svgns=True, background="#ffffff"
+	)
 	return "data:image/svg+xml;base64," + base64.b64encode(buffer.getvalue()).decode()
 
 

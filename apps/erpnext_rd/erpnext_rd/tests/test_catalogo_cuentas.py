@@ -38,7 +38,9 @@ class TestEstructuraCatalogo(IntegrationTestCase):
 		self.assertEqual(
 			{v["root_type"] for v in raiz.values()}, {"Asset", "Liability", "Equity", "Income", "Expense"}
 		)
-		self.assertEqual(raiz["ACTIVOS"]["ACTIVOS CORRIENTES"]["Caja"]["Caja General"]["account_number"], "110101")
+		self.assertEqual(
+			raiz["ACTIVOS"]["ACTIVOS CORRIENTES"]["Caja"]["Caja General"]["account_number"], "110101"
+		)
 
 	def test_herencia_tipos_606_607(self):
 		datos = cc.datos_dgii()
@@ -98,7 +100,9 @@ class TestAplicarCatalogo(IntegrationTestCase):
 			cat.TIPOS_BIENES_SERVICIOS[1],
 		)
 
-		plantilla = frappe.get_doc("Sales Taxes and Charges Template", {"company": empresa.name, "is_default": 1})
+		plantilla = frappe.get_doc(
+			"Sales Taxes and Charges Template", {"company": empresa.name, "is_default": 1}
+		)
 		self.assertEqual(plantilla.title, "ITBIS 18%")
 		self.assertEqual(plantilla.taxes[0].rate, 18)
 
@@ -128,7 +132,10 @@ class TestAplicarCatalogo(IntegrationTestCase):
 
 		# La plantilla estándar de ERPNext (ITBIS 16%) no debe quedar
 		self.assertFalse(
-			frappe.db.exists("Sales Taxes and Charges Template", {"company": empresa.name, "title": "Dominican Republic Tax"})
+			frappe.db.exists(
+				"Sales Taxes and Charges Template",
+				{"company": empresa.name, "title": "Dominican Republic Tax"},
+			)
 		)
 
 	def test_empresa_de_otro_pais_conserva_su_catalogo(self):
