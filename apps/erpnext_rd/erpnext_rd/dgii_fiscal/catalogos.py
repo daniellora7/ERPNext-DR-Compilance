@@ -66,6 +66,27 @@ TIPOS_ANULACION = [
 
 TIPOS_IDENTIFICACION = ["RNC", "Cédula", "Pasaporte"]
 
+# Concepto fiscal de una cuenta de impuesto: define en qué columna del 606 / 607 cae su monto
+ITBIS = "ITBIS"
+ITBIS_RETENIDO = "ITBIS retenido a terceros"
+ISR_RETENIDO = "ISR retenido a terceros"
+ITBIS_RETENIDO_POR_TERCEROS = "ITBIS retenido por terceros"
+ISR_RETENIDO_POR_TERCEROS = "ISR retenido por terceros"
+ISC = "Impuesto selectivo al consumo"
+PROPINA_LEGAL = "Propina legal"
+OTROS_IMPUESTOS = "Otros impuestos y tasas"
+
+CONCEPTOS_FISCALES = [
+	ITBIS,
+	ITBIS_RETENIDO,
+	ISR_RETENIDO,
+	ITBIS_RETENIDO_POR_TERCEROS,
+	ISR_RETENIDO_POR_TERCEROS,
+	ISC,
+	PROPINA_LEGAL,
+	OTROS_IMPUESTOS,
+]
+
 
 def codigo(opcion: str | None) -> str:
 	"""Extrae el código de una opción de catálogo: "02 - Gastos ..." -> "02"."""

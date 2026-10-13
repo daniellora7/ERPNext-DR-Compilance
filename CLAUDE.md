@@ -93,6 +93,7 @@ docker logs deploy-create-site-1
 - La imagen copia `erpnext_rd` dentro; para desarrollar usar `deploy/compose.dev.yaml`, que monta el código del repo.
 - Campos personalizados y catálogos se crean por código en `erpnext_rd/install.py` (`after_install` / `after_migrate`, idempotente), no con fixtures exportados.
 - DocTypes nuevos: se escriben como JSON en `<modulo>/doctype/<nombre>/` (ver los existentes) y se aplican con `migrate`.
+- Catálogo de cuentas DGII: `dgii_fiscal/catalogo_cuentas.py`. Se aplica **por empresa** y solo a empresas con país *Dominican Republic* sin movimientos: en `after_install`/`after_migrate` y en `Company.on_update` (después de que ERPNext crea el catálogo estándar, se reemplaza). Se desactiva con *Configuracion DGII → aplicar_catalogo_cuentas*. La empresa queda marcada con `rd_catalogo_dgii`. Empresas de otros países no se tocan.
 - Padrón RNC: `bench --site erp.localhost execute erpnext_rd.padron_rnc.padron.sincronizar_padron` (~3 min, ~800 mil registros). El servidor de la DGII a veces corta la descarga; hay reintentos.
 - El sitio local ya tiene la empresa real del usuario (**Dynamics Plastics**): no crear documentos de prueba en él sin permiso. Los tests de integración hacen rollback.
 - Al crear DocTypes desde la UI hay que tener `developer_mode` activo en el sitio para que se exporten a JSON en la app. Como la app vive dentro del contenedor, los archivos generados deben copiarse de vuelta al repo (`docker cp`) o, preferiblemente, crearse directamente en el repo.

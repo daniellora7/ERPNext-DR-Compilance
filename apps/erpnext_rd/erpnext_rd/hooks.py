@@ -39,6 +39,7 @@ doctype_js = {
 doc_events = {
 	"Company": {
 		"validate": "erpnext_rd.dgii_fiscal.identificacion.validar_party",
+		"on_update": "erpnext_rd.dgii_fiscal.catalogo_cuentas.al_actualizar_empresa",
 	},
 	"Customer": {
 		"validate": "erpnext_rd.dgii_fiscal.identificacion.validar_party",

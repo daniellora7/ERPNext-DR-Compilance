@@ -6,7 +6,9 @@ Es idempotente: corre en after_install y after_migrate.
 import frappe
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
+from erpnext_rd.dgii_fiscal import catalogo_cuentas
 from erpnext_rd.dgii_fiscal.catalogos import (
+	CONCEPTOS_FISCALES,
 	TIPOS_ANULACION,
 	TIPOS_BIENES_SERVICIOS,
 	TIPOS_COMPROBANTE,
@@ -163,6 +165,43 @@ def campos_personalizados() -> dict:
 	]
 
 	return {
+		"Company": [
+			{
+				"fieldname": "rd_catalogo_dgii",
+				"fieldtype": "Check",
+				"label": "Catálogo de cuentas DGII aplicado",
+				"insert_after": "chart_of_accounts",
+				"read_only": 1,
+				"no_copy": 1,
+				"depends_on": "eval:doc.country == 'Dominican Republic'",
+				"description": "Lo marca ERPNext RD al crear el catálogo de cuentas conforme a la DGII",
+			},
+		],
+		"Account": [
+			{
+				"fieldname": "rd_concepto_fiscal",
+				"fieldtype": "Select",
+				"label": "Concepto fiscal DGII",
+				"options": _opciones(CONCEPTOS_FISCALES),
+				"insert_after": "account_type",
+				"description": "Columna del 606 / 607 donde se reporta el impuesto registrado en esta cuenta",
+			},
+			{
+				**bienes_servicios,
+				"insert_after": "rd_concepto_fiscal",
+				"depends_on": "eval:doc.root_type == 'Expense'",
+				"description": "Se sugiere en las facturas de compra que usan esta cuenta de gasto",
+			},
+			{
+				"fieldname": "rd_tipo_ingreso",
+				"fieldtype": "Select",
+				"label": "Tipo de ingreso (607)",
+				"options": _opciones(TIPOS_INGRESO),
+				"insert_after": "rd_tipo_bienes_servicios",
+				"depends_on": "eval:doc.root_type == 'Income'",
+				"description": "Se sugiere en las facturas de venta que usan esta cuenta de ingreso",
+			},
+		],
 		"Customer": [
 			tipo_identificacion,
 			tipo_comprobante_defecto("rd_tipo_identificacion"),
@@ -251,6 +290,7 @@ def setup():
 	crear_tipos_comprobante()
 	inicializar_configuracion()
 	frappe.clear_cache()
+	catalogo_cuentas.aplicar_a_empresas_rd()
 
 
 def after_install():
