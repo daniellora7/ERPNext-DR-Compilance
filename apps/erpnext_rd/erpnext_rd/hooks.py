@@ -29,6 +29,7 @@ doctype_js = {
 	"Customer": "public/js/party_rnc.js",
 	"Supplier": "public/js/party_rnc.js",
 	"Sales Invoice": "public/js/invoice_dgii.js",
+	"POS Invoice": "public/js/invoice_dgii.js",
 	"Purchase Invoice": "public/js/invoice_dgii.js",
 }
 
@@ -47,10 +48,22 @@ doc_events = {
 		"before_submit": "erpnext_rd.dgii_fiscal.ncf.asignar_ncf_venta",
 		"before_cancel": "erpnext_rd.dgii_fiscal.ncf.antes_de_cancelar_venta",
 	},
+	"POS Invoice": {
+		"validate": "erpnext_rd.dgii_fiscal.ncf.validar_venta",
+		"before_submit": "erpnext_rd.dgii_fiscal.ncf.asignar_ncf_venta",
+		"before_cancel": "erpnext_rd.dgii_fiscal.ncf.antes_de_cancelar_venta",
+	},
 	"Purchase Invoice": {
 		"validate": "erpnext_rd.dgii_fiscal.ncf.validar_compra",
 		"before_submit": "erpnext_rd.dgii_fiscal.ncf.antes_de_validar_compra",
 	},
+}
+
+# Jinja (formatos de impresión)
+# -----------------------------
+
+jinja = {
+	"methods": ["erpnext_rd.dgii_fiscal.impresion.rd_datos_fiscales"],
 }
 
 # Scheduled Tasks

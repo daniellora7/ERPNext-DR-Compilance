@@ -6,6 +6,7 @@
  "field_order": [
   "section_general",
   "serie_por_defecto",
+  "ambiente_ecf",
   "section_alertas",
   "porcentaje_alerta",
   "dias_alerta_vencimiento",
@@ -29,6 +30,14 @@
    "fieldtype": "Select",
    "label": "Serie por defecto en ventas",
    "options": "B\nE"
+  },
+  {
+   "default": "TesteCF",
+   "description": "TesteCF = pruebas, CerteCF = certificación, eCF = producción. Define la URL del QR y del envío.",
+   "fieldname": "ambiente_ecf",
+   "fieldtype": "Select",
+   "label": "Ambiente e-CF DGII",
+   "options": "TesteCF\nCerteCF\neCF"
   },
   {
    "fieldname": "section_alertas",

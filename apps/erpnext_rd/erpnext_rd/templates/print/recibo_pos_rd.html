@@ -1,0 +1,65 @@
+{#- Recibo POS fiscal RD (impresora térmica 80 mm). Datos: rd_datos_fiscales -#}
+{%- set f = rd_datos_fiscales(doc) -%}
+{%- set m = doc.currency -%}
+<style>
+	.rd-pos { font-family: "Courier New", monospace; font-size: 11px; width: 72mm; margin: 0 auto; color: #000; }
+	.rd-pos .c { text-align: center; }
+	.rd-pos .r { text-align: right !important; white-space: nowrap; }
+	.rd-pos .b { font-weight: 700; }
+	.rd-pos hr { border: 0; border-top: 1px dashed #000; margin: 5px 0; }
+	.rd-pos table { width: 100%; border-collapse: collapse; }
+	.rd-pos td { padding: 1px 0; vertical-align: top; }
+	.rd-pos .total td { font-size: 13px; font-weight: 700; }
+	.rd-pos img.qr { width: 120px; height: 120px; }
+</style>
+
+<div class="rd-pos">
+	<div class="c b" style="font-size: 13px">{{ f.emisor.nombre }}</div>
+	<div class="c">RNC: {{ f.emisor.rnc or "" }}</div>
+	{% if f.emisor.direccion %}<div class="c">{{ f.emisor.direccion }}</div>{% endif %}
+	{% if f.emisor.telefono %}<div class="c">Tel.: {{ f.emisor.telefono }}</div>{% endif %}
+	<hr>
+	{%- if doc.docstatus == 0 %}<div class="c b">*** BORRADOR — SIN VALOR FISCAL ***</div>{% endif -%}
+	{%- if doc.docstatus == 2 %}<div class="c b">*** ANULADA ***</div>{% endif %}
+	<div class="c b">{{ f.titulo }}</div>
+	{% if f.ncf %}<div class="c b">{{ "e-NCF" if f.es_electronico else "NCF" }}: {{ f.ncf }}</div>{% endif %}
+	{% if f.ncf_vencimiento %}<div class="c">Válido hasta: {{ f.ncf_vencimiento }}</div>{% endif %}
+	{% if f.ncf_modificado %}<div class="c">NCF modificado: {{ f.ncf_modificado }}</div>{% endif %}
+	<div>Fecha: {{ f.fecha }} {{ f.hora }}</div>
+	<div>Factura: {{ doc.name }}</div>
+	{% if doc.owner %}<div>Cajero: {{ frappe.db.get_value("User", doc.owner, "full_name") or doc.owner }}</div>{% endif %}
+	{% if f.comprador.identificacion %}
+	<div>Cliente: {{ f.comprador.nombre }}</div>
+	<div>{{ f.comprador.tipo_identificacion }}: {{ f.comprador.identificacion }}</div>
+	{% endif %}
+	<hr>
+	<table>
+		{% for l in f.lineas %}
+		<tr><td colspan="2">{{ l.descripcion }}</td></tr>
+		<tr>
+			<td>{{ "%g"|format(l.cantidad) }} x {{ frappe.utils.fmt_money(l.precio, currency=m) }}{% if not l.itbis %} E{% endif %}</td>
+			<td class="r">{{ frappe.utils.fmt_money(l.total, currency=m) }}</td>
+		</tr>
+		{% endfor %}
+	</table>
+	<hr>
+	<table>
+		<tr><td>Subtotal</td><td class="r">{{ frappe.utils.fmt_money(f.subtotal, currency=m) }}</td></tr>
+		{% if f.descuento %}<tr><td>Descuento</td><td class="r">-{{ frappe.utils.fmt_money(f.descuento, currency=m) }}</td></tr>{% endif %}
+		<tr><td>ITBIS</td><td class="r">{{ frappe.utils.fmt_money(f.itbis, currency=m) }}</td></tr>
+		<tr class="total"><td>TOTAL</td><td class="r">{{ frappe.utils.fmt_money(f.total, currency=m) }}</td></tr>
+		{% for p in f.pagos %}<tr><td>{{ p.mode_of_payment }}</td><td class="r">{{ frappe.utils.fmt_money(p.amount, currency=m) }}</td></tr>{% endfor %}
+		{% if f.cambio %}<tr><td>Cambio</td><td class="r">{{ frappe.utils.fmt_money(f.cambio, currency=m) }}</td></tr>{% endif %}
+	</table>
+	{% if f.exento %}<div>E = Exento de ITBIS</div>{% endif %}
+	{% if f.es_electronico %}
+	<hr>
+	{% if f.qr %}<div class="c"><img class="qr" src="{{ f.qr }}" alt="QR e-CF"></div>{% endif %}
+	{% if f.codigo_seguridad %}
+	<div class="c">Código de seguridad: {{ f.codigo_seguridad }}</div>
+	<div class="c">Fecha de firma: {{ f.fecha_firma }}</div>
+	{% endif %}
+	{% endif %}
+	<hr>
+	<div class="c">¡Gracias por su compra!</div>
+</div>

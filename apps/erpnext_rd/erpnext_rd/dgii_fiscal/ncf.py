@@ -114,8 +114,8 @@ def _serie_de(codigo: str | None) -> str:
 
 
 def _no_aplica(doc) -> bool:
-	"""Facturas consolidadas del cierre POS: el NCF va en cada factura POS individual."""
-	return doc.doctype == "Sales Invoice" and cint(doc.get("is_pos")) and cint(doc.get("is_consolidated"))
+	"""Factura consolidada del cierre de caja (modo POS Invoice): el NCF ya está en cada POS Invoice."""
+	return doc.doctype == "Sales Invoice" and cint(doc.get("is_consolidated"))
 
 
 # ---------------------------------------------------------------------------
@@ -126,7 +126,7 @@ def _no_aplica(doc) -> bool:
 def tipo_por_defecto_venta(doc) -> str:
 	if doc.is_return or doc.get("is_debit_note"):
 		original = doc.return_against and frappe.db.get_value(
-			"Sales Invoice", doc.return_against, "rd_tipo_comprobante"
+			doc.doctype, doc.return_against, "rd_tipo_comprobante"
 		)
 		serie = _serie_de(original)
 		return NOTA_CREDITO[serie] if doc.is_return else NOTA_DEBITO[serie]
@@ -138,11 +138,18 @@ def tipo_por_defecto_venta(doc) -> str:
 	serie = _serie_de(None)
 	if tipo_identificacion(doc.tax_id) in ("RNC", "Cédula") and identificacion_valida(doc.tax_id):
 		return f"{serie}{'01' if serie == 'B' else '31'}"
+
+	# Cliente de mostrador en el POS: tipo configurado en el Perfil de POS
+	if doc.get("pos_profile"):
+		del_perfil = frappe.db.get_value("POS Profile", doc.pos_profile, "rd_tipo_comprobante")
+		if del_perfil:
+			return del_perfil
+
 	return f"{serie}{'02' if serie == 'B' else '32'}"
 
 
 def validar_venta(doc, method=None):
-	"""doc_events: Sales Invoice -> validate."""
+	"""doc_events: Sales Invoice / POS Invoice -> validate."""
 	if _no_aplica(doc):
 		doc.rd_tipo_comprobante = doc.rd_ncf = doc.rd_ncf_vencimiento = doc.rd_secuencia_ncf = None
 		return
@@ -167,14 +174,14 @@ def validar_venta(doc, method=None):
 
 
 def asignar_ncf_venta(doc, method=None):
-	"""doc_events: Sales Invoice -> before_submit."""
+	"""doc_events: Sales Invoice / POS Invoice -> before_submit."""
 	if _no_aplica(doc) or doc.rd_ncf:
 		return
 	_asignar(doc)
 
 
 def antes_de_cancelar_venta(doc, method=None):
-	"""doc_events: Sales Invoice -> before_cancel. El NCF anulado se reporta en el 608."""
+	"""doc_events: Sales Invoice / POS Invoice -> before_cancel. El NCF anulado se reporta en el 608."""
 	if doc.rd_ncf and not doc.rd_tipo_anulacion:
 		frappe.throw(
 			_("Indique el 'Tipo de anulación' (formato 608) antes de cancelar una factura con NCF"),

@@ -109,28 +109,50 @@ def campos_personalizados() -> dict:
 			},
 		]
 
-	venta = seccion_factura("has_subcontracted")
-	venta[2]["read_only"] = 1  # en ventas el NCF siempre lo asigna el sistema
-	venta += [
-		{
-			"fieldname": "rd_tipo_ingreso",
-			"fieldtype": "Select",
-			"label": "Tipo de ingreso (607)",
-			"options": _opciones(TIPOS_INGRESO),
-			"insert_after": "rd_ncf_modificado",
-		},
-		{
-			"fieldname": "rd_tipo_anulacion",
-			"fieldtype": "Select",
-			"label": "Tipo de anulación (608)",
-			"options": _opciones(TIPOS_ANULACION),
-			"insert_after": "rd_tipo_ingreso",
-			"allow_on_submit": 1,
-			"no_copy": 1,
-			"depends_on": "eval:doc.docstatus > 0 && doc.rd_ncf",
-			"description": "Requerido para cancelar una factura con NCF",
-		},
-	]
+	def campos_venta(insert_after):
+		campos = seccion_factura(insert_after)
+		campos[2]["read_only"] = 1  # en ventas el NCF siempre lo asigna el sistema
+		campos += [
+			{
+				"fieldname": "rd_tipo_ingreso",
+				"fieldtype": "Select",
+				"label": "Tipo de ingreso (607)",
+				"options": _opciones(TIPOS_INGRESO),
+				"insert_after": "rd_ncf_modificado",
+			},
+			{
+				"fieldname": "rd_tipo_anulacion",
+				"fieldtype": "Select",
+				"label": "Tipo de anulación (608)",
+				"options": _opciones(TIPOS_ANULACION),
+				"insert_after": "rd_tipo_ingreso",
+				"allow_on_submit": 1,
+				"no_copy": 1,
+				"depends_on": "eval:doc.docstatus > 0 && doc.rd_ncf",
+				"description": "Requerido para cancelar una factura con NCF",
+			},
+			# e-CF: los llena la firma electrónica (Fase 4); el QR se imprime cuando existen
+			{
+				"fieldname": "rd_codigo_seguridad",
+				"fieldtype": "Data",
+				"label": "Código de seguridad e-CF",
+				"insert_after": "rd_tipo_anulacion",
+				"read_only": 1,
+				"no_copy": 1,
+				"length": 6,
+				"depends_on": "eval:(doc.rd_ncf || '').startsWith('E')",
+			},
+			{
+				"fieldname": "rd_fecha_firma",
+				"fieldtype": "Datetime",
+				"label": "Fecha de firma e-CF",
+				"insert_after": "rd_codigo_seguridad",
+				"read_only": 1,
+				"no_copy": 1,
+				"depends_on": "eval:(doc.rd_ncf || '').startsWith('E')",
+			},
+		]
+		return campos
 
 	compra = seccion_factura("bill_date")
 	compra[2]["description"] = (
@@ -150,7 +172,18 @@ def campos_personalizados() -> dict:
 			tipo_comprobante_defecto("rd_tipo_identificacion"),
 			{**bienes_servicios, "insert_after": "rd_tipo_comprobante", "label": "Tipo de bienes y servicios por defecto (606)"},
 		],
-		"Sales Invoice": venta,
+		"Sales Invoice": campos_venta("has_subcontracted"),
+		"POS Invoice": campos_venta("return_against"),
+		"POS Profile": [
+			{
+				"fieldname": "rd_tipo_comprobante",
+				"fieldtype": "Link",
+				"label": "Tipo de comprobante por defecto",
+				"options": "Tipo Comprobante Fiscal",
+				"insert_after": "customer",
+				"description": "Para clientes sin RNC ni tipo propio (normalmente B02 / E32 consumo)",
+			},
+		],
 		"Purchase Invoice": compra,
 	}
 
@@ -190,8 +223,31 @@ def inicializar_configuracion():
 		frappe.get_single("Configuracion DGII").save(ignore_permissions=True)
 
 
+# Formatos que deja el asistente de configuración de ERPNext; se reemplazan por los fiscales.
+# Si el usuario eligió otro formato, se respeta.
+FORMATOS_POR_DEFECTO = {
+	"Sales Invoice": ("Factura Fiscal RD", ("Sales Invoice Modern with Images",)),
+	"POS Invoice": ("Recibo POS RD (POS Invoice)", ("POS Invoice Modern with Images",)),
+}
+
+
+def formato_impresion_por_defecto():
+	from frappe.custom.doctype.property_setter.property_setter import make_property_setter
+
+	for doctype, (formato, reemplazables) in FORMATOS_POR_DEFECTO.items():
+		actual = frappe.db.get_value(
+			"Property Setter", {"doc_type": doctype, "property": "default_print_format"}, "value"
+		)
+		if not actual or actual in reemplazables:
+			make_property_setter(
+				doctype, None, "default_print_format", formato, "Data", for_doctype=True,
+				validate_fields_for_doctype=False,
+			)
+
+
 def setup():
 	crear_campos_personalizados()
+	formato_impresion_por_defecto()
 	crear_tipos_comprobante()
 	inicializar_configuracion()
 	frappe.clear_cache()
