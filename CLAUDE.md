@@ -6,7 +6,7 @@ Guía para trabajar en este repositorio. El usuario se comunica en español: res
 
 **ERPNext RD**: ERPNext + Frappe HR (HRMS) + app propia `erpnext_rd` con la localización de República Dominicana (NCF, e-CF directo con la DGII, reportes 606/607/608/609, padrón RNC y nómina RD). Se corre en Docker local y después se despliega en Dokploy.
 
-Plan completo y fases: `C:\Users\dlora\.claude\plans\hola-quiero-descargar-erpnext-virtual-toucan.md`
+Plan completo, fases y estado: `docs/PLAN.md` (mantenerlo actualizado al avanzar cada fase).
 
 ## Versiones fijadas
 
