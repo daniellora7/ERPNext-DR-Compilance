@@ -37,6 +37,9 @@ doctype_js = {
 # ---------------
 
 doc_events = {
+	"Company": {
+		"validate": "erpnext_rd.dgii_fiscal.identificacion.validar_party",
+	},
 	"Customer": {
 		"validate": "erpnext_rd.dgii_fiscal.identificacion.validar_party",
 	},

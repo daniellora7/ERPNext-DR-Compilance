@@ -32,7 +32,7 @@ def identificacion_valida(numero: str | None, tipo: str | None = None) -> bool:
 
 
 def validar_party(doc, method=None):
-	"""doc_events: Customer / Supplier -> validate.
+	"""doc_events: Company / Customer / Supplier -> validate.
 
 	Normaliza el tax_id (sin guiones) y valida RNC / Cédula. Pasaporte se acepta tal cual.
 	"""
@@ -62,4 +62,5 @@ def validar_party(doc, method=None):
 		)
 
 	doc.tax_id = numero
-	doc.rd_tipo_identificacion = tipo
+	if doc.meta.has_field("rd_tipo_identificacion"):
+		doc.rd_tipo_identificacion = tipo
