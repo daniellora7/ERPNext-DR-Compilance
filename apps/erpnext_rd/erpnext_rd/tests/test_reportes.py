@@ -376,7 +376,7 @@ class TestReportesDGII(IntegrationTestCase):
 			}
 		)
 		con_impuestos(
-			pi, "Purchase Taxes and Charges Template", "Servicios de Persona Física - Retención 100% ITBIS y 10% ISR"
+			pi, "Purchase Taxes and Charges Template", "Servicios de Persona Física - Retención 100% ITBIS y 15% ISR"
 		)
 		pi.insert()
 		pi.submit()
@@ -393,7 +393,7 @@ class TestReportesDGII(IntegrationTestCase):
 		pe.submit()
 
 		r = declaraciones.resumen_ir17(EMPRESA, *OCTUBRE)
-		self.assertAlmostEqual(r.total_isr, 500)
+		self.assertAlmostEqual(r.total_isr, 750)
 		self.assertEqual(len(r.grupos), 1)
 		self.assertEqual(r.grupos[0].concepto, "02 - Honorarios por servicios")
 		self.assertEqual(r.grupos[0].base, 5000)
@@ -401,7 +401,7 @@ class TestReportesDGII(IntegrationTestCase):
 
 		filas = declaraciones.filas_ir17(r)
 		self.assertEqual(filas[1]["documento"], pi.name)
-		self.assertEqual(filas[1]["tasa"], 10)
+		self.assertEqual(filas[1]["tasa"], 15)
 
 		it1 = declaraciones.resumen_it1(EMPRESA, *OCTUBRE)
 		self.assertAlmostEqual(it1.itbis_retenido_a_terceros, 900)  # 100% del ITBIS de 5,000

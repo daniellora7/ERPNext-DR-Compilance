@@ -109,6 +109,17 @@ class TestAplicarCatalogo(IntegrationTestCase):
 		self.assertEqual(retencion.taxes[1].add_deduct_tax, "Deduct")
 		self.assertEqual(retencion.taxes[1].charge_type, "On Previous Row Amount")
 
+		# Ley 30-26: retención de ISR a personas físicas al 15% (servicios técnicos 3% efectivo)
+		for titulo, tasa in (
+			("Servicios de Persona Física - Retención 100% ITBIS y 15% ISR", 15),
+			("Servicios Técnicos de Persona Física - Retención 100% ITBIS y 3% ISR", 3),
+			("Retención ISR 15% (sin ITBIS)", 15),
+		):
+			plantilla_isr = frappe.get_doc(
+				"Purchase Taxes and Charges Template", {"company": empresa.name, "title": titulo}
+			)
+			self.assertEqual(plantilla_isr.taxes[-1].rate, tasa)
+
 		# Frappe HR usa la cuenta del catálogo para los reclamos de gastos
 		for cuenta in frappe.get_all(
 			"Expense Claim Account", filters={"company": empresa.name}, pluck="default_account"
