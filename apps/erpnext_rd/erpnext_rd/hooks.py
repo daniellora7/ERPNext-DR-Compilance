@@ -51,7 +51,22 @@ doctype_js = {
 # Document Events
 # ---------------
 
+# Sitio nuevo sin configurar (CI): completa el asistente como empresa de RD antes de los tests
+before_tests = "erpnext_rd.tests.utils.antes_de_tests"
+
+# Nómina RD: AFP, SFS, ISR y aportes del empleador en el recibo de Frappe HR
+regional_overrides = {
+	"Dominican Republic": {
+		"hrms.payroll.doctype.salary_slip.salary_slip.apply_regional_deductions": (
+			"erpnext_rd.nomina_rd.salario.deducciones_regionales"
+		),
+	},
+}
+
 doc_events = {
+	"Salary Slip": {
+		"validate": "erpnext_rd.nomina_rd.salario.al_validar_recibo",
+	},
 	"Company": {
 		"validate": "erpnext_rd.dgii_fiscal.identificacion.validar_party",
 		"on_update": "erpnext_rd.dgii_fiscal.catalogo_cuentas.al_actualizar_empresa",

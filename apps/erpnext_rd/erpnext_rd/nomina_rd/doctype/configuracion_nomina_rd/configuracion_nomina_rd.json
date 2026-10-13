@@ -1,0 +1,209 @@
+{
+ "actions": [],
+ "creation": "2026-10-13 20:30:00.000000",
+ "doctype": "DocType",
+ "document_type": "Setup",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_general",
+  "calcular_deducciones",
+  "section_tss",
+  "salario_minimo_cotizable",
+  "vigente_desde",
+  "column_break_tss",
+  "tope_afp_salarios",
+  "tope_sfs_salarios",
+  "tope_srl_salarios",
+  "section_tasas",
+  "afp_empleado",
+  "sfs_empleado",
+  "infotep_empleado",
+  "column_break_tasas",
+  "afp_empleador",
+  "sfs_empleador",
+  "srl_empleador",
+  "infotep_empleador",
+  "section_isr",
+  "escala_isr",
+  "escala_vigente_desde"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_general",
+   "fieldtype": "Section Break",
+   "label": "General"
+  },
+  {
+   "default": "1",
+   "description": "Pone AFP, SFS, ISR y los aportes del empleador en cada recibo de las empresas de RD.",
+   "fieldname": "calcular_deducciones",
+   "fieldtype": "Check",
+   "label": "Calcular TSS e ISR en los recibos de nómina"
+  },
+  {
+   "description": "Tasas y topes de la Ley 87-01. Verifique cada año las resoluciones de la TSS y del CNSS.",
+   "fieldname": "section_tss",
+   "fieldtype": "Section Break",
+   "label": "Seguridad Social (TSS)"
+  },
+  {
+   "default": "23223",
+   "description": "Base para los topes de cotización (salario mínimo nacional fijado por la TSS).",
+   "fieldname": "salario_minimo_cotizable",
+   "fieldtype": "Currency",
+   "label": "Salario mínimo cotizable (mensual)",
+   "reqd": 1
+  },
+  {
+   "default": "2026-02-01",
+   "fieldname": "vigente_desde",
+   "fieldtype": "Date",
+   "label": "Vigente desde"
+  },
+  {
+   "fieldname": "column_break_tss",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "20",
+   "fieldname": "tope_afp_salarios",
+   "fieldtype": "Float",
+   "label": "Tope AFP (salarios mínimos)",
+   "reqd": 1
+  },
+  {
+   "default": "10",
+   "fieldname": "tope_sfs_salarios",
+   "fieldtype": "Float",
+   "label": "Tope SFS (salarios mínimos)",
+   "reqd": 1
+  },
+  {
+   "default": "4",
+   "fieldname": "tope_srl_salarios",
+   "fieldtype": "Float",
+   "label": "Tope SRL (salarios mínimos)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_tasas",
+   "fieldtype": "Section Break",
+   "label": "Tasas"
+  },
+  {
+   "default": "2.87",
+   "fieldname": "afp_empleado",
+   "fieldtype": "Percent",
+   "label": "AFP empleado",
+   "reqd": 1
+  },
+  {
+   "default": "3.04",
+   "fieldname": "sfs_empleado",
+   "fieldtype": "Percent",
+   "label": "SFS empleado",
+   "reqd": 1
+  },
+  {
+   "default": "0.5",
+   "description": "Se descuenta de las bonificaciones (participación en beneficios).",
+   "fieldname": "infotep_empleado",
+   "fieldtype": "Percent",
+   "label": "INFOTEP empleado (sobre bonificaciones)"
+  },
+  {
+   "fieldname": "column_break_tasas",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "7.10",
+   "fieldname": "afp_empleador",
+   "fieldtype": "Percent",
+   "label": "AFP empleador",
+   "reqd": 1
+  },
+  {
+   "default": "7.09",
+   "fieldname": "sfs_empleador",
+   "fieldtype": "Percent",
+   "label": "SFS empleador",
+   "reqd": 1
+  },
+  {
+   "default": "1.10",
+   "description": "Entre 1.10% y 1.30% según la categoría de riesgo de la empresa.",
+   "fieldname": "srl_empleador",
+   "fieldtype": "Percent",
+   "label": "SRL empleador",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "infotep_empleador",
+   "fieldtype": "Percent",
+   "label": "INFOTEP empleador",
+   "reqd": 1
+  },
+  {
+   "description": "Escala anual del art. 296 del Código Tributario. La renta gravable es el salario menos los aportes del empleado a la TSS.",
+   "fieldname": "section_isr",
+   "fieldtype": "Section Break",
+   "label": "Impuesto sobre la Renta (asalariados)"
+  },
+  {
+   "fieldname": "escala_isr",
+   "fieldtype": "Table",
+   "label": "Escala anual ISR",
+   "options": "Tramo ISR RD",
+   "reqd": 1
+  },
+  {
+   "default": "2026-01-01",
+   "fieldname": "escala_vigente_desde",
+   "fieldtype": "Date",
+   "label": "Escala vigente desde"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-10-13 20:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Nomina RD",
+ "name": "Configuracion Nomina RD",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "HR Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "HR User"
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
