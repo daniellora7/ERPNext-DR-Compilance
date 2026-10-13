@@ -103,7 +103,41 @@ def obtener(formato: str, company: str, anio, mes) -> list[dict]:
 		frappe.throw(_("Indique empresa, año y mes"))
 	if not es_empresa_rd(company):
 		frappe.throw(_("Los formatos DGII solo aplican a empresas de República Dominicana"))
-	return GENERADORES[formato](company, cint(anio), cint(mes))
+	filas = GENERADORES[formato](company, cint(anio), cint(mes))
+	marcar_duplicados(formato, filas)
+	return filas
+
+
+# Clave que la DGII no acepta repetida en un mismo envío
+CLAVE_UNICA = {
+	"606": ("rnc_cedula", "ncf"),
+	"607": ("ncf",),
+	"608": ("ncf",),
+}
+
+
+def marcar_duplicados(formato: str, filas: list[dict]):
+	"""Agrega un aviso a los registros cuyo NCF se repite en el período (el validador de la DGII los
+	rechaza). Un comprobante informado de nuevo por retención reemplaza al del mes original, así que
+	solo cuenta dentro del mismo envío."""
+	campos = CLAVE_UNICA.get(formato)
+	if not campos:
+		return
+	vistos = {}
+	for fila in filas:
+		if formato == "607" and not fila.get("_en_txt", True):
+			continue
+		clave = tuple(fila.get(c) for c in campos)
+		if not clave[-1]:
+			continue
+		vistos.setdefault(clave, []).append(fila)
+	for repetidas in vistos.values():
+		if len(repetidas) < 2:
+			continue
+		documentos = ", ".join(f["_documento"] for f in repetidas)
+		for fila in repetidas:
+			aviso = _("NCF duplicado en el período ({0})").format(documentos)
+			fila["_avisos"] = "; ".join(a for a in (fila.get("_avisos"), aviso) if a)
 
 
 def _valor(valor, tipo: str) -> str:
