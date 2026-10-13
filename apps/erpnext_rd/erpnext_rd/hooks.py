@@ -16,6 +16,10 @@ required_apps = ["erpnext", "hrms"]
 # app_include_css = "/assets/erpnext_rd/css/erpnext_rd.css"
 # app_include_js = "/assets/erpnext_rd/js/erpnext_rd.js"
 
+# Íconos de módulo (dos tonos, estilo del dock de Frappe v16). Los módulos aparecen en el dock
+# de ERPNext: ver dock/erpnext_rd/erpnext_rd.json (mount_on = erpnext).
+app_include_icons = ["/assets/erpnext_rd/icons/erpnext-rd-icons.svg"]
+
 # Instalación
 # ------------
 
