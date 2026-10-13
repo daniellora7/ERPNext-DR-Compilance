@@ -16,9 +16,18 @@ required_apps = ["erpnext", "hrms"]
 # app_include_css = "/assets/erpnext_rd/css/erpnext_rd.css"
 # app_include_js = "/assets/erpnext_rd/js/erpnext_rd.js"
 
-# Íconos de módulo (dos tonos, estilo del dock de Frappe v16). Los módulos aparecen en el dock
-# de ERPNext: ver dock/erpnext_rd/erpnext_rd.json (mount_on = erpnext).
+# Navegación: un solo módulo "RD Compliance" en el dock de ERPNext (dock/erpnext_rd, mount_on =
+# erpnext), con su sidebar de secciones en rd_compliance/sidebar. Los módulos de código le ceden
+# su navegación, así todo lo suyo abre dentro de RD Compliance.
 app_include_icons = ["/assets/erpnext_rd/icons/erpnext-rd-icons.svg"]
+code_only_modules = {
+	"DGII Fiscal": ["RD Compliance"],
+	"DGII Reportes": ["RD Compliance"],
+	"Padron RNC": ["RD Compliance"],
+	"ECF": ["RD Compliance"],
+	"Nomina RD": ["RD Compliance"],
+	"ERPNext RD": ["RD Compliance"],
+}
 
 # Instalación
 # ------------

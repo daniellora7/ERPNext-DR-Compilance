@@ -8,29 +8,13 @@
   {
    "added": 0,
    "hidden": 0,
-   "icon": "dgii-fiscal-duotone",
-   "link_to": "DGII Fiscal",
+   "icon": "rd-compliance-duotone",
+   "link_to": "RD Compliance",
    "link_type": "Sidebar",
-   "title": "DGII Fiscal"
-  },
-  {
-   "added": 0,
-   "hidden": 0,
-   "icon": "dgii-reportes-duotone",
-   "link_to": "DGII Reportes",
-   "link_type": "Sidebar",
-   "title": "DGII Reportes"
-  },
-  {
-   "added": 0,
-   "hidden": 0,
-   "icon": "padron-rnc-duotone",
-   "link_to": "Padron RNC",
-   "link_type": "Sidebar",
-   "title": "Padrón RNC"
+   "title": "RD Compliance"
   }
  ],
- "modified": "2026-10-13 12:00:00.000000",
+ "modified": "2026-10-13 14:00:00.000000",
  "modified_by": "Administrator",
  "mount_on": "erpnext",
  "name": "erpnext_rd",

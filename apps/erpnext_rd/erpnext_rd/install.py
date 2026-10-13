@@ -385,12 +385,27 @@ def formato_impresion_por_defecto():
 			)
 
 
+def asegurar_navegacion():
+	"""Importa el sidebar de RD Compliance si falta.
+
+	Al agregar el módulo a un sitio existente, el sidebar se sincroniza antes de que exista el
+	Module Def y queda fuera hasta el siguiente migrate. Esto lo deja listo en la misma pasada.
+	"""
+	if frappe.db.exists("Sidebar", "RD Compliance"):
+		return
+	from frappe.modules.import_file import import_file_by_path
+
+	ruta = frappe.get_app_path("erpnext_rd", "rd_compliance", "sidebar", "rd_compliance", "rd_compliance.json")
+	import_file_by_path(ruta, force=True)
+
+
 def setup():
 	crear_campos_personalizados()
 	formato_impresion_por_defecto()
 	crear_tipos_comprobante()
 	inicializar_formas_pago()
 	inicializar_configuracion()
+	asegurar_navegacion()
 	frappe.clear_cache()
 	catalogo_cuentas.aplicar_a_empresas_rd()
 
