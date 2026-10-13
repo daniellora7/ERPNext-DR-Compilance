@@ -1,6 +1,6 @@
 {
  "actions": [],
- "creation": "2026-10-12 12:00:00.000000",
+ "creation": "2026-10-12 18:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -13,6 +13,8 @@
   "section_validaciones",
   "validar_contra_padron",
   "exigir_ncf_en_compras",
+  "section_catalogo",
+  "aplicar_catalogo_cuentas",
   "section_padron",
   "padron_ultima_sincronizacion",
   "padron_registros"
@@ -75,6 +77,18 @@
    "label": "Exigir NCF del proveedor en facturas de compra"
   },
   {
+   "fieldname": "section_catalogo",
+   "fieldtype": "Section Break",
+   "label": "Catálogo de cuentas"
+  },
+  {
+   "default": "1",
+   "description": "Se aplica al instalar o migrar la app y al crear una empresa con país República Dominicana, solo si la empresa no tiene movimientos. Las empresas de otros países conservan su catálogo.",
+   "fieldname": "aplicar_catalogo_cuentas",
+   "fieldtype": "Check",
+   "label": "Aplicar el catálogo de cuentas DGII a las empresas de República Dominicana"
+  },
+  {
    "fieldname": "section_padron",
    "fieldtype": "Section Break",
    "label": "Padrón RNC"
@@ -94,7 +108,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-12 12:00:00.000000",
+ "modified": "2026-10-12 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Configuracion DGII",
