@@ -1,5 +1,7 @@
 """Validación de RNC / Cédula en clientes y proveedores."""
 
+import re
+
 import frappe
 from frappe import _
 
@@ -35,8 +37,20 @@ def validar_party(doc, method=None):
 	"""doc_events: Company / Customer / Supplier -> validate.
 
 	Normaliza el tax_id (sin guiones) y valida RNC / Cédula. Pasaporte se acepta tal cual.
+	Empresas y proveedores de otro país conservan su ID fiscal sin validar (RFC, EIN, NIT...).
 	"""
 	if not doc.tax_id:
+		return
+
+	pais = doc.get("country")
+	if pais and pais != "Dominican Republic":
+		return
+
+	# Clientes (no tienen país): un ID con letras es extranjero (pasaporte o ID tributaria)
+	if not doc.meta.has_field("country") and re.search(r"[A-Za-z]", doc.tax_id):
+		doc.tax_id = doc.tax_id.strip().upper()
+		if doc.meta.has_field("rd_tipo_identificacion"):
+			doc.rd_tipo_identificacion = "Pasaporte"
 		return
 
 	if doc.get("rd_tipo_identificacion") == "Pasaporte":
