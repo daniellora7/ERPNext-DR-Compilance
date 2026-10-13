@@ -405,3 +405,14 @@ class TestReportesDGII(IntegrationTestCase):
 
 		it1 = declaraciones.resumen_it1(EMPRESA, *OCTUBRE)
 		self.assertAlmostEqual(it1.itbis_retenido_a_terceros, 900)  # 100% del ITBIS de 5,000
+
+	def test_ncf_duplicado_se_marca(self):
+		filas = [
+			{"rnc_cedula": RNC_TERCERO, "ncf": "B0100000001", "_documento": "A", "_avisos": ""},
+			{"rnc_cedula": RNC_TERCERO, "ncf": "B0100000001", "_documento": "B", "_avisos": "otro"},
+			{"rnc_cedula": RNC_EMPRESA, "ncf": "B0100000001", "_documento": "C", "_avisos": ""},
+		]
+		formatos.marcar_duplicados("606", filas)
+		self.assertIn("NCF duplicado", filas[0]["_avisos"])
+		self.assertTrue(filas[1]["_avisos"].startswith("otro; NCF duplicado"))
+		self.assertEqual(filas[2]["_avisos"], "")  # mismo NCF de otro proveedor: válido
