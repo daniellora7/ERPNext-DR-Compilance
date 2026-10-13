@@ -16,34 +16,46 @@ required_apps = ["erpnext", "hrms"]
 # app_include_css = "/assets/erpnext_rd/css/erpnext_rd.css"
 # app_include_js = "/assets/erpnext_rd/js/erpnext_rd.js"
 
-# Fixtures
-# --------
-# Custom Fields / Property Setters exportados con `bench --site <sitio> export-fixtures --app erpnext_rd`
+# Instalación
+# ------------
 
-# fixtures = [
-# 	{"dt": "Custom Field", "filters": [["module", "in", ["DGII Fiscal", "ECF", "Nomina RD"]]]},
-# 	{"dt": "Property Setter", "filters": [["module", "in", ["DGII Fiscal", "ECF", "Nomina RD"]]]},
-# ]
+after_install = "erpnext_rd.install.after_install"
+after_migrate = "erpnext_rd.install.after_migrate"
+
+# JS por DocType
+# --------------
+
+doctype_js = {
+	"Customer": "public/js/party_rnc.js",
+	"Supplier": "public/js/party_rnc.js",
+	"Sales Invoice": "public/js/invoice_dgii.js",
+	"Purchase Invoice": "public/js/invoice_dgii.js",
+}
 
 # Document Events
 # ---------------
 
-# doc_events = {
-# 	"Sales Invoice": {
-# 		"validate": "erpnext_rd.dgii_fiscal.ncf.validate_invoice",
-# 		"on_submit": "erpnext_rd.dgii_fiscal.ncf.assign_ncf",
-# 	},
-# }
+doc_events = {
+	"Customer": {
+		"validate": "erpnext_rd.dgii_fiscal.identificacion.validar_party",
+	},
+	"Supplier": {
+		"validate": "erpnext_rd.dgii_fiscal.identificacion.validar_party",
+	},
+	"Sales Invoice": {
+		"validate": "erpnext_rd.dgii_fiscal.ncf.validar_venta",
+		"before_submit": "erpnext_rd.dgii_fiscal.ncf.asignar_ncf_venta",
+		"before_cancel": "erpnext_rd.dgii_fiscal.ncf.antes_de_cancelar_venta",
+	},
+	"Purchase Invoice": {
+		"validate": "erpnext_rd.dgii_fiscal.ncf.validar_compra",
+		"before_submit": "erpnext_rd.dgii_fiscal.ncf.antes_de_validar_compra",
+	},
+}
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"daily": ["erpnext_rd.padron_rnc.sync.sync_padron"],
-# 	"cron": {"*/10 * * * *": ["erpnext_rd.ecf.tasks.consultar_estados"]},
-# }
-
-# Testing
-# -------
-
-# before_tests = "erpnext_rd.install.before_tests"
+scheduler_events = {
+	"weekly_long": ["erpnext_rd.padron_rnc.padron.sincronizar_padron"],
+}

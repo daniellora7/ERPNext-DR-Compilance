@@ -1,0 +1,148 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "field:codigo",
+ "creation": "2026-10-12 12:00:00.000000",
+ "doctype": "DocType",
+ "document_type": "Setup",
+ "engine": "InnoDB",
+ "field_order": [
+  "codigo",
+  "descripcion",
+  "serie",
+  "habilitado",
+  "column_break_uso",
+  "aplica_ventas",
+  "aplica_compras",
+  "emitido_por_comprador",
+  "nota",
+  "requiere_rnc"
+ ],
+ "fields": [
+  {
+   "description": "B01, B02, E31…",
+   "fieldname": "codigo",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Código",
+   "length": 3,
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "descripcion",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 0,
+   "label": "Descripción",
+   "reqd": 1
+  },
+  {
+   "description": "B = NCF tradicional, E = comprobante fiscal electrónico (e-CF)",
+   "fieldname": "serie",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Serie",
+   "options": "B\nE",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "habilitado",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Habilitado"
+  },
+  {
+   "fieldname": "column_break_uso",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "aplica_ventas",
+   "fieldtype": "Check",
+   "label": "Aplica en ventas"
+  },
+  {
+   "default": "0",
+   "fieldname": "aplica_compras",
+   "fieldtype": "Check",
+   "label": "Aplica en compras"
+  },
+  {
+   "default": "0",
+   "description": "Comprobantes que la empresa emite al registrar compras (B11, B13, B17, E41, E43, E47)",
+   "fieldname": "emitido_por_comprador",
+   "fieldtype": "Check",
+   "label": "Lo emite el comprador"
+  },
+  {
+   "fieldname": "nota",
+   "fieldtype": "Select",
+   "label": "Tipo de nota",
+   "options": "\nCrédito\nDébito"
+  },
+  {
+   "default": "0",
+   "fieldname": "requiere_rnc",
+   "fieldtype": "Check",
+   "label": "Requiere RNC/Cédula del cliente"
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-12 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "DGII Fiscal",
+ "name": "Tipo Comprobante Fiscal",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User"
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Sales User"
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Purchase User"
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "descripcion",
+ "show_title_field_in_link": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "descripcion"
+}
