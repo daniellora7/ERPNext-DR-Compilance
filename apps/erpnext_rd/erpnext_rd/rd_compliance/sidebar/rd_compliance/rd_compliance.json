@@ -150,6 +150,38 @@
   },
   {
    "added": 0,
+   "child": 1,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "label": "IT-1 - Resumen ITBIS",
+   "link_type": "Report",
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "type": "Link",
+   "link_to": "Resumen IT-1 DGII"
+  },
+  {
+   "added": 0,
+   "child": 1,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "label": "IR-17 - Retenciones ISR",
+   "link_type": "Report",
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "type": "Link",
+   "link_to": "Resumen IR-17 DGII"
+  },
+  {
+   "added": 0,
    "child": 0,
    "collapsible": 1,
    "hidden": 0,
@@ -180,7 +212,7 @@
    "link_to": "Contribuyente DGII"
   }
  ],
- "modified": "2026-10-13 14:00:00.000000",
+ "modified": "2026-10-13 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "RD Compliance",
  "name": "RD Compliance",

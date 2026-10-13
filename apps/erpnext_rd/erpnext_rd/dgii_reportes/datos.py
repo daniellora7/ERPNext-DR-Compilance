@@ -311,6 +311,9 @@ def _fila_606(doc, desde, hasta, solo_retenciones=False) -> dict | None:
 		"_doctype": doc.doctype,
 		"_documento": doc.name,
 		"_proveedor": doc.supplier_name,
+		"_tipo_comprobante": doc.rd_tipo_comprobante,
+		"_nota_credito": bool(cint(doc.is_return)),
+		"_reinformado": solo_retenciones,
 		"_avisos": _avisos(avisos),
 	}
 
@@ -446,6 +449,8 @@ def _fila_607(doc, hasta, desde_retencion=None) -> dict | None:
 		"_documento": doc.name,
 		"_cliente": doc.customer_name,
 		"_tipo_comprobante": doc.rd_tipo_comprobante,
+		"_nota_credito": bool(cint(doc.is_return)),
+		"_reinformado": bool(desde_retencion),
 		"_en_txt": en_txt,
 		"_avisos": _avisos(avisos),
 	}
@@ -581,5 +586,6 @@ def _fila_609(doc, hasta) -> dict:
 		"isr_retenido": isr if fecha_retencion else 0.0,
 		"_doctype": doc.doctype,
 		"_documento": doc.name,
+		"_fecha_retencion": fecha_retencion,
 		"_avisos": _avisos(avisos),
 	}
