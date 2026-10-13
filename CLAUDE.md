@@ -32,12 +32,14 @@ Plan completo, fases y estado: `docs/PLAN.md` (mantenerlo actualizado al avanzar
 apps/erpnext_rd/               App Frappe propia
   erpnext_rd/
     hooks.py                   Hooks de la app (required_apps = erpnext, hrms)
-    modules.txt                Módulos: ERPNext RD, DGII Fiscal, ECF, DGII Reportes, Padron RNC, Nomina RD
+    modules.txt                Módulos: ERPNext RD, DGII Fiscal, ECF, DGII Reportes, Padron RNC, Nomina RD, RD Compliance (navegación)
     dgii_fiscal/               NCF, tipos de comprobante, campos fiscales
     ecf/                       e-CF: XML, firma, envío/consulta DGII, recepción
     dgii_reportes/             606, 607, 608, 609, apoyo IT-1 / IR-17
     padron_rnc/                Padrón RNC/Cédula y validaciones
     nomina_rd/                 TSS, ISR, INFOTEP, regalía, IR-3, archivo SUIR
+    rd_compliance/             Módulo de navegación: sidebar único con todas las secciones
+    dock/                      Ícono de la app en el dock de Frappe v16
     fixtures/                  Custom Fields / Property Setters exportados
     patches.txt, patches/      Migraciones de datos
     tests/                     Tests de la app
@@ -96,6 +98,7 @@ docker logs deploy-create-site-1
 - Catálogo de cuentas DGII: `dgii_fiscal/catalogo_cuentas.py`. Se aplica **por empresa** y solo a empresas con país *Dominican Republic* sin movimientos: en `after_install`/`after_migrate` y en `Company.on_update` (después de que ERPNext crea el catálogo estándar, se reemplaza). Se desactiva con *Configuracion DGII → aplicar_catalogo_cuentas*. La empresa queda marcada con `rd_catalogo_dgii`. Empresas de otros países no se tocan.
 - **Multiempresa / multipaís:** toda la lógica fiscal DGII (NCF, validación de RNC, catálogo, reportes) se limita a empresas con país *Dominican Republic* (`ncf.es_empresa_rd`). Proveedores y empresas de otro país conservan su ID fiscal sin validar. Mantener esta regla en todo lo nuevo.
 - Reportes DGII: `dgii_reportes/datos.py` (registros), `formatos.py` (columnas oficiales, TXT, `descargar_txt`), Script Reports en `dgii_reportes/report/formato_6xx_dgii/`. Los impuestos se clasifican por el campo `rd_concepto_fiscal` de la cuenta (`dgii_fiscal/impuestos.py`).
+- **Navegación (UI):** todo se agrupa en un solo módulo **RD Compliance** (`rd_compliance/`). Sidebar en `rd_compliance/sidebar/rd_compliance/rd_compliance.json` (secciones `Section Break` con `indent: 1` y enlaces `Link` con `child: 1`); ícono del dock en `erpnext_rd/dock/erpnext_rd/erpnext_rd.json` (`mount_on: erpnext`); ícono duotono `rd-compliance-duotone` en `public/icons/erpnext-rd-icons.svg` (`app_include_icons`). `code_only_modules` en `hooks.py` hace que los módulos internos abran dentro de RD Compliance. Al agregar e-CF o Nómina RD, añadir una sección nueva a ese sidebar, no un módulo/ícono aparte. `install.asegurar_navegacion()` recrea el sidebar si falta tras un migrate.
 - Padrón RNC: `bench --site erp.localhost execute erpnext_rd.padron_rnc.padron.sincronizar_padron` (~3 min, ~800 mil registros). El servidor de la DGII a veces corta la descarga; hay reintentos.
 - El sitio local ya tiene la empresa real del usuario (**Dynamics Plastics**): no crear documentos de prueba en él sin permiso. Los tests de integración hacen rollback.
 - Al crear DocTypes desde la UI hay que tener `developer_mode` activo en el sitio para que se exporten a JSON en la app. Como la app vive dentro del contenedor, los archivos generados deben copiarse de vuelta al repo (`docker cp`) o, preferiblemente, crearse directamente en el repo.

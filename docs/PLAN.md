@@ -12,7 +12,7 @@ Proyecto en `D:\Code Projects 2\ERPNext`. Git 2.56 y Docker 29.8 instalados.
 
 **Principio clave:** no hacer fork de ERPNext/Frappe. Toda la personalización vive en una app propia (`erpnext_rd`) instalada sobre ERPNext/HRMS oficiales. Así puedes actualizar a 16.51, 16.52… sin conflictos de merge.
 
-## Estado actual (actualizado 2026-10-12)
+## Estado actual (actualizado 2026-10-13)
 
 | Fase | Estado |
 |---|---|
@@ -20,10 +20,20 @@ Proyecto en `D:\Code Projects 2\ERPNext`. Git 2.56 y Docker 29.8 instalados.
 | 1 — Despliegue | 🟡 Local listo: `deploy/Containerfile` + `deploy/compose.yaml`, sitio `erp.localhost` en http://localhost:8090 con las 4 apps en una sola base MariaDB. **Pendiente:** repo en GitHub, CI (`build-image.yml`, `ci.yml`), Dokploy, backups. |
 | 2 — Base fiscal DGII | 🟡 Implementado en `feature/dgii-fiscal`: tipos de comprobante (21), Secuencia NCF con bloqueo, NCF en ventas/compras, RNC/Cédula, padrón (793 985 registros), 16 tests. NCF en POS (modo Sales Invoice y POS Invoice, tipo por defecto en Perfil de POS), formatos de impresión *Factura Fiscal RD* y *Recibo POS RD* (80 mm) con QR e-CF listo para la Fase 4, 19 tests. **Catálogo de cuentas DGII** (214 cuentas, NIIF PYMES; activos por categoría de depreciación fiscal; gastos agrupados por tipo 606, ingresos por tipo 607; cuentas de impuestos con concepto fiscal; plantillas ITBIS 18%/16%, propina y retenciones), aplicado por empresa solo a las de país República Dominicana sin movimientos, 28 tests. **Pendiente:** prueba de punta a punta con facturas reales; logo propio de la app (más adelante). |
 | 3 — Reportes DGII | 🟡 Script Reports *Formato 606/607/608/609 DGII* con descarga del TXT oficial (`DGII_F_<formato>_<RNC>_<AAAAMM>.TXT`), columnas según los instructivos vigentes de la DGII, retenciones informadas en el mes de pago, facturas de consumo < RD$250,000 fuera del TXT con su resumen para la OFV, columna de observaciones. Toda la lógica fiscal (NCF, validación RNC, reportes) aplica solo a empresas con país República Dominicana. 42 tests. **Pendiente:** apoyo IT-1 / IR-17; pre-validar los TXT con la herramienta de la DGII usando datos reales. |
+| UI — Módulo RD Compliance | ✅ Un solo ícono **RD Compliance** en el dock de Frappe v16 (ícono duotono propio con animación) y un sidebar con secciones desplegables: *DGII Fiscal* (Secuencia NCF, Tipo Comprobante Fiscal, Configuración DGII), *DGII Reportes* (606–609) y *Padrón RNC* (Contribuyentes DGII). Los módulos internos se muestran dentro de RD Compliance (`code_only_modules`). e-CF y Nómina RD se agregarán como secciones nuevas de este mismo menú. |
 | 4 — e-CF | ⏳ |
 | 5 — Nómina RD | ⏳ |
 
 Decisión: el usuario quiere probar todo en Docker local antes de configurar GitHub y Dokploy.
+
+### Próximos pasos (en orden sugerido)
+1. **Prueba de punta a punta del usuario** en Dynamics Plastics: facturas reales de venta/compra, NCF, retenciones, y descargar los TXT 606/607 de un mes.
+2. **Pre-validar los TXT** con la herramienta de pre-validación de la DGII y corregir lo que marque.
+3. **Cierre de Fase 3:** apoyo IT-1 e IR-17 (resumen de ITBIS y retenciones del mes) → tag `v0.3.0`.
+4. **Fase 1 pendiente:** repo privado en GitHub, CI (tests + build de imagen a GHCR) y despliegue en Dokploy con backups.
+5. **Fase 4 — e-CF** (requiere certificado `.p12` y alta como emisor electrónico ante la DGII).
+6. **Fase 5 — Nómina RD.**
+7. Más adelante: logo de la app; formato de impresión por empresa para las que no son de RD.
 
 ## Estructura del repo (GitHub, privado: `erpnext-rd`)
 ```
