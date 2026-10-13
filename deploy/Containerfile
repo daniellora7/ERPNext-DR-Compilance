@@ -1,0 +1,67 @@
+# Imagen ERPNext + HRMS + erpnext_rd, basada en frappe_docker/images/layered (MIT).
+# Build (desde la raiz del repo):
+#   docker build -f deploy/Containerfile -t erpnext-rd:local .
+
+ARG FRAPPE_IMAGE_TAG=version-16
+
+FROM frappe/build:${FRAPPE_IMAGE_TAG} AS builder
+
+ARG FRAPPE_BRANCH=v16.51.1
+ARG FRAPPE_PATH=https://github.com/frappe/frappe
+
+USER frappe
+
+COPY --chown=frappe:frappe deploy/apps.json /opt/frappe/apps.json
+
+# Frappe + apps oficiales (versiones fijadas en deploy/apps.json)
+RUN bench init \
+    --apps_path=/opt/frappe/apps.json \
+    --frappe-branch=${FRAPPE_BRANCH} \
+    --frappe-path=${FRAPPE_PATH} \
+    --no-procfile \
+    --no-backups \
+    --skip-redis-config-generation \
+    --verbose \
+    /home/frappe/frappe-bench
+
+WORKDIR /home/frappe/frappe-bench
+
+# App propia desde el repo local
+COPY --chown=frappe:frappe apps/erpnext_rd apps/erpnext_rd
+
+RUN (env/bin/python -m pip --version >/dev/null 2>&1 \
+      && env/bin/python -m pip install --no-cache-dir -e apps/erpnext_rd) \
+    || uv pip install --python env/bin/python -e apps/erpnext_rd \
+  && echo "erpnext_rd" >> sites/apps.txt \
+  && bench build --app erpnext_rd \
+  && echo "{}" > sites/common_site_config.json \
+  && find apps -mindepth 1 -path "*/.git" | xargs rm -fr
+
+FROM frappe/base:${FRAPPE_IMAGE_TAG} AS backend
+
+USER frappe
+
+COPY --from=builder --chown=frappe:0 /home/frappe/frappe-bench /home/frappe/frappe-bench
+RUN chmod -R g=u /home/frappe/frappe-bench
+
+WORKDIR /home/frappe/frappe-bench
+
+# Assets en la capa de la imagen; el entrypoint los enlaza al volumen sites
+RUN cp -r /home/frappe/frappe-bench/sites/assets /home/frappe/frappe-bench/assets && \
+  rm -rf /home/frappe/frappe-bench/sites/assets
+
+VOLUME [ \
+  "/home/frappe/frappe-bench/sites", \
+  "/home/frappe/frappe-bench/logs" \
+]
+
+USER root
+COPY deploy/resources/main-entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod 755 /usr/local/bin/entrypoint.sh
+COPY deploy/resources/start.sh /usr/local/bin/start.sh
+RUN chmod 755 /usr/local/bin/start.sh
+
+USER frappe
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+CMD ["start.sh"]
