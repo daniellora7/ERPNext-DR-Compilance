@@ -1,0 +1,45 @@
+# Lint y tests de erpnext_rd en cada push a develop/main y en cada PR.
+# Los tests corren con la misma imagen y el mismo compose que producción (deploy/ci/run-tests.sh).
+name: CI
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - run: pip install ruff==0.12.12
+      - run: ruff check apps/erpnext_rd
+      - run: ruff format --check apps/erpnext_rd
+
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Construir imagen
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Containerfile
+          tags: erpnext-rd:ci
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Tests
+        env:
+          ERPNEXT_IMAGE: erpnext-rd
+          ERPNEXT_IMAGE_TAG: ci
+        run: deploy/ci/run-tests.sh
