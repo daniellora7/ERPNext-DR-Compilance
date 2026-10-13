@@ -24,7 +24,7 @@ docker compose -f deploy/compose.yaml --env-file deploy/.env up -d --build
 docker compose -f deploy/compose.yaml --env-file deploy/.env logs -f create-site
 ```
 
-Abrir http://localhost:8080 — usuario `Administrator`, contraseña `ADMIN_PASSWORD` del `.env`.
+Abrir http://localhost:8090 — usuario `Administrator`, contraseña `ADMIN_PASSWORD` del `.env`.
 
 Comprobar apps instaladas:
 

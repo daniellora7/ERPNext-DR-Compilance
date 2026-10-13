@@ -32,7 +32,8 @@ COPY --chown=frappe:frappe apps/erpnext_rd apps/erpnext_rd
 RUN (env/bin/python -m pip --version >/dev/null 2>&1 \
       && env/bin/python -m pip install --no-cache-dir -e apps/erpnext_rd) \
     || uv pip install --python env/bin/python -e apps/erpnext_rd \
-  && echo "erpnext_rd" >> sites/apps.txt \
+  && printf '\nerpnext_rd\n' >> sites/apps.txt \
+  && sed -i '/^$/d' sites/apps.txt \
   && bench build --app erpnext_rd \
   && echo "{}" > sites/common_site_config.json \
   && find apps -mindepth 1 -path "*/.git" | xargs rm -fr
