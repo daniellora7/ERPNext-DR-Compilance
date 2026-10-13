@@ -1,0 +1,77 @@
+<!-- Íconos de dos tonos de ERPNext RD para el dock y los encabezados del sidebar.
+     Siguen el estilo de los íconos de módulo de ERPNext (erpnext/public/icons/module-icons.svg):
+     cuadrícula de 24 x 24, tono oscuro (--duotone-dark) y tono claro (--duotone-light), y una
+     animación que solo corre mientras el dock pasa --icon-motion al tener el mouse encima. -->
+
+<svg id="erpnext-rd-module-symbols" aria-hidden="true" style="display: none;" class="icon" xmlns="http://www.w3.org/2000/svg">
+	<style>
+		/* DGII Fiscal: el sello se estampa sobre el comprobante. */
+		.rd-fiscal-sello {
+			transform-box: fill-box;
+			transform-origin: center;
+			animation: rd-fiscal-estampar 1.6s ease-out infinite;
+			animation-play-state: var(--icon-motion, paused);
+		}
+		@keyframes rd-fiscal-estampar {
+			0%, 100% { transform: scale(1); }
+			20% { transform: scale(1.22) translate(0.4px, -0.4px); }
+			35% { transform: scale(0.94); }
+			50% { transform: scale(1); }
+		}
+		/* DGII Reportes: las barras crecen una tras otra. */
+		.rd-reporte-barra {
+			transform-box: fill-box;
+			transform-origin: bottom center;
+			animation: rd-reporte-crecer 1.8s ease-in-out infinite;
+			animation-play-state: var(--icon-motion, paused);
+		}
+		@keyframes rd-reporte-crecer {
+			0%, 100% { transform: scaleY(1); }
+			30% { transform: scaleY(0.45); }
+			60% { transform: scaleY(1.1); }
+		}
+		/* Padrón RNC: la lupa recorre la cédula. */
+		.rd-padron-lupa {
+			animation: rd-padron-buscar 2s ease-in-out infinite;
+			animation-play-state: var(--icon-motion, paused);
+		}
+		@keyframes rd-padron-buscar {
+			0%, 100% { transform: translate(0, 0); }
+			30% { transform: translate(-3px, -1.5px); }
+			65% { transform: translate(-1px, -3px); }
+		}
+		@media (prefers-reduced-motion: reduce) {
+			.rd-fiscal-sello,
+			.rd-reporte-barra,
+			.rd-padron-lupa { animation: none; }
+		}
+	</style>
+
+	<!-- DGII Fiscal: comprobante fiscal (NCF) con sello de validación -->
+	<symbol viewBox="0 0 24 24" id="icon-dgii-fiscal-duotone" stroke="none" style="overflow: visible">
+		<path fill-rule="evenodd" d="M6.4 2.5H15.6Q17 2.5 17 3.9V12.2Q13.1 12.9 12.6 17.1L12.6 19.9L12 19.4L10.6 20.8L9.2 19.4L7.8 20.8L6.4 19.4L5 20.8V3.9Q5 2.5 6.4 2.5ZM7.9 6.65H14.1A0.75 0.75 0 0 0 14.1 5.15H7.9A0.75 0.75 0 0 0 7.9 6.65ZM7.9 9.85H12.6A0.75 0.75 0 0 0 12.6 8.35H7.9A0.75 0.75 0 0 0 7.9 9.85ZM7.9 13.05H10.4A0.75 0.75 0 0 0 10.4 11.55H7.9A0.75 0.75 0 0 0 7.9 13.05Z" style="fill: var(--duotone-dark, light-dark(var(--ink-gray-5), var(--ink-gray-6)))" />
+		<g class="rd-fiscal-sello">
+			<circle cx="17.6" cy="17.4" r="4.6" style="fill: var(--duotone-light, var(--ink-gray-3))" />
+			<path d="M15.2 17.3L16.2 16.3L17.1 17.2L19.3 15L20.3 16L17.1 19.2Z" style="fill: var(--duotone-dark, light-dark(var(--ink-gray-5), var(--ink-gray-6)))" />
+		</g>
+	</symbol>
+
+	<!-- DGII Reportes: formato de envío (606, 607...) con gráfico de barras -->
+	<symbol viewBox="0 0 24 24" id="icon-dgii-reportes-duotone" stroke="none" style="overflow: visible">
+		<path d="M6.6 2H14.2L19 6.8V20.4Q19 22 17.4 22H6.6Q5 22 5 20.4V3.6Q5 2 6.6 2Z" style="fill: var(--duotone-dark, light-dark(var(--ink-gray-5), var(--ink-gray-6)))" />
+		<path d="M14.2 2V5.4Q14.2 6.8 15.6 6.8H19Z" style="fill: var(--duotone-light, var(--ink-gray-3))" />
+		<rect class="rd-reporte-barra" x="7.8" y="14" width="2.2" height="5" rx="0.5" style="fill: var(--duotone-light, var(--ink-gray-3)); animation-delay: 0s" />
+		<rect class="rd-reporte-barra" x="10.9" y="10.6" width="2.2" height="8.4" rx="0.5" style="fill: var(--duotone-light, var(--ink-gray-3)); animation-delay: 0.2s" />
+		<rect class="rd-reporte-barra" x="14" y="12.4" width="2.2" height="6.6" rx="0.5" style="fill: var(--duotone-light, var(--ink-gray-3)); animation-delay: 0.4s" />
+	</symbol>
+
+	<!-- Padrón RNC: cédula / registro de contribuyentes con lupa de consulta -->
+	<symbol viewBox="0 0 24 24" id="icon-padron-rnc-duotone" stroke="none" style="overflow: visible">
+		<path fill-rule="evenodd" d="M4 4.5H17Q18.5 4.5 18.5 6V11.3Q13.6 10.9 12.6 16.5H4Q2.5 16.5 2.5 15V6Q2.5 4.5 4 4.5ZM8.5 8.9A1.7 1.7 0 1 0 5.1 8.9A1.7 1.7 0 1 0 8.5 8.9ZM4.6 13.9H9Q9 11.4 6.8 11.4Q4.6 11.4 4.6 13.9ZM10.9 8.75H15.4A0.65 0.65 0 0 0 15.4 7.45H10.9A0.65 0.65 0 0 0 10.9 8.75ZM10.9 11.35H13.3A0.65 0.65 0 0 0 13.3 10.05H10.9A0.65 0.65 0 0 0 10.9 11.35Z" style="fill: var(--duotone-dark, light-dark(var(--ink-gray-5), var(--ink-gray-6)))" />
+		<g class="rd-padron-lupa">
+			<circle cx="17" cy="16.4" r="3" style="fill: var(--duotone-light, var(--ink-gray-3))" />
+			<path fill-rule="evenodd" d="M17 12.1A4.3 4.3 0 1 1 17 20.7A4.3 4.3 0 1 1 17 12.1ZM17 13.4A3 3 0 1 0 17 19.4A3 3 0 1 0 17 13.4Z" style="fill: var(--duotone-dark, light-dark(var(--ink-gray-5), var(--ink-gray-6)))" />
+			<path d="M19.7 19.1L22.3 21.7L21.2 22.8L18.6 20.2Z" style="fill: var(--duotone-dark, light-dark(var(--ink-gray-5), var(--ink-gray-6)))" />
+		</g>
+	</symbol>
+</svg>
