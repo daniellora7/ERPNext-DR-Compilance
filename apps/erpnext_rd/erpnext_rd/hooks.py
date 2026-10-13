@@ -4,6 +4,7 @@ app_publisher = "ERPNext RD"
 app_description = "Localizacion Republica Dominicana para ERPNext: NCF, e-CF DGII, reportes 606/607/608 y nomina RD"
 app_email = "daniellorap.ing@gmail.com"
 app_license = "gpl-3.0"
+app_logo_url = "/assets/erpnext_rd/images/logo_rd.svg"
 
 # Apps
 # ------------------
