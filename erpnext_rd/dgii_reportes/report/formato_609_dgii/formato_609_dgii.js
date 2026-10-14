@@ -29,7 +29,7 @@ frappe.query_reports["Formato 609 DGII"] = {
 	formatter(value, row, column, data, default_formatter) {
 		value = default_formatter(value, row, column, data);
 		if (column.fieldname === "_avisos" && data && data._avisos) {
-			value = `<span style="color: var(--orange-600)">${value}</span>`;
+			value = `<span style="color: var(--ink-amber-8)">${value}</span>`;
 		}
 		return value;
 	},

@@ -109,6 +109,7 @@ docker logs deploy-create-site-1
 - En el Containerfile, `sites/apps.txt` no termina en salto de línea: al agregar apps usar `printf '\n<app>\n'` y limpiar líneas vacías.
 - El repo fuerza finales de línea LF (`.gitattributes`); los scripts `.sh` deben quedar en LF o fallan en el contenedor.
 - **Marketplace de Frappe Cloud (meta):** todo lo nuevo debe poder instalarse sin acceso a la máquina (solo `after_install`/`after_migrate`, patches, DocTypes de configuración y dependencias pip), funcionar sin HRMS y desinstalarse limpio. Requisitos en `docs/PLAN.md`, Fase 7. Para probar sin HRMS: `KEEP=1 DEV=1 deploy/ci/run-tests.sh` y en ese stack `bench new-site sin-hrms.localhost ... --install-app erpnext --install-app erpnext_rd`.
+- **Estándar visual: frappe-ui** (la base del escritorio v16). El HTML propio en reportes, diálogos y mensajes usa los tokens CSS del escritorio (`--ink-gray-*` para texto, `--outline-gray-*` para bordes, `--surface-*` para fondos, `--ink-amber-8` para avisos, `--ink-red-6` para errores): nunca colores hex fijos ni clases de Bootstrap, así se adapta solo al modo oscuro. Excepción: los formatos de impresión (van en papel).
 - Estilo Python de la app: tabs, comillas dobles, ruff con line-length 110 (ver `pyproject.toml`).
 
 ## Control de versiones (obligatorio)

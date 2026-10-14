@@ -285,13 +285,22 @@ def _mensaje_consumo(resumen: dict) -> str:
 		(_("Permuta"), resumen["permuta"]),
 		(_("Otras formas de venta"), resumen["otras_formas"]),
 	]
+
+	# Colores con los tokens de frappe-ui que usa el escritorio v16 (se adaptan al modo oscuro)
+	def celda(i: int) -> str:
+		return "padding:6px 12px" + (";border-top:1px solid var(--outline-gray-1)" if i else "")
+
 	celdas = "".join(
-		f"<tr><td>{etiqueta}</td><td style='text-align:right'>"
+		f"<tr><td style='{celda(i)};color:var(--ink-gray-6)'>{etiqueta}</td>"
+		f"<td style='{celda(i)};text-align:right;color:var(--ink-gray-8);font-variant-numeric:tabular-nums'>"
 		f"{valor if isinstance(valor, str) else frappe.format(valor, 'Currency')}</td></tr>"
-		for etiqueta, valor in filas
+		for i, (etiqueta, valor) in enumerate(filas)
 	)
 	return (
-		f"<b>{_('Resumen General de Facturas de Consumo (F.C.) para la Oficina Virtual')}</b>"
-		f"<p>{_('Las facturas de consumo menores a RD$250,000 no van en el TXT: digite estos totales en el módulo de resumen al enviar el 607.')}</p>"
-		f"<table class='table table-bordered' style='max-width:520px'>{celdas}</table>"
+		f"<div style='font-weight:600;color:var(--ink-gray-8)'>"
+		f"{_('Resumen General de Facturas de Consumo (F.C.) para la Oficina Virtual')}</div>"
+		f"<p style='color:var(--ink-gray-5);margin:4px 0 10px'>"
+		f"{_('Las facturas de consumo menores a RD$250,000 no van en el TXT: digite estos totales en el módulo de resumen al enviar el 607.')}</p>"
+		"<table style='width:100%;max-width:520px;border:1px solid var(--outline-gray-2);"
+		f"border-radius:8px;border-collapse:separate;border-spacing:0;overflow:hidden'>{celdas}</table>"
 	)
