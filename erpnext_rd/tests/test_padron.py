@@ -130,3 +130,14 @@ class TestSincronizacionPadron(IntegrationTestCase):
 		self.assertNotIn("If-Modified-Since", encabezados)
 		self.assertEqual(total, 5)
 		importar.assert_called_once()
+
+
+class TestListaPadron(IntegrationTestCase):
+	def test_lista_sin_filtro_de_recientes(self):
+		"""La lista del padrón no se filtra sola por "últimos 90 días" (tabla grande)."""
+		self.assertEqual(
+			frappe.db.get_value(
+				"List View Settings", "Contribuyente DGII", "disable_automatic_recency_filters"
+			),
+			1,
+		)

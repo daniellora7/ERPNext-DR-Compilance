@@ -502,6 +502,21 @@ def programar_padron_inicial():
 	encolar()
 
 
+def lista_padron_sin_filtro_reciente():
+	"""El padrón (~800 mil filas) es una tabla grande para Frappe, que entonces filtra la lista por
+	"creados en los últimos 90 días" y avisa cada vez. En el padrón se busca por RNC o nombre, no por
+	fecha: se desactiva ese filtro. Solo si no existe la configuración, para respetar la del usuario."""
+	if frappe.db.exists("List View Settings", "Contribuyente DGII"):
+		return
+	frappe.get_doc(
+		{
+			"doctype": "List View Settings",
+			"name": "Contribuyente DGII",
+			"disable_automatic_recency_filters": 1,
+		}
+	).insert(ignore_permissions=True)
+
+
 def setup():
 	crear_campos_personalizados()
 	formato_impresion_por_defecto()
@@ -510,6 +525,7 @@ def setup():
 	inicializar_configuracion()
 	asegurar_navegacion()
 	ajustar_menu_nomina()
+	lista_padron_sin_filtro_reciente()
 	frappe.clear_cache()
 	catalogo_cuentas.aplicar_a_empresas_rd()
 	salario.crear_componentes()
@@ -559,4 +575,5 @@ def before_uninstall():
 		frappe.delete_doc("Scheduled Job Type", job, force=True, ignore_permissions=True)
 	if frappe.db.exists("DocType", "Dock") and frappe.db.exists("Dock", "erpnext_rd"):
 		frappe.delete_doc("Dock", "erpnext_rd", force=True, ignore_permissions=True)
+	frappe.db.delete("List View Settings", {"name": "Contribuyente DGII"})
 	frappe.clear_cache()
