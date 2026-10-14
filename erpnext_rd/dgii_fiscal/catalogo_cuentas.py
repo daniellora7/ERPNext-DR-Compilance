@@ -16,6 +16,7 @@ from frappe import _
 from frappe.utils import cint
 
 from erpnext_rd.dgii_fiscal import catalogos as cat
+from erpnext_rd.nomina_rd import hrms_instalado
 
 PAIS = "Dominican Republic"
 NOMBRE_CATALOGO = "República Dominicana - DGII"
@@ -616,7 +617,7 @@ def _asignar_cuentas_por_defecto(company: str, cuentas: dict[str, str]):
 	doc.set_mode_of_payment_account()
 
 	# Frappe HR: cuenta de gasto de los tipos de reclamo de gastos (si no, HR crea "Expense Claims")
-	if "hrms" in frappe.get_installed_apps() and CUENTA_RECLAMOS_GASTOS in cuentas:
+	if hrms_instalado() and CUENTA_RECLAMOS_GASTOS in cuentas:
 		frappe.db.delete("Expense Claim Account", {"company": company, "default_account": ("is", "not set")})
 		for tipo in frappe.get_all("Expense Claim Type", pluck="name"):
 			if frappe.db.exists("Expense Claim Account", {"parent": tipo, "company": company}):

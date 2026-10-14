@@ -5,6 +5,7 @@
 #   deploy/ci/run-tests.sh                 usa la imagen ${ERPNEXT_IMAGE}:${ERPNEXT_IMAGE_TAG}
 #   DEV=1 deploy/ci/run-tests.sh           monta el código del repo (sin reconstruir la imagen)
 #   KEEP=1 deploy/ci/run-tests.sh          deja el stack arriba para revisar fallos
+#   SIN_HRMS=0 deploy/ci/run-tests.sh      omite la segunda pasada en un sitio sin Frappe HR
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 
@@ -41,3 +42,18 @@ fi
 echo "==> Tests"
 compose exec -T backend bench --site "$SITE_NAME" set-config allow_tests true
 compose exec -T backend bench --site "$SITE_NAME" run-tests --app erpnext_rd --failfast
+
+# HRMS es opcional: la app debe instalar y pasar los tests en un sitio solo con ERPNext
+if [ "${SIN_HRMS:-1}" = "1" ]; then
+	sitio_sin_hrms="sin-hrms.localhost"
+	echo "==> Tests en ${sitio_sin_hrms} (ERPNext + erpnext_rd, sin Frappe HR)"
+	compose exec -T backend bench new-site "$sitio_sin_hrms" \
+		--mariadb-user-host-login-scope='%' \
+		--admin-password="$ADMIN_PASSWORD" \
+		--db-root-username=root \
+		--db-root-password="$DB_ROOT_PASSWORD" \
+		--install-app erpnext \
+		--install-app erpnext_rd
+	compose exec -T backend bench --site "$sitio_sin_hrms" set-config allow_tests true
+	compose exec -T backend bench --site "$sitio_sin_hrms" run-tests --app erpnext_rd --failfast
+fi

@@ -1,9 +1,11 @@
 """Cálculos de nómina RD: TSS con topes, ISR de asalariados y regalía pascual."""
 
+import unittest
+
 import frappe
 from frappe.tests import IntegrationTestCase
 
-from erpnext_rd.nomina_rd import calculos
+from erpnext_rd.nomina_rd import calculos, hrms_instalado
 
 
 def conf_2026():
@@ -82,6 +84,7 @@ class TestNominaRD(IntegrationTestCase):
 EMPRESA = "_Test Nomina RD"
 
 
+@unittest.skipUnless(hrms_instalado(), "Requiere Frappe HR (hrms)")
 class TestReciboNominaRD(IntegrationTestCase):
 	"""Recibo de nómina de Frappe HR en una empresa RD: TSS e ISR calculados por la app."""
 

@@ -17,7 +17,7 @@ import frappe
 from frappe.utils import cint, flt
 
 from erpnext_rd.dgii_fiscal.ncf import es_empresa_rd
-from erpnext_rd.nomina_rd import calculos
+from erpnext_rd.nomina_rd import calculos, hrms_instalado
 
 AFP = "AFP empleado"
 SFS = "SFS empleado"
@@ -157,7 +157,7 @@ def al_validar_recibo(doc, method=None):
 def crear_componentes():
 	"""Crea los componentes de nómina de ley (si no existen) y les asigna las cuentas del catálogo
 	DGII en cada empresa RD que lo tenga."""
-	if "hrms" not in frappe.get_installed_apps():
+	if not hrms_instalado():
 		return
 	empresas = frappe.get_all("Company", filters={"rd_catalogo_dgii": 1}, pluck="name")
 	for nombre, abbr, tipo, concepto, exento, cuenta, pasivo in COMPONENTES:

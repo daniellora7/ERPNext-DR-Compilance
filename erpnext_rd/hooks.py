@@ -10,7 +10,8 @@ app_license = "gpl-3.0"
 # Apps
 # ------------------
 
-required_apps = ["erpnext", "hrms"]
+# Frappe HR (hrms) es opcional: si está instalado se activa la Nómina RD (ver install.py)
+required_apps = ["frappe/erpnext"]
 
 # Includes in <head>
 # ------------------
@@ -36,6 +37,11 @@ code_only_modules = {
 
 after_install = "erpnext_rd.install.after_install"
 after_migrate = "erpnext_rd.install.after_migrate"
+before_uninstall = "erpnext_rd.install.before_uninstall"
+
+# Frappe HR instalado o desinstalado después de esta app: activa o retira la Nómina RD
+after_app_install = "erpnext_rd.install.al_instalar_app"
+after_app_uninstall = "erpnext_rd.install.al_desinstalar_app"
 
 # JS por DocType
 # --------------

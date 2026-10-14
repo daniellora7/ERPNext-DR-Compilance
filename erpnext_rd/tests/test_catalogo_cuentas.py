@@ -5,6 +5,7 @@ from frappe.tests import IntegrationTestCase
 
 from erpnext_rd.dgii_fiscal import catalogo_cuentas as cc
 from erpnext_rd.dgii_fiscal import catalogos as cat
+from erpnext_rd.nomina_rd import hrms_instalado
 
 
 class TestEstructuraCatalogo(IntegrationTestCase):
@@ -124,11 +125,12 @@ class TestAplicarCatalogo(IntegrationTestCase):
 			)
 			self.assertEqual(plantilla_isr.taxes[-1].rate, tasa)
 
-		# Frappe HR usa la cuenta del catálogo para los reclamos de gastos
-		for cuenta in frappe.get_all(
-			"Expense Claim Account", filters={"company": empresa.name}, pluck="default_account"
-		):
-			self.assertEqual(cuenta, "6111 - Reembolsos de Gastos a Empleados - TCRD")
+		# Frappe HR (si está instalado) usa la cuenta del catálogo para los reclamos de gastos
+		if hrms_instalado():
+			for cuenta in frappe.get_all(
+				"Expense Claim Account", filters={"company": empresa.name}, pluck="default_account"
+			):
+				self.assertEqual(cuenta, "6111 - Reembolsos de Gastos a Empleados - TCRD")
 
 		# La plantilla estándar de ERPNext (ITBIS 16%) no debe quedar
 		self.assertFalse(
