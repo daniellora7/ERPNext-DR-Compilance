@@ -24,3 +24,12 @@ class TestPadron(UnitTestCase):
 	def test_linea_invalida(self):
 		self.assertIsNone(parsear_linea("ROOM ARCE|X||Y| | | | ||ACTIVO|NORMAL"))
 		self.assertIsNone(parsear_linea("101010632|incompleta"))
+
+	def test_sincronizacion_diaria_a_las_2am(self):
+		"""El padrón se actualiza cada día a las 2:00 a. m. y pasa por `encolar` (cola long, 1 h)."""
+		from erpnext_rd import hooks
+
+		self.assertEqual(
+			hooks.scheduler_events["cron"]["0 2 * * *"], ["erpnext_rd.padron_rnc.padron.encolar"]
+		)
+		self.assertNotIn("weekly_long", hooks.scheduler_events)

@@ -115,6 +115,10 @@ jinja = {
 # Scheduled Tasks
 # ---------------
 
+# Padrón RNC: todos los días a las 2:00 a. m. (zona horaria del sitio). Un cron corre en la cola
+# default con su timeout corto; `encolar` lo pasa a la cola long (1 h) y evita dos a la vez.
 scheduler_events = {
-	"weekly_long": ["erpnext_rd.padron_rnc.padron.sincronizar_padron"],
+	"cron": {
+		"0 2 * * *": ["erpnext_rd.padron_rnc.padron.encolar"],
+	},
 }
