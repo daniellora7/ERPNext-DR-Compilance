@@ -115,4 +115,4 @@ docker logs deploy-create-site-1
 - Ramas: `main` = estable/producción, `develop` = integración, `feature/<nombre>` para trabajo nuevo. Fusionar a `main` solo con el visto bueno del usuario.
 - Tags `vX.Y.Z` al cerrar cada fase.
 - Nunca versionar `deploy/.env`, certificados `.p12`, contraseñas ni tokens.
-- Aún no hay remoto en GitHub: no crear remotos ni hacer push hasta que el usuario lo pida.
+- Remoto: `origin` = https://github.com/daniellora7/ERPNext-DR-Compilance (público, GPL-3.0). Hacer push de `develop` al terminar cada unidad de trabajo; `main` solo con el visto bueno del usuario. Nunca subir secretos (el repo es público).
