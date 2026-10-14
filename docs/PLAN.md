@@ -35,7 +35,7 @@ Decisión: el usuario quiere probar todo en Docker local antes de configurar Git
 6. **Fase 5 — Nómina RD:** completar IR-3, archivo TSS/SUIR, prestaciones laborales.
 7. Más adelante: logo de la app; formato de impresión por empresa para las que no son de RD.
 
-## Estructura del repo (GitHub, privado: `erpnext-rd`)
+## Estructura del repo (GitHub, público: `daniellora7/ERPNext-DR-Compilance`)
 ```
 erpnext-rd/
 ├── apps/erpnext_rd/            # app Frappe propia (bench new-app)
@@ -105,6 +105,19 @@ Script reports + exportación TXT en el formato oficial:
 
 ## Fase 6 — Funcionalidades futuras
 Cada nueva funcionalidad = nuevo módulo en `erpnext_rd` (o nueva app si es independiente), en rama `feature/*`, con PR, CI verde y tag de versión.
+
+## Fase 7 — Publicación en el Marketplace de Frappe Cloud (más adelante)
+Objetivo: que la app se instale desde Frappe Cloud como las demás localizaciones (p. ej. México e-Invoice). Repo público: https://github.com/daniellora7/ERPNext-DR-Compilance (GPL-3.0).
+
+Requisitos a cumplir (tenerlos en cuenta desde ya en todo lo nuevo):
+- **App en la raíz del repo**: Frappe Cloud hace `bench get-app` del repo, así que `pyproject.toml` y el paquete `erpnext_rd/` deben estar en la raíz (hoy están en `apps/erpnext_rd/`). Opción: mover la app a la raíz y dejar `deploy/` y `docs/` como carpetas extra, o separar el despliegue Docker en otro repo.
+- **Rama por versión de Frappe**: `version-16` (y luego `version-17`), compatible con la versión que ofrezca Frappe Cloud.
+- **Sin acceso a la máquina**: nada de pasos manuales, scripts de shell ni `docker exec`. Todo se configura en `after_install`/`after_migrate`, patches y DocTypes de configuración. Dependencias solo de pip en `pyproject.toml` (y apt en `[deploy.dependencies.apt]` si hiciera falta).
+- **Instalación limpia en sitio nuevo y en sitios con datos** (multiempresa, multipaís): ya se cumple con `es_empresa_rd`; mantenerlo. Agregar `before_uninstall` que quite campos personalizados y el sidebar.
+- **HRMS opcional**: hoy `required_apps = ["erpnext", "hrms"]` obliga a instalar HRMS. Para el Marketplace conviene que Nómina RD se active solo si HRMS está instalado (ya se verifica en `crear_componentes`) y quitar `hrms` de `required_apps`, o publicar la nómina como app aparte.
+- **Jobs pesados en cola**: la sincronización del padrón RNC (~800 mil filas) debe correr en `queue long` y respetar los límites de CPU/tiempo de Frappe Cloud.
+- **Ficha del Marketplace**: logo, capturas, descripción, documentación de uso y enlace de soporte; CI verde y releases con tag.
+- **Secretos**: el certificado `.p12` y su clave se suben por la UI (campos Attach privado + Password), nunca en el repo.
 
 ## Código existente a aprovechar (investigado 2026-10-12)
 No existe una app de ERPNext que cubra todo (e-CF + reportes + nómina RD). Tomaremos piezas como base o referencia:

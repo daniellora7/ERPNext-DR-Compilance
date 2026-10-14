@@ -106,6 +106,7 @@ docker logs deploy-create-site-1
 - Al crear DocTypes desde la UI hay que tener `developer_mode` activo en el sitio para que se exporten a JSON en la app. Como la app vive dentro del contenedor, los archivos generados deben copiarse de vuelta al repo (`docker cp`) o, preferiblemente, crearse directamente en el repo.
 - En el Containerfile, `sites/apps.txt` no termina en salto de línea: al agregar apps usar `printf '\n<app>\n'` y limpiar líneas vacías.
 - El repo fuerza finales de línea LF (`.gitattributes`); los scripts `.sh` deben quedar en LF o fallan en el contenedor.
+- **Marketplace de Frappe Cloud (meta):** todo lo nuevo debe poder instalarse sin acceso a la máquina (solo `after_install`/`after_migrate`, patches, DocTypes de configuración y dependencias pip). Requisitos en `docs/PLAN.md`, Fase 7.
 - Estilo Python de la app: tabs, comillas dobles, ruff con line-length 110 (ver `apps/erpnext_rd/pyproject.toml`).
 
 ## Control de versiones (obligatorio)
