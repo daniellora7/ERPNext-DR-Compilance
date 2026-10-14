@@ -1,0 +1,11 @@
+{
+	"name": "erpnext_rd",
+	"private": true,
+	"description": "Frontend del Panel RD Compliance (frappe-ui). `bench build` corre el script build.",
+	"license": "GPL-3.0",
+	"scripts": {
+		"postinstall": "cd frontend && yarn install --frozen-lockfile",
+		"dev": "cd frontend && yarn dev",
+		"build": "cd frontend && yarn build"
+	}
+}

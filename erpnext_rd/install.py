@@ -492,7 +492,7 @@ def ajustar_menu_nomina():
 def programar_padron_inicial():
 	"""Sitio nuevo: descarga el padrón RNC en segundo plano (cola long), sin pasos en la consola.
 
-	Después lo actualiza la tarea semanal o el botón de Configuración DGII."""
+	Después lo actualiza la tarea diaria (solo si la DGII publicó uno nuevo) o el botón de Configuración DGII."""
 	if frappe.flags.in_test or getattr(frappe, "in_test", False):
 		return
 	if frappe.get_all("Contribuyente DGII", limit=1):
@@ -500,6 +500,21 @@ def programar_padron_inicial():
 	from erpnext_rd.padron_rnc.padron import encolar
 
 	encolar()
+
+
+def lista_padron_sin_filtro_reciente():
+	"""El padrón (~800 mil filas) es una tabla grande para Frappe, que entonces filtra la lista por
+	"creados en los últimos 90 días" y avisa cada vez. En el padrón se busca por RNC o nombre, no por
+	fecha: se desactiva ese filtro. Solo si no existe la configuración, para respetar la del usuario."""
+	if frappe.db.exists("List View Settings", "Contribuyente DGII"):
+		return
+	frappe.get_doc(
+		{
+			"doctype": "List View Settings",
+			"name": "Contribuyente DGII",
+			"disable_automatic_recency_filters": 1,
+		}
+	).insert(ignore_permissions=True)
 
 
 def setup():
@@ -510,6 +525,7 @@ def setup():
 	inicializar_configuracion()
 	asegurar_navegacion()
 	ajustar_menu_nomina()
+	lista_padron_sin_filtro_reciente()
 	frappe.clear_cache()
 	catalogo_cuentas.aplicar_a_empresas_rd()
 	salario.crear_componentes()
@@ -559,4 +575,5 @@ def before_uninstall():
 		frappe.delete_doc("Scheduled Job Type", job, force=True, ignore_permissions=True)
 	if frappe.db.exists("DocType", "Dock") and frappe.db.exists("Dock", "erpnext_rd"):
 		frappe.delete_doc("Dock", "erpnext_rd", force=True, ignore_permissions=True)
+	frappe.db.delete("List View Settings", {"name": "Contribuyente DGII"})
 	frappe.clear_cache()

@@ -59,11 +59,15 @@ def bases_por_tasa(doc) -> dict:
 	return bases
 
 
-def resumen_it1(company: str, anio, mes, saldo_favor_anterior=0, retenciones_tarjetas=0) -> frappe._dict:
-	filas_607 = obtener("607", company, anio, mes)
+def resumen_it1(
+	company: str, anio, mes, saldo_favor_anterior=0, retenciones_tarjetas=0, filas_606=None, filas_607=None
+) -> frappe._dict:
+	"""`filas_606` / `filas_607`: registros ya calculados del período (el panel los reutiliza)."""
+	if filas_607 is None:
+		filas_607 = obtener("607", company, anio, mes)
 	ventas = [f for f in filas_607 if not f["_reinformado"]]
 	reinformadas = [f for f in filas_607 if f["_reinformado"]]
-	compras = obtener("606", company, anio, mes)
+	compras = filas_606 if filas_606 is not None else obtener("606", company, anio, mes)
 
 	r = frappe._dict(
 		ventas_brutas=0.0,
@@ -221,7 +225,7 @@ def filas_it1(r: frappe._dict) -> list[dict]:
 REMESAS_EXTERIOR = "Pagos al exterior (609)"
 
 
-def resumen_ir17(company: str, anio, mes) -> frappe._dict:
+def resumen_ir17(company: str, anio, mes, filas_606=None, filas_609=None) -> frappe._dict:
 	"""ISR retenido a terceros en el período, agrupado por tipo de retención del 606 y pagos al exterior."""
 	grupos = {}
 
@@ -236,14 +240,19 @@ def resumen_ir17(company: str, anio, mes) -> frappe._dict:
 		)
 
 	opciones = {cat.codigo(o): o for o in cat.TIPOS_RETENCION_ISR}
-	for f in obtener("606", company, anio, mes):
+	if filas_606 is None:
+		filas_606 = obtener("606", company, anio, mes)
+	if filas_609 is None:
+		filas_609 = obtener("609", company, anio, mes)
+
+	for f in filas_606:
 		isr = flt(f["monto_retencion_renta"])
 		if not isr or f["_tipo_comprobante"] in datos.PAGOS_EXTERIOR.values():
 			continue
 		concepto = opciones.get(f["tipo_retencion_isr"]) or _("Sin tipo de retención")
 		agregar(concepto, f, flt(f["total_monto_facturado"]), isr, f.get("_proveedor"))
 
-	for f in obtener("609", company, anio, mes):
+	for f in filas_609:
 		if flt(f["isr_retenido"]):
 			agregar(REMESAS_EXTERIOR, f, flt(f["monto_facturado"]), flt(f["isr_retenido"]), f["razon_social"])
 

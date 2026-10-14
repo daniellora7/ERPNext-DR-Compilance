@@ -61,6 +61,26 @@ class TestSecuenciaNCF(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			crear_secuencia(desde=1, hasta=100_000_000)
 
+	def test_estado_en_el_panel(self):
+		from erpnext_rd.rd_compliance.panel import secuencias
+
+		frappe.db.set_single_value(
+			"Configuracion DGII", {"porcentaje_alerta": 80, "dias_alerta_vencimiento": 30}
+		)
+		crear_secuencia(tipo="B01", desde=1, hasta=100)
+		crear_secuencia(tipo="B02", desde=1, hasta=10, siguiente=10)
+		crear_secuencia(tipo="B14", desde=1, hasta=100, fecha_vencimiento=add_days(nowdate(), 10))
+		crear_secuencia(tipo="B15", desde=1, hasta=2)
+		for _ in range(2):
+			tomar_siguiente_ncf(EMPRESA, "B15")  # se agota y se deshabilita sola
+
+		estado = {s["tipo_comprobante"]: s for s in secuencias(EMPRESA)}
+		self.assertEqual(estado["B01"]["estado"], "ok")
+		self.assertEqual(estado["B02"]["estado"], "por_agotarse")
+		self.assertEqual(estado["B02"]["disponibles"], 1)
+		self.assertEqual(estado["B14"]["estado"], "por_vencer")
+		self.assertEqual(estado["B15"]["estado"], "agotada")  # sigue visible aunque esté deshabilitada
+
 
 class TestIdentificacionParty(IntegrationTestCase):
 	def _cliente(self, tax_id, tipo=None):

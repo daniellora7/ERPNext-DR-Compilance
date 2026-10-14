@@ -26,8 +26,10 @@ RUN bench init \
 
 WORKDIR /home/frappe/frappe-bench
 
-# App propia desde el repo local (la app vive en la raíz del repo, como la espera `bench get-app`)
-COPY --chown=frappe:frappe pyproject.toml README.md LICENSE apps/erpnext_rd/
+# App propia desde el repo local (la app vive en la raíz del repo, como la espera `bench get-app`).
+# `bench build` también compila el Panel RD Compliance (frontend/, frappe-ui) con el script build del package.json.
+COPY --chown=frappe:frappe pyproject.toml package.json README.md LICENSE apps/erpnext_rd/
+COPY --chown=frappe:frappe frontend apps/erpnext_rd/frontend
 COPY --chown=frappe:frappe erpnext_rd apps/erpnext_rd/erpnext_rd
 
 RUN (env/bin/python -m pip --version >/dev/null 2>&1 \
@@ -36,6 +38,7 @@ RUN (env/bin/python -m pip --version >/dev/null 2>&1 \
   && printf '\nerpnext_rd\n' >> sites/apps.txt \
   && sed -i '/^$/d' sites/apps.txt \
   && bench build --app erpnext_rd \
+  && rm -rf apps/erpnext_rd/frontend/node_modules \
   && echo "{}" > sites/common_site_config.json \
   && find apps -mindepth 1 -path "*/.git" | xargs rm -fr
 

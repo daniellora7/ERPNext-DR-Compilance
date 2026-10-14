@@ -1,0 +1,12 @@
+<!-- Ícono de RD Compliance (mismo dibujo que icon-rd-compliance-duotone del escritorio) -->
+<template>
+	<svg viewBox="0 0 24 24" aria-hidden="true">
+		<path
+			fill-rule="evenodd"
+			class="fill-ink-gray-6"
+			d="M6.4 2.5H15.6Q17 2.5 17 3.9V10.3L12.2 12.1V19.9L12 19.4L10.6 20.8L9.2 19.4L7.8 20.8L6.4 19.4L5 20.8V3.9Q5 2.5 6.4 2.5ZM7.9 6.65H14.1A0.75 0.75 0 0 0 14.1 5.15H7.9A0.75 0.75 0 0 0 7.9 6.65ZM7.9 9.85H12.6A0.75 0.75 0 0 0 12.6 8.35H7.9A0.75 0.75 0 0 0 7.9 9.85ZM7.9 13.05H10.4A0.75 0.75 0 0 0 10.4 11.55H7.9A0.75 0.75 0 0 0 7.9 13.05Z"
+		/>
+		<path class="fill-ink-gray-3" d="M17.6 11.2L22.2 12.9V16.6Q22.2 20.4 17.6 22.6Q13 20.4 13 16.6V12.9Z" />
+		<path class="fill-ink-gray-6" d="M15.2 16.8L16.2 15.8L17.1 16.7L19.2 14.6L20.2 15.6L17.1 18.7Z" />
+	</svg>
+</template>
