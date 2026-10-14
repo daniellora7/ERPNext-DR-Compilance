@@ -30,6 +30,8 @@ Plan completo, fases y estado: `docs/PLAN.md` (mantenerlo actualizado al avanzar
 
 ```
 pyproject.toml                 Paquete de la app (en la raíz: así lo esperan bench get-app y Frappe Cloud)
+package.json                   Script build que `bench build` corre para compilar frontend/
+frontend/                      Panel RD Compliance (Vue 3 + frappe-ui 1.x, Vite, Tailwind 3) en /rd-compliance
 erpnext_rd/                    App Frappe propia
   hooks.py                   Hooks de la app (required_apps = erpnext)
   modules.txt                Módulos: ERPNext RD, DGII Fiscal, ECF, DGII Reportes, Padron RNC, Nomina RD, RD Compliance (navegación)
@@ -38,7 +40,8 @@ erpnext_rd/                    App Frappe propia
   dgii_reportes/             606, 607, 608, 609, apoyo IT-1 / IR-17
   padron_rnc/                Padrón RNC/Cédula y validaciones
   nomina_rd/                 TSS, ISR, INFOTEP, regalía, IR-3, archivo SUIR
-  rd_compliance/             Módulo de navegación: sidebar único con todas las secciones
+  rd_compliance/             Módulo de navegación: sidebar único con todas las secciones; panel.py = API del panel
+  www/rd_compliance.py       Página del panel (el HTML www/rd-compliance.html lo genera el build, no se versiona)
   dock/                      Ícono de la app en el dock de Frappe v16
   fixtures/                  Custom Fields / Property Setters exportados
   patches.txt, patches/      Migraciones de datos
@@ -81,6 +84,10 @@ docker exec deploy-backend-1 bench --site erp.localhost mariadb
 docker exec deploy-backend-1 bench --site erp.localhost set-config allow_tests true
 docker exec deploy-backend-1 bench --site erp.localhost run-tests --app erpnext_rd
 
+# Panel RD Compliance (frontend/): compilar sin Node en Windows, en un contenedor desechable.
+# Escribe erpnext_rd/public/frontend y erpnext_rd/www/rd-compliance.html (montados en el stack dev)
+MSYS_NO_PATHCONV=1 docker run --rm -u root --entrypoint bash -v "$PWD:/work" -v erpnext-rd-frontend-nm:/work/frontend/node_modules -w /work/frontend erpnext-rd:local -c "yarn install --frozen-lockfile && yarn build"
+
 # Logs
 docker logs -f deploy-backend-1
 docker logs deploy-create-site-1
@@ -110,6 +117,7 @@ docker logs deploy-create-site-1
 - El repo fuerza finales de línea LF (`.gitattributes`); los scripts `.sh` deben quedar en LF o fallan en el contenedor.
 - **Marketplace de Frappe Cloud (meta):** todo lo nuevo debe poder instalarse sin acceso a la máquina (solo `after_install`/`after_migrate`, patches, DocTypes de configuración y dependencias pip), funcionar sin HRMS y desinstalarse limpio. Requisitos en `docs/PLAN.md`, Fase 7. Para probar sin HRMS: `KEEP=1 DEV=1 deploy/ci/run-tests.sh` y en ese stack `bench new-site sin-hrms.localhost ... --install-app erpnext --install-app erpnext_rd`.
 - **Estándar visual: frappe-ui** (la base del escritorio v16). El HTML propio en reportes, diálogos y mensajes usa los tokens CSS del escritorio (`--ink-gray-*` para texto, `--outline-gray-*` para bordes, `--surface-*` para fondos, `--ink-amber-8` para avisos, `--ink-red-6` para errores): nunca colores hex fijos ni clases de Bootstrap, así se adapta solo al modo oscuro. Excepción: los formatos de impresión (van en papel).
+- **Panel RD Compliance** (`/rd-compliance`, enlace al inicio del sidebar del escritorio): SPA en `frontend/` con frappe-ui **1.0.2 fijada exacta** (más `yarn.lock`), mismo shell que v16 (`DesktopShell`, `Sidebar`, `PageHeader`). Solo lee: la API `rd_compliance/panel.py` (`contexto`, `resumen`) reutiliza `formatos.obtener` y `declaraciones.resumen_it1/ir17` para que los números cuadren con los reportes; los enlaces abren el escritorio (`/desk/...`). Roles: los de `formatos.ROLES`. El build lo hace `bench build` (script `build` del `package.json` de la raíz → `frontend/`), igual en la imagen y en Frappe Cloud; la salida no se versiona. Usar componentes de frappe-ui antes que HTML propio y no usar `@framework/ui` (no está en npm). Pantallas nuevas fuera del escritorio (monitor e-CF, portal de empleados) van como rutas de este mismo frontend.
 - Estilo Python de la app: tabs, comillas dobles, ruff con line-length 110 (ver `pyproject.toml`).
 
 ## Control de versiones (obligatorio)

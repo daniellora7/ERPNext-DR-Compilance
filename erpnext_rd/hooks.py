@@ -32,6 +32,11 @@ code_only_modules = {
 	"ERPNext RD": ["RD Compliance"],
 }
 
+# Panel RD Compliance (frontend frappe-ui en frontend/, página www/rd_compliance.py)
+website_route_rules = [
+	{"from_route": "/rd-compliance/<path:app_path>", "to_route": "rd-compliance"},
+]
+
 # Instalación
 # ------------
 

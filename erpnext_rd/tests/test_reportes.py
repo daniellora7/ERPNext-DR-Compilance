@@ -453,3 +453,28 @@ class TestReportesDGII(IntegrationTestCase):
 		self.assertIn("NCF duplicado", filas[0]["_avisos"])
 		self.assertTrue(filas[1]["_avisos"].startswith("otro; NCF duplicado"))
 		self.assertEqual(filas[2]["_avisos"], "")  # mismo NCF de otro proveedor: válido
+
+	# ------------------------------------------------------------------ Panel RD Compliance
+
+	def test_panel_cuadra_con_los_reportes(self):
+		from erpnext_rd.rd_compliance import panel
+
+		r = panel.resumen(EMPRESA, *SEPTIEMBRE)
+		por_formato = {f["formato"]: f for f in r["formatos"]}
+		it1 = declaraciones.resumen_it1(EMPRESA, *SEPTIEMBRE)
+
+		for formato, f in por_formato.items():
+			filas = formatos.obtener(formato, EMPRESA, *SEPTIEMBRE)
+			self.assertEqual(f["registros"], sum(1 for x in filas if x.get("_en_txt", True)))
+			self.assertEqual(str(f["vence"]), "2026-10-15")
+		self.assertIsNone(por_formato["608"]["monto"])
+		self.assertAlmostEqual(r["it1"]["total_a_pagar"], it1.total_a_pagar)
+		self.assertAlmostEqual(r["it1"]["itbis_deducible"], it1.itbis_deducible)
+		self.assertEqual(r["avisos"]["total"], len(r["avisos"]["lista"]))
+
+	def test_panel_solo_empresas_rd(self):
+		from erpnext_rd.rd_compliance import panel
+
+		self.assertIn(EMPRESA, [e.name for e in panel.contexto()["empresas"]])
+		with self.assertRaises(frappe.ValidationError):
+			panel.resumen("Empresa inexistente", *SEPTIEMBRE)
