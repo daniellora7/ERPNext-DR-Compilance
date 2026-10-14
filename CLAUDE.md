@@ -22,27 +22,27 @@ Plan completo, fases y estado: `docs/PLAN.md` (mantenerlo actualizado al avanzar
 
 - **Una sola instancia = un solo sitio Frappe = una sola base de datos MariaDB.** ERPNext, HRMS y `erpnext_rd` se instalan en el mismo sitio. Varias empresas = varias *Company* en ese sitio. No crear sitios ni bases de datos adicionales.
 - **MariaDB, no PostgreSQL** (es la base oficial y probada de ERPNext/HRMS).
-- **No hacer fork ni modificar** el código de Frappe, ERPNext o HRMS. Toda personalización va en `apps/erpnext_rd` mediante DocTypes propios, `hooks.py` (`doc_events`, `scheduler_events`, `override_*`), Custom Fields y Property Setters exportados como fixtures, y patches.
+- **No hacer fork ni modificar** el código de Frappe, ERPNext o HRMS. Toda personalización va en la app `erpnext_rd` mediante DocTypes propios, `hooks.py` (`doc_events`, `scheduler_events`, `override_*`), Custom Fields y Property Setters exportados como fixtures, y patches.
 - Tasas y topes que cambian por ley (TSS, ISR, INFOTEP, etc.) van en DocTypes de configuración editables, nunca hardcodeados.
 - Solo copiar código de terceros con licencia compatible (GPL-3, LGPL-3 o MIT). Repos sin licencia solo sirven de referencia. La app es GPL-3.0.
 
 ## Estructura
 
 ```
-apps/erpnext_rd/               App Frappe propia
-  erpnext_rd/
-    hooks.py                   Hooks de la app (required_apps = erpnext, hrms)
-    modules.txt                Módulos: ERPNext RD, DGII Fiscal, ECF, DGII Reportes, Padron RNC, Nomina RD, RD Compliance (navegación)
-    dgii_fiscal/               NCF, tipos de comprobante, campos fiscales
-    ecf/                       e-CF: XML, firma, envío/consulta DGII, recepción
-    dgii_reportes/             606, 607, 608, 609, apoyo IT-1 / IR-17
-    padron_rnc/                Padrón RNC/Cédula y validaciones
-    nomina_rd/                 TSS, ISR, INFOTEP, regalía, IR-3, archivo SUIR
-    rd_compliance/             Módulo de navegación: sidebar único con todas las secciones
-    dock/                      Ícono de la app en el dock de Frappe v16
-    fixtures/                  Custom Fields / Property Setters exportados
-    patches.txt, patches/      Migraciones de datos
-    tests/                     Tests de la app
+pyproject.toml                 Paquete de la app (en la raíz: así lo esperan bench get-app y Frappe Cloud)
+erpnext_rd/                    App Frappe propia
+  hooks.py                   Hooks de la app (required_apps = erpnext)
+  modules.txt                Módulos: ERPNext RD, DGII Fiscal, ECF, DGII Reportes, Padron RNC, Nomina RD, RD Compliance (navegación)
+  dgii_fiscal/               NCF, tipos de comprobante, campos fiscales
+  ecf/                       e-CF: XML, firma, envío/consulta DGII, recepción
+  dgii_reportes/             606, 607, 608, 609, apoyo IT-1 / IR-17
+  padron_rnc/                Padrón RNC/Cédula y validaciones
+  nomina_rd/                 TSS, ISR, INFOTEP, regalía, IR-3, archivo SUIR
+  rd_compliance/             Módulo de navegación: sidebar único con todas las secciones
+  dock/                      Ícono de la app en el dock de Frappe v16
+  fixtures/                  Custom Fields / Property Setters exportados
+  patches.txt, patches/      Migraciones de datos
+  tests/                     Tests de la app
 deploy/
   apps.json                    Apps oficiales y sus tags
   Containerfile                Imagen (basada en frappe_docker layered, MIT)
@@ -63,7 +63,7 @@ docker build -f deploy/Containerfile -t erpnext-rd:local .
 docker compose -f deploy/compose.yaml --env-file deploy/.env up -d
 docker compose -f deploy/compose.yaml --env-file deploy/.env down
 
-# DESARROLLO (recomendado): monta apps/erpnext_rd dentro de los contenedores, sin rebuild
+# DESARROLLO (recomendado): monta el paquete erpnext_rd/ dentro de los contenedores, sin rebuild
 docker compose -f deploy/compose.yaml -f deploy/compose.dev.yaml --env-file deploy/.env up -d
 #   cambios Python   -> docker restart deploy-backend-1 deploy-queue-short-1 deploy-queue-long-1 deploy-scheduler-1
 #   DocTypes/campos  -> docker exec deploy-backend-1 bench --site erp.localhost migrate
@@ -107,7 +107,7 @@ docker logs deploy-create-site-1
 - En el Containerfile, `sites/apps.txt` no termina en salto de línea: al agregar apps usar `printf '\n<app>\n'` y limpiar líneas vacías.
 - El repo fuerza finales de línea LF (`.gitattributes`); los scripts `.sh` deben quedar en LF o fallan en el contenedor.
 - **Marketplace de Frappe Cloud (meta):** todo lo nuevo debe poder instalarse sin acceso a la máquina (solo `after_install`/`after_migrate`, patches, DocTypes de configuración y dependencias pip). Requisitos en `docs/PLAN.md`, Fase 7.
-- Estilo Python de la app: tabs, comillas dobles, ruff con line-length 110 (ver `apps/erpnext_rd/pyproject.toml`).
+- Estilo Python de la app: tabs, comillas dobles, ruff con line-length 110 (ver `pyproject.toml`).
 
 ## Control de versiones (obligatorio)
 

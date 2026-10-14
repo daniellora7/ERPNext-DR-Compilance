@@ -1,4 +1,4 @@
-# Override de desarrollo: monta el código de erpnext_rd del repo dentro de los contenedores,
+# Override de desarrollo: monta el paquete erpnext_rd (raíz del repo) dentro de los contenedores,
 # así los cambios se ven sin reconstruir la imagen.
 #   docker compose -f deploy/compose.yaml -f deploy/compose.dev.yaml --env-file deploy/.env up -d
 # Cambios en Python: docker compose ... restart backend queue-short queue-long scheduler
@@ -8,7 +8,7 @@ x-app-mount: &app-mount
   volumes:
     - sites:/home/frappe/frappe-bench/sites
     - logs:/home/frappe/frappe-bench/logs
-    - ../apps/erpnext_rd:/home/frappe/frappe-bench/apps/erpnext_rd
+    - ../erpnext_rd:/home/frappe/frappe-bench/apps/erpnext_rd/erpnext_rd
 
 services:
   configurator: *app-mount

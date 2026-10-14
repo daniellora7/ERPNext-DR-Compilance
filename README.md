@@ -1,22 +1,33 @@
 # ERPNext RD
 
-ERPNext v16.50.0 + Frappe HR v16.50.0 + **erpnext_rd** (localización República Dominicana), empaquetado en Docker para correr en local y desplegar en Dokploy.
+Localización de **República Dominicana** para ERPNext v16, libre y de código abierto (GPL-3.0).
 
-Una sola instancia: un sitio Frappe = una base de datos MariaDB, con las tres apps instaladas.
+- **DGII Fiscal**: tipos de comprobante (B01–B17, E31–E47), secuencias NCF sin duplicados, NCF en ventas, compras y POS, validación de RNC y Cédula, catálogo de cuentas DGII (NIIF PYMES) con plantillas de ITBIS y retenciones, formatos de impresión fiscales.
+- **DGII Reportes**: formatos 606, 607, 608 y 609 con descarga del TXT oficial, y resúmenes de apoyo para el IT-1 y el IR-17.
+- **Padrón RNC**: padrón de contribuyentes de la DGII (se actualiza solo cada semana) y autocompletado de la razón social.
+- **Nómina RD** (requiere Frappe HR): AFP, SFS, SRL, INFOTEP con topes, ISR de asalariados y regalía pascual, con tasas editables.
+- **e-CF** (en desarrollo): facturación electrónica directa con la DGII.
 
-## Estructura
+Toda la lógica fiscal se aplica solo a las empresas con país *Dominican Republic*, así que la app convive con empresas de otros países en el mismo sitio.
 
-| Ruta | Contenido |
-|---|---|
-| `apps/erpnext_rd/` | App Frappe propia (módulos DGII Fiscal, ECF, DGII Reportes, Padron RNC, Nomina RD) |
-| `deploy/apps.json` | Versiones fijadas de ERPNext y HRMS |
-| `deploy/Containerfile` | Imagen con Frappe + ERPNext + HRMS + erpnext_rd |
-| `deploy/compose.yaml` | Stack completo (MariaDB, Redis, backend, frontend, workers, scheduler) |
-| `deploy/.env.example` | Variables; copiar a `deploy/.env` |
+## Instalación
 
-## Correr en local
+### Frappe Cloud
 
-Requiere Docker Desktop abierto.
+Próximamente en el Marketplace de Frappe Cloud.
+
+### Bench
+
+```bash
+bench get-app https://github.com/daniellora7/ERPNext-DR-Compilance --branch develop
+bench --site <sitio> install-app erpnext_rd
+```
+
+Requiere ERPNext v16. Frappe HR es opcional: si está instalado, se activa la Nómina RD.
+
+### Docker
+
+El repositorio trae una imagen y un stack Compose con Frappe + ERPNext + Frappe HR + ERPNext RD en un solo sitio y una sola base MariaDB (ver `deploy/`).
 
 ```bash
 cp deploy/.env.example deploy/.env   # cambiar contraseñas
@@ -24,19 +35,26 @@ docker compose -f deploy/compose.yaml --env-file deploy/.env up -d --build
 docker compose -f deploy/compose.yaml --env-file deploy/.env logs -f create-site
 ```
 
-Abrir http://localhost:8090 — usuario `Administrator`, contraseña `ADMIN_PASSWORD` del `.env`.
+Abrir http://localhost:8090 con el usuario `Administrator` y la contraseña `ADMIN_PASSWORD` del `.env`.
 
-Comprobar apps instaladas:
+## Estructura
+
+| Ruta | Contenido |
+|---|---|
+| `erpnext_rd/` | La app Frappe (módulos DGII Fiscal, DGII Reportes, Padron RNC, Nomina RD, ECF y el menú RD Compliance) |
+| `pyproject.toml` | Paquete de la app (lo usan `bench get-app` y Frappe Cloud) |
+| `deploy/` | Imagen Docker, stack Compose y script de CI |
+| `docs/PLAN.md` | Plan, fases y estado del proyecto |
+
+## Desarrollo
 
 ```bash
-docker compose -f deploy/compose.yaml --env-file deploy/.env exec backend bench --site erp.localhost list-apps
+docker compose -f deploy/compose.yaml -f deploy/compose.dev.yaml --env-file deploy/.env up -d
+DEV=1 deploy/ci/run-tests.sh
 ```
 
-## Actualizar
+`compose.dev.yaml` monta el paquete `erpnext_rd/` dentro de los contenedores, así no hace falta reconstruir la imagen. Ramas: `main` = estable, `develop` = integración, `feature/*` para trabajo nuevo.
 
-- **erpnext_rd**: cambiar código → `up -d --build` (el servicio `create-site` corre `migrate`).
-- **ERPNext/HRMS/Frappe**: cambiar tags en `deploy/apps.json` y `FRAPPE_BRANCH` en `deploy/Containerfile` → `up -d --build`.
+## Licencia
 
-## Ramas
-
-`main` = producción, `develop` = staging, `feature/*` vía PR. Tags `vX.Y.Z` por versión.
+GPL-3.0. Ver [LICENSE](LICENSE).

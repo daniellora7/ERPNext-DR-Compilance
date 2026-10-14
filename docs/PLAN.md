@@ -37,24 +37,20 @@ Decisión: el usuario quiere probar todo en Docker local antes de configurar Git
 
 ## Estructura del repo (GitHub, público: `daniellora7/ERPNext-DR-Compilance`)
 ```
-erpnext-rd/
-├── apps/erpnext_rd/            # app Frappe propia (bench new-app)
-│   └── erpnext_rd/
-│       ├── dgii_fiscal/        # módulo: NCF, tipos de comprobante, campos fiscales
-│       ├── ecf/                # módulo: e-CF (XML, firma, envío, consulta, recepción)
-│       ├── dgii_reportes/      # módulo: 606, 607, 608, 609, IT-1 helper, IR-17
-│       ├── padron_rnc/         # módulo: padrón RNC/Cédula
-│       ├── nomina_rd/          # módulo: TSS, ISR, INFOTEP, regalía, IR-3, archivo SUIR
-│       ├── fixtures/           # custom fields, property setters, print formats
-│       └── hooks.py
-├── deploy/
-│   ├── apps.json               # frappe/erpnext/hrms (tags v16.50.0) + erpnext_rd
-│   ├── compose.yaml            # stack para Dokploy
-│   └── .env.example
-├── .devcontainer/              # entorno de desarrollo (basado en frappe_docker)
-├── .github/workflows/
-│   ├── ci.yml                  # lint + tests de la app en cada PR
-│   └── build-image.yml         # build imagen → GHCR en tags/main
+ERPNext-DR-Compilance/          # la raíz del repo ES la app (así la instala bench get-app / Frappe Cloud)
+├── pyproject.toml              # paquete erpnext_rd
+├── erpnext_rd/
+│   ├── dgii_fiscal/            # módulo: NCF, tipos de comprobante, campos fiscales
+│   ├── ecf/                    # módulo: e-CF (XML, firma, envío, consulta, recepción)
+│   ├── dgii_reportes/          # módulo: 606, 607, 608, 609, IT-1 helper, IR-17
+│   ├── padron_rnc/             # módulo: padrón RNC/Cédula
+│   ├── nomina_rd/              # módulo: TSS, ISR, INFOTEP, regalía, IR-3, archivo SUIR (solo con HRMS)
+│   ├── rd_compliance/          # menú único RD Compliance
+│   └── hooks.py
+├── deploy/                     # imagen Docker, compose (local / Dokploy) y CI
+├── docs/
+├── .github/workflows/          # ci.yml (lint + tests), build-image.yml (GHCR)
+├── LICENSE                     # GPL-3.0
 └── README.md
 ```
 Ramas: `main` (producción), `develop` (staging), ramas `feature/*` con PR. Versionado semántico con tags `v1.0.0` → cada tag publica imagen `ghcr.io/<usuario>/erpnext-rd:<tag>`.
