@@ -6,7 +6,7 @@ Localización de **República Dominicana** para ERPNext v16, libre y de código 
 - **DGII Reportes**: formatos 606, 607, 608 y 609 con descarga del TXT oficial, y resúmenes de apoyo para el IT-1 y el IR-17.
 - **Padrón RNC**: padrón de contribuyentes de la DGII (se actualiza solo cada semana) y autocompletado de la razón social.
 - **Nómina RD** (requiere Frappe HR): AFP, SFS, SRL, INFOTEP con topes, ISR de asalariados y regalía pascual, con tasas editables.
-- **Panel RD Compliance** (`/rd-compliance`): en una pantalla, los plazos y montos del 606, 607, 608, 609, IT-1 e IR-17 del mes, las secuencias NCF por agotarse o vencer y los registros con observaciones antes de enviarlos. Hecho con [frappe-ui](https://ui.frappe.io), el mismo estilo del escritorio de Frappe v16.
+- **Panel RD Compliance** (en el escritorio, *RD Compliance → Panel de cumplimiento*; también en `/rd-compliance`): en una pantalla, los plazos y montos del 606, 607, 608, 609, IT-1 e IR-17 del mes, las secuencias NCF por agotarse o vencer y los registros con observaciones antes de enviarlos. Hecho con [frappe-ui](https://ui.frappe.io), el mismo estilo del escritorio de Frappe v16.
 - **e-CF** (en desarrollo): facturación electrónica directa con la DGII.
 
 Toda la lógica fiscal se aplica solo a las empresas con país *Dominican Republic*, así que la app convive con empresas de otros países en el mismo sitio.

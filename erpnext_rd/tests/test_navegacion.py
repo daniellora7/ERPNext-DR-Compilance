@@ -15,4 +15,8 @@ class TestSidebarRDCompliance(unittest.TestCase):
 			items = json.load(f)["items"]
 		primero = next(i for i in items if i["type"] == "Link")
 		self.assertIn(primero["link_type"], ("DocType", "Workspace"))
-		self.assertTrue(any(i.get("url") == "/rd-compliance" for i in items))
+
+		# El Panel abre dentro del escritorio, en la misma ventana: un enlace URL abriría otra pestaña
+		panel = next(i for i in items if i.get("label") == "Panel de cumplimiento")
+		self.assertEqual((panel["link_type"], panel["link_to"]), ("Page", "panel-cumplimiento"))
+		self.assertTrue(frappe.db.exists("Page", "panel-cumplimiento"))

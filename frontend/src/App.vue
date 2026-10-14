@@ -1,7 +1,12 @@
 <template>
 	<FrappeUIProvider>
+		<!-- Dentro del escritorio la navegación la da el sidebar del escritorio -->
+		<div v-if="embebido" class="h-screen overflow-y-auto">
+			<RouterView />
+		</div>
+
 		<!-- El shell usa h-full: necesita la altura de la ventana para fijar el sidebar y el encabezado -->
-		<DesktopShell class="h-screen">
+		<DesktopShell v-else class="h-screen">
 			<template #sidebar>
 				<Sidebar>
 					<SidebarHeader title="RD Compliance" subtitle="ERPNext RD">
@@ -57,7 +62,7 @@ import {
 } from "frappe-ui"
 
 import Logo from "@/components/Logo.vue"
-import { rutaDocumento, rutaReporte } from "@/utils"
+import { embebido, rutaDocumento, rutaReporte } from "@/utils"
 
 const reportes = [
 	{ label: "Formato 606", reporte: "Formato 606 DGII" },
@@ -67,5 +72,4 @@ const reportes = [
 	{ label: "Resumen IT-1", reporte: "Resumen IT-1 DGII" },
 	{ label: "Resumen IR-17", reporte: "Resumen IR-17 DGII" },
 ]
-
 </script>

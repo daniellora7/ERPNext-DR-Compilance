@@ -1,5 +1,14 @@
 // Utilidades del panel: formato de montos y fechas, y enlaces al escritorio de Frappe (/desk)
 
+// Dentro del escritorio el panel se muestra en un iframe (página /desk/panel-cumplimiento)
+export const embebido = (() => {
+	try {
+		return window.self !== window.top && Boolean(window.top.frappe)
+	} catch {
+		return false
+	}
+})()
+
 const moneda = new Intl.NumberFormat("es-DO", {
 	style: "currency",
 	currency: "DOP",
