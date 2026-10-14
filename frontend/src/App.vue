@@ -47,7 +47,6 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue"
 import {
 	DesktopShell,
 	FrappeUIProvider,
@@ -55,7 +54,6 @@ import {
 	SidebarHeader,
 	SidebarItem,
 	SidebarLabel,
-	useColorScheme,
 } from "frappe-ui"
 
 import Logo from "@/components/Logo.vue"
@@ -70,10 +68,4 @@ const reportes = [
 	{ label: "Resumen IR-17", reporte: "Resumen IR-17 DGII" },
 ]
 
-// Mismo tema que el usuario eligió en el escritorio (Light / Dark / Automatic)
-const { setColorScheme } = useColorScheme()
-onMounted(() => {
-	const tema = { Dark: "dark", Light: "light" }[window.desk_theme] || "system"
-	setColorScheme(tema)
-})
 </script>

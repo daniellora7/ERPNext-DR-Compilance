@@ -33,8 +33,8 @@
 			description="El panel muestra las empresas con país Dominican Republic. Configure el país de la empresa para ver su estado fiscal."
 		/>
 
-		<div v-if="!r && datos.loading" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-			<Skeleton v-for="i in 6" :key="i" class="h-40 rounded-lg" />
+		<div v-if="!r && datos.loading" class="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(16rem,1fr))]">
+			<Skeleton v-for="i in 6" :key="i" class="h-48 rounded-6" />
 		</div>
 
 		<template v-if="r">
@@ -54,11 +54,11 @@
 				<h2 class="mb-3 text-lg-semibold text-ink-gray-8">
 					Declaraciones de {{ MESES[r.periodo.mes - 1].toLowerCase() }} {{ r.periodo.anio }}
 				</h2>
-				<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+				<div class="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(16rem,1fr))]">
 					<Tarjeta
 						v-for="f in r.formatos"
 						:key="f.formato"
-						:titulo="`Formato ${f.formato}`"
+						:titulo="f.formato"
 						:subtitulo="SUBTITULOS[f.formato]"
 						:vence="f.vence"
 						:valor="formatoNumero(f.registros)"
@@ -69,7 +69,7 @@
 
 					<Tarjeta
 						titulo="IT-1"
-						subtitulo="Declaración de ITBIS"
+						subtitulo="ITBIS"
 						:vence="r.it1.vence"
 						:valor="formatoMoneda(r.it1.total_a_pagar)"
 						etiqueta-valor="Total a pagar"
@@ -87,7 +87,7 @@
 
 					<Tarjeta
 						titulo="IR-17"
-						subtitulo="Retenciones de ISR"
+						subtitulo="Retenciones ISR"
 						:vence="r.ir17.total_isr ? r.ir17.vence : null"
 						:valor="formatoMoneda(r.ir17.total_isr)"
 						:etiqueta-valor="r.ir17.total_isr ? 'ISR retenido' : 'Sin retenciones: no hay que presentarlo'"
@@ -110,7 +110,7 @@
 				</div>
 				<div
 					v-if="!r.secuencias.length"
-					class="flex flex-col items-center gap-3 rounded-lg border border-dashed border-outline-gray-2 px-4 py-8 text-center"
+					class="flex flex-col items-center gap-3 rounded-6 border border-dashed border-outline-gray-2 px-4 py-8 text-center"
 				>
 					<p class="text-base text-ink-gray-5">Esta empresa no tiene secuencias NCF registradas.</p>
 					<Button
@@ -120,7 +120,7 @@
 						:href="rutaDocumento('Secuencia NCF', 'new')"
 					/>
 				</div>
-				<div v-else class="divide-y divide-outline-gray-1 rounded-lg border border-outline-gray-2">
+				<div v-else class="divide-y divide-outline-gray-1 rounded-6 border border-outline-gray-1 bg-surface-base">
 					<div
 						v-for="s in r.secuencias"
 						:key="s.name"
@@ -161,12 +161,12 @@
 				</p>
 				<div
 					v-if="!r.avisos.total"
-					class="flex items-center gap-2 rounded-lg border border-outline-gray-2 px-4 py-3 text-base text-ink-gray-6"
+					class="flex items-center gap-2 rounded-6 border border-outline-gray-1 bg-surface-base px-4 py-3 text-base text-ink-gray-6"
 				>
 					<span class="lucide-circle-check size-4 text-ink-green-6" />
 					Sin observaciones en el período.
 				</div>
-				<div v-else class="divide-y divide-outline-gray-1 rounded-lg border border-outline-gray-2">
+				<div v-else class="divide-y divide-outline-gray-1 rounded-6 border border-outline-gray-1 bg-surface-base">
 					<div
 						v-for="(a, i) in r.avisos.lista"
 						:key="i"
@@ -230,9 +230,9 @@ import {
 const API = "/api/v2/method/erpnext_rd.rd_compliance.panel"
 
 const SUBTITULOS = {
-	606: "Compras de bienes y servicios",
-	607: "Ventas de bienes y servicios",
-	608: "Comprobantes anulados",
+	606: "Compras",
+	607: "Ventas",
+	608: "Anulados",
 	609: "Pagos al exterior",
 }
 
