@@ -1,6 +1,7 @@
-"""Instalación y migración: campos personalizados y catálogos DGII.
+"""Instalación, migración y desinstalación: campos personalizados, catálogos DGII y menú.
 
-Es idempotente: corre en after_install y after_migrate.
+Es idempotente: corre en after_install, after_migrate y cuando se instala Frappe HR. Todo se
+configura solo, sin pasos en la consola, para que la app se pueda instalar desde Frappe Cloud.
 """
 
 import frappe
@@ -20,10 +21,15 @@ from erpnext_rd.dgii_fiscal.catalogos import (
 	TIPOS_RETENCION_ISR,
 	TIPOS_SERVICIO_EXTERIOR,
 )
-from erpnext_rd.nomina_rd import salario
+from erpnext_rd.nomina_rd import hrms_instalado, salario
 from erpnext_rd.nomina_rd.salario import CONCEPTOS as CONCEPTOS_NOMINA
 
 MODULO = "DGII Fiscal"
+
+# DocTypes de Frappe HR que reciben campos de la app (solo si hrms está instalado)
+DOCTYPES_HRMS = ("Salary Component",)
+SIDEBAR = "RD Compliance"
+SECCION_NOMINA = "Nómina RD"
 
 
 def _opciones(lista):
@@ -339,6 +345,9 @@ def campos_personalizados() -> dict:
 
 def crear_campos_personalizados():
 	campos = campos_personalizados()
+	if not hrms_instalado():
+		for doctype in DOCTYPES_HRMS:
+			campos.pop(doctype, None)
 	for lista in campos.values():
 		for campo in lista:
 			campo["module"] = MODULO
@@ -428,6 +437,23 @@ def formato_impresion_por_defecto():
 				validate_fields_for_doctype=False,
 			)
 
+	# Con el módulo puesto, Frappe los borra al desinstalar la app junto con los formatos
+	frappe.db.set_value(
+		"Property Setter",
+		{
+			"property": "default_print_format",
+			"value": ("in", _formatos_fiscales()),
+			"module": ("is", "not set"),
+		},
+		"module",
+		MODULO,
+		update_modified=False,
+	)
+
+
+def _formatos_fiscales() -> list[str]:
+	return [formato for formato, _reemplazables in FORMATOS_POR_DEFECTO.values()]
+
 
 def asegurar_navegacion():
 	"""Importa el sidebar de RD Compliance si falta.
@@ -445,6 +471,37 @@ def asegurar_navegacion():
 	import_file_by_path(ruta, force=True)
 
 
+def ajustar_menu_nomina():
+	"""Muestra la sección Nómina RD del menú solo si Frappe HR está instalado."""
+	if not frappe.db.exists("Sidebar", SIDEBAR):
+		return
+	oculto = 0 if hrms_instalado() else 1
+	en_nomina = False
+	for fila in frappe.get_all(
+		"Sidebar Item",
+		filters={"parent": SIDEBAR, "parenttype": "Sidebar"},
+		fields=["name", "type", "label", "hidden"],
+		order_by="idx",
+	):
+		if fila.type == "Section Break":
+			en_nomina = fila.label == SECCION_NOMINA
+		if en_nomina and fila.hidden != oculto:
+			frappe.db.set_value("Sidebar Item", fila.name, "hidden", oculto, update_modified=False)
+
+
+def programar_padron_inicial():
+	"""Sitio nuevo: descarga el padrón RNC en segundo plano (cola long), sin pasos en la consola.
+
+	Después lo actualiza la tarea semanal o el botón de Configuración DGII."""
+	if frappe.flags.in_test or getattr(frappe, "in_test", False):
+		return
+	if frappe.get_all("Contribuyente DGII", limit=1):
+		return
+	from erpnext_rd.padron_rnc.padron import encolar
+
+	encolar()
+
+
 def setup():
 	crear_campos_personalizados()
 	formato_impresion_por_defecto()
@@ -452,6 +509,7 @@ def setup():
 	inicializar_formas_pago()
 	inicializar_configuracion()
 	asegurar_navegacion()
+	ajustar_menu_nomina()
 	frappe.clear_cache()
 	catalogo_cuentas.aplicar_a_empresas_rd()
 	salario.crear_componentes()
@@ -459,7 +517,46 @@ def setup():
 
 def after_install():
 	setup()
+	programar_padron_inicial()
 
 
 def after_migrate():
 	setup()
+	programar_padron_inicial()
+
+
+def al_instalar_app(app_name: str):
+	"""after_app_install: Frappe HR instalado después de esta app -> activa la Nómina RD."""
+	if app_name == "hrms":
+		setup()
+
+
+def al_desinstalar_app(app_name: str):
+	"""after_app_uninstall: sin Frappe HR se quitan sus campos y la sección del menú."""
+	if app_name != "hrms":
+		return
+	for nombre in frappe.get_all(
+		"Custom Field", filters={"dt": ("in", DOCTYPES_HRMS), "module": MODULO}, pluck="name"
+	):
+		frappe.delete_doc("Custom Field", nombre, force=True, ignore_permissions=True)
+	ajustar_menu_nomina()
+	# Frappe llama este hook después del último commit de la desinstalación
+	frappe.db.commit()  # nosemgrep
+	frappe.clear_cache()
+
+
+def before_uninstall():
+	"""Quita lo que Frappe no borra solo al desinstalar (lo que no cuelga de un módulo de la app).
+
+	Campos personalizados, formatos, reportes, DocTypes y el menú tienen módulo y los borra Frappe.
+	Los datos contables del usuario (cuentas, plantillas de impuestos, facturas) se conservan."""
+	frappe.db.delete(
+		"Property Setter", {"property": "default_print_format", "value": ("in", _formatos_fiscales())}
+	)
+	for job in frappe.get_all(
+		"Scheduled Job Type", filters={"method": ("like", "erpnext_rd.%")}, pluck="name"
+	):
+		frappe.delete_doc("Scheduled Job Type", job, force=True, ignore_permissions=True)
+	if frappe.db.exists("DocType", "Dock") and frappe.db.exists("Dock", "erpnext_rd"):
+		frappe.delete_doc("Dock", "erpnext_rd", force=True, ignore_permissions=True)
+	frappe.clear_cache()

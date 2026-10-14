@@ -26,8 +26,9 @@ RUN bench init \
 
 WORKDIR /home/frappe/frappe-bench
 
-# App propia desde el repo local
-COPY --chown=frappe:frappe apps/erpnext_rd apps/erpnext_rd
+# App propia desde el repo local (la app vive en la raíz del repo, como la espera `bench get-app`)
+COPY --chown=frappe:frappe pyproject.toml README.md LICENSE apps/erpnext_rd/
+COPY --chown=frappe:frappe erpnext_rd apps/erpnext_rd/erpnext_rd
 
 RUN (env/bin/python -m pip --version >/dev/null 2>&1 \
       && env/bin/python -m pip install --no-cache-dir -e apps/erpnext_rd) \

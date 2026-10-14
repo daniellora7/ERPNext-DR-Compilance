@@ -113,16 +113,22 @@ def sincronizar_padron():
 	return total
 
 
-@frappe.whitelist()
-def encolar_sincronizacion():
-	frappe.only_for(("System Manager", "Accounts Manager"))
+def encolar():
+	"""Pone la sincronización en la cola long (una sola a la vez)."""
 	frappe.enqueue(
 		"erpnext_rd.padron_rnc.padron.sincronizar_padron",
 		queue="long",
 		timeout=3600,
 		job_id="erpnext_rd:sincronizar_padron",
 		deduplicate=True,
+		enqueue_after_commit=True,
 	)
+
+
+@frappe.whitelist()
+def encolar_sincronizacion():
+	frappe.only_for(("System Manager", "Accounts Manager"))
+	encolar()
 	return _("Sincronización del padrón en cola. Puede tardar algunos minutos.")
 
 

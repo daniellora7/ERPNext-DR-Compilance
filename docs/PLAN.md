@@ -37,24 +37,20 @@ Decisión: el usuario quiere probar todo en Docker local antes de configurar Git
 
 ## Estructura del repo (GitHub, público: `daniellora7/ERPNext-DR-Compilance`)
 ```
-erpnext-rd/
-├── apps/erpnext_rd/            # app Frappe propia (bench new-app)
-│   └── erpnext_rd/
-│       ├── dgii_fiscal/        # módulo: NCF, tipos de comprobante, campos fiscales
-│       ├── ecf/                # módulo: e-CF (XML, firma, envío, consulta, recepción)
-│       ├── dgii_reportes/      # módulo: 606, 607, 608, 609, IT-1 helper, IR-17
-│       ├── padron_rnc/         # módulo: padrón RNC/Cédula
-│       ├── nomina_rd/          # módulo: TSS, ISR, INFOTEP, regalía, IR-3, archivo SUIR
-│       ├── fixtures/           # custom fields, property setters, print formats
-│       └── hooks.py
-├── deploy/
-│   ├── apps.json               # frappe/erpnext/hrms (tags v16.50.0) + erpnext_rd
-│   ├── compose.yaml            # stack para Dokploy
-│   └── .env.example
-├── .devcontainer/              # entorno de desarrollo (basado en frappe_docker)
-├── .github/workflows/
-│   ├── ci.yml                  # lint + tests de la app en cada PR
-│   └── build-image.yml         # build imagen → GHCR en tags/main
+ERPNext-DR-Compilance/          # la raíz del repo ES la app (así la instala bench get-app / Frappe Cloud)
+├── pyproject.toml              # paquete erpnext_rd
+├── erpnext_rd/
+│   ├── dgii_fiscal/            # módulo: NCF, tipos de comprobante, campos fiscales
+│   ├── ecf/                    # módulo: e-CF (XML, firma, envío, consulta, recepción)
+│   ├── dgii_reportes/          # módulo: 606, 607, 608, 609, IT-1 helper, IR-17
+│   ├── padron_rnc/             # módulo: padrón RNC/Cédula
+│   ├── nomina_rd/              # módulo: TSS, ISR, INFOTEP, regalía, IR-3, archivo SUIR (solo con HRMS)
+│   ├── rd_compliance/          # menú único RD Compliance
+│   └── hooks.py
+├── deploy/                     # imagen Docker, compose (local / Dokploy) y CI
+├── docs/
+├── .github/workflows/          # ci.yml (lint + tests), build-image.yml (GHCR)
+├── LICENSE                     # GPL-3.0
 └── README.md
 ```
 Ramas: `main` (producción), `develop` (staging), ramas `feature/*` con PR. Versionado semántico con tags `v1.0.0` → cada tag publica imagen `ghcr.io/<usuario>/erpnext-rd:<tag>`.
@@ -110,12 +106,12 @@ Cada nueva funcionalidad = nuevo módulo en `erpnext_rd` (o nueva app si es inde
 Objetivo: que la app se instale desde Frappe Cloud como las demás localizaciones (p. ej. México e-Invoice). Repo público: https://github.com/daniellora7/ERPNext-DR-Compilance (GPL-3.0).
 
 Requisitos a cumplir (tenerlos en cuenta desde ya en todo lo nuevo):
-- **App en la raíz del repo**: Frappe Cloud hace `bench get-app` del repo, así que `pyproject.toml` y el paquete `erpnext_rd/` deben estar en la raíz (hoy están en `apps/erpnext_rd/`). Opción: mover la app a la raíz y dejar `deploy/` y `docs/` como carpetas extra, o separar el despliegue Docker en otro repo.
+- ✅ **App en la raíz del repo** (2026-10-14): `pyproject.toml` y el paquete `erpnext_rd/` están en la raíz, como los espera `bench get-app`; `deploy/` y `docs/` quedan como carpetas extra.
 - **Rama por versión de Frappe**: `version-16` (y luego `version-17`), compatible con la versión que ofrezca Frappe Cloud.
-- **Sin acceso a la máquina**: nada de pasos manuales, scripts de shell ni `docker exec`. Todo se configura en `after_install`/`after_migrate`, patches y DocTypes de configuración. Dependencias solo de pip en `pyproject.toml` (y apt en `[deploy.dependencies.apt]` si hiciera falta).
-- **Instalación limpia en sitio nuevo y en sitios con datos** (multiempresa, multipaís): ya se cumple con `es_empresa_rd`; mantenerlo. Agregar `before_uninstall` que quite campos personalizados y el sidebar.
-- **HRMS opcional**: hoy `required_apps = ["erpnext", "hrms"]` obliga a instalar HRMS. Para el Marketplace conviene que Nómina RD se active solo si HRMS está instalado (ya se verifica en `crear_componentes`) y quitar `hrms` de `required_apps`, o publicar la nómina como app aparte.
-- **Jobs pesados en cola**: la sincronización del padrón RNC (~800 mil filas) debe correr en `queue long` y respetar los límites de CPU/tiempo de Frappe Cloud.
+- ✅ **Sin acceso a la máquina** (se cumple hoy; mantenerlo): nada de pasos manuales, scripts de shell ni `docker exec`. Todo se configura en `after_install`/`after_migrate`, patches y DocTypes de configuración. Dependencias solo de pip en `pyproject.toml` (y apt en `[deploy.dependencies.apt]` si hiciera falta).
+- ✅ **Instalación y desinstalación limpias** (2026-10-14): sitio nuevo, sitio con datos (multiempresa, multipaís con `es_empresa_rd`) y reinstalación probados. `before_uninstall` quita formato por defecto, tareas programadas y Dock; Frappe borra lo que tiene módulo.
+- ✅ **HRMS opcional** (2026-10-14): `required_apps = ["frappe/erpnext"]`. Sin HRMS la app instala y pasa los tests (los de recibos de nómina se omiten); si HRMS se instala después, la Nómina RD se activa sola (campos, componentes, menú) y se retira si se desinstala. El CI (`deploy/ci/run-tests.sh`) corre los tests también en un sitio sin HRMS.
+- ✅ **Jobs pesados en cola** (2026-10-14): el padrón RNC se descarga solo en la cola `long` al instalar (si está vacío), cada semana y con el botón de Configuración DGII. Falta medir tiempo y memoria en un plan de Frappe Cloud.
 - **Ficha del Marketplace**: logo, capturas, descripción, documentación de uso y enlace de soporte; CI verde y releases con tag.
 - **Secretos**: el certificado `.p12` y su clave se suben por la UI (campos Attach privado + Password), nunca en el repo.
 
