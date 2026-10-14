@@ -3,6 +3,8 @@
 import io
 import time
 import zipfile
+from datetime import timedelta
+from email.utils import format_datetime, parsedate_to_datetime
 
 import frappe
 import requests
@@ -15,6 +17,16 @@ from erpnext_rd.dgii_fiscal.validaciones import limpiar_identificacion
 # RNC|RAZÓN SOCIAL|NOMBRE COMERCIAL|ACTIVIDAD|...|...|...|...|FECHA INICIO|ESTADO|RÉGIMEN
 URL_PADRON = "https://www.dgii.gov.do/app/WebApps/Consultas/RNC/DGII_RNC.zip"
 LOTE = 5000
+# La DGII sirve el archivo desde varios servidores cuyas copias difieren por segundos en su fecha
+# (Last-Modified): dos fechas a menos de una hora se consideran la misma versión.
+MARGEN_VERSION = timedelta(hours=1)
+
+
+def _fecha_http(valor: str | None):
+	try:
+		return parsedate_to_datetime(valor) if valor else None
+	except (TypeError, ValueError):
+		return None
 
 
 def parsear_linea(linea: str) -> tuple | None:
@@ -35,16 +47,27 @@ def parsear_linea(linea: str) -> tuple | None:
 	)
 
 
-def descargar_padron(intentos: int = 4) -> bytes:
-	"""Descarga el ZIP. El servidor de la DGII a veces corta la conexión: se reintenta."""
+def descargar_padron(version: str | None = None, intentos: int = 4) -> tuple[bytes | None, str | None]:
+	"""Descarga el ZIP si la DGII publicó uno más reciente que `version` (su Last-Modified).
+
+	Devuelve (contenido, versión). Sin cambios el servidor responde 304 sin enviar el archivo y el
+	contenido es None. El servidor de la DGII a veces corta la conexión: se reintenta."""
+	encabezados = {"User-Agent": "Mozilla/5.0 ERPNext-RD"}
+	limite = _fecha_http(version) and _fecha_http(version) + MARGEN_VERSION
+	if limite:
+		encabezados["If-Modified-Since"] = format_datetime(limite, usegmt=True)
+
 	for intento in range(1, intentos + 1):
 		try:
-			respuesta = requests.get(
-				URL_PADRON, timeout=300, headers={"User-Agent": "Mozilla/5.0 ERPNext-RD"}
-			)
+			respuesta = requests.get(URL_PADRON, timeout=300, headers=encabezados)
 			respuesta.raise_for_status()
+			nueva = respuesta.headers.get("Last-Modified")
+			# 304, o un servidor que ignora If-Modified-Since pero envía la misma versión
+			fecha = _fecha_http(nueva)
+			if respuesta.status_code == 304 or (limite and fecha and fecha <= limite):
+				return None, version
 			zipfile.ZipFile(io.BytesIO(respuesta.content)).testzip()
-			return respuesta.content
+			return respuesta.content, nueva
 		except (requests.RequestException, zipfile.BadZipFile):
 			if intento == intentos:
 				raise
@@ -97,24 +120,36 @@ def _guardar_lote(lote: list[tuple], ahora, usuario) -> int:
 	return len(lote)
 
 
-def sincronizar_padron():
-	"""Tarea programada: descarga e importa el padrón completo (~800 mil registros)."""
+def sincronizar_padron(forzar: bool = False) -> int | None:
+	"""Descarga e importa el padrón completo (~800 mil registros) si la DGII publicó una versión
+	nueva. Devuelve los registros procesados, o None si no hubo cambios.
+
+	`forzar` (botón de Configuración DGII) descarga aunque la versión sea la misma; con el padrón
+	vacío siempre se descarga."""
+	version = None
+	if not forzar and frappe.get_all("Contribuyente DGII", limit=1):
+		version = frappe.db.get_single_value("Configuracion DGII", "padron_version_dgii")
+
 	try:
-		total = importar_padron(descargar_padron())
+		contenido, version = descargar_padron(version)
+		total = importar_padron(contenido) if contenido else None
 	except Exception:
 		frappe.log_error(title="Padrón RNC DGII: error al sincronizar")
 		raise
 
-	frappe.db.set_single_value(
-		"Configuracion DGII",
-		{"padron_ultima_sincronizacion": now_datetime(), "padron_registros": total},
-	)
+	valores = {"padron_ultima_verificacion": now_datetime()}
+	if total is not None:
+		valores.update(
+			padron_ultima_sincronizacion=now_datetime(), padron_registros=total, padron_version_dgii=version
+		)
+	frappe.db.set_single_value("Configuracion DGII", valores)
 	frappe.db.commit()
 	return total
 
 
-def encolar():
-	"""Pone la sincronización en la cola long (una sola a la vez)."""
+def encolar(forzar: bool = False):
+	"""Pone la sincronización en la cola long (una sola a la vez). La tarea diaria de las 2:00 a. m.
+	llama aquí sin `forzar`: solo descarga si la DGII publicó un archivo nuevo."""
 	frappe.enqueue(
 		"erpnext_rd.padron_rnc.padron.sincronizar_padron",
 		queue="long",
@@ -122,13 +157,14 @@ def encolar():
 		job_id="erpnext_rd:sincronizar_padron",
 		deduplicate=True,
 		enqueue_after_commit=True,
+		forzar=forzar,
 	)
 
 
 @frappe.whitelist()
 def encolar_sincronizacion():
 	frappe.only_for(("System Manager", "Accounts Manager"))
-	encolar()
+	encolar(forzar=True)
 	return _("Sincronización del padrón en cola. Puede tardar algunos minutos.")
 
 

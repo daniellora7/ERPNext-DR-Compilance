@@ -492,7 +492,7 @@ def ajustar_menu_nomina():
 def programar_padron_inicial():
 	"""Sitio nuevo: descarga el padrón RNC en segundo plano (cola long), sin pasos en la consola.
 
-	Después lo actualiza la tarea semanal o el botón de Configuración DGII."""
+	Después lo actualiza la tarea diaria (solo si la DGII publicó uno nuevo) o el botón de Configuración DGII."""
 	if frappe.flags.in_test or getattr(frappe, "in_test", False):
 		return
 	if frappe.get_all("Contribuyente DGII", limit=1):

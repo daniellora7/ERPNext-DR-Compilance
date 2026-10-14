@@ -17,7 +17,9 @@
   "aplicar_catalogo_cuentas",
   "section_padron",
   "padron_ultima_sincronizacion",
-  "padron_registros"
+  "padron_registros",
+  "padron_ultima_verificacion",
+  "padron_version_dgii"
  ],
  "fields": [
   {
@@ -104,11 +106,25 @@
    "fieldtype": "Int",
    "label": "Registros en el padrón",
    "read_only": 1
+  },
+  {
+   "description": "La tarea diaria de las 2:00 a. m. revisa si la DGII publicó un padrón nuevo; si no, no descarga nada.",
+   "fieldname": "padron_ultima_verificacion",
+   "fieldtype": "Datetime",
+   "label": "Última verificación",
+   "read_only": 1
+  },
+  {
+   "description": "Fecha de publicación (Last-Modified) del archivo de la DGII importado.",
+   "fieldname": "padron_version_dgii",
+   "fieldtype": "Data",
+   "label": "Versión del archivo DGII",
+   "read_only": 1
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-12 18:00:00.000000",
+ "modified": "2026-10-14 21:00:00.000000",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Configuracion DGII",
