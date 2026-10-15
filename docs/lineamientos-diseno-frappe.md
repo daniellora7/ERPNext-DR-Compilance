@@ -68,3 +68,13 @@ Usar los de frappe-ui antes que HTML propio: `Button`, `TextInput`, `Select`, `D
 - [ ] Componentes de frappe-ui en el panel; tipografía con sufijo de peso.
 - [ ] Revisado en claro y oscuro, y en móvil.
 - [ ] Avisos y enlaces junto al dato que los motiva, sin saturar la pantalla.
+
+## Revisión del 2026-10-17
+
+- ✅ Panel RD Compliance (frappe-ui): tokens, radios numéricos, íconos Lucide y tipografía con sufijo de peso.
+- ✅ Reportes y formularios del escritorio: el HTML propio solo usa tokens (`--ink-*`, `--outline-*`), sin hex ni Bootstrap.
+- ✅ Menús: etiquetas con mayúscula solo al inicio y un mismo patrón, «código (qué es)»: «606 (compras)», «IR-3 (retenciones del mes)»; TSS y DGII en secciones separadas.
+- ✅ Títulos de página: nombres de los DocTypes traducidos con tildes y mayúscula solo al inicio (`locale/es.po`).
+- ✅ Íconos del dock: estilo *soft* de Frappe v16.52.
+- ✅ Formatos de impresión: editables en el constructor de formatos de Frappe.
+
