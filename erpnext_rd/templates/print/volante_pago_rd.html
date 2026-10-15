@@ -1,0 +1,119 @@
+{#- Volante de pago RD (recibo de nómina). Datos: erpnext_rd.nomina_rd.volante.rd_datos_volante -#}
+{%- set v = rd_datos_volante(doc) -%}
+<style>
+	.rd-volante { font-family: "Inter", Arial, sans-serif; font-size: 11px; color: #222; }
+	.rd-volante table { width: 100%; border-collapse: collapse; }
+	.rd-volante .rd-cab td { vertical-align: top; }
+	.rd-volante .rd-empresa { font-size: 16px; font-weight: 700; }
+	.rd-volante .rd-titulo { font-size: 14px; font-weight: 700; text-align: right; }
+	.rd-volante .rd-der { text-align: right; }
+	.rd-volante .rd-muted { color: #666; }
+	.rd-volante .rd-caja { border: 1px solid #ccc; border-radius: 6px; padding: 8px 10px; margin-top: 10px; }
+	.rd-volante .rd-caja td { padding: 2px 0; vertical-align: top; }
+	.rd-volante .rd-columnas { margin-top: 12px; }
+	.rd-volante .rd-columnas > tbody > tr > td { width: 50%; vertical-align: top; }
+	.rd-volante .rd-columnas > tbody > tr > td:first-child { padding-right: 8px; }
+	.rd-volante .rd-columnas > tbody > tr > td:last-child { padding-left: 8px; }
+	.rd-volante .rd-detalle th { background: #f3f3f3; border-bottom: 1px solid #ccc; padding: 6px; text-align: left; font-size: 10px; text-transform: uppercase; }
+	.rd-volante .rd-detalle td { border-bottom: 1px solid #eee; padding: 5px 6px; }
+	.rd-volante .rd-detalle .rd-subtotal td { font-weight: 700; border-top: 1px solid #ccc; border-bottom: none; }
+	.rd-volante .num { text-align: right !important; white-space: nowrap; }
+	.rd-volante .rd-neto { margin-top: 12px; border: 2px solid #222; border-radius: 6px; padding: 8px 10px; }
+	.rd-volante .rd-neto td { font-size: 14px; font-weight: 700; }
+	.rd-volante .rd-aportes { margin-top: 12px; font-size: 10px; }
+	.rd-volante .rd-firma { margin-top: 40px; width: 45%; border-top: 1px solid #222; text-align: center; padding-top: 4px; }
+	.rd-volante .rd-estado { text-align: center; font-size: 16px; font-weight: 700; color: #c00; margin: 6px 0; }
+</style>
+
+<div class="rd-volante">
+	{%- if letter_head and not no_letterhead %}<div class="letter-head">{{ letter_head }}</div>{% endif -%}
+	{%- if doc.docstatus == 0 %}<div class="rd-estado">BORRADOR</div>{% endif -%}
+	{%- if doc.docstatus == 2 %}<div class="rd-estado">ANULADO</div>{% endif %}
+
+	<table class="rd-cab">
+		<tr>
+			<td style="width: 55%">
+				<div class="rd-empresa">{{ v.empresa }}</div>
+				{% if v.rnc %}<div><b>RNC:</b> {{ v.rnc }}</div>{% endif %}
+			</td>
+			<td>
+				<div class="rd-titulo">Volante de pago</div>
+				<div class="rd-der">Período: {{ v.periodo }}</div>
+				<div class="rd-der">Fecha de pago: {{ v.fecha }}</div>
+				<div class="rd-der rd-muted">Recibo: {{ doc.name }}</div>
+			</td>
+		</tr>
+	</table>
+
+	<div class="rd-caja">
+		<table>
+			<tr>
+				<td style="width: 55%">
+					<div><b>Empleado:</b> {{ v.empleado }} <span class="rd-muted">({{ doc.employee }})</span></div>
+					{% if v.documento %}<div><b>{{ v.tipo_documento }}:</b> {{ v.documento }}</div>{% endif %}
+					{% if v.nss %}<div><b>NSS:</b> {{ v.nss }}</div>{% endif %}
+					{% if v.cargo %}<div><b>Cargo:</b> {{ v.cargo }}</div>{% endif %}
+					{% if v.departamento %}<div><b>Departamento:</b> {{ v.departamento }}</div>{% endif %}
+				</td>
+				<td>
+					{% if v.ingreso %}<div><b>Fecha de ingreso:</b> {{ v.ingreso }}</div>{% endif %}
+					{% if v.afp %}<div><b>AFP:</b> {{ v.afp }}</div>{% endif %}
+					{% if v.ars %}<div><b>ARS:</b> {{ v.ars }}</div>{% endif %}
+					<div><b>Días pagados:</b> {{ v.dias }}</div>
+				</td>
+			</tr>
+		</table>
+	</div>
+
+	<table class="rd-columnas">
+		<tr>
+			<td>
+				<table class="rd-detalle">
+					<thead><tr><th>Ingresos</th><th class="num">Monto</th></tr></thead>
+					<tbody>
+						{% for f in v.ingresos %}
+						<tr><td>{{ _(f.concepto) }}</td><td class="num">{{ frappe.format_value(f.monto, {"fieldtype": "Currency"}, currency=doc.currency) }}</td></tr>
+						{% endfor %}
+						<tr class="rd-subtotal"><td>Total ingresos</td><td class="num">{{ doc.get_formatted("gross_pay") }}</td></tr>
+					</tbody>
+				</table>
+			</td>
+			<td>
+				<table class="rd-detalle">
+					<thead><tr><th>Descuentos</th><th class="num">Monto</th></tr></thead>
+					<tbody>
+						{% for f in v.descuentos %}
+						<tr><td>{{ _(f.concepto) }}</td><td class="num">{{ frappe.format_value(f.monto, {"fieldtype": "Currency"}, currency=doc.currency) }}</td></tr>
+						{% else %}
+						<tr><td class="rd-muted" colspan="2">Sin descuentos</td></tr>
+						{% endfor %}
+						<tr class="rd-subtotal"><td>Total descuentos</td><td class="num">{{ doc.get_formatted("total_deduction") }}</td></tr>
+					</tbody>
+				</table>
+			</td>
+		</tr>
+	</table>
+
+	<div class="rd-neto">
+		<table>
+			<tr><td>Neto a pagar</td><td class="num">{{ doc.get_formatted("net_pay") }}</td></tr>
+		</table>
+		{% if doc.total_in_words %}<div class="rd-muted">{{ doc.total_in_words }}</div>{% endif %}
+	</div>
+
+	{% if v.aportes %}
+	<div class="rd-aportes">
+		<table class="rd-detalle">
+			<thead><tr><th>Aportes del empleador (no se descuentan)</th><th class="num">Monto</th></tr></thead>
+			<tbody>
+				{% for f in v.aportes %}
+				<tr><td>{{ _(f.concepto) }}</td><td class="num">{{ frappe.format_value(f.monto, {"fieldtype": "Currency"}, currency=doc.currency) }}</td></tr>
+				{% endfor %}
+				<tr class="rd-subtotal"><td>Total aportes</td><td class="num">{{ frappe.format_value(v.total_aportes, {"fieldtype": "Currency"}, currency=doc.currency) }}</td></tr>
+			</tbody>
+		</table>
+	</div>
+	{% endif %}
+
+	<div class="rd-firma">Recibí conforme</div>
+</div>

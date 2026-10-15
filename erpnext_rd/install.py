@@ -21,7 +21,7 @@ from erpnext_rd.dgii_fiscal.catalogos import (
 	TIPOS_RETENCION_ISR,
 	TIPOS_SERVICIO_EXTERIOR,
 )
-from erpnext_rd.nomina_rd import hrms_instalado, salario
+from erpnext_rd.nomina_rd import hrms_instalado, salario, volante
 from erpnext_rd.nomina_rd.salario import CONCEPTOS as CONCEPTOS_NOMINA
 
 MODULO = "DGII Fiscal"
@@ -833,6 +833,7 @@ def prestaciones_y_feriados():
 		vacaciones.crear_componente_y_tipo()
 		regalia.crear_componente()
 		horas_extras.crear_componente_y_tipo()
+		volante.crear_formato()
 	feriados.asegurar_lista_feriados()
 
 
@@ -978,6 +979,7 @@ def al_desinstalar_app(app_name: str):
 		frappe.delete_doc("Custom Field", nombre, force=True, ignore_permissions=True)
 	frappe.db.delete("Property Setter", {"doc_type": ("in", DOCTYPES_HRMS), "module": MODULO})
 	quitar_dock_nomina()
+	volante.quitar_formato()
 	# Frappe llama este hook después del último commit de la desinstalación
 	frappe.db.commit()  # nosemgrep
 	frappe.clear_cache()
@@ -991,6 +993,7 @@ def before_uninstall():
 	frappe.db.delete(
 		"Property Setter", {"property": "default_print_format", "value": ("in", _formatos_fiscales())}
 	)
+	volante.quitar_formato()
 	for job in frappe.get_all(
 		"Scheduled Job Type", filters={"method": ("like", "erpnext_rd.%")}, pluck="name"
 	):

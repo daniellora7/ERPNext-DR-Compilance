@@ -615,6 +615,35 @@ class TestReciboNominaRD(IntegrationTestCase):
 		self.assertAlmostEqual(martes, hora * (4 * 1.35 + 6 * 2), places=4)
 		self.assertAlmostEqual(feriado, 5 * hora * 2, places=4)
 
+	def test_volante_de_pago(self):
+		"""El formato Volante de pago RD imprime el documento con guiones, AFP / ISR y el neto."""
+		from erpnext_rd.nomina_rd import volante
+		from erpnext_rd.tests.test_empleado import cedula_valida
+
+		self._aislar()
+		cedula = cedula_valida("0010000007")
+		frappe.db.set_value(
+			"Employee", self.empleado.name, {"rd_cedula": cedula, "rd_nss": "12345678", "relieving_date": None}
+		)
+		volante.crear_formato()
+		recibo = frappe.get_doc(
+			{
+				"doctype": "Salary Slip",
+				"employee": self.empleado.name,
+				"start_date": "2026-07-01",
+				"payroll_frequency": "Monthly",
+			}
+		).insert()
+		recibo.submit()
+		html = frappe.get_print("Salary Slip", recibo.name, print_format=volante.FORMATO, no_letterhead=1)
+		self.assertIn("Volante de pago", html)
+		self.assertIn(f"{cedula[:3]}-{cedula[3:10]}-{cedula[10:]}", html)
+		self.assertIn("12345678", html)
+		self.assertIn("AFP - Fondo de Pensiones", html)
+		self.assertIn("ISR - Retención Asalariados", html)
+		self.assertIn("Neto a pagar", html)
+		self.assertIn("Aportes del empleador", html)
+
 	def _aislar(self):
 		# Las pruebas de la clase comparten datos: las que crean documentos deshacen lo suyo
 		frappe.db.savepoint("vacaciones_rd")

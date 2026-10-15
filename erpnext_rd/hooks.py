@@ -120,7 +120,10 @@ doc_events = {
 # -----------------------------
 
 jinja = {
-	"methods": ["erpnext_rd.dgii_fiscal.impresion.rd_datos_fiscales"],
+	"methods": [
+		"erpnext_rd.dgii_fiscal.impresion.rd_datos_fiscales",
+		"erpnext_rd.nomina_rd.volante.rd_datos_volante",
+	],
 }
 
 # Scheduled Tasks
