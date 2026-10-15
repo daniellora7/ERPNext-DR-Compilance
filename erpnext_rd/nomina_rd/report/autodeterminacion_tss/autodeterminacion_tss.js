@@ -49,5 +49,31 @@ frappe.query_reports["Autodeterminacion TSS"] = {
 			const params = new URLSearchParams({ company: f.company, anio: f.anio, mes: f.mes });
 			window.open(`/api/method/erpnext_rd.nomina_rd.tss.descargar_txt?${params}`);
 		});
+		// Rectificativa del IR-3: después de pagar la TSS, solo recalcula el ISR del período
+		report.page.add_inner_button(
+			__("Rectificativa IR-3 (RT)"),
+			() => {
+				const f = report.get_values();
+				if (!f) return;
+				frappe.confirm(
+					__(
+						"La rectificativa se envía después de pagar la notificación de la TSS y solo recalcula la liquidación del ISR (IR-3) del período. Cada envío sustituye al anterior: lleva a todos los trabajadores. ¿Descargarla?"
+					),
+					() => {
+						const params = new URLSearchParams({ company: f.company, anio: f.anio, mes: f.mes, proceso: "RT" });
+						window.open(`/api/method/erpnext_rd.nomina_rd.tss.descargar_txt?${params}`);
+					}
+				);
+			},
+			__("Otros archivos")
+		);
+		report.page.add_inner_button(
+			__("Novedades del período (NV)"),
+			() => {
+				const f = report.get_values() || {};
+				frappe.set_route("query-report", "Novedades TSS", { company: f.company, anio: f.anio, mes: f.mes });
+			},
+			__("Otros archivos")
+		);
 	},
 };

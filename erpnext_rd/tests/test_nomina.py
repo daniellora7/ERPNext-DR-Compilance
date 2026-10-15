@@ -444,6 +444,48 @@ class TestReciboNominaRD(IntegrationTestCase):
 		f = next(f for f in tss.obtener(EMPRESA, 2026, 12) if f["employee"] == self.empleado.name)
 		self.assertEqual((f["salario_ss"], f["otras_remuneraciones"], f["regalia"]), (80_000, 10_000, 80_000))
 
+	def test_novedades(self):
+		"""Cambio de salario (AD) el 5 de octubre y salida (SA) el 20: sin recibo del mes, el salario se
+		estima con la nueva base por los días trabajados (90,000 x 20 / 31)."""
+		from erpnext_rd.nomina_rd import novedades
+		from erpnext_rd.tests.test_empleado import cedula_valida
+
+		self._aislar()
+		frappe.db.set_value(
+			"Employee",
+			self.empleado.name,
+			{"rd_cedula": cedula_valida("0010000006"), "relieving_date": "2026-10-20"},
+		)
+		frappe.get_doc(
+			{
+				"doctype": "Salary Structure Assignment",
+				"employee": self.empleado.name,
+				"salary_structure": "_Test Estructura RD",
+				"company": EMPRESA,
+				"currency": "DOP",
+				"from_date": "2026-10-05",
+				"base": 90_000,
+			}
+		).submit()
+
+		filas = novedades.obtener(EMPRESA, 2026, 10, employee=self.empleado.name)
+		self.assertEqual(
+			[(f["tipo_novedad"], str(f["fecha_inicio"])) for f in filas],
+			[("AD", "2026-10-05"), ("SA", "2026-10-20")],
+		)
+		salida = filas[1]
+		self.assertEqual((salida["salario_ss"], salida["_en_txt"]), (58_064.52, 1))
+		self.assertIn("estimado", salida["_avisos"])
+
+		frappe.db.set_value("Company", EMPRESA, "tax_id", "101000001")
+		nombre, contenido = novedades.generar_txt(
+			EMPRESA, 2026, 10, employee=self.empleado.name, tipo=novedades.SALIDA
+		)
+		lineas = contenido.split("\r\n")[:-1]
+		self.assertEqual(nombre, "NV_101000001_102026.txt")
+		self.assertEqual(lineas[0], "ENV  101000001102026")
+		self.assertEqual((len(lineas), lineas[1][4:14]), (3, "SA20102026"))
+
 	def _aislar(self):
 		# Las pruebas de la clase comparten datos: las que crean documentos deshacen lo suyo
 		frappe.db.savepoint("vacaciones_rd")

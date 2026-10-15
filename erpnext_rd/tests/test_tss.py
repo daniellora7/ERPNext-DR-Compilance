@@ -75,3 +75,41 @@ class TestArchivoTSS(IntegrationTestCase):
 		tipo, _numero, avisos = tss.documento(emp(rd_tipo_documento="Otro", rd_numero_documento="MIG-1"))
 		self.assertIsNone(tipo)
 		self.assertIn("NSS", avisos[0])
+
+	def test_rectificativa(self):
+		d = tss.linea_rectificativa(fila())
+		self.assertEqual(len(d), 258)
+		self.assertEqual(d[0:3], "DNC")  # detalle, trabajador normal, cédula (1-3)
+		self.assertEqual(d[3:28], "00100000001".ljust(25))  # documento (4-28)
+		self.assertEqual(d[28:78].rstrip(), "JOSE RAMON")  # nombres (29-78)
+		self.assertEqual(d[159:167], "07031990")  # nacimiento (160-167)
+		self.assertEqual(d[167:183], "0000000080000.00")  # salario ISR, siempre (168-183)
+		self.assertEqual(d[183:199], "0000000010000.00")  # otras remuneraciones (184-199)
+		self.assertEqual(d[199:210], " " * 11)  # agente de retención (200-210)
+		con_exentos = tss.linea_rectificativa(fila(regalia=30_000, tipo_ingreso="0006"))
+		self.assertEqual((len(con_exentos), con_exentos[1]), (312, "P"))
+		self.assertEqual(con_exentos[258:276], "010000000030000.00")  # regalía (259-276)
+
+	def test_encabezados(self):
+		_nombre, am = tss.armar_archivo("101000001", "AM", 2026, 10, ["D"])
+		self.assertEqual(am.split("\r\n")[0], "EAM  101000001102026")
+		nombre, rt = tss.armar_archivo("101000001", "RT", 2026, 10, ["D"])
+		self.assertEqual(nombre, "RT_101000001_102026.txt")
+		self.assertEqual(rt.split("\r\n")[0], "ERT    101000001102026")  # proceso en 4 posiciones
+
+	def test_novedad(self):
+		from erpnext_rd.nomina_rd import novedades
+
+		d = novedades.linea_novedad(fila(tipo_novedad="SA", fecha_inicio="2026-10-15", fecha_fin=None))
+		self.assertEqual(len(d), 330)
+		self.assertEqual(d[0:6], "D001SA")  # detalle, clave de nómina, tipo de novedad (1-6)
+		self.assertEqual(d[6:14], "15102026")  # fecha de inicio (7-14)
+		self.assertEqual(d[14:22], " " * 8)  # fecha de fin, solo licencias (15-22)
+		self.assertEqual(d[22], "C")  # tipo de documento (23)
+		self.assertEqual(d[23:48], "00100000001".ljust(25))  # documento (24-48)
+		self.assertEqual(d[187:203], "0000000080000.00")  # salario SS (188-203)
+		self.assertEqual(d[326:330], "0001")  # tipo de ingreso (327-330)
+		vacaciones = novedades.linea_novedad(
+			fila(tipo_novedad="VC", fecha_inicio="2026-10-05", fecha_fin="2026-10-22", prestaciones=1)
+		)
+		self.assertEqual((len(vacaciones), vacaciones[14:22]), (384, "22102026"))

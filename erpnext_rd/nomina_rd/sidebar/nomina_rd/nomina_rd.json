@@ -238,6 +238,22 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
+   "label": "Novedades TSS (ingresos, salidas, licencias)",
+   "link_type": "Report",
+   "type": "Link",
+   "link_to": "Novedades TSS"
+  },
+  {
+   "added": 0,
+   "child": 1,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
    "label": "Resumen IR-3 (retenciones ISR)",
    "link_type": "Report",
    "type": "Link",
@@ -370,7 +386,7 @@
    "link_to": "Salary Structure"
   }
  ],
- "modified": "2026-10-16 12:00:00.000000",
+ "modified": "2026-10-16 15:00:00.000000",
  "modified_by": "Administrator",
  "module": "Nomina RD",
  "name": "Nomina RD",

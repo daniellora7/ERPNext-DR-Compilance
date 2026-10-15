@@ -18,6 +18,9 @@ en el mes:
 
 Documento del trabajador: cédula (C); si no tiene, NSS (N); si no, pasaporte (P). La TSS no recibe
 otros documentos: un extranjero con carné u otro documento necesita el NSS que ella asigna.
+
+Con los mismos datos se arma la rectificativa del IR-3 (RT), que se envía después de pagar la TSS y
+solo recalcula el ISR. El archivo de novedades (NV) está en `novedades.py`.
 """
 
 import re
@@ -36,6 +39,8 @@ from erpnext_rd.nomina_rd import hrms_instalado, salario
 from erpnext_rd.nomina_rd.empleado import cedula_valida
 
 PROCESO = "AM"
+RECTIFICATIVA = "RT"
+SIN_RECIBO = "Sin recibo de nómina aprobado en el mes: no va en el archivo"
 ROLES = ("HR Manager", "HR User", "System Manager")
 
 TIPO_CEDULA = "C"
@@ -52,6 +57,8 @@ EXENTOS_POR_PRESTACION = {"Regalía": REGALIA, "Cesantía": PRESTACIONES, "Preav
 
 LONGITUD_DETALLE = 312
 LONGITUD_CON_EXENTOS = 366
+LONGITUD_RECTIFICATIVA = 258
+PENSIONADO = "0006"
 
 
 # ---------------------------------------------------------------------------
@@ -257,7 +264,7 @@ def obtener(company: str, anio, mes) -> list[dict]:
 		tipo, numero, avisos = documento(emp)
 		s = salarios.get(emp.name)
 		if not s:
-			avisos.insert(0, _("Sin recibo de nómina aprobado en el mes: no va en el archivo"))
+			avisos.insert(0, _(SIN_RECIBO))
 		clave = (emp.rd_clave_nomina or "001").strip().zfill(3)
 		if not re.fullmatch(r"\d{3}", clave):
 			avisos.append(_("La clave de nómina debe tener 3 dígitos"))
@@ -324,43 +331,100 @@ def linea_detalle(f: dict) -> str:
 			f["tipo_ingreso"],
 		]
 	)
-	if flt(f.get("regalia")) or flt(f.get("prestaciones")):
-		linea += REGALIA + _monto(f.get("regalia")) + PRESTACIONES + _monto(f.get("prestaciones"))
-		linea += PENSION_ALIMENTICIA + _monto(0)
+	linea += _exentos_al_final(f)
 	if len(linea) not in (LONGITUD_DETALLE, LONGITUD_CON_EXENTOS):
 		frappe.throw(_("Registro de la TSS con longitud {0} para {1}").format(len(linea), f["employee"]))
 	return linea
 
 
-def generar_txt(company: str, anio, mes) -> tuple[str, str]:
-	"""Devuelve (nombre de archivo, contenido) del archivo AM."""
+def _exentos_al_final(f: dict) -> str:
+	"""Regalía (01), preaviso / cesantía (02) y pensión alimenticia (03), 18 posiciones cada uno, solo
+	si hay alguno: el campo de ingresos exentos del registro queda en ceros."""
+	if not (flt(f.get("regalia")) or flt(f.get("prestaciones"))):
+		return ""
+	return (
+		REGALIA
+		+ _monto(f.get("regalia"))
+		+ PRESTACIONES
+		+ _monto(f.get("prestaciones"))
+		+ PENSION_ALIMENTICIA
+		+ _monto(0)
+	)
+
+
+def linea_rectificativa(f: dict) -> str:
+	"""Detalle de la rectificativa del IR-3 (RT): solo los datos del ISR, sin clave de nómina."""
+	nacimiento = getdate(f["fecha_nacimiento"]).strftime("%d%m%Y") if f.get("fecha_nacimiento") else " " * 8
+	linea = "".join(
+		[
+			"D",
+			"P" if f.get("tipo_ingreso") == PENSIONADO else "N",  # tipo de trabajador
+			f["tipo_documento"],
+			_texto(f["documento"], 25),
+			_texto(f["nombres"], 50),
+			_texto(f["primer_apellido"], 40),
+			_texto(f["segundo_apellido"], 40),
+			_sexo(f.get("sexo")),
+			nacimiento,
+			_monto(f["salario_isr"]),  # en la rectificativa siempre se informa
+			_monto(f["otras_remuneraciones"]),
+			" " * 11,  # agente de retención
+			_monto(0),  # remuneraciones de otros agentes
+			_monto(0),  # ingresos exentos: se detallan al final
+			_monto(0),  # saldo a favor
+		]
+	)
+	linea += _exentos_al_final(f)
+	if len(linea) not in (LONGITUD_RECTIFICATIVA, LONGITUD_RECTIFICATIVA + 54):
+		frappe.throw(_("Registro de la TSS con longitud {0} para {1}").format(len(linea), f["employee"]))
+	return linea
+
+
+def rnc_de(company: str) -> str:
 	if not es_empresa_rd(company):
 		frappe.throw(_("El archivo de la TSS es solo para empresas de República Dominicana."))
 	rnc = rnc_empresa(company)
 	if not rnc:
 		frappe.throw(_("La empresa {0} no tiene RNC (ID Fiscal)").format(company))
+	return rnc
+
+
+def armar_archivo(rnc: str, proceso: str, anio, mes, detalles: list[str]) -> tuple[str, str]:
+	"""(nombre, contenido): encabezado, detalles y sumario (registros contando E y S), en CRLF."""
+	mes_anio = f"{cint(mes):02d}{cint(anio):04d}"
+	# La rectificativa lleva el proceso en 4 posiciones (relleno de espacios a la derecha)
+	codigo = proceso.ljust(4) if proceso == RECTIFICATIVA else proceso
+	lineas = ["E" + codigo + rnc.rjust(11) + mes_anio, *detalles]
+	lineas.append("S" + str(len(lineas) + 1).zfill(6))
+	return f"{proceso}_{rnc}_{mes_anio}.txt", "\r\n".join(lineas) + "\r\n"
+
+
+def generar_txt(company: str, anio, mes, proceso: str = PROCESO) -> tuple[str, str]:
+	"""Devuelve (nombre de archivo, contenido) del archivo AM o de la rectificativa del IR-3 (RT)."""
+	rnc = rnc_de(company)
 	filas = [f for f in obtener(company, anio, mes) if f["_en_txt"]]
 	if not filas:
 		frappe.throw(
 			_("No hay trabajadores con recibo de nómina aprobado y documento en este período."),
 			title=_("Sin registros"),
 		)
-
-	mes_anio = f"{cint(mes):02d}{cint(anio):04d}"
-	lineas = ["E" + PROCESO + rnc.rjust(11) + mes_anio]
-	lineas += [linea_detalle(f) for f in filas]
-	lineas.append("S" + str(len(lineas) + 1).zfill(6))
-	return f"{PROCESO}_{rnc}_{mes_anio}.txt", "\r\n".join(lineas) + "\r\n"
+	linea = linea_rectificativa if proceso == RECTIFICATIVA else linea_detalle
+	return armar_archivo(rnc, proceso, anio, mes, [linea(f) for f in filas])
 
 
-@frappe.whitelist()
-def descargar_txt(company: str, anio, mes):
-	frappe.only_for(ROLES)
-	frappe.has_permission("Company", doc=company, throw=True)
-	nombre, contenido = generar_txt(company, anio, mes)
+def responder_archivo(nombre: str, contenido: str):
 	frappe.response["filename"] = nombre
 	frappe.response["filecontent"] = contenido.encode("ascii")
 	frappe.response["type"] = "download"
+
+
+@frappe.whitelist()
+def descargar_txt(company: str, anio, mes, proceso: str = PROCESO):
+	frappe.only_for(ROLES)
+	frappe.has_permission("Company", doc=company, throw=True)
+	if proceso not in (PROCESO, RECTIFICATIVA):
+		frappe.throw(_("Proceso de la TSS no válido: {0}").format(proceso))
+	responder_archivo(*generar_txt(company, anio, mes, proceso))
 
 
 # ---------------------------------------------------------------------------

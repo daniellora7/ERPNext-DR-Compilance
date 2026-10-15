@@ -386,6 +386,16 @@ def campos_personalizados() -> dict:
 				"description": "Al terminar el contrato, el pago (Leave Encashment) suma la proporción del año "
 				"incompleto (art. 180) y usa el salario diario de las prestaciones. Solo en empresas RD.",
 			},
+			{
+				"fieldname": "rd_novedad_tss",
+				"fieldtype": "Select",
+				"label": "Novedad TSS",
+				"options": "\nVC - Vacaciones\nLV - Licencia voluntaria\nLM - Licencia por maternidad\n"
+				"LD - Licencia por discapacidad",
+				"insert_after": "rd_vacaciones",
+				"description": "Los permisos aprobados de este tipo van en el archivo de novedades de la TSS (NV) "
+				"del mes en que empiezan.",
+			},
 		],
 		"Leave Encashment": [
 			{
@@ -950,4 +960,5 @@ def before_uninstall():
 		frappe.delete_doc("Dock", "erpnext_rd", force=True, ignore_permissions=True)
 	quitar_dock_nomina()
 	frappe.db.delete("List View Settings", {"name": "Contribuyente DGII"})
+	frappe.db.delete("DefaultValue", {"defkey": ("like", "erpnext_rd_%")})
 	frappe.clear_cache()

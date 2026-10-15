@@ -19,6 +19,8 @@ from erpnext_rd.dgii_fiscal.ncf import PAIS
 from erpnext_rd.nomina_rd import hrms_instalado, prestaciones
 
 TIPO_PERMISO = "Vacaciones RD"
+NOVEDAD_VACACIONES = "VC - Vacaciones"
+MARCA_NOVEDAD = "erpnext_rd_novedad_vacaciones"
 COMPONENTE = "Vacaciones"
 CUENTA_GASTO = "6106"
 
@@ -133,19 +135,29 @@ def crear_componente_y_tipo():
 			componente.append("accounts", {"company": company, "account": cuenta})
 	componente.save(ignore_permissions=True)
 
-	if tipo_vacaciones():
+	if not tipo_vacaciones():
+		if frappe.db.exists("Leave Type", TIPO_PERMISO):
+			frappe.db.set_value("Leave Type", TIPO_PERMISO, "rd_vacaciones", 1)
+		else:
+			frappe.get_doc(
+				{
+					"doctype": "Leave Type",
+					"leave_type_name": TIPO_PERMISO,
+					"rd_vacaciones": 1,
+					"include_holiday": 0,
+					"is_carry_forward": 0,
+					"allow_encashment": 1,
+					"earning_component": COMPONENTE,
+				}
+			).insert(ignore_permissions=True)
+	novedad_de_vacaciones()
+
+
+def novedad_de_vacaciones():
+	"""Las vacaciones van como novedad VC de la TSS. Se marca una sola vez: si el usuario la quita, se respeta."""
+	if frappe.db.get_default(MARCA_NOVEDAD) or not frappe.get_meta("Leave Type").has_field("rd_novedad_tss"):
 		return
-	if frappe.db.exists("Leave Type", TIPO_PERMISO):
-		frappe.db.set_value("Leave Type", TIPO_PERMISO, "rd_vacaciones", 1)
-		return
-	frappe.get_doc(
-		{
-			"doctype": "Leave Type",
-			"leave_type_name": TIPO_PERMISO,
-			"rd_vacaciones": 1,
-			"include_holiday": 0,
-			"is_carry_forward": 0,
-			"allow_encashment": 1,
-			"earning_component": COMPONENTE,
-		}
-	).insert(ignore_permissions=True)
+	tipo = tipo_vacaciones()
+	if tipo and not frappe.db.get_value("Leave Type", tipo, "rd_novedad_tss"):
+		frappe.db.set_value("Leave Type", tipo, "rd_novedad_tss", NOVEDAD_VACACIONES)
+	frappe.db.set_default(MARCA_NOVEDAD, "1")
