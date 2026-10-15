@@ -27,9 +27,10 @@ from erpnext_rd.nomina_rd.salario import CONCEPTOS as CONCEPTOS_NOMINA
 MODULO = "DGII Fiscal"
 
 # DocTypes de Frappe HR que reciben campos de la app (solo si hrms está instalado)
-DOCTYPES_HRMS = ("Salary Component",)
-SIDEBAR = "RD Compliance"
-SECCION_NOMINA = "Nómina RD"
+DOCTYPES_HRMS = ("Salary Component", "Gratuity Rule", "Gratuity", "Leave Type", "Leave Encashment")
+# Sidebar de la Nómina RD (nomina_rd/sidebar): vive en el dock de Frappe HR, no en RD Compliance
+SIDEBAR_NOMINA = "Nomina RD"
+FILA_DOCK_NOMINA = {"link_type": "Sidebar", "link_to": SIDEBAR_NOMINA}
 
 
 def _opciones(lista):
@@ -308,6 +309,217 @@ def campos_personalizados() -> dict:
 				"bonificaciones y otros ingresos no cotizables.",
 			},
 		],
+		"Gratuity Rule": [
+			{
+				"fieldname": "rd_prestacion",
+				"fieldtype": "Select",
+				"label": "Prestación RD (Código de Trabajo)",
+				"options": "\nCesantía\nPreaviso\nRegalía",
+				"insert_after": "disable",
+				"description": "Calcula el monto con los tramos de Configuración Nómina RD y el salario promedio "
+				"del último año (regalía: salarios del año / 12), en vez de los tramos de esta regla.",
+			},
+		],
+		"Gratuity": [
+			{
+				"fieldname": "rd_section_prestacion",
+				"fieldtype": "Section Break",
+				"label": "Cálculo de la prestación RD",
+				"insert_after": "amount",
+				"depends_on": "eval:doc.rd_meses_servicio",
+			},
+			{
+				"fieldname": "rd_meses_servicio",
+				"fieldtype": "Int",
+				"label": "Meses de servicio",
+				"read_only": 1,
+				"insert_after": "rd_section_prestacion",
+			},
+			{
+				"fieldname": "rd_dias",
+				"fieldtype": "Float",
+				"label": "Días de salario",
+				"read_only": 1,
+				"depends_on": "eval:doc.rd_dias",
+				"insert_after": "rd_meses_servicio",
+			},
+			{
+				"fieldname": "rd_column_prestacion",
+				"fieldtype": "Column Break",
+				"insert_after": "rd_dias",
+			},
+			{
+				"fieldname": "rd_salario_promedio",
+				"fieldtype": "Currency",
+				"label": "Salario promedio mensual",
+				"options": "Company:company:default_currency",
+				"read_only": 1,
+				"insert_after": "rd_column_prestacion",
+				"depends_on": "eval:doc.rd_dias",
+			},
+			{
+				"fieldname": "rd_salario_diario",
+				"fieldtype": "Currency",
+				"label": "Salario diario",
+				"options": "Company:company:default_currency",
+				"read_only": 1,
+				"insert_after": "rd_salario_promedio",
+				"depends_on": "eval:doc.rd_dias",
+			},
+			{
+				"fieldname": "rd_salarios_del_anio",
+				"fieldtype": "Currency",
+				"label": "Salarios ordinarios del año",
+				"options": "Company:company:default_currency",
+				"read_only": 1,
+				"insert_after": "rd_salario_diario",
+				"depends_on": "eval:doc.rd_salarios_del_anio",
+				"description": "Regalía proporcional (art. 220): esta suma / 12",
+			},
+		],
+		"Leave Type": [
+			{
+				"fieldname": "rd_vacaciones",
+				"fieldtype": "Check",
+				"label": "Vacaciones RD (Código de Trabajo)",
+				"insert_after": "leave_type_name",
+				"description": "Al terminar el contrato, el pago (Leave Encashment) suma la proporción del año "
+				"incompleto (art. 180) y usa el salario diario de las prestaciones. Solo en empresas RD.",
+			},
+			{
+				"fieldname": "rd_novedad_tss",
+				"fieldtype": "Select",
+				"label": "Novedad TSS",
+				"options": "\nVC - Vacaciones\nLV - Licencia voluntaria\nLM - Licencia por maternidad\n"
+				"LD - Licencia por discapacidad",
+				"insert_after": "rd_vacaciones",
+				"description": "Los permisos aprobados de este tipo van en el archivo de novedades de la TSS (NV) "
+				"del mes en que empiezan.",
+			},
+		],
+		"Leave Encashment": [
+			{
+				"fieldname": "rd_dias_proporcionales",
+				"fieldtype": "Float",
+				"label": "Días proporcionales (art. 180)",
+				"read_only": 1,
+				"insert_after": "leave_balance",
+				"depends_on": "eval:doc.rd_salario_diario",
+				"description": "Incluidos en el balance: proporción del año de servicio incompleto",
+			},
+			{
+				"fieldname": "rd_salario_promedio",
+				"fieldtype": "Currency",
+				"label": "Salario promedio mensual",
+				"options": "currency",
+				"read_only": 1,
+				"insert_after": "encashment_amount",
+				"depends_on": "eval:doc.rd_salario_diario",
+			},
+			{
+				"fieldname": "rd_salario_diario",
+				"fieldtype": "Currency",
+				"label": "Salario diario",
+				"options": "currency",
+				"read_only": 1,
+				"insert_after": "rd_salario_promedio",
+				"depends_on": "eval:doc.rd_salario_diario",
+			},
+		],
+		"Employee": [
+			{
+				"fieldname": "rd_segundo_apellido",
+				"fieldtype": "Data",
+				"label": "Segundo apellido",
+				"insert_after": "last_name",
+				"description": "En el apellido va el primero. La TSS los pide por separado.",
+			},
+			{
+				"fieldname": "rd_section_datos",
+				"fieldtype": "Section Break",
+				"label": "República Dominicana (TSS / DGII)",
+				"insert_after": "date_of_joining",
+				"description": "Datos para el archivo de la TSS (SUIR) y las declaraciones de la DGII (IR-3, IR-13). "
+				"Solo se validan en empresas RD.",
+			},
+			{
+				"fieldname": "rd_tipo_documento",
+				"fieldtype": "Select",
+				"label": "Tipo de documento",
+				"options": "Cédula\nNSS\nPasaporte\nOtro",
+				"default": "Cédula",
+				"insert_after": "rd_section_datos",
+				"description": "Extranjeros: pasaporte, carné de Migración u otro documento. Para cotizar, la TSS les "
+				"asigna un NSS (SUIR → Solicitud de asignación de NSS); con NSS, el archivo de la TSS lo usa.",
+			},
+			{
+				"fieldname": "rd_cedula",
+				"fieldtype": "Data",
+				"label": "Cédula",
+				"insert_after": "rd_tipo_documento",
+				"depends_on": "eval:doc.rd_tipo_documento == 'Cédula'",
+				"search_index": 1,
+				"in_standard_filter": 1,
+				"description": "11 dígitos, con o sin guiones. Si no es válida, avisa pero deja guardar.",
+			},
+			{
+				"fieldname": "rd_numero_documento",
+				"fieldtype": "Data",
+				"label": "Número del documento",
+				"insert_after": "rd_cedula",
+				"depends_on": "eval:['Pasaporte', 'Otro'].includes(doc.rd_tipo_documento)",
+				"description": "El pasaporte también queda en Passport Number.",
+			},
+			{
+				"fieldname": "rd_nss",
+				"fieldtype": "Data",
+				"label": "NSS (Seguridad Social)",
+				"insert_after": "rd_numero_documento",
+			},
+			{
+				"fieldname": "rd_column_datos",
+				"fieldtype": "Column Break",
+				"insert_after": "rd_nss",
+			},
+			{
+				"fieldname": "rd_afp",
+				"fieldtype": "Link",
+				"label": "AFP",
+				"options": "Entidad Seguridad Social RD",
+				"insert_after": "rd_column_datos",
+				"link_filters": '[["Entidad Seguridad Social RD","tipo","=","AFP"],'
+				'["Entidad Seguridad Social RD","deshabilitada","=",0]]',
+			},
+			{
+				"fieldname": "rd_ars",
+				"fieldtype": "Link",
+				"label": "ARS",
+				"options": "Entidad Seguridad Social RD",
+				"insert_after": "rd_afp",
+				"link_filters": '[["Entidad Seguridad Social RD","tipo","=","ARS"],'
+				'["Entidad Seguridad Social RD","deshabilitada","=",0]]',
+			},
+			{
+				"fieldname": "rd_clave_nomina",
+				"fieldtype": "Data",
+				"label": "Clave de nómina TSS",
+				"insert_after": "rd_ars",
+				"length": 3,
+				"default": "001",
+				"description": "La nómina del SUIR donde está el trabajador (3 dígitos).",
+			},
+			{
+				"fieldname": "rd_tipo_ingreso_tss",
+				"fieldtype": "Select",
+				"label": "Tipo de ingreso TSS",
+				"insert_after": "rd_clave_nomina",
+				"options": "\n0001 - Normal\n0002 - Trabajador ocasional (no fijo)\n0003 - Asalariado por hora o "
+				"tiempo parcial\n0004 - No laboró mes completo\n0005 - Salario prorrateado semanal/bisemanal\n"
+				"0006 - Pensionado antes de la Ley 87-01\n0007 - Exento por ley de pago al SDSS\n"
+				"0008 - Trabajador con salario sectorizado",
+				"description": "Vacío: Normal, o «No laboró mes completo» el mes en que entra o sale.",
+			},
+		],
 		"Mode of Payment": [
 			{
 				"fieldname": "rd_forma_pago",
@@ -397,18 +609,30 @@ def inicializar_configuracion():
 	if not frappe.db.exists("Singles", {"doctype": "Configuracion DGII"}):
 		frappe.get_single("Configuracion DGII").save(ignore_permissions=True)
 
-	# Campos Check agregados después de guardar la configuración: quedan con su valor por defecto
-	for campo in ("calcular_deducciones",):
+	# Campos agregados después de guardar la configuración: quedan con su valor por defecto
+	for campo, valor in (
+		("calcular_deducciones", 1),
+		("dias_salario_mes", 23.83),
+		("actualizar_feriados", 1),
+		("dia_descanso", "Sunday"),
+	):
 		if not frappe.db.exists("Singles", {"doctype": "Configuracion Nomina RD", "field": campo}):
-			frappe.db.set_single_value("Configuracion Nomina RD", campo, 1)
+			frappe.db.set_single_value("Configuracion Nomina RD", campo, valor)
 
 	conf = frappe.get_single("Configuracion Nomina RD")
 	if not conf.escala_isr:
-		from erpnext_rd.nomina_rd.calculos import ESCALA_ISR_2026
+		from erpnext_rd.nomina_rd.calculos import ESCALAS_ISR
 
-		for desde, hasta, tasa, cuota in ESCALA_ISR_2026:
-			conf.append("escala_isr", {"desde": desde, "hasta": hasta, "tasa": tasa, "cuota_fija": cuota})
+		for anio, escala in ESCALAS_ISR.items():
+			agregar_escala_isr(conf, anio, escala)
 		conf.save(ignore_permissions=True)
+
+
+def agregar_escala_isr(conf, anio: int, escala):
+	for desde, hasta, tasa, cuota in escala:
+		conf.append(
+			"escala_isr", {"anio": anio, "desde": desde, "hasta": hasta, "tasa": tasa, "cuota_fija": cuota}
+		)
 
 
 # Formatos que deja el asistente de configuración de ERPNext; se reemplazan por los fiscales.
@@ -456,37 +680,193 @@ def _formatos_fiscales() -> list[str]:
 
 
 def asegurar_navegacion():
-	"""Importa el sidebar de RD Compliance si falta.
+	"""Importa los sidebars de la app (RD Compliance y Nómina RD) si faltan.
 
-	Al agregar el módulo a un sitio existente, el sidebar se sincroniza antes de que exista el
+	Al agregar un módulo a un sitio existente, su sidebar se sincroniza antes de que exista el
 	Module Def y queda fuera hasta el siguiente migrate. Esto lo deja listo en la misma pasada.
 	"""
-	if frappe.db.exists("Sidebar", "RD Compliance"):
-		return
 	from frappe.modules.import_file import import_file_by_path
 
-	ruta = frappe.get_app_path(
-		"erpnext_rd", "rd_compliance", "sidebar", "rd_compliance", "rd_compliance.json"
-	)
-	import_file_by_path(ruta, force=True)
+	for modulo, nombre in (("rd_compliance", "RD Compliance"), ("nomina_rd", SIDEBAR_NOMINA)):
+		if frappe.db.exists("Sidebar", nombre):
+			continue
+		carpeta = frappe.scrub(nombre)
+		import_file_by_path(
+			frappe.get_app_path("erpnext_rd", modulo, "sidebar", carpeta, f"{carpeta}.json"), force=True
+		)
 
 
-def ajustar_menu_nomina():
-	"""Muestra la sección Nómina RD del menú solo si Frappe HR está instalado."""
-	if not frappe.db.exists("Sidebar", SIDEBAR):
+def dock_nomina():
+	"""Pone "Nómina RD" en el dock de Frappe HR si está instalado; si no, lo quita.
+
+	Una app solo monta su dock sobre una app (el nuestro va en ERPNext con RD Compliance), así que la
+	nómina entra por la capa del sitio del dock de Frappe HR, la misma que guarda "Organizar dock".
+	No se toca el archivo de HRMS. Si el sitio no tenía arreglo propio, se crea con el orden de HRMS
+	y la nómina al final; si ya lo tenía, solo se agrega la fila (y un usuario la puede ocultar).
+	"""
+	if not frappe.db.exists("DocType", "Dock"):
 		return
-	oculto = 0 if hrms_instalado() else 1
-	en_nomina = False
-	for fila in frappe.get_all(
-		"Sidebar Item",
-		filters={"parent": SIDEBAR, "parenttype": "Sidebar"},
-		fields=["name", "type", "label", "hidden"],
-		order_by="idx",
-	):
-		if fila.type == "Section Break":
-			en_nomina = fila.label == SECCION_NOMINA
-		if en_nomina and fila.hidden != oculto:
-			frappe.db.set_value("Sidebar Item", fila.name, "hidden", oculto, update_modified=False)
+	if not hrms_instalado():
+		quitar_dock_nomina()
+		return
+	from frappe.desk.doctype.dock.dock import SITE_LAYER, get_app_base
+
+	capas = _capas_dock_hrms()
+	sitio = next((capa for capa in capas if not capa.user), None)
+	if not sitio:
+		sitio = frappe.new_doc("Dock")
+		sitio.app, sitio.user = "hrms", SITE_LAYER
+		for fila in get_app_base("hrms"):
+			sitio.append("items", {**_destino(fila), "hidden": fila.get("hidden") or 0, "added": 0})
+		capas.append(sitio)
+
+	for capa in capas:
+		if any(_es_fila_nomina(fila) for fila in capa.items):
+			continue
+		# La capa del sitio trae la entrada (con ícono y título); la de un usuario solo la nombra,
+		# porque una capa guardada es el dock completo y lo que no nombra no aparece.
+		if capa is sitio:
+			capa.append(
+				"items", {**FILA_DOCK_NOMINA, "icon": "nomina-rd-duotone", "title": "Nómina RD", "added": 1}
+			)
+		else:
+			capa.append("items", {**FILA_DOCK_NOMINA, "added": 0})
+		capa.save(ignore_permissions=True)
+
+
+def quitar_dock_nomina():
+	"""Quita "Nómina RD" del dock de Frappe HR. Si la capa del sitio queda igual al dock de HRMS
+	(la creó esta app y nadie la cambió), se borra para que el sitio vuelva al de HRMS."""
+	if not frappe.db.exists("DocType", "Dock"):
+		return
+	from frappe.desk.doctype.dock.dock import get_app_dock
+
+	base = (
+		[(_destino(fila), fila.get("hidden") or 0) for fila in get_app_dock("hrms")]
+		if hrms_instalado()
+		else None
+	)
+	for capa in _capas_dock_hrms():
+		filas = [fila for fila in capa.items if not _es_fila_nomina(fila)]
+		if len(filas) == len(capa.items):
+			continue
+		sin_cambios = [
+			(_destino(fila), fila.hidden or 0)
+			for fila in filas
+			if not (fila.added or fila.icon or fila.title)
+		]
+		if not capa.user and base is not None and len(sin_cambios) == len(filas) and sin_cambios == base:
+			frappe.delete_doc("Dock", capa.name, force=True, ignore_permissions=True)
+			continue
+		capa.set("items", filas)
+		capa.save(ignore_permissions=True)
+
+
+def _capas_dock_hrms() -> list:
+	"""Capas del dock de Frappe HR que no son el archivo de la app: la del sitio y las de usuarios."""
+	return [
+		frappe.get_doc("Dock", nombre)
+		for nombre in frappe.get_all("Dock", filters={"app": "hrms", "standard": 0}, pluck="name")
+	]
+
+
+def _destino(fila) -> dict:
+	return {campo: fila.get(campo) or None for campo in ("link_type", "link_to", "url")}
+
+
+def _es_fila_nomina(fila) -> bool:
+	return fila.get("link_type") == "Sidebar" and fila.get("link_to") == SIDEBAR_NOMINA
+
+
+def prestaciones_y_feriados():
+	"""Tramos de prestaciones y vacaciones en la configuración, reglas de Gratuity RD, el tipo de
+	permiso Vacaciones RD y la lista de feriados RD."""
+	from erpnext_rd.nomina_rd import feriados, prestaciones
+
+	conf = frappe.get_single("Configuracion Nomina RD")
+	if prestaciones.inicializar_tramos(conf):
+		conf.save(ignore_permissions=True)
+	if hrms_instalado():
+		from erpnext_rd.nomina_rd import regalia, vacaciones
+
+		reglas_gratuity_sin_tramos()
+		periodo_opcional_en_vacaciones_rd()
+		prestaciones.crear_reglas()
+		vacaciones.crear_componente_y_tipo()
+		regalia.crear_componente()
+	feriados.asegurar_lista_feriados()
+
+
+def reglas_gratuity_sin_tramos():
+	"""En una regla de prestación RD los tramos de HRMS (en años enteros) no aplican: se ocultan y
+	dejan de ser obligatorios, igual que los componentes. En las demás reglas siguen igual."""
+	ajustes = (
+		("gratuity_rule_slabs", "reqd", "0", "Check"),
+		("gratuity_rule_slabs", "mandatory_depends_on", "eval:!doc.rd_prestacion", "Code"),
+		("gratuity_rule_slabs", "depends_on", "eval:!doc.rd_prestacion", "Code"),
+		# Componentes opcionales: vacío = los ingresos que cotizan a la TSS (prestaciones.componentes_ordinarios)
+		("applicable_earnings_component", "reqd", "0", "Check"),
+		("applicable_earnings_component", "mandatory_depends_on", "eval:!doc.rd_prestacion", "Code"),
+	)
+	_property_setters("Gratuity Rule", ajustes)
+
+
+def datos_del_empleado():
+	"""Catálogo de AFP y ARS, y buscar empleados también por cédula."""
+	from frappe.custom.doctype.property_setter.property_setter import make_property_setter
+
+	from erpnext_rd.nomina_rd import empleado
+
+	empleado.crear_entidades()
+	campos = [c.strip() for c in (frappe.get_meta("Employee").search_fields or "").split(",") if c.strip()]
+	if "rd_cedula" not in campos:
+		make_property_setter(
+			"Employee",
+			None,
+			"search_fields",
+			", ".join([*campos, "rd_cedula"]),
+			"Data",
+			for_doctype=True,
+			validate_fields_for_doctype=False,
+		)
+		frappe.db.set_value(
+			"Property Setter",
+			{"doc_type": "Employee", "property": "search_fields", "module": ("is", "not set")},
+			"module",
+			MODULO,
+			update_modified=False,
+		)
+
+
+def periodo_opcional_en_vacaciones_rd():
+	"""El *Leave Period* del Leave Encashment lo pone la app en el pago de vacaciones RD (ver
+	`leave_encashment_rd`); en los demás pagos sigue siendo obligatorio como en Frappe HR."""
+	_property_setters(
+		"Leave Encashment",
+		(
+			("leave_period", "reqd", "0", "Check"),
+			("leave_period", "mandatory_depends_on", "eval:!doc.rd_salario_diario", "Code"),
+		),
+	)
+
+
+def _property_setters(doctype: str, ajustes):
+	from frappe.custom.doctype.property_setter.property_setter import make_property_setter
+
+	for campo, propiedad, valor, tipo in ajustes:
+		make_property_setter(doctype, campo, propiedad, valor, tipo, validate_fields_for_doctype=False)
+	# Con el módulo de la app, Frappe los borra al desinstalarla
+	frappe.db.set_value(
+		"Property Setter",
+		{
+			"doc_type": doctype,
+			"module": ("is", "not set"),
+			"field_name": ("in", {a[0] for a in ajustes}),
+		},
+		"module",
+		MODULO,
+		update_modified=False,
+	)
 
 
 def programar_padron_inicial():
@@ -524,7 +904,9 @@ def setup():
 	inicializar_formas_pago()
 	inicializar_configuracion()
 	asegurar_navegacion()
-	ajustar_menu_nomina()
+	dock_nomina()
+	datos_del_empleado()
+	prestaciones_y_feriados()
 	lista_padron_sin_filtro_reciente()
 	frappe.clear_cache()
 	catalogo_cuentas.aplicar_a_empresas_rd()
@@ -548,14 +930,15 @@ def al_instalar_app(app_name: str):
 
 
 def al_desinstalar_app(app_name: str):
-	"""after_app_uninstall: sin Frappe HR se quitan sus campos y la sección del menú."""
+	"""after_app_uninstall: sin Frappe HR se quitan sus campos y la Nómina RD del dock."""
 	if app_name != "hrms":
 		return
 	for nombre in frappe.get_all(
 		"Custom Field", filters={"dt": ("in", DOCTYPES_HRMS), "module": MODULO}, pluck="name"
 	):
 		frappe.delete_doc("Custom Field", nombre, force=True, ignore_permissions=True)
-	ajustar_menu_nomina()
+	frappe.db.delete("Property Setter", {"doc_type": ("in", DOCTYPES_HRMS), "module": MODULO})
+	quitar_dock_nomina()
 	# Frappe llama este hook después del último commit de la desinstalación
 	frappe.db.commit()  # nosemgrep
 	frappe.clear_cache()
@@ -575,5 +958,7 @@ def before_uninstall():
 		frappe.delete_doc("Scheduled Job Type", job, force=True, ignore_permissions=True)
 	if frappe.db.exists("DocType", "Dock") and frappe.db.exists("Dock", "erpnext_rd"):
 		frappe.delete_doc("Dock", "erpnext_rd", force=True, ignore_permissions=True)
+	quitar_dock_nomina()
 	frappe.db.delete("List View Settings", {"name": "Contribuyente DGII"})
+	frappe.db.delete("DefaultValue", {"defkey": ("like", "erpnext_rd_%")})
 	frappe.clear_cache()

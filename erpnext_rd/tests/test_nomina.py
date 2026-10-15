@@ -71,8 +71,30 @@ class TestNominaRD(IntegrationTestCase):
 
 	def test_configuracion_inicial(self):
 		conf = frappe.get_single("Configuracion Nomina RD")
-		self.assertEqual(len(conf.escala_isr), 4)
-		self.assertEqual(conf.escala_isr[-1].tasa, 25)
+		self.assertEqual([len(calculos.escala_isr(conf, a)) for a in (2026, 2027)], [4, 5])
+		self.assertEqual(calculos.escala_isr(conf, 2026)[-1].tasa, 25)
+		self.assertEqual(calculos.escala_isr(conf, 2027)[-1].tasa, 27)
+
+	def test_escala_isr_2027(self):
+		"""Ley 30-26: exento hasta 480,000; 15%, 20%, 25% y 27% desde 4.8 millones."""
+		conf = conf_2026()
+		conf.escala_isr = [
+			frappe._dict(anio=anio, desde=d, hasta=h, tasa=t, cuota_fija=c)
+			for anio, escala in calculos.ESCALAS_ISR.items()
+			for d, h, t, c in escala
+		]
+		self.assertEqual(calculos.isr_anual(480_000, conf, 2027), 0)
+		self.assertAlmostEqual(calculos.isr_anual(700_000, conf, 2027), 30_750 + 15_000 * 0.20, places=2)
+		self.assertAlmostEqual(
+			calculos.isr_anual(5_000_000, conf, 2027), 1_048_250 + 200_000 * 0.27, places=2
+		)
+		# 2026 sigue con su escala; años sin escala propia usan la más reciente anterior (o la primera)
+		self.assertAlmostEqual(calculos.isr_anual(500_000, conf, 2026), (500_000 - 416_220) * 0.15, places=2)
+		self.assertEqual(calculos.isr_anual(470_000, conf, 2028), 0)
+		self.assertGreater(calculos.isr_anual(470_000, conf, 2025), 0)
+		# Mismo salario: 80,000 menos AFP y SFS, en enero 2027 retiene menos que en diciembre 2026
+		self.assertEqual(calculos.isr_mensual(75_272, conf, 2026), 7400.94)
+		self.assertEqual(calculos.isr_mensual(75_272, conf, 2027), 6200.23)
 
 	def test_escala_con_solapamiento(self):
 		conf = frappe.get_doc("Configuracion Nomina RD")
@@ -122,9 +144,11 @@ class TestReciboNominaRD(IntegrationTestCase):
 			}
 		).submit()
 
-		from erpnext_rd.nomina_rd import salario
+		from erpnext_rd.nomina_rd import regalia, salario, vacaciones
 
 		salario.crear_componentes()
+		vacaciones.crear_componente_y_tipo()
+		regalia.crear_componente()
 
 		for nombre, abbr, cotiza in (
 			("_Test Sueldo RD", "SUELDO_T", 1),
@@ -223,6 +247,15 @@ class TestReciboNominaRD(IntegrationTestCase):
 		self.assertTrue(fila.account.startswith("6109"))
 		self.assertTrue(fila.liability_account.startswith("210403"))
 
+	def test_escala_del_anio_del_recibo(self):
+		"""El recibo usa la escala del año de su período: sueldo 80,000 + bono 10,000 - AFP/SFS 4,728."""
+		from erpnext_rd.nomina_rd import salario
+
+		recibo = self._recibo()
+		self.assertEqual(salario.calcular(recibo)[salario.ISR], 9900.94)
+		recibo.end_date = "2027-01-31"
+		self.assertEqual(salario.calcular(recibo)[salario.ISR], 8672.17)
+
 	def test_desactivado(self):
 		frappe.db.set_single_value("Configuracion Nomina RD", "calcular_deducciones", 0)
 		try:
@@ -230,3 +263,297 @@ class TestReciboNominaRD(IntegrationTestCase):
 			self.assertNotIn("AFP", {f.abbr for f in recibo.deductions})
 		finally:
 			frappe.db.set_single_value("Configuracion Nomina RD", "calcular_deducciones", 1)
+
+	def _prestacion(self, regla: str):
+		# Ingreso 2025-01-01, salida 2026-09-30: 21 meses completos
+		frappe.db.set_value("Employee", self.empleado.name, "relieving_date", "2026-09-30")
+		return frappe.get_doc(
+			{
+				"doctype": "Gratuity",
+				"employee": self.empleado.name,
+				"company": EMPRESA,
+				"posting_date": "2026-09-30",
+				"gratuity_rule": regla,
+			}
+		).insert()
+
+	def test_cesantia_sobre_gratuity(self):
+		"""Gratuity de Frappe HR con la regla "Cesantía RD": 1 año x 21 días + 9 meses (13 días) = 34 días
+		del salario diario. Sin recibos aprobados se usa la base de la asignación (80,000 / 23.83)."""
+		cesantia = self._prestacion("Cesantía RD")
+		self.assertEqual(cesantia.rd_meses_servicio, 21)
+		self.assertEqual(cesantia.rd_dias, 34)
+		self.assertEqual(cesantia.rd_salario_diario, 3357.11)
+		self.assertEqual(cesantia.amount, 114_141.74)
+
+	def test_preaviso_sobre_gratuity(self):
+		preaviso = self._prestacion("Preaviso RD")
+		self.assertEqual(preaviso.rd_dias, 28)
+		self.assertEqual(preaviso.amount, 93_999.08)
+
+	def test_promedio_con_recibos_aprobados(self):
+		"""El promedio sale de los ingresos que cotizan (el bono de 10,000 no cuenta)."""
+		from erpnext_rd.nomina_rd import prestaciones
+
+		self._aislar()
+		frappe.get_doc(
+			{
+				"doctype": "Salary Slip",
+				"employee": self.empleado.name,
+				"start_date": "2026-08-01",
+				"posting_date": "2026-08-31",
+				"payroll_frequency": "Monthly",
+			}
+		).insert().submit()
+		promedio = prestaciones.salario_promedio_mensual(
+			self.empleado.name, "2026-09-30", prestaciones.componentes_ordinarios()
+		)
+		self.assertEqual(promedio, 80_000)
+
+	def test_regalia_proporcional_sobre_gratuity(self):
+		"""Regla "Regalía RD": salida 2026-09-30, 9 meses del año sin recibos -> 9 x 80,000 / 12."""
+		regalia = self._prestacion("Regalía RD")
+		self.assertEqual(regalia.rd_meses_servicio, 9)
+		self.assertEqual(regalia.rd_salarios_del_anio, 720_000)
+		self.assertEqual(regalia.amount, 60_000)
+
+	def test_regalia_con_recibo_aprobado(self):
+		"""El mes con recibo aprobado sale del recibo (el bono no cuenta) y no se vuelve a estimar."""
+		from erpnext_rd.nomina_rd import prestaciones
+
+		self._aislar()
+		frappe.get_doc(
+			{
+				"doctype": "Salary Slip",
+				"employee": self.empleado.name,
+				"start_date": "2026-08-01",
+				"posting_date": "2026-08-31",
+				"payroll_frequency": "Monthly",
+			}
+		).insert().submit()
+		r = prestaciones.regalia_proporcional(self.empleado.name, "2026-09-30")
+		self.assertEqual(r.salarios_del_anio, 720_000)
+
+	def test_archivo_tss(self):
+		"""Archivo AM de la TSS desde un recibo aprobado: el sueldo cotiza, el bono va como otras
+		remuneraciones del ISR."""
+		from erpnext_rd.nomina_rd import tss
+		from erpnext_rd.tests.test_empleado import cedula_valida
+
+		self._aislar()
+		cedula = cedula_valida("0010000005")
+		frappe.db.set_value(
+			"Employee",
+			self.empleado.name,
+			{
+				"rd_cedula": cedula,
+				"last_name": "Peña",
+				"rd_segundo_apellido": "Gómez",
+				"relieving_date": None,
+			},
+		)
+		frappe.db.set_value("Company", EMPRESA, "tax_id", "101000001")
+		frappe.get_doc(
+			{
+				"doctype": "Salary Slip",
+				"employee": self.empleado.name,
+				"start_date": "2026-10-01",
+				"posting_date": "2026-10-31",
+				"payroll_frequency": "Monthly",
+			}
+		).insert().submit()
+
+		fila = next(f for f in tss.obtener(EMPRESA, 2026, 10) if f["employee"] == self.empleado.name)
+		self.assertEqual(
+			(fila["salario_ss"], fila["salario_isr"], fila["otras_remuneraciones"]), (80_000, 80_000, 10_000)
+		)
+		self.assertEqual((fila["tipo_ingreso"], fila["_en_txt"]), ("0001", 1))
+
+		nombre, contenido = tss.generar_txt(EMPRESA, 2026, 10)
+		self.assertEqual(nombre, "AM_101000001_102026.txt")
+		lineas = contenido.split("\r\n")[:-1]
+		self.assertEqual(lineas[0], "EAM  101000001102026")
+		self.assertEqual(lineas[-1], "S" + str(len(lineas)).zfill(6))
+		detalle = next(linea for linea in lineas if cedula in linea)
+		self.assertEqual(detalle[80:120].rstrip(), "PENA")
+		self.assertEqual(detalle[169:185], "0000000080000.00")
+		self.assertEqual(detalle[217:233], "0000000010000.00")
+
+		# IR-3: renta 90,000 - AFP/SFS 4,728 = 85,272 -> 9,900.94, igual a lo retenido en el recibo
+		from erpnext_rd.nomina_rd import ir3
+
+		r = next(f for f in ir3.obtener(EMPRESA, 2026, 10) if f["employee"] == self.empleado.name)
+		self.assertEqual((r["renta"], r["aportes_tss"], r["isr"]), (90_000, 4728, 9900.94))
+		self.assertEqual(r["diferencia"], 0)
+		self.assertEqual(str(ir3.fecha_limite(2026, 10)), "2026-11-10")
+		self.assertEqual(str(ir3.fecha_limite(2025, 12)), "2026-01-12")  # el 10 cae sábado
+
+		# IR-13: la suma del año (aquí solo octubre)
+		from erpnext_rd.nomina_rd import ir13
+
+		datos = ir13.meses(EMPRESA, 2026)
+		e = next(f for f in ir13.por_empleado(datos) if f["employee"] == self.empleado.name)
+		self.assertEqual((e["meses"], e["renta"], e["isr"], e["isr_retenido"]), (1, 90_000, 9900.94, 9900.94))
+		self.assertFalse(e["_avisos"])
+		octubre = ir13.por_mes(datos)[9]
+		self.assertEqual((octubre["mes"], octubre["isr_retenido"]), ("Oct", 9900.94))
+		self.assertEqual(str(ir13.fecha_limite(2026)), "2027-03-15")
+
+	def test_regalia_de_diciembre(self):
+		"""Regalía de diciembre de un empleado activo: octubre sale del recibo y los otros 11 meses se
+		estiman con la base (12 x 80,000 / 12). Se paga en el recibo de diciembre, sin ISR ni TSS, y va
+		en el archivo de la TSS como ingreso exento."""
+		from erpnext_rd.nomina_rd import regalia, tss
+
+		self._aislar()
+		frappe.db.set_value("Employee", self.empleado.name, "relieving_date", None)
+
+		def recibo(mes):
+			return (
+				frappe.get_doc(
+					{
+						"doctype": "Salary Slip",
+						"employee": self.empleado.name,
+						"start_date": f"2026-{mes}-01",
+						"payroll_frequency": "Monthly",
+					}
+				)
+				.insert()
+				.submit()
+			)
+
+		octubre = recibo(10)
+		fila = next(f for f in regalia.obtener(EMPRESA, 2026) if f["employee"] == self.empleado.name)
+		self.assertEqual((fila["meses"], fila["meses_estimados"], fila["regalia"]), (12, 11, 80_000))
+		self.assertFalse(fila["gratuity"])
+
+		creadas = regalia.crear_regalias(EMPRESA, 2026)["creadas"]
+		self.assertEqual(len(creadas), 1)
+		self.assertEqual(regalia.crear_regalias(EMPRESA, 2026)["creadas"], [])
+		g = frappe.get_doc("Gratuity", creadas[0])
+		self.assertEqual(
+			(g.amount, str(g.payroll_date), g.salary_component), (80_000, "2026-12-15", regalia.COMPONENTE)
+		)
+		g.submit()
+
+		diciembre = recibo(12)
+		self.assertIn(regalia.COMPONENTE, {f.salary_component for f in diciembre.earnings})
+		isr = {f.abbr: f.amount for f in diciembre.deductions}
+		self.assertEqual(isr["ISR"], {f.abbr: f.amount for f in octubre.deductions}["ISR"])
+
+		f = next(f for f in tss.obtener(EMPRESA, 2026, 12) if f["employee"] == self.empleado.name)
+		self.assertEqual((f["salario_ss"], f["otras_remuneraciones"], f["regalia"]), (80_000, 10_000, 80_000))
+
+	def test_novedades(self):
+		"""Cambio de salario (AD) el 5 de octubre y salida (SA) el 20: sin recibo del mes, el salario se
+		estima con la nueva base por los días trabajados (90,000 x 20 / 31)."""
+		from erpnext_rd.nomina_rd import novedades
+		from erpnext_rd.tests.test_empleado import cedula_valida
+
+		self._aislar()
+		frappe.db.set_value(
+			"Employee",
+			self.empleado.name,
+			{"rd_cedula": cedula_valida("0010000006"), "relieving_date": "2026-10-20"},
+		)
+		frappe.get_doc(
+			{
+				"doctype": "Salary Structure Assignment",
+				"employee": self.empleado.name,
+				"salary_structure": "_Test Estructura RD",
+				"company": EMPRESA,
+				"currency": "DOP",
+				"from_date": "2026-10-05",
+				"base": 90_000,
+			}
+		).submit()
+
+		filas = novedades.obtener(EMPRESA, 2026, 10, employee=self.empleado.name)
+		self.assertEqual(
+			[(f["tipo_novedad"], str(f["fecha_inicio"])) for f in filas],
+			[("AD", "2026-10-05"), ("SA", "2026-10-20")],
+		)
+		salida = filas[1]
+		self.assertEqual((salida["salario_ss"], salida["_en_txt"]), (58_064.52, 1))
+		self.assertIn("estimado", salida["_avisos"])
+
+		frappe.db.set_value("Company", EMPRESA, "tax_id", "101000001")
+		nombre, contenido = novedades.generar_txt(
+			EMPRESA, 2026, 10, employee=self.empleado.name, tipo=novedades.SALIDA
+		)
+		lineas = contenido.split("\r\n")[:-1]
+		self.assertEqual(nombre, "NV_101000001_102026.txt")
+		self.assertEqual(lineas[0], "ENV  101000001102026")
+		self.assertEqual((len(lineas), lineas[1][4:14]), (3, "SA20102026"))
+
+	def _aislar(self):
+		# Las pruebas de la clase comparten datos: las que crean documentos deshacen lo suyo
+		frappe.db.savepoint("vacaciones_rd")
+		self.addCleanup(frappe.db.rollback, save_point="vacaciones_rd")
+
+	def _pago_vacaciones(self):
+		from erpnext_rd.nomina_rd import vacaciones
+
+		frappe.db.set_value("Employee", self.empleado.name, "relieving_date", "2026-09-30")
+		return frappe.get_doc(
+			{
+				"doctype": "Leave Encashment",
+				"employee": self.empleado.name,
+				"company": EMPRESA,
+				"leave_type": vacaciones.tipo_vacaciones(),
+				"encashment_date": "2026-09-30",
+			}
+		).insert()
+
+	def test_vacaciones_al_salir(self):
+		"""Ingreso 2025-01-01, salida 2026-09-30: los 14 días del año cumplido (asignados en el
+		aniversario) más 10 días por los 9 meses del año incompleto (art. 180) = 24 x 3,357.11."""
+		from erpnext_rd.nomina_rd import vacaciones
+
+		self._aislar()
+		frappe.db.set_single_value("Configuracion Nomina RD", "asignar_vacaciones", 1)
+		creadas = vacaciones.asignar_vacaciones("2026-03-01", [EMPRESA])
+		self.assertEqual(len(creadas), 1)
+		self.assertEqual(vacaciones.asignar_vacaciones("2026-03-01", [EMPRESA]), [])
+		asignacion = frappe.get_doc("Leave Allocation", creadas[0])
+		self.assertEqual(str(asignacion.from_date), "2026-01-01")
+		self.assertEqual(str(asignacion.to_date), "2026-12-31")
+		self.assertEqual(asignacion.new_leaves_allocated, 14)
+
+		pago = self._pago_vacaciones()
+		self.assertEqual(pago.leave_allocation, asignacion.name)
+		self.assertEqual(pago.rd_dias_proporcionales, 10)
+		self.assertEqual(pago.encashment_days, 24)
+		self.assertEqual(pago.rd_salario_diario, 3357.11)
+		self.assertEqual(pago.encashment_amount, 80_570.64)
+
+		# Solo los 14 días de la asignación se descuentan de ella
+		pago.submit()
+		self.assertEqual(
+			frappe.db.get_value("Leave Allocation", asignacion.name, "total_leaves_encashed"), 14
+		)
+
+	def test_vacaciones_sin_asignacion(self):
+		"""Sin asignación vigente solo se paga la proporción del año incompleto."""
+		self._aislar()
+		pago = self._pago_vacaciones()
+		self.assertFalse(pago.leave_allocation)
+		self.assertEqual(pago.encashment_days, 10)
+		pago.submit()
+
+	def test_vacaciones_solo_al_salir(self):
+		"""Art. 182: sin fecha de salida no se pagan vacaciones en dinero."""
+		from erpnext_rd.nomina_rd import vacaciones
+
+		self._aislar()
+		frappe.db.set_value("Employee", self.empleado.name, "relieving_date", None)
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc(
+				{
+					"doctype": "Leave Encashment",
+					"employee": self.empleado.name,
+					"company": EMPRESA,
+					"leave_type": vacaciones.tipo_vacaciones(),
+					"encashment_date": "2026-09-30",
+				}
+			).insert()

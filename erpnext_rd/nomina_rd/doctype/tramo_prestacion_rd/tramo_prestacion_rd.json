@@ -1,0 +1,60 @@
+{
+ "actions": [],
+ "creation": "2026-10-15 14:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "desde_meses",
+  "hasta_meses",
+  "dias",
+  "por_cada_anio"
+ ],
+ "fields": [
+  {
+   "columns": 2,
+   "fieldname": "desde_meses",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Desde (meses de servicio)",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "description": "Vacío o 0 = sin límite",
+   "fieldname": "hasta_meses",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Hasta (meses, sin incluir)"
+  },
+  {
+   "columns": 2,
+   "fieldname": "dias",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Días de salario",
+   "reqd": 1
+  },
+  {
+   "columns": 3,
+   "default": "0",
+   "description": "Los días se pagan por cada año completo; la fracción de año que sobra se paga con los tramos menores de un año",
+   "fieldname": "por_cada_anio",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Por cada año de servicio"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-15 14:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Nomina RD",
+ "name": "Tramo Prestacion RD",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

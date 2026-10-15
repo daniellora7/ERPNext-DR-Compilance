@@ -21,14 +21,14 @@ required_apps = ["frappe/erpnext"]
 
 # Navegación: un solo módulo "RD Compliance" en el dock de ERPNext (dock/erpnext_rd, mount_on =
 # erpnext), con su sidebar de secciones en rd_compliance/sidebar. Los módulos de código le ceden
-# su navegación, así todo lo suyo abre dentro de RD Compliance.
+# su navegación, así todo lo suyo abre dentro de RD Compliance. La excepción es Nomina RD: tiene su
+# propio sidebar (nomina_rd/sidebar, app = hrms) y va en el dock de Frappe HR (install.dock_nomina).
 app_include_icons = ["/assets/erpnext_rd/icons/erpnext-rd-icons.svg"]
 code_only_modules = {
 	"DGII Fiscal": ["RD Compliance"],
 	"DGII Reportes": ["RD Compliance"],
 	"Padron RNC": ["RD Compliance"],
 	"ECF": ["RD Compliance"],
-	"Nomina RD": ["RD Compliance"],
 	"ERPNext RD": ["RD Compliance"],
 }
 
@@ -74,6 +74,13 @@ regional_overrides = {
 	},
 }
 
+# Prestaciones RD (preaviso y cesantía) sobre el Gratuity de Frappe HR: solo cambia el cálculo
+# del monto en las reglas marcadas con rd_prestacion. La clase solo se importa si HRMS está instalado.
+override_doctype_class = {
+	"Gratuity": "erpnext_rd.nomina_rd.gratuity_rd.GratuityRD",
+	"Leave Encashment": "erpnext_rd.nomina_rd.leave_encashment_rd.LeaveEncashmentRD",
+}
+
 doc_events = {
 	"Salary Slip": {
 		"validate": "erpnext_rd.nomina_rd.salario.al_validar_recibo",
@@ -84,6 +91,9 @@ doc_events = {
 	},
 	"Customer": {
 		"validate": "erpnext_rd.dgii_fiscal.identificacion.validar_party",
+	},
+	"Employee": {
+		"validate": "erpnext_rd.nomina_rd.empleado.validar_empleado",
 	},
 	"Supplier": {
 		"validate": "erpnext_rd.dgii_fiscal.identificacion.validar_party",
@@ -121,4 +131,8 @@ scheduler_events = {
 	"cron": {
 		"0 2 * * *": ["erpnext_rd.padron_rnc.padron.encolar"],
 	},
+	# Extiende la lista "Feriados RD" al año siguiente (idempotente)
+	"monthly": ["erpnext_rd.nomina_rd.feriados.asegurar_lista_feriados"],
+	# Período de vacaciones en cada aniversario (si está activado en Configuracion Nomina RD)
+	"daily": ["erpnext_rd.nomina_rd.vacaciones.asignar_vacaciones"],
 }
