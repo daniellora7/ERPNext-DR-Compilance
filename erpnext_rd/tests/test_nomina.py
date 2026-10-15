@@ -302,6 +302,51 @@ class TestReciboNominaRD(IntegrationTestCase):
 		r = prestaciones.regalia_proporcional(self.empleado.name, "2026-09-30")
 		self.assertEqual(r.salarios_del_anio, 720_000)
 
+	def test_archivo_tss(self):
+		"""Archivo AM de la TSS desde un recibo aprobado: el sueldo cotiza, el bono va como otras
+		remuneraciones del ISR."""
+		from erpnext_rd.nomina_rd import tss
+		from erpnext_rd.tests.test_empleado import cedula_valida
+
+		self._aislar()
+		cedula = cedula_valida("0010000005")
+		frappe.db.set_value(
+			"Employee",
+			self.empleado.name,
+			{
+				"rd_cedula": cedula,
+				"last_name": "Peña",
+				"rd_segundo_apellido": "Gómez",
+				"relieving_date": None,
+			},
+		)
+		frappe.db.set_value("Company", EMPRESA, "tax_id", "101000001")
+		frappe.get_doc(
+			{
+				"doctype": "Salary Slip",
+				"employee": self.empleado.name,
+				"start_date": "2026-10-01",
+				"posting_date": "2026-10-31",
+				"payroll_frequency": "Monthly",
+			}
+		).insert().submit()
+
+		fila = next(f for f in tss.obtener(EMPRESA, 2026, 10) if f["employee"] == self.empleado.name)
+		self.assertEqual(
+			(fila["salario_ss"], fila["salario_isr"], fila["otras_remuneraciones"]), (80_000, 80_000, 10_000)
+		)
+		self.assertEqual((fila["tipo_ingreso"], fila["_en_txt"]), ("0001", 1))
+
+		nombre, contenido = tss.generar_txt(EMPRESA, 2026, 10)
+		self.assertEqual(nombre, "AM_101000001_102026.txt")
+		lineas = contenido.split("\r\n")[:-1]
+		self.assertEqual(lineas[0], "EAM  101000001102026")
+		self.assertEqual(lineas[-1], "S" + str(len(lineas)).zfill(6))
+		detalle = next(linea for linea in lineas if cedula in linea)
+		self.assertEqual(detalle[80:120].rstrip(), "PENA")
+		self.assertEqual(detalle[169:185], "0000000080000.00")
+		self.assertEqual(detalle[217:233], "0000000010000.00")
+
 	def _aislar(self):
 		# Las pruebas de la clase comparten datos: las que crean documentos deshacen lo suyo
 		frappe.db.savepoint("vacaciones_rd")

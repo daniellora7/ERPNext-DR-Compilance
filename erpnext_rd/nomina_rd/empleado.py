@@ -4,7 +4,8 @@ Se reutiliza lo que ya tiene la ficha: nombre, primer apellido (*Last Name*), se
 y pasaporte (*Passport Number*). Son los datos que piden la TSS (archivo de autodeterminación del SUIR)
 y la DGII (IR-3 / IR-13). Como Employee es de ERPNext, no dependen de Frappe HR.
 
-La validación (doc_events Employee validate) solo aplica a empresas RD, salvo el nombre completo.
+La validación (doc_events Employee validate) solo aplica a empresas RD, salvo el nombre completo, y
+solo avisa: se puede contratar con pasaporte u otro documento (extranjeros) y la cédula no es obligatoria.
 """
 
 import frappe
@@ -17,7 +18,8 @@ from erpnext_rd.dgii_fiscal.validaciones import limpiar_identificacion
 CEDULA = "Cédula"
 NSS = "NSS"
 PASAPORTE = "Pasaporte"
-TIPOS_DOCUMENTO = (CEDULA, NSS, PASAPORTE)
+OTRO = "Otro"
+TIPOS_DOCUMENTO = (CEDULA, NSS, PASAPORTE, OTRO)
 
 AFP = "AFP"
 ARS = "ARS"
@@ -56,8 +58,16 @@ def validar_empleado(doc, method=None):
 	validar_cedula(doc)
 	if doc.rd_nss:
 		doc.rd_nss = limpiar_identificacion(doc.rd_nss)
-	if doc.rd_tipo_documento == PASAPORTE and doc.passport_number:
-		doc.passport_number = doc.passport_number.strip().upper()
+	if doc.get("rd_numero_documento"):
+		doc.rd_numero_documento = doc.rd_numero_documento.strip().upper()
+	if doc.rd_tipo_documento == PASAPORTE:
+		# El número va en el campo estándar Passport Number y en el de la sección RD
+		if doc.get("rd_numero_documento"):
+			doc.passport_number = doc.rd_numero_documento
+		elif doc.passport_number:
+			doc.passport_number = doc.rd_numero_documento = doc.passport_number.strip().upper()
+	if doc.get("rd_clave_nomina"):
+		doc.rd_clave_nomina = doc.rd_clave_nomina.strip().zfill(3)
 
 
 def nombre_completo(doc):
@@ -68,16 +78,28 @@ def nombre_completo(doc):
 		)
 
 
+def cedula_valida(cedula: str | None) -> bool:
+	cedula = limpiar_identificacion(cedula or "")
+	return len(cedula) == 11 and identificacion_valida(cedula, CEDULA)
+
+
+def _avisar(mensaje: str, titulo: str):
+	frappe.msgprint(mensaje, title=titulo, indicator="orange", alert=False)
+
+
 def validar_cedula(doc):
+	"""Solo avisa: la cédula no es obligatoria (extranjeros con pasaporte u otro documento) y un
+	error de captura no debe impedir registrar al empleado. El archivo de la TSS vuelve a avisar."""
 	if not doc.rd_cedula:
 		return
-	cedula = limpiar_identificacion(doc.rd_cedula)
-	if len(cedula) != 11 or not identificacion_valida(cedula, CEDULA):
-		frappe.throw(
-			_("La cédula {0} no es válida (11 dígitos con dígito verificador).").format(doc.rd_cedula),
-			title=_("Cédula inválida"),
+	doc.rd_cedula = cedula = limpiar_identificacion(doc.rd_cedula)
+	if not (doc.is_new() or doc.has_value_changed("rd_cedula")):
+		return
+	if not cedula_valida(cedula):
+		_avisar(
+			_("La cédula {0} no parece válida (11 dígitos con dígito verificador). Revísela.").format(cedula),
+			_("Revise la cédula"),
 		)
-	doc.rd_cedula = cedula
 
 	# Un reingreso es otro Employee: solo choca con empleados que siguen en la empresa
 	otro = frappe.db.get_value(
@@ -92,11 +114,11 @@ def validar_cedula(doc):
 		as_dict=True,
 	)
 	if otro:
-		frappe.throw(
-			_("La cédula {0} ya es del empleado {1} ({2}) en {3}.").format(
+		_avisar(
+			_("La cédula {0} también es del empleado {1} ({2}) en {3}.").format(
 				cedula, frappe.bold(otro.employee_name), otro.name, doc.company
 			),
-			title=_("Cédula repetida"),
+			_("Cédula repetida"),
 		)
 
 

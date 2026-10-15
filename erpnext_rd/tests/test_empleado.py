@@ -52,17 +52,30 @@ class TestEmpleadoRD(IntegrationTestCase):
 		self.assertEqual(empleado.rd_nss, "123456789")
 		self.assertEqual(empleado.employee_name, "_Test Pérez García")
 
-	def test_cedula_invalida(self):
+	def _avisos(self) -> str:
+		return " ".join(str(m) for m in frappe.message_log)
+
+	def test_cedula_invalida_solo_avisa(self):
+		"""Un error de captura en la cédula no impide registrar al empleado."""
 		cedula = cedula_valida("0010000002")
 		mala = cedula[:10] + str((int(cedula[10]) + 1) % 10)
-		with self.assertRaises(frappe.ValidationError):
-			self._empleado(rd_cedula=mala).insert()
+		frappe.clear_messages()
+		empleado = self._empleado(rd_cedula=mala).insert()
+		self.assertEqual(empleado.rd_cedula, mala)
+		self.assertIn("no parece válida", self._avisos())
 
-	def test_cedula_repetida_en_la_empresa(self):
+	def test_cedula_repetida_solo_avisa(self):
 		cedula = cedula_valida("0010000003")
 		self._empleado(rd_cedula=cedula).insert()
-		with self.assertRaises(frappe.ValidationError):
-			self._empleado(first_name="_Test Otro", rd_cedula=cedula).insert()
+		frappe.clear_messages()
+		self._empleado(first_name="_Test Otro", rd_cedula=cedula).insert()
+		self.assertIn("también es del empleado", self._avisos())
+
+	def test_extranjero_con_pasaporte(self):
+		empleado = self._empleado(rd_tipo_documento="Pasaporte", rd_numero_documento=" ab123456 ").insert()
+		self.assertEqual(empleado.passport_number, "AB123456")
+		self.assertEqual(empleado.rd_numero_documento, "AB123456")
+		self.assertFalse(empleado.rd_cedula)
 
 	def test_catalogo_afp_ars(self):
 		self.assertTrue(frappe.db.exists("Entidad Seguridad Social RD", {"tipo": "AFP"}))

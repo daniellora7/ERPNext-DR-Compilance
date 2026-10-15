@@ -436,10 +436,11 @@ def campos_personalizados() -> dict:
 				"fieldname": "rd_tipo_documento",
 				"fieldtype": "Select",
 				"label": "Tipo de documento",
-				"options": "Cédula\nNSS\nPasaporte",
+				"options": "Cédula\nNSS\nPasaporte\nOtro",
 				"default": "Cédula",
 				"insert_after": "rd_section_datos",
-				"description": "Extranjeros sin cédula: el NSS que asigna la TSS o el pasaporte (campo Passport Number).",
+				"description": "Extranjeros: pasaporte, carné de Migración u otro documento. Para cotizar, la TSS les "
+				"asigna un NSS (SUIR → Solicitud de asignación de NSS); con NSS, el archivo de la TSS lo usa.",
 			},
 			{
 				"fieldname": "rd_cedula",
@@ -449,13 +450,21 @@ def campos_personalizados() -> dict:
 				"depends_on": "eval:doc.rd_tipo_documento == 'Cédula'",
 				"search_index": 1,
 				"in_standard_filter": 1,
-				"description": "11 dígitos, con o sin guiones",
+				"description": "11 dígitos, con o sin guiones. Si no es válida, avisa pero deja guardar.",
+			},
+			{
+				"fieldname": "rd_numero_documento",
+				"fieldtype": "Data",
+				"label": "Número del documento",
+				"insert_after": "rd_cedula",
+				"depends_on": "eval:['Pasaporte', 'Otro'].includes(doc.rd_tipo_documento)",
+				"description": "El pasaporte también queda en Passport Number.",
 			},
 			{
 				"fieldname": "rd_nss",
 				"fieldtype": "Data",
 				"label": "NSS (Seguridad Social)",
-				"insert_after": "rd_cedula",
+				"insert_after": "rd_numero_documento",
 			},
 			{
 				"fieldname": "rd_column_datos",
@@ -479,6 +488,26 @@ def campos_personalizados() -> dict:
 				"insert_after": "rd_afp",
 				"link_filters": '[["Entidad Seguridad Social RD","tipo","=","ARS"],'
 				'["Entidad Seguridad Social RD","deshabilitada","=",0]]',
+			},
+			{
+				"fieldname": "rd_clave_nomina",
+				"fieldtype": "Data",
+				"label": "Clave de nómina TSS",
+				"insert_after": "rd_ars",
+				"length": 3,
+				"default": "001",
+				"description": "La nómina del SUIR donde está el trabajador (3 dígitos).",
+			},
+			{
+				"fieldname": "rd_tipo_ingreso_tss",
+				"fieldtype": "Select",
+				"label": "Tipo de ingreso TSS",
+				"insert_after": "rd_clave_nomina",
+				"options": "\n0001 - Normal\n0002 - Trabajador ocasional (no fijo)\n0003 - Asalariado por hora o "
+				"tiempo parcial\n0004 - No laboró mes completo\n0005 - Salario prorrateado semanal/bisemanal\n"
+				"0006 - Pensionado antes de la Ley 87-01\n0007 - Exento por ley de pago al SDSS\n"
+				"0008 - Trabajador con salario sectorizado",
+				"description": "Vacío: Normal, o «No laboró mes completo» el mes en que entra o sale.",
 			},
 		],
 		"Mode of Payment": [

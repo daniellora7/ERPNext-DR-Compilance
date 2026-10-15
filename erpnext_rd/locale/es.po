@@ -11,5 +11,8 @@ msgstr ""
 msgid "Nomina RD"
 msgstr "Nómina RD"
 
+msgid "Autodeterminacion TSS"
+msgstr "Autodeterminación TSS"
+
 msgid "Leave Encashment"
 msgstr "Pago de permisos no disfrutados"
