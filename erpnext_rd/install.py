@@ -31,6 +31,9 @@ DOCTYPES_HRMS = ("Salary Component", "Gratuity Rule", "Gratuity", "Leave Type", 
 # Sidebar de la Nómina RD (nomina_rd/sidebar): vive en el dock de Frappe HR, no en RD Compliance
 SIDEBAR_NOMINA = "Nomina RD"
 FILA_DOCK_NOMINA = {"link_type": "Sidebar", "link_to": SIDEBAR_NOMINA}
+# Ícono "soft" del dock (estilo de Frappe v16.52+); el de dos tonos queda para el encabezado del sidebar
+ICONO_DOCK_NOMINA = "nomina-rd-soft"
+ICONOS_DOCK_NOMINA_ANTERIORES = ("nomina-rd-duotone",)
 
 
 def _opciones(lista):
@@ -721,13 +724,18 @@ def dock_nomina():
 		capas.append(sitio)
 
 	for capa in capas:
-		if any(_es_fila_nomina(fila) for fila in capa.items):
+		existente = next((fila for fila in capa.items if _es_fila_nomina(fila)), None)
+		if existente:
+			# Sitios que ya tenían la entrada con el ícono anterior; uno elegido por el usuario se respeta
+			if existente.icon in ICONOS_DOCK_NOMINA_ANTERIORES:
+				existente.icon = ICONO_DOCK_NOMINA
+				capa.save(ignore_permissions=True)
 			continue
 		# La capa del sitio trae la entrada (con ícono y título); la de un usuario solo la nombra,
 		# porque una capa guardada es el dock completo y lo que no nombra no aparece.
 		if capa is sitio:
 			capa.append(
-				"items", {**FILA_DOCK_NOMINA, "icon": "nomina-rd-duotone", "title": "Nómina RD", "added": 1}
+				"items", {**FILA_DOCK_NOMINA, "icon": ICONO_DOCK_NOMINA, "title": "Nómina RD", "added": 1}
 			)
 		else:
 			capa.append("items", {**FILA_DOCK_NOMINA, "added": 0})
