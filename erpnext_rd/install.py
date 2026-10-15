@@ -27,7 +27,7 @@ from erpnext_rd.nomina_rd.salario import CONCEPTOS as CONCEPTOS_NOMINA
 MODULO = "DGII Fiscal"
 
 # DocTypes de Frappe HR que reciben campos de la app (solo si hrms está instalado)
-DOCTYPES_HRMS = ("Salary Component",)
+DOCTYPES_HRMS = ("Salary Component", "Gratuity Rule", "Gratuity")
 # Sidebar de la Nómina RD (nomina_rd/sidebar): vive en el dock de Frappe HR, no en RD Compliance
 SIDEBAR_NOMINA = "Nomina RD"
 FILA_DOCK_NOMINA = {"link_type": "Sidebar", "link_to": SIDEBAR_NOMINA}
@@ -309,6 +309,61 @@ def campos_personalizados() -> dict:
 				"bonificaciones y otros ingresos no cotizables.",
 			},
 		],
+		"Gratuity Rule": [
+			{
+				"fieldname": "rd_prestacion",
+				"fieldtype": "Select",
+				"label": "Prestación RD (Código de Trabajo)",
+				"options": "\nCesantía\nPreaviso",
+				"insert_after": "disable",
+				"description": "Calcula el monto con los tramos de Configuración Nómina RD y el salario promedio "
+				"del último año, en vez de los tramos de esta regla.",
+			},
+		],
+		"Gratuity": [
+			{
+				"fieldname": "rd_section_prestacion",
+				"fieldtype": "Section Break",
+				"label": "Cálculo de la prestación RD",
+				"insert_after": "amount",
+				"depends_on": "eval:doc.rd_dias",
+			},
+			{
+				"fieldname": "rd_meses_servicio",
+				"fieldtype": "Int",
+				"label": "Meses de servicio",
+				"read_only": 1,
+				"insert_after": "rd_section_prestacion",
+			},
+			{
+				"fieldname": "rd_dias",
+				"fieldtype": "Float",
+				"label": "Días de salario",
+				"read_only": 1,
+				"insert_after": "rd_meses_servicio",
+			},
+			{
+				"fieldname": "rd_column_prestacion",
+				"fieldtype": "Column Break",
+				"insert_after": "rd_dias",
+			},
+			{
+				"fieldname": "rd_salario_promedio",
+				"fieldtype": "Currency",
+				"label": "Salario promedio mensual",
+				"options": "Company:company:default_currency",
+				"read_only": 1,
+				"insert_after": "rd_column_prestacion",
+			},
+			{
+				"fieldname": "rd_salario_diario",
+				"fieldtype": "Currency",
+				"label": "Salario diario",
+				"options": "Company:company:default_currency",
+				"read_only": 1,
+				"insert_after": "rd_salario_promedio",
+			},
+		],
 		"Mode of Payment": [
 			{
 				"fieldname": "rd_forma_pago",
@@ -398,10 +453,15 @@ def inicializar_configuracion():
 	if not frappe.db.exists("Singles", {"doctype": "Configuracion DGII"}):
 		frappe.get_single("Configuracion DGII").save(ignore_permissions=True)
 
-	# Campos Check agregados después de guardar la configuración: quedan con su valor por defecto
-	for campo in ("calcular_deducciones",):
+	# Campos agregados después de guardar la configuración: quedan con su valor por defecto
+	for campo, valor in (
+		("calcular_deducciones", 1),
+		("dias_salario_mes", 23.83),
+		("actualizar_feriados", 1),
+		("dia_descanso", "Sunday"),
+	):
 		if not frappe.db.exists("Singles", {"doctype": "Configuracion Nomina RD", "field": campo}):
-			frappe.db.set_single_value("Configuracion Nomina RD", campo, 1)
+			frappe.db.set_single_value("Configuracion Nomina RD", campo, valor)
 
 	conf = frappe.get_single("Configuracion Nomina RD")
 	if not conf.escala_isr:
@@ -555,6 +615,50 @@ def _es_fila_nomina(fila) -> bool:
 	return fila.get("link_type") == "Sidebar" and fila.get("link_to") == SIDEBAR_NOMINA
 
 
+def prestaciones_y_feriados():
+	"""Tramos de prestaciones en la configuración, reglas de Gratuity RD y la lista de feriados RD."""
+	from erpnext_rd.nomina_rd import feriados, prestaciones
+
+	conf = frappe.get_single("Configuracion Nomina RD")
+	if prestaciones.inicializar_tramos(conf):
+		conf.save(ignore_permissions=True)
+	if hrms_instalado():
+		reglas_gratuity_sin_tramos()
+		prestaciones.crear_reglas()
+	feriados.asegurar_lista_feriados()
+
+
+def reglas_gratuity_sin_tramos():
+	"""En una regla de prestación RD los tramos de HRMS (en años enteros) no aplican: se ocultan y
+	dejan de ser obligatorios, igual que los componentes. En las demás reglas siguen igual."""
+	from frappe.custom.doctype.property_setter.property_setter import make_property_setter
+
+	ajustes = (
+		("gratuity_rule_slabs", "reqd", "0", "Check"),
+		("gratuity_rule_slabs", "mandatory_depends_on", "eval:!doc.rd_prestacion", "Code"),
+		("gratuity_rule_slabs", "depends_on", "eval:!doc.rd_prestacion", "Code"),
+		# Componentes opcionales: vacío = los ingresos que cotizan a la TSS (prestaciones.componentes_ordinarios)
+		("applicable_earnings_component", "reqd", "0", "Check"),
+		("applicable_earnings_component", "mandatory_depends_on", "eval:!doc.rd_prestacion", "Code"),
+	)
+	for campo, propiedad, valor, tipo in ajustes:
+		make_property_setter(
+			"Gratuity Rule", campo, propiedad, valor, tipo, validate_fields_for_doctype=False
+		)
+	# Con el módulo de la app, Frappe los borra al desinstalarla
+	frappe.db.set_value(
+		"Property Setter",
+		{
+			"doc_type": "Gratuity Rule",
+			"module": ("is", "not set"),
+			"field_name": ("in", {a[0] for a in ajustes}),
+		},
+		"module",
+		MODULO,
+		update_modified=False,
+	)
+
+
 def programar_padron_inicial():
 	"""Sitio nuevo: descarga el padrón RNC en segundo plano (cola long), sin pasos en la consola.
 
@@ -591,6 +695,7 @@ def setup():
 	inicializar_configuracion()
 	asegurar_navegacion()
 	dock_nomina()
+	prestaciones_y_feriados()
 	lista_padron_sin_filtro_reciente()
 	frappe.clear_cache()
 	catalogo_cuentas.aplicar_a_empresas_rd()
@@ -621,6 +726,7 @@ def al_desinstalar_app(app_name: str):
 		"Custom Field", filters={"dt": ("in", DOCTYPES_HRMS), "module": MODULO}, pluck="name"
 	):
 		frappe.delete_doc("Custom Field", nombre, force=True, ignore_permissions=True)
+	frappe.db.delete("Property Setter", {"doc_type": ("in", DOCTYPES_HRMS), "module": MODULO})
 	quitar_dock_nomina()
 	# Frappe llama este hook después del último commit de la desinstalación
 	frappe.db.commit()  # nosemgrep

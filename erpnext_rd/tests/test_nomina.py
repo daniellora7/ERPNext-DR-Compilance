@@ -230,3 +230,49 @@ class TestReciboNominaRD(IntegrationTestCase):
 			self.assertNotIn("AFP", {f.abbr for f in recibo.deductions})
 		finally:
 			frappe.db.set_single_value("Configuracion Nomina RD", "calcular_deducciones", 1)
+
+	def _prestacion(self, regla: str):
+		# Ingreso 2025-01-01, salida 2026-09-30: 21 meses completos
+		frappe.db.set_value("Employee", self.empleado.name, "relieving_date", "2026-09-30")
+		return frappe.get_doc(
+			{
+				"doctype": "Gratuity",
+				"employee": self.empleado.name,
+				"company": EMPRESA,
+				"posting_date": "2026-09-30",
+				"gratuity_rule": regla,
+			}
+		).insert()
+
+	def test_cesantia_sobre_gratuity(self):
+		"""Gratuity de Frappe HR con la regla "Cesantía RD": 1 año x 21 días + 9 meses (13 días) = 34 días
+		del salario diario. Sin recibos aprobados se usa la base de la asignación (80,000 / 23.83)."""
+		cesantia = self._prestacion("Cesantía RD")
+		self.assertEqual(cesantia.rd_meses_servicio, 21)
+		self.assertEqual(cesantia.rd_dias, 34)
+		self.assertEqual(cesantia.rd_salario_diario, 3357.11)
+		self.assertEqual(cesantia.amount, 114_141.74)
+
+	def test_preaviso_sobre_gratuity(self):
+		preaviso = self._prestacion("Preaviso RD")
+		self.assertEqual(preaviso.rd_dias, 28)
+		self.assertEqual(preaviso.amount, 93_999.08)
+
+	def test_promedio_con_recibos_aprobados(self):
+		"""El promedio sale de los ingresos que cotizan (el bono de 10,000 no cuenta)."""
+		from erpnext_rd.nomina_rd import prestaciones
+
+		# Agosto: los otros tests de la clase usan septiembre
+		frappe.get_doc(
+			{
+				"doctype": "Salary Slip",
+				"employee": self.empleado.name,
+				"start_date": "2026-08-01",
+				"posting_date": "2026-08-31",
+				"payroll_frequency": "Monthly",
+			}
+		).insert().submit()
+		promedio = prestaciones.salario_promedio_mensual(
+			self.empleado.name, "2026-09-30", prestaciones.componentes_ordinarios()
+		)
+		self.assertEqual(promedio, 80_000)

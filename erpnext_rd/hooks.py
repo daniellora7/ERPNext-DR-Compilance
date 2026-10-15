@@ -74,6 +74,12 @@ regional_overrides = {
 	},
 }
 
+# Prestaciones RD (preaviso y cesantía) sobre el Gratuity de Frappe HR: solo cambia el cálculo
+# del monto en las reglas marcadas con rd_prestacion. La clase solo se importa si HRMS está instalado.
+override_doctype_class = {
+	"Gratuity": "erpnext_rd.nomina_rd.gratuity_rd.GratuityRD",
+}
+
 doc_events = {
 	"Salary Slip": {
 		"validate": "erpnext_rd.nomina_rd.salario.al_validar_recibo",
@@ -121,4 +127,6 @@ scheduler_events = {
 	"cron": {
 		"0 2 * * *": ["erpnext_rd.padron_rnc.padron.encolar"],
 	},
+	# Extiende la lista "Feriados RD" al año siguiente (idempotente)
+	"monthly": ["erpnext_rd.nomina_rd.feriados.asegurar_lista_feriados"],
 }

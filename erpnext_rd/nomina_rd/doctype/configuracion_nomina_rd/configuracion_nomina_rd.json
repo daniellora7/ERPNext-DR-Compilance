@@ -25,7 +25,16 @@
   "infotep_empleador",
   "section_isr",
   "escala_isr",
-  "escala_vigente_desde"
+  "escala_vigente_desde",
+  "section_prestaciones",
+  "dias_salario_mes",
+  "tramos_preaviso",
+  "tramos_cesantia",
+  "section_feriados",
+  "actualizar_feriados",
+  "dia_descanso",
+  "column_break_feriados",
+  "lista_feriados"
  ],
  "fields": [
   {
@@ -162,11 +171,68 @@
    "fieldname": "escala_vigente_desde",
    "fieldtype": "Date",
    "label": "Escala vigente desde"
+  },
+  {
+   "description": "Código de Trabajo: preaviso (art. 76) y auxilio de cesantía (art. 80). Se calculan con el salario promedio del último año (art. 85) dividido entre los días de abajo. Se usan en las reglas de Gratuity de Frappe HR marcadas como prestación RD.",
+   "fieldname": "section_prestaciones",
+   "fieldtype": "Section Break",
+   "label": "Prestaciones laborales"
+  },
+  {
+   "default": "23.83",
+   "fieldname": "dias_salario_mes",
+   "fieldtype": "Float",
+   "label": "Días por mes para el salario diario",
+   "reqd": 1,
+   "description": "Salario diario = salario promedio mensual / este valor (23.83 por resolución del Ministerio de Trabajo)"
+  },
+  {
+   "fieldname": "tramos_preaviso",
+   "fieldtype": "Table",
+   "label": "Preaviso (art. 76)",
+   "options": "Tramo Prestacion RD"
+  },
+  {
+   "fieldname": "tramos_cesantia",
+   "fieldtype": "Table",
+   "label": "Auxilio de cesantía (art. 80)",
+   "options": "Tramo Prestacion RD"
+  },
+  {
+   "description": "Lista de feriados de ERPNext con los feriados de República Dominicana (Ley 139-97, con sus traslados). Se crea sola, se extiende cada año y queda como lista por defecto de las empresas RD que no tengan otra.",
+   "fieldname": "section_feriados",
+   "fieldtype": "Section Break",
+   "label": "Feriados"
+  },
+  {
+   "default": "1",
+   "fieldname": "actualizar_feriados",
+   "fieldtype": "Check",
+   "label": "Mantener la lista de feriados RD"
+  },
+  {
+   "default": "Sunday",
+   "fieldname": "dia_descanso",
+   "fieldtype": "Select",
+   "label": "Día de descanso semanal",
+   "options": "\nSunday\nMonday\nTuesday\nWednesday\nThursday\nFriday\nSaturday",
+   "description": "Se marca como día libre en la lista. Vacío = no agregar días de descanso"
+  },
+  {
+   "fieldname": "column_break_feriados",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lista_feriados",
+   "fieldtype": "Link",
+   "label": "Lista de feriados",
+   "options": "Holiday List",
+   "read_only": 1
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-13 20:30:00.000000",
+ "modified": "2026-10-15 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "Nomina RD",
  "name": "Configuracion Nomina RD",
