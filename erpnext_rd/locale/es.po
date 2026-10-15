@@ -19,3 +19,9 @@ msgstr "Regalía pascual"
 
 msgid "Leave Encashment"
 msgstr "Pago de permisos no disfrutados"
+
+msgid "Bonificacion RD"
+msgstr "Bonificación RD"
+
+msgid "Bonificacion RD Empleado"
+msgstr "Bonificación RD - Empleado"

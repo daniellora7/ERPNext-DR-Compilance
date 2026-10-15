@@ -618,6 +618,10 @@ def inicializar_configuracion():
 		("dias_salario_mes", 23.83),
 		("actualizar_feriados", 1),
 		("dia_descanso", "Sunday"),
+		("bonificacion_porcentaje", 10),
+		("bonificacion_anios", 3),
+		("bonificacion_dias_menor", 45),
+		("bonificacion_dias_mayor", 60),
 	):
 		if not frappe.db.exists("Singles", {"doctype": "Configuracion Nomina RD", "field": campo}):
 			frappe.db.set_single_value("Configuracion Nomina RD", campo, valor)

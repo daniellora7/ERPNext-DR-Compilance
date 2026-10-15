@@ -1,0 +1,233 @@
+{
+ "actions": [],
+ "autoname": "BON-RD-.#####",
+ "creation": "2026-10-16 20:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "is_submittable": 1,
+ "track_changes": 1,
+ "description": "Participación de los trabajadores en los beneficios de la empresa (art. 223 del Código de Trabajo): reparto del porcentaje de la utilidad neta del ejercicio, con tope por trabajador, pagado en la nómina.",
+ "links": [],
+ "modified": "2026-10-16 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Nomina RD",
+ "name": "Bonificacion RD",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "HR Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "role": "HR User"
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "ejercicio",
+ "show_title_field_in_link": 0,
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Empresa",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "ejercicio",
+   "fieldtype": "Link",
+   "options": "Fiscal Year",
+   "label": "Ejercicio fiscal",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "desde",
+   "fieldtype": "Date",
+   "label": "Desde",
+   "fetch_from": "ejercicio.year_start_date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "hasta",
+   "fieldtype": "Date",
+   "label": "Hasta",
+   "fetch_from": "ejercicio.year_end_date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "utilidad_neta",
+   "fieldtype": "Currency",
+   "label": "Utilidad neta del ejercicio",
+   "reqd": 1,
+   "description": "Antes del ISR y de las bonificaciones de directores, administradores y gerentes. Si no hubo utilidad, no hay bonificación."
+  },
+  {
+   "fieldname": "porcentaje",
+   "fieldtype": "Percent",
+   "label": "Porcentaje para los trabajadores",
+   "reqd": 1,
+   "description": "De la Configuración Nómina RD (art. 223: 10 %)."
+  },
+  {
+   "fieldname": "fondo",
+   "fieldtype": "Currency",
+   "label": "Monto a repartir",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "section_pago",
+   "fieldtype": "Section Break",
+   "label": "Pago"
+  },
+  {
+   "fieldname": "fecha_pago",
+   "fieldtype": "Date",
+   "label": "Fecha de pago en nómina",
+   "reqd": 1,
+   "description": "Debe caer en el período de la nómina en que se paga."
+  },
+  {
+   "fieldname": "fecha_limite",
+   "fieldtype": "Date",
+   "label": "Fecha límite (art. 224)",
+   "read_only": 1,
+   "description": "120 días después del cierre del ejercicio."
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tipo_componente",
+   "fieldtype": "Link",
+   "options": "DocType",
+   "label": "Tipo de componente",
+   "hidden": 1,
+   "default": "Salary Component"
+  },
+  {
+   "fieldname": "componente",
+   "fieldtype": "Dynamic Link",
+   "options": "tipo_componente",
+   "label": "Componente de nómina",
+   "reqd": 1,
+   "default": "Bonificación"
+  },
+  {
+   "fieldname": "section_empleados",
+   "fieldtype": "Section Break",
+   "label": "Reparto por empleado",
+   "description": "Tope de cada trabajador: días de salario ordinario según su antigüedad, en proporción a los meses trabajados en el ejercicio. Si el monto a repartir no alcanza para todos los topes, se reparte en proporción a ellos."
+  },
+  {
+   "fieldname": "empleados",
+   "fieldtype": "Table",
+   "options": "Bonificacion RD Empleado",
+   "label": "Empleados"
+  },
+  {
+   "fieldname": "section_totales",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total_topes",
+   "fieldtype": "Currency",
+   "label": "Suma de los topes",
+   "read_only": 1
+  },
+  {
+   "fieldname": "factor",
+   "fieldtype": "Float",
+   "label": "Factor de reparto",
+   "read_only": 1,
+   "precision": "6",
+   "description": "Monto a repartir / suma de los topes (máximo 1)."
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total",
+   "fieldtype": "Currency",
+   "label": "Total de bonificaciones",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Bonificacion RD",
+   "label": "Corrige a",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  }
+ ],
+ "field_order": [
+  "company",
+  "ejercicio",
+  "desde",
+  "hasta",
+  "column_break_1",
+  "utilidad_neta",
+  "porcentaje",
+  "fondo",
+  "section_pago",
+  "fecha_pago",
+  "fecha_limite",
+  "column_break_2",
+  "tipo_componente",
+  "componente",
+  "section_empleados",
+  "empleados",
+  "section_totales",
+  "total_topes",
+  "factor",
+  "column_break_3",
+  "total",
+  "amended_from"
+ ]
+}

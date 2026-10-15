@@ -69,6 +69,19 @@ class TestNominaRD(IntegrationTestCase):
 		self.assertEqual(calculos.regalia_pascual(12 * 30_000), 30_000)
 		self.assertEqual(calculos.regalia_pascual(7 * 30_000), 17_500)  # entró a mitad de año
 
+	def test_reparto_de_bonificacion(self):
+		"""Art. 223: si el 10 % no alcanza para los topes, se reparte en proporción a ellos; si sobra,
+		cada uno recibe su tope."""
+		from erpnext_rd.nomina_rd import bonificacion
+
+		filas = [{"tope": 60_000}, {"tope": 40_000}]
+		self.assertEqual(bonificacion.repartir(filas, 80_000), (100_000, 0.8))
+		self.assertEqual([f["monto"] for f in filas], [48_000, 32_000])
+		bonificacion.repartir(filas, 500_000)
+		self.assertEqual([f["monto"] for f in filas], [60_000, 40_000])
+		bonificacion.repartir(filas, -10_000)  # sin utilidad, no hay bonificación
+		self.assertEqual([f["monto"] for f in filas], [0, 0])
+
 	def test_configuracion_inicial(self):
 		conf = frappe.get_single("Configuracion Nomina RD")
 		self.assertEqual([len(calculos.escala_isr(conf, a)) for a in (2026, 2027)], [4, 5])
@@ -485,6 +498,76 @@ class TestReciboNominaRD(IntegrationTestCase):
 		self.assertEqual(nombre, "NV_101000001_102026.txt")
 		self.assertEqual(lineas[0], "ENV  101000001102026")
 		self.assertEqual((len(lineas), lineas[1][4:14]), (3, "SA20102026"))
+
+	def test_bonificacion(self):
+		"""Utilidad 1,000,000 -> 100,000 a repartir. Ingreso 2025-01-01: al cierre de 2026 tiene 2 años
+		(tope de 45 días) y trabajó los 12 meses; salario diario 80,000 / 23.83 = 3,357.11 -> tope
+		151,069.95. El fondo no alcanza: recibe los 100,000. En el recibo, INFOTEP del empleado 0.5 % y
+		en el archivo de la TSS va como otra remuneración (no cotiza)."""
+		from erpnext_rd.nomina_rd import salario, tss
+
+		self._aislar()
+		frappe.db.set_value("Employee", self.empleado.name, "relieving_date", None)
+		ejercicio = (
+			frappe.db.get_value(
+				"Fiscal Year", {"year_start_date": "2026-01-01", "year_end_date": "2026-12-31"}
+			)
+			or frappe.get_doc(
+				{
+					"doctype": "Fiscal Year",
+					"year": "2026 RD",
+					"year_start_date": "2026-01-01",
+					"year_end_date": "2026-12-31",
+				}
+			)
+			.insert()
+			.name
+		)
+
+		bono = frappe.get_doc(
+			{
+				"doctype": "Bonificacion RD",
+				"company": EMPRESA,
+				"ejercicio": ejercicio,
+				"utilidad_neta": 1_000_000,
+				"fecha_pago": "2026-12-20",
+			}
+		)
+		bono.desde, bono.hasta = "2026-01-01", "2026-12-31"
+		bono.calcular()
+		fila = next(f for f in bono.empleados if f.employee == self.empleado.name)
+		self.assertEqual(
+			(fila.meses, fila.dias, fila.salario_diario, fila.tope), (12, 45, 3357.11, 151_069.95)
+		)
+		self.assertEqual((bono.porcentaje, bono.fondo, str(bono.fecha_limite)), (10, 100_000, "2027-04-30"))
+		self.assertAlmostEqual(fila.monto, 100_000, delta=0.01)
+		bono.insert()
+		bono.submit()
+		pago = frappe.db.get_value("Bonificacion RD Empleado", fila.name, "additional_salary")
+		self.assertEqual(frappe.db.get_value("Additional Salary", pago, "docstatus"), 1)
+
+		recibo = (
+			frappe.get_doc(
+				{
+					"doctype": "Salary Slip",
+					"employee": self.empleado.name,
+					"start_date": "2026-12-01",
+					"payroll_frequency": "Monthly",
+				}
+			)
+			.insert()
+			.submit()
+		)
+		deducciones = {f.abbr: f.amount for f in recibo.deductions}
+		self.assertAlmostEqual(deducciones["INFOTEP_EE"], 500, delta=0.01)
+		f = next(f for f in tss.obtener(EMPRESA, 2026, 12) if f["employee"] == self.empleado.name)
+		self.assertEqual(f["salario_ss"], 80_000)
+		self.assertAlmostEqual(f["otras_remuneraciones"], 110_000, delta=0.01)
+		self.assertEqual(salario.calcular(recibo)[salario.AFP], deducciones["AFP"])
+
+		recibo.cancel()  # el recibo que la pagó se cancela primero
+		bono.cancel()
+		self.assertEqual(frappe.db.get_value("Additional Salary", pago, "docstatus"), 2)
 
 	def _aislar(self):
 		# Las pruebas de la clase comparten datos: las que crean documentos deshacen lo suyo
