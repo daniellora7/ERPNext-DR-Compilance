@@ -25,7 +25,6 @@
   "infotep_empleador",
   "section_isr",
   "escala_isr",
-  "escala_vigente_desde",
   "section_prestaciones",
   "dias_salario_mes",
   "tramos_preaviso",
@@ -165,15 +164,10 @@
   {
    "fieldname": "escala_isr",
    "fieldtype": "Table",
-   "label": "Escala anual ISR",
+   "label": "Escalas anuales ISR",
    "options": "Tramo ISR RD",
-   "reqd": 1
-  },
-  {
-   "default": "2026-01-01",
-   "fieldname": "escala_vigente_desde",
-   "fieldtype": "Date",
-   "label": "Escala vigente desde"
+   "reqd": 1,
+   "description": "Una escala por año (art. 296 del Código Tributario). Cada recibo usa la del año más reciente que no pase del año de su período. La Ley 30-26 ajusta la escala cada año por la inflación: agregue aquí la que publique la DGII, con su año."
   },
   {
    "description": "Código de Trabajo: preaviso (art. 76) y auxilio de cesantía (art. 80). Se calculan con el salario promedio del último año (art. 85) dividido entre los días de abajo. Se usan en las reglas de Gratuity de Frappe HR marcadas como prestación RD.",
@@ -255,7 +249,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-15 18:10:00.000000",
+ "modified": "2026-10-16 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Nomina RD",
  "name": "Configuracion Nomina RD",

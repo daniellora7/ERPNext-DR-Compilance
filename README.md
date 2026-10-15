@@ -24,7 +24,7 @@ Frappe HR es opcional. Cuando está instalado, la app lo adapta a la República 
 - **Archivo de autodeterminación de la TSS** (Nómina RD → TSS y DGII): el TXT mensual (AM) para *Gestión de archivos* del SUIR Plus, con el formato del instructivo v6.0 de la TSS, a partir de los recibos de nómina aprobados del mes: salario cotizable, salario y otras remuneraciones del ISR, regalía y preaviso / cesantía como ingresos exentos y el tipo de ingreso. El reporte muestra a cada trabajador con sus observaciones (sin recibo, sin documento, cédula dudosa, extranjero sin NSS) antes de descargar.
 - **Resumen IR-3** (Nómina RD → TSS y DGII): la DGII arma el IR-3 con la nómina enviada a la TSS; este resumen hace el mismo cálculo (renta gravada menos AFP y SFS, escala anual del ISR) y lo compara con el ISR retenido en los recibos, por asalariado, para revisar el IR-4 y presentar a tiempo (día 10 del mes siguiente, o en cero si no hubo retenciones).
 - **Reclamos de gastos**: los tipos de reclamo usan la cuenta de gasto del catálogo DGII.
-- **Configuración Nómina RD**: tasas, topes, escala del ISR, tramos de preaviso, cesantía y vacaciones, días por mes y la lista de feriados, todo editable porque cambia por ley o resolución.
+- **Configuración Nómina RD**: tasas, topes, escalas del ISR por año (2026 y la de la Ley 30-26 desde 2027: exento hasta RD$480,000 y nuevo tramo de 27% desde RD$4.8 millones; cada recibo usa la del año de su período y las de años siguientes se agregan con su año), tramos de preaviso, cesantía y vacaciones, días por mes y la lista de feriados, todo editable porque cambia por ley o resolución.
 
 ### Si Frappe HR se instala o se quita después
 

@@ -14,7 +14,7 @@ el neto y también en la vista previa) y en `validate` (por si el país del sist
 """
 
 import frappe
-from frappe.utils import cint, flt
+from frappe.utils import cint, flt, getdate, today
 
 from erpnext_rd.dgii_fiscal.ncf import es_empresa_rd
 from erpnext_rd.nomina_rd import calculos, hrms_instalado
@@ -94,7 +94,9 @@ def calcular(slip, conf=None) -> frappe._dict:
 
 	tss = calculos.aportes_tss(b.cotizable / meses, conf)
 	renta_mensual = (b.gravable - b.otras_exenciones) / meses - tss.total_empleado
-	isr = calculos.isr_mensual(max(renta_mensual, 0.0), conf)
+	# La escala es la del año del período del recibo (en enero 2027 rige la de la Ley 30-26)
+	anio = getdate(slip.get("end_date") or slip.get("posting_date") or today()).year
+	isr = calculos.isr_mensual(max(renta_mensual, 0.0), conf, anio)
 
 	montos = frappe._dict({concepto: flt(tss[clave] * meses, 2) for concepto, clave in DEDUCCIONES.items()})
 	montos.update({concepto: flt(tss[clave] * meses, 2) for concepto, clave in APORTES_EMPLEADOR.items()})

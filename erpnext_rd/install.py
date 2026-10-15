@@ -611,11 +611,18 @@ def inicializar_configuracion():
 
 	conf = frappe.get_single("Configuracion Nomina RD")
 	if not conf.escala_isr:
-		from erpnext_rd.nomina_rd.calculos import ESCALA_ISR_2026
+		from erpnext_rd.nomina_rd.calculos import ESCALAS_ISR
 
-		for desde, hasta, tasa, cuota in ESCALA_ISR_2026:
-			conf.append("escala_isr", {"desde": desde, "hasta": hasta, "tasa": tasa, "cuota_fija": cuota})
+		for anio, escala in ESCALAS_ISR.items():
+			agregar_escala_isr(conf, anio, escala)
 		conf.save(ignore_permissions=True)
+
+
+def agregar_escala_isr(conf, anio: int, escala):
+	for desde, hasta, tasa, cuota in escala:
+		conf.append(
+			"escala_isr", {"anio": anio, "desde": desde, "hasta": hasta, "tasa": tasa, "cuota_fija": cuota}
+		)
 
 
 # Formatos que deja el asistente de configuración de ERPNext; se reemplazan por los fiscales.

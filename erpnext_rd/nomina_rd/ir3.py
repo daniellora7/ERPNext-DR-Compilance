@@ -6,7 +6,7 @@ Oficina Virtual a más tardar el día 10 del mes siguiente. Si no hubo retencion
 
 Este resumen hace el mismo cálculo con los datos del archivo de la TSS (`tss.obtener`): renta del mes
 (salario ISR + otras remuneraciones) menos los aportes del empleado a la TSS (AFP y SFS con topes,
-sobre el salario SS), escala anual del ISR de *Configuracion Nomina RD* llevada al mes. Lo compara con
+sobre el salario SS), escala anual del ISR del año (de *Configuracion Nomina RD*) llevada al mes. Lo compara con
 el ISR retenido en los recibos para encontrar diferencias antes de que la DGII liquide.
 """
 
@@ -30,7 +30,7 @@ def obtener(company: str, anio, mes) -> list[dict]:
 		aportes = calculos.aportes_tss(f["salario_ss"], conf)
 		renta = f["salario_isr"] + f["otras_remuneraciones"]
 		renta_neta = max(renta - aportes.total_empleado, 0.0)
-		isr = flt(calculos.isr_mensual(renta_neta, conf), 2)
+		isr = flt(calculos.isr_mensual(renta_neta, conf, anio), 2)
 		avisos = [a for a in f["_avisos"].split("; ") if a]
 		if abs(isr - f["isr_retenido"]) > TOLERANCIA:
 			avisos.insert(

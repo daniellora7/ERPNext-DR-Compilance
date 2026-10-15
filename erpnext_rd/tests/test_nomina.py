@@ -71,8 +71,30 @@ class TestNominaRD(IntegrationTestCase):
 
 	def test_configuracion_inicial(self):
 		conf = frappe.get_single("Configuracion Nomina RD")
-		self.assertEqual(len(conf.escala_isr), 4)
-		self.assertEqual(conf.escala_isr[-1].tasa, 25)
+		self.assertEqual([len(calculos.escala_isr(conf, a)) for a in (2026, 2027)], [4, 5])
+		self.assertEqual(calculos.escala_isr(conf, 2026)[-1].tasa, 25)
+		self.assertEqual(calculos.escala_isr(conf, 2027)[-1].tasa, 27)
+
+	def test_escala_isr_2027(self):
+		"""Ley 30-26: exento hasta 480,000; 15%, 20%, 25% y 27% desde 4.8 millones."""
+		conf = conf_2026()
+		conf.escala_isr = [
+			frappe._dict(anio=anio, desde=d, hasta=h, tasa=t, cuota_fija=c)
+			for anio, escala in calculos.ESCALAS_ISR.items()
+			for d, h, t, c in escala
+		]
+		self.assertEqual(calculos.isr_anual(480_000, conf, 2027), 0)
+		self.assertAlmostEqual(calculos.isr_anual(700_000, conf, 2027), 30_750 + 15_000 * 0.20, places=2)
+		self.assertAlmostEqual(
+			calculos.isr_anual(5_000_000, conf, 2027), 1_048_250 + 200_000 * 0.27, places=2
+		)
+		# 2026 sigue con su escala; años sin escala propia usan la más reciente anterior (o la primera)
+		self.assertAlmostEqual(calculos.isr_anual(500_000, conf, 2026), (500_000 - 416_220) * 0.15, places=2)
+		self.assertEqual(calculos.isr_anual(470_000, conf, 2028), 0)
+		self.assertGreater(calculos.isr_anual(470_000, conf, 2025), 0)
+		# Mismo salario: 80,000 menos AFP y SFS, en enero 2027 retiene menos que en diciembre 2026
+		self.assertEqual(calculos.isr_mensual(75_272, conf, 2026), 7400.94)
+		self.assertEqual(calculos.isr_mensual(75_272, conf, 2027), 6200.23)
 
 	def test_escala_con_solapamiento(self):
 		conf = frappe.get_doc("Configuracion Nomina RD")
@@ -224,6 +246,15 @@ class TestReciboNominaRD(IntegrationTestCase):
 		fila = next(a for a in infotep.accounts if a.company == EMPRESA)
 		self.assertTrue(fila.account.startswith("6109"))
 		self.assertTrue(fila.liability_account.startswith("210403"))
+
+	def test_escala_del_anio_del_recibo(self):
+		"""El recibo usa la escala del año de su período: sueldo 80,000 + bono 10,000 - AFP/SFS 4,728."""
+		from erpnext_rd.nomina_rd import salario
+
+		recibo = self._recibo()
+		self.assertEqual(salario.calcular(recibo)[salario.ISR], 9900.94)
+		recibo.end_date = "2027-01-31"
+		self.assertEqual(salario.calcular(recibo)[salario.ISR], 8672.17)
 
 	def test_desactivado(self):
 		frappe.db.set_single_value("Configuracion Nomina RD", "calcular_deducciones", 0)
