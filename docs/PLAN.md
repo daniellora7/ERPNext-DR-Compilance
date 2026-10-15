@@ -32,7 +32,7 @@ Decisión: el usuario quiere probar todo en Docker local antes de configurar Git
 3. **Cierre de Fase 3:** ~~apoyo IT-1 e IR-17~~ (hecho); falta solo la pre-validación con datos reales → tag `v0.3.0`.
 4. **Fase 1 pendiente:** repo privado en GitHub (los workflows de CI ya están escritos), despliegue en Dokploy con backups.
 5. **Fase 4 — e-CF** (requiere certificado `.p12` y alta como emisor electrónico ante la DGII).
-6. **Fase 5 — Nómina RD (en Frappe HR):** ✅ preaviso, cesantía, regalía proporcional, vacaciones y feriados; ✅ regalía de diciembre en la nómina; ✅ escala ISR 2027 (Ley 30-26); ✅ resumen IR-13. ✅ novedades TSS (NV) y rectificativa (RT). ✅ bonificación anual (art. 223). ✅ datos RD del empleado. ✅ archivo de autodeterminación TSS (AM). ✅ resumen IR-3.
+6. **Fase 5 — Nómina RD (en Frappe HR):** ✅ preaviso, cesantía, regalía proporcional, vacaciones y feriados; ✅ regalía de diciembre en la nómina; ✅ escala ISR 2027 (Ley 30-26); ✅ resumen IR-13. ✅ novedades TSS (NV) y rectificativa (RT). ✅ bonificación anual (art. 223). ✅ horas extras y feriados (arts. 203-205; falta el recargo nocturno). ✅ datos RD del empleado. ✅ archivo de autodeterminación TSS (AM). ✅ resumen IR-3.
 7. Más adelante: logo de la app; formato de impresión por empresa para las que no son de RD.
 
 ## Estructura del repo (GitHub, público: `daniellora7/ERPNext-DR-Compilance`)

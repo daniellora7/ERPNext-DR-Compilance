@@ -79,6 +79,7 @@ regional_overrides = {
 override_doctype_class = {
 	"Gratuity": "erpnext_rd.nomina_rd.gratuity_rd.GratuityRD",
 	"Leave Encashment": "erpnext_rd.nomina_rd.leave_encashment_rd.LeaveEncashmentRD",
+	"Overtime Slip": "erpnext_rd.nomina_rd.horas_extras_rd.OvertimeSlipRD",
 }
 
 doc_events = {

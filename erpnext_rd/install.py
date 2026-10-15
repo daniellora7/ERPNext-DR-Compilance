@@ -27,7 +27,14 @@ from erpnext_rd.nomina_rd.salario import CONCEPTOS as CONCEPTOS_NOMINA
 MODULO = "DGII Fiscal"
 
 # DocTypes de Frappe HR que reciben campos de la app (solo si hrms está instalado)
-DOCTYPES_HRMS = ("Salary Component", "Gratuity Rule", "Gratuity", "Leave Type", "Leave Encashment")
+DOCTYPES_HRMS = (
+	"Salary Component",
+	"Gratuity Rule",
+	"Gratuity",
+	"Leave Type",
+	"Leave Encashment",
+	"Overtime Type",
+)
 # Sidebar de la Nómina RD (nomina_rd/sidebar): vive en el dock de Frappe HR, no en RD Compliance
 SIDEBAR_NOMINA = "Nomina RD"
 FILA_DOCK_NOMINA = {"link_type": "Sidebar", "link_to": SIDEBAR_NOMINA}
@@ -400,6 +407,16 @@ def campos_personalizados() -> dict:
 				"del mes en que empiezan.",
 			},
 		],
+		"Overtime Type": [
+			{
+				"fieldname": "rd_horas_extras",
+				"fieldtype": "Check",
+				"label": "Horas extras RD (Código de Trabajo)",
+				"insert_after": "overtime_salary_component",
+				"description": "Valor de la hora con el salario ordinario / 23.83 / 8; recargo del 35 % hasta 68 horas "
+				"semanales y del 100 % después, y del 100 % en feriados (Configuración Nómina RD). Solo en empresas RD.",
+			},
+		],
 		"Leave Encashment": [
 			{
 				"fieldname": "rd_dias_proporcionales",
@@ -563,6 +580,9 @@ def crear_campos_personalizados():
 	if not hrms_instalado():
 		for doctype in DOCTYPES_HRMS:
 			campos.pop(doctype, None)
+	# DocTypes que solo traen las versiones recientes de Frappe HR (p. ej. Overtime Type)
+	for doctype in [d for d in campos if not frappe.db.exists("DocType", d)]:
+		campos.pop(doctype)
 	for lista in campos.values():
 		for campo in lista:
 			campo["module"] = MODULO
@@ -622,6 +642,12 @@ def inicializar_configuracion():
 		("bonificacion_anios", 3),
 		("bonificacion_dias_menor", 45),
 		("bonificacion_dias_mayor", 60),
+		("horas_jornada", 8),
+		("horas_semana_normal", 44),
+		("horas_semana_maximo", 68),
+		("recargo_horas_extras", 35),
+		("recargo_horas_extras_exceso", 100),
+		("recargo_feriado", 100),
 	):
 		if not frappe.db.exists("Singles", {"doctype": "Configuracion Nomina RD", "field": campo}):
 			frappe.db.set_single_value("Configuracion Nomina RD", campo, valor)
@@ -799,13 +825,14 @@ def prestaciones_y_feriados():
 	if prestaciones.inicializar_tramos(conf):
 		conf.save(ignore_permissions=True)
 	if hrms_instalado():
-		from erpnext_rd.nomina_rd import regalia, vacaciones
+		from erpnext_rd.nomina_rd import horas_extras, regalia, vacaciones
 
 		reglas_gratuity_sin_tramos()
 		periodo_opcional_en_vacaciones_rd()
 		prestaciones.crear_reglas()
 		vacaciones.crear_componente_y_tipo()
 		regalia.crear_componente()
+		horas_extras.crear_componente_y_tipo()
 	feriados.asegurar_lista_feriados()
 
 

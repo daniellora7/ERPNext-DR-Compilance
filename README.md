@@ -19,6 +19,7 @@ Opcional: se activa sola si Frappe HR está instalado (antes o después) y se re
 - **Prestaciones**: preaviso, cesantía y regalía proporcional al salir; vacaciones por aniversario y su pago al salir.
 - **Regalía pascual de diciembre**: se calcula y se crea en bloque para pagarla en el recibo de diciembre.
 - **Bonificación anual** (participación en los beneficios): reparte el 10 % de la utilidad con el tope de 45 o 60 días y la paga en la nómina, con el 0.5 % de INFOTEP.
+- **Horas extras**: sobre las de Frappe HR, con el valor de la hora y los recargos de ley (35 %, 100 % sobre 68 horas semanales y en feriados).
 - **Datos del empleado**: cédula (solo avisa si no valida), NSS, pasaporte, AFP y ARS.
 - **TSS**: archivos de autodeterminación (AM), novedades (NV) y rectificativa del IR-3 (RT) para el SUIR Plus.
 - **DGII**: resúmenes del IR-3 mensual y del IR-13 anual para revisar antes de presentar.

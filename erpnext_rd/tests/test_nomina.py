@@ -82,6 +82,19 @@ class TestNominaRD(IntegrationTestCase):
 		bonificacion.repartir(filas, -10_000)  # sin utilidad, no hay bonificación
 		self.assertEqual([f["monto"] for f in filas], [0, 0])
 
+	def test_recargos_de_horas_extras(self):
+		"""Art. 203: 35 % hasta 68 horas semanales (24 extras sobre la jornada de 44) y 100 % después;
+		feriados y descanso semanal, 100 %."""
+		from erpnext_rd.nomina_rd.horas_extras import monto
+
+		p = frappe._dict(
+			horas_normales=44, horas_maximo=68, recargo=35, recargo_exceso=100, recargo_feriado=100
+		)
+		self.assertAlmostEqual(monto(10, 100, 0, False, p), 1350)
+		self.assertAlmostEqual(monto(10, 100, 20, False, p), 4 * 135 + 6 * 200)  # pasa del límite
+		self.assertAlmostEqual(monto(3, 100, 30, False, p), 600)  # ya pasó del límite
+		self.assertAlmostEqual(monto(5, 100, 0, True, p), 1000)  # feriado
+
 	def test_configuracion_inicial(self):
 		conf = frappe.get_single("Configuracion Nomina RD")
 		self.assertEqual([len(calculos.escala_isr(conf, a)) for a in (2026, 2027)], [4, 5])
@@ -568,6 +581,39 @@ class TestReciboNominaRD(IntegrationTestCase):
 		recibo.cancel()  # el recibo que la pagó se cancela primero
 		bono.cancel()
 		self.assertEqual(frappe.db.get_value("Additional Salary", pago, "docstatus"), 2)
+
+	@unittest.skipUnless(frappe.db.exists("DocType", "Overtime Type"), "Frappe HR sin horas extras")
+	def test_horas_extras(self):
+		"""Tipo "Horas extras RD": hora = 80,000 / 23.83 / 8; 20 h el lunes (35 %) y 10 h el martes de la
+		misma semana (4 h al 35 % y 6 h al 100 %, pasó de 68 horas); 5 h en un feriado, 100 %."""
+		from erpnext_rd.nomina_rd import horas_extras
+		from erpnext_rd.nomina_rd.horas_extras_rd import OvertimeSlipRD
+
+		self._aislar()
+		frappe.db.set_value("Employee", self.empleado.name, "relieving_date", None)
+		horas_extras.crear_componente_y_tipo()
+		self.assertTrue(frappe.db.get_value("Overtime Type", horas_extras.TIPO, "rd_horas_extras"))
+		hoja = frappe.new_doc("Overtime Slip")
+		self.assertIsInstance(hoja, OvertimeSlipRD)
+		hoja.update(
+			{
+				"employee": self.empleado.name,
+				"company": EMPRESA,
+				"start_date": "2026-10-01",
+				"end_date": "2026-10-31",
+			}
+		)
+		hoja.overtime_types = hoja._bulk_load_overtime_types({horas_extras.TIPO})
+		hora = hoja._calculate_component_based_hourly_rate(horas_extras.TIPO, 9)
+		self.assertAlmostEqual(hora, 80_000 / 23.83 / 8, places=6)
+
+		feriados = {"2026-10-12": frappe._dict(weekly_off=0)}
+		lunes = hoja.calculate_overtime_amount(horas_extras.TIPO, hora, 20, "2026-10-05", feriados)
+		martes = hoja.calculate_overtime_amount(horas_extras.TIPO, hora, 10, "2026-10-06", feriados)
+		feriado = hoja.calculate_overtime_amount(horas_extras.TIPO, hora, 5, "2026-10-12", feriados)
+		self.assertAlmostEqual(lunes, 20 * hora * 1.35, places=4)
+		self.assertAlmostEqual(martes, hora * (4 * 1.35 + 6 * 2), places=4)
+		self.assertAlmostEqual(feriado, 5 * hora * 2, places=4)
 
 	def _aislar(self):
 		# Las pruebas de la clase comparten datos: las que crean documentos deshacen lo suyo
