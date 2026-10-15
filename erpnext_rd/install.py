@@ -254,6 +254,16 @@ def campos_personalizados() -> dict:
 				"depends_on": "eval:doc.country == 'Dominican Republic'",
 				"description": "Lo marca ERPNext RD al crear el catálogo de cuentas conforme a la DGII",
 			},
+			{
+				"fieldname": "rd_localidad_sirla",
+				"fieldtype": "Data",
+				"label": "Localidad SIRLA (RNL)",
+				"insert_after": "rd_catalogo_dgii",
+				"length": 6,
+				"depends_on": "eval:doc.country == 'Dominican Republic'",
+				"description": "Últimos 4 dígitos del Registro Nacional Laboral del establecimiento, para las planillas "
+				"DGT-3 / DGT-4 del Ministerio de Trabajo. Un empleado de otro establecimiento lo indica en su ficha.",
+			},
 		],
 		"Account": [
 			{
@@ -539,6 +549,66 @@ def campos_personalizados() -> dict:
 				"0006 - Pensionado antes de la Ley 87-01\n0007 - Exento por ley de pago al SDSS\n"
 				"0008 - Trabajador con salario sectorizado",
 				"description": "Vacío: Normal, o «No laboró mes completo» el mes en que entra o sale.",
+			},
+			{
+				"fieldname": "rd_section_sirla",
+				"fieldtype": "Section Break",
+				"label": "Ministerio de Trabajo (SIRLA)",
+				"insert_after": "rd_tipo_ingreso_tss",
+				"collapsible": 1,
+				"description": "Códigos de los catálogos del SIRLA para las planillas DGT-3 y DGT-4. El cargo es la "
+				"designación del empleado.",
+			},
+			{
+				"fieldname": "rd_ocupacion_sirla",
+				"fieldtype": "Data",
+				"label": "Código de ocupación",
+				"insert_after": "rd_section_sirla",
+				"length": 6,
+			},
+			{
+				"fieldname": "rd_turno_sirla",
+				"fieldtype": "Data",
+				"label": "Código del turno",
+				"insert_after": "rd_ocupacion_sirla",
+				"length": 6,
+				"description": "De la lista de turnos de la empresa en el SIRLA.",
+			},
+			{
+				"fieldname": "rd_localidad_sirla",
+				"fieldtype": "Data",
+				"label": "Localidad (RNL)",
+				"insert_after": "rd_turno_sirla",
+				"length": 6,
+				"description": "Vacío: la de la empresa.",
+			},
+			{
+				"fieldname": "rd_column_sirla",
+				"fieldtype": "Column Break",
+				"insert_after": "rd_localidad_sirla",
+			},
+			{
+				"fieldname": "rd_nivel_educativo_sirla",
+				"fieldtype": "Data",
+				"label": "Código de nivel educativo",
+				"insert_after": "rd_column_sirla",
+				"length": 5,
+			},
+			{
+				"fieldname": "rd_discapacidad_sirla",
+				"fieldtype": "Data",
+				"label": "Códigos de discapacidad",
+				"insert_after": "rd_nivel_educativo_sirla",
+				"length": 50,
+				"description": "Separados por comas, según el catálogo del SIRLA.",
+			},
+			{
+				"fieldname": "rd_nacionalidad_sirla",
+				"fieldtype": "Data",
+				"label": "Código de nacionalidad",
+				"insert_after": "rd_discapacidad_sirla",
+				"length": 3,
+				"description": "Solo para extranjeros.",
 			},
 		],
 		"Mode of Payment": [

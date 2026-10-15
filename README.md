@@ -24,6 +24,7 @@ Opcional: se activa sola si Frappe HR está instalado (antes o después) y se re
 - **Datos del empleado**: cédula (solo avisa si no valida), NSS, pasaporte, AFP y ARS.
 - **TSS**: archivos de autodeterminación (AM), novedades (NV) y rectificativa del IR-3 (RT) para el SUIR Plus.
 - **DGII**: resúmenes del IR-3 mensual y del IR-13 anual para revisar antes de presentar.
+- **Ministerio de Trabajo**: archivos de la planilla del personal fijo (DGT-3) y de sus cambios (DGT-4) para el SIRLA.
 - **Configuración Nómina RD**: tasas, topes, escalas del ISR por año (incluida la de 2027, Ley 30-26) y tramos, todo editable.
 
 La app no modifica el código de ERPNext ni de Frappe HR: todo va por hooks, campos personalizados y configuraciones, así que se pueden actualizar sin conflictos.

@@ -646,6 +646,48 @@ class TestReciboNominaRD(IntegrationTestCase):
 		self.assertIn("Neto a pagar", html)
 		self.assertIn("Aportes del empleador", html)
 
+	def test_planillas_sirla(self):
+		"""DGT-3: el trabajador activo como ingreso (NI); DGT-4: el cambio de salario del mes (NC)."""
+		from erpnext_rd.nomina_rd import sirla
+		from erpnext_rd.tests.test_empleado import cedula_valida
+
+		self._aislar()
+		frappe.db.set_value(
+			"Employee",
+			self.empleado.name,
+			{"rd_cedula": cedula_valida("0010000008"), "relieving_date": None, "rd_ocupacion_sirla": "2411"},
+		)
+		frappe.db.set_value("Company", EMPRESA, {"tax_id": "101000001", "rd_localidad_sirla": "0001"})
+		f = next(f for f in sirla.obtener(EMPRESA, 2026, 1) if f["employee"] == self.empleado.name)
+		self.assertEqual(
+			(f["novedad"], f["salario"], f["localidad"], f["_en_txt"]), ("NI", 80_000, "0001", 1)
+		)
+		self.assertIn("turno", f["_avisos"])
+
+		nombre, contenido = sirla.generar_txt(EMPRESA, 2026, 1)
+		lineas = contenido.split("\r\n")[:-1]
+		self.assertEqual(nombre, "DGT3_101000001_012026.txt")
+		self.assertEqual(lineas[0], "ET300101000001012026")
+		self.assertEqual(lineas[-1], "S" + str(len(lineas)).zfill(6))
+
+		frappe.get_doc(
+			{
+				"doctype": "Salary Structure Assignment",
+				"employee": self.empleado.name,
+				"salary_structure": "_Test Estructura RD",
+				"company": EMPRESA,
+				"currency": "DOP",
+				"from_date": "2026-10-05",
+				"base": 90_000,
+			}
+		).submit()
+		cambio = next(
+			f for f in sirla.obtener(EMPRESA, 2026, 10, sirla.DGT4) if f["employee"] == self.empleado.name
+		)
+		self.assertEqual(
+			(cambio["novedad"], str(cambio["fecha_cambio"]), cambio["salario"]), ("NC", "2026-10-05", 90_000)
+		)
+
 	def _aislar(self):
 		# Las pruebas de la clase comparten datos: las que crean documentos deshacen lo suyo
 		frappe.db.savepoint("vacaciones_rd")
