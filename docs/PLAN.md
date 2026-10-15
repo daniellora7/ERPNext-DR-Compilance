@@ -1,8 +1,8 @@
-# Plan: ERPNext v16.50 + HRMS + localización República Dominicana, desplegado en Dokploy
+# Plan: ERPNext v16.51 + HRMS + localización República Dominicana, desplegado en Dokploy
 
 ## Contexto
 El usuario quiere un ERPNext propio, versionado en GitHub y desplegado en Dokploy, con:
-- ERPNext v16.50.0 (frappe v16.51.1, HRMS v16.50.0) + Frappe HR (HRMS) para RH y nómina.
+- ERPNext v16.51.1 (frappe v16.52.0, HRMS v16.51.0) + Frappe HR (HRMS) para RH y nómina.
 - Una app propia de localización RD: NCF / e-CF emitidos **directamente** ante la DGII, reportes 606/607/608/IT-1, validación RNC/Cédula, nómina RD (TSS/AFP/SFS/ISR/INFOTEP/regalía).
 - Base para seguir agregando funcionalidades después.
 
@@ -16,7 +16,7 @@ Proyecto en `D:\Code Projects 2\ERPNext`. Git 2.56 y Docker 29.8 instalados.
 
 | Fase | Estado |
 |---|---|
-| 0 — Entorno y descarga | ✅ Hecho. Versiones verificadas: frappe v16.51.1, erpnext v16.50.0, hrms v16.50.0. Se usa Docker local (imagen propia) en lugar de devcontainer. |
+| 0 — Entorno y descarga | ✅ Hecho. Versiones verificadas: frappe v16.52.0, erpnext v16.51.1, hrms v16.51.0 (actualizadas el 2026-10-16). Se usa Docker local (imagen propia) en lugar de devcontainer. |
 | 1 — Despliegue | 🟡 Local listo. CI escrito (no publicado): `.github/workflows/ci.yml` (ruff + tests con la misma imagen y compose, vía `deploy/ci/run-tests.sh`) y `build-image.yml` (imagen a GHCR en `main` y tags `v*`). Local: `deploy/Containerfile` + `deploy/compose.yaml`, sitio `erp.localhost` en http://localhost:8090 con las 4 apps en una sola base MariaDB. **Pendiente:** repo en GitHub, CI (`build-image.yml`, `ci.yml`), Dokploy, backups. |
 | 2 — Base fiscal DGII | 🟡 Implementado en `feature/dgii-fiscal`: tipos de comprobante (21), Secuencia NCF con bloqueo, NCF en ventas/compras, RNC/Cédula, padrón (793 985 registros), 16 tests. NCF en POS (modo Sales Invoice y POS Invoice, tipo por defecto en Perfil de POS), formatos de impresión *Factura Fiscal RD* y *Recibo POS RD* (80 mm) con QR e-CF listo para la Fase 4, 19 tests. **Catálogo de cuentas DGII** (214 cuentas, NIIF PYMES; activos por categoría de depreciación fiscal; gastos agrupados por tipo 606, ingresos por tipo 607; cuentas de impuestos con concepto fiscal; plantillas ITBIS 18%/16%, propina y retenciones; retenciones de ISR a personas físicas al 15% y servicios técnicos al 3% según la Ley 30-26, vigente desde el 1/7/2026), aplicado por empresa solo a las de país República Dominicana sin movimientos, 28 tests. **Pendiente:** prueba de punta a punta con facturas reales; logo propio de la app (más adelante). |
 | 3 — Reportes DGII | 🟡 Script Reports *Formato 606/607/608/609 DGII* con descarga del TXT oficial (`DGII_F_<formato>_<RNC>_<AAAAMM>.TXT`), columnas según los instructivos vigentes de la DGII, retenciones informadas en el mes de pago, facturas de consumo < RD$250,000 fuera del TXT con su resumen para la OFV, columna de observaciones. Toda la lógica fiscal (NCF, validación RNC, reportes) aplica solo a empresas con país República Dominicana. Reportes de apoyo *Resumen IT-1 DGII* (ingresos gravados por tasa, exentos, exportaciones, formas de cobro, liquidación del ITBIS con saldo a favor, retenciones por terceros y Norma 08-04, ITBIS retenido a terceros, vencimiento día 20) y *Resumen IR-17 DGII* (ISR retenido a terceros por tipo de retención y pagos al exterior, en el mes de pago, vencimiento día 10), calculados con los mismos registros del 606/607/609. 45 tests. **Pendiente:** pre-validar los TXT con la herramienta de la DGII usando datos reales. |
