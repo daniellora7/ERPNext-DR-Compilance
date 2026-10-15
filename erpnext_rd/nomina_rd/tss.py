@@ -32,7 +32,7 @@ from frappe.utils import cint, flt, getdate
 from erpnext_rd.dgii_fiscal.ncf import es_empresa_rd
 from erpnext_rd.dgii_fiscal.validaciones import limpiar_identificacion
 from erpnext_rd.dgii_reportes.datos import rnc_empresa
-from erpnext_rd.nomina_rd import hrms_instalado
+from erpnext_rd.nomina_rd import hrms_instalado, salario
 from erpnext_rd.nomina_rd.empleado import cedula_valida
 
 PROCESO = "AM"
@@ -151,7 +151,7 @@ def _empleados(company: str, desde: date, hasta: date, con_recibo: set[str]) -> 
 
 
 def _recibos(company: str, desde: date, hasta: date) -> dict[str, frappe._dict]:
-	"""Salarios del mes por empleado según los recibos aprobados."""
+	"""Salarios y retenciones de ley del mes por empleado según los recibos aprobados."""
 	recibos = frappe.get_all(
 		"Salary Slip",
 		filters={"company": company, "docstatus": 1, "end_date": ("between", (desde, hasta))},
@@ -163,9 +163,14 @@ def _recibos(company: str, desde: date, hasta: date) -> dict[str, frappe._dict]:
 	empleado_de = {r.name: r.employee for r in recibos}
 	filas = frappe.get_all(
 		"Salary Detail",
-		filters={"parenttype": "Salary Slip", "parentfield": "earnings", "parent": ("in", list(empleado_de))},
+		filters={
+			"parenttype": "Salary Slip",
+			"parentfield": ("in", ("earnings", "deductions")),
+			"parent": ("in", list(empleado_de)),
+		},
 		fields=[
 			"parent",
+			"parentfield",
 			"salary_component",
 			"amount",
 			"is_tax_applicable",
@@ -185,8 +190,16 @@ def _recibos(company: str, desde: date, hasta: date) -> dict[str, frappe._dict]:
 		else []
 	)
 	for r in recibos:
-		totales.setdefault(r.employee, frappe._dict(salario_ss=0.0, salario_isr=0.0, otras=0.0))
+		totales.setdefault(
+			r.employee, frappe._dict(salario_ss=0.0, salario_isr=0.0, otras=0.0, afp=0.0, sfs=0.0, isr=0.0)
+		)
+	retenciones = {salario.AFP: "afp", salario.SFS: "sfs", salario.ISR: "isr"}
 	for f in filas:
+		if f.parentfield == "deductions":
+			clave = retenciones.get(salario._concepto(f.salary_component))
+			if clave:
+				totales[empleado_de[f.parent]][clave] += flt(f.amount)
+			continue
 		if cint(f.statistical_component) or cint(f.do_not_include_in_total):
 			continue
 		if f.additional_salary in de_prestaciones:
@@ -266,6 +279,10 @@ def obtener(company: str, anio, mes) -> list[dict]:
 				"salario_ss": flt(s.salario_ss, 2) if s else 0.0,
 				"salario_isr": flt(s.salario_isr, 2) if s else 0.0,
 				"otras_remuneraciones": flt(s.otras, 2) if s else 0.0,
+				"afp": flt(s.afp, 2) if s else 0.0,
+				"sfs": flt(s.sfs, 2) if s else 0.0,
+				"isr_retenido": flt(s.isr, 2) if s else 0.0,
+				"con_recibo": 1 if s else 0,
 				"tipo_ingreso": _tipo_ingreso(emp, desde, hasta),
 				"regalia": flt(e.get(REGALIA), 2),
 				"prestaciones": flt(e.get(PRESTACIONES), 2),

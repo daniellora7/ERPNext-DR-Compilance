@@ -32,7 +32,7 @@ Decisión: el usuario quiere probar todo en Docker local antes de configurar Git
 3. **Cierre de Fase 3:** ~~apoyo IT-1 e IR-17~~ (hecho); falta solo la pre-validación con datos reales → tag `v0.3.0`.
 4. **Fase 1 pendiente:** repo privado en GitHub (los workflows de CI ya están escritos), despliegue en Dokploy con backups.
 5. **Fase 4 — e-CF** (requiere certificado `.p12` y alta como emisor electrónico ante la DGII).
-6. **Fase 5 — Nómina RD (en Frappe HR):** ✅ preaviso, cesantía, regalía proporcional, vacaciones y feriados; faltan la regalía de diciembre en la nómina, IR-3, IR-13 y escala ISR 2027 (Ley 30-26). ✅ datos RD del empleado. ✅ archivo de autodeterminación TSS (AM).
+6. **Fase 5 — Nómina RD (en Frappe HR):** ✅ preaviso, cesantía, regalía proporcional, vacaciones y feriados; faltan la regalía de diciembre en la nómina, IR-13 y escala ISR 2027 (Ley 30-26). ✅ datos RD del empleado. ✅ archivo de autodeterminación TSS (AM). ✅ resumen IR-3.
 7. Más adelante: logo de la app; formato de impresión por empresa para las que no son de RD.
 
 ## Estructura del repo (GitHub, público: `daniellora7/ERPNext-DR-Compilance`)
@@ -102,6 +102,7 @@ Script reports + exportación TXT en el formato oficial:
 - ✅ **Vacaciones** (arts. 177-182): *Leave Type* "Vacaciones RD", asignación en cada aniversario (14 / 18 días, opcional) y pago al salir con *Leave Encashment* (saldo + proporción del art. 180, salario diario de las prestaciones).
 - ✅ **Datos RD del empleado** (*Employee* de ERPNext): tipo de documento (cédula, NSS, pasaporte u otro), cédula revisada (solo avisa), NSS, segundo apellido, AFP y ARS (catálogo *Entidad Seguridad Social RD*), clave de nómina y tipo de ingreso TSS, búsqueda por cédula.
 - ✅ **Archivo de autodeterminación TSS (AM)**: reporte *Autodeterminacion TSS* + TXT de ancho fijo (instructivo TSS v6.0) desde los recibos aprobados. Pendiente: archivo de novedades (NV) y rectificativa.
+- ✅ **Resumen IR-3**: lo que liquidará la DGII (escala sobre renta menos AFP/SFS) frente al ISR retenido en los recibos, con fecha límite y aviso de IR-3 en cero.
 - ✅ **Feriados RD**: *Holiday List* de ERPNext con la librería `holidays` (Ley 139-97), se extiende cada año.
 - DocType singleton **Configuración Nómina RD** con tasas y topes editables (AFP empleado/empleador, SFS empleado/empleador, SRL, INFOTEP, topes en salarios mínimos, escala anual ISR) — no se hardcodean porque cambian.
 - Salary Components y Salary Structure plantilla; fórmulas que llaman funciones Python de la app para ISR (proyección anual) y topes TSS.

@@ -347,6 +347,14 @@ class TestReciboNominaRD(IntegrationTestCase):
 		self.assertEqual(detalle[169:185], "0000000080000.00")
 		self.assertEqual(detalle[217:233], "0000000010000.00")
 
+		# IR-3: renta 90,000 - AFP/SFS 4,728 = 85,272 -> 9,900.94, igual a lo retenido en el recibo
+		from erpnext_rd.nomina_rd import ir3
+
+		r = next(f for f in ir3.obtener(EMPRESA, 2026, 10) if f["employee"] == self.empleado.name)
+		self.assertEqual((r["renta"], r["aportes_tss"], r["isr"]), (90_000, 4728, 9900.94))
+		self.assertEqual(r["diferencia"], 0)
+		self.assertEqual(str(ir3.fecha_limite(2026, 10)), "2026-11-10")
+
 	def _aislar(self):
 		# Las pruebas de la clase comparten datos: las que crean documentos deshacen lo suyo
 		frappe.db.savepoint("vacaciones_rd")
