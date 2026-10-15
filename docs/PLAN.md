@@ -32,7 +32,7 @@ Decisión: el usuario quiere probar todo en Docker local antes de configurar Git
 3. **Cierre de Fase 3:** ~~apoyo IT-1 e IR-17~~ (hecho); falta solo la pre-validación con datos reales → tag `v0.3.0`.
 4. **Fase 1 pendiente:** repo privado en GitHub (los workflows de CI ya están escritos), despliegue en Dokploy con backups.
 5. **Fase 4 — e-CF** (requiere certificado `.p12` y alta como emisor electrónico ante la DGII).
-6. **Fase 5 — Nómina RD (en Frappe HR):** ✅ preaviso, cesantía y feriados; faltan vacaciones y regalía proporcional en la liquidación, IR-3, archivo TSS/SUIR, IR-13, escala ISR 2027 (Ley 30-26) y adaptar a RD lo de Frappe HR que haga falta (datos del empleado, feriados, vacaciones por ley).
+6. **Fase 5 — Nómina RD (en Frappe HR):** ✅ preaviso, cesantía, regalía proporcional, vacaciones y feriados; faltan la regalía de diciembre en la nómina, IR-3, archivo TSS/SUIR, IR-13, escala ISR 2027 (Ley 30-26) y adaptar a RD lo de Frappe HR que haga falta (datos del empleado: cédula, NSS, AFP, ARS).
 7. Más adelante: logo de la app; formato de impresión por empresa para las que no son de RD.
 
 ## Estructura del repo (GitHub, público: `daniellora7/ERPNext-DR-Compilance`)
@@ -97,7 +97,9 @@ Script reports + exportación TXT en el formato oficial:
 
 ## Fase 5 — Nómina RD (módulo `nomina_rd`, sobre HRMS)
 - **Objetivo: que Frappe HR quede adaptado a la República Dominicana.** Todo lo de nómina y RRHH vive del lado de Frappe HR: entrada *Nómina RD* en su dock (capa del sitio, sin tocar HRMS) con su propio sidebar; ya no es una sección de RD Compliance. ✅ navegación.
-- ✅ **Prestaciones**: preaviso (art. 76) y cesantía (art. 80) sobre el *Gratuity* de HRMS (reglas "Preaviso RD" y "Cesantía RD"), tramos editables; la liquidación final de HRMS las incluye. Pendiente: vacaciones (art. 177/180) con *Leave Type* / *Leave Encashment* y regalía proporcional en la liquidación.
+- ✅ **Prestaciones**: preaviso (art. 76) y cesantía (art. 80) sobre el *Gratuity* de HRMS (reglas "Preaviso RD" y "Cesantía RD"), tramos editables; la liquidación final de HRMS las incluye.
+- ✅ **Regalía proporcional** (art. 220): regla "Regalía RD" del mismo *Gratuity* (salarios ordinarios del año hasta la salida / 12).
+- ✅ **Vacaciones** (arts. 177-182): *Leave Type* "Vacaciones RD", asignación en cada aniversario (14 / 18 días, opcional) y pago al salir con *Leave Encashment* (saldo + proporción del art. 180, salario diario de las prestaciones).
 - ✅ **Feriados RD**: *Holiday List* de ERPNext con la librería `holidays` (Ley 139-97), se extiende cada año.
 - DocType singleton **Configuración Nómina RD** con tasas y topes editables (AFP empleado/empleador, SFS empleado/empleador, SRL, INFOTEP, topes en salarios mínimos, escala anual ISR) — no se hardcodean porque cambian.
 - Salary Components y Salary Structure plantilla; fórmulas que llaman funciones Python de la app para ISR (proyección anual) y topes TSS.

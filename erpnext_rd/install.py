@@ -27,7 +27,7 @@ from erpnext_rd.nomina_rd.salario import CONCEPTOS as CONCEPTOS_NOMINA
 MODULO = "DGII Fiscal"
 
 # DocTypes de Frappe HR que reciben campos de la app (solo si hrms está instalado)
-DOCTYPES_HRMS = ("Salary Component", "Gratuity Rule", "Gratuity")
+DOCTYPES_HRMS = ("Salary Component", "Gratuity Rule", "Gratuity", "Leave Type", "Leave Encashment")
 # Sidebar de la Nómina RD (nomina_rd/sidebar): vive en el dock de Frappe HR, no en RD Compliance
 SIDEBAR_NOMINA = "Nomina RD"
 FILA_DOCK_NOMINA = {"link_type": "Sidebar", "link_to": SIDEBAR_NOMINA}
@@ -314,10 +314,10 @@ def campos_personalizados() -> dict:
 				"fieldname": "rd_prestacion",
 				"fieldtype": "Select",
 				"label": "Prestación RD (Código de Trabajo)",
-				"options": "\nCesantía\nPreaviso",
+				"options": "\nCesantía\nPreaviso\nRegalía",
 				"insert_after": "disable",
 				"description": "Calcula el monto con los tramos de Configuración Nómina RD y el salario promedio "
-				"del último año, en vez de los tramos de esta regla.",
+				"del último año (regalía: salarios del año / 12), en vez de los tramos de esta regla.",
 			},
 		],
 		"Gratuity": [
@@ -326,7 +326,7 @@ def campos_personalizados() -> dict:
 				"fieldtype": "Section Break",
 				"label": "Cálculo de la prestación RD",
 				"insert_after": "amount",
-				"depends_on": "eval:doc.rd_dias",
+				"depends_on": "eval:doc.rd_meses_servicio",
 			},
 			{
 				"fieldname": "rd_meses_servicio",
@@ -340,6 +340,7 @@ def campos_personalizados() -> dict:
 				"fieldtype": "Float",
 				"label": "Días de salario",
 				"read_only": 1,
+				"depends_on": "eval:doc.rd_dias",
 				"insert_after": "rd_meses_servicio",
 			},
 			{
@@ -354,6 +355,7 @@ def campos_personalizados() -> dict:
 				"options": "Company:company:default_currency",
 				"read_only": 1,
 				"insert_after": "rd_column_prestacion",
+				"depends_on": "eval:doc.rd_dias",
 			},
 			{
 				"fieldname": "rd_salario_diario",
@@ -362,6 +364,56 @@ def campos_personalizados() -> dict:
 				"options": "Company:company:default_currency",
 				"read_only": 1,
 				"insert_after": "rd_salario_promedio",
+				"depends_on": "eval:doc.rd_dias",
+			},
+			{
+				"fieldname": "rd_salarios_del_anio",
+				"fieldtype": "Currency",
+				"label": "Salarios ordinarios del año",
+				"options": "Company:company:default_currency",
+				"read_only": 1,
+				"insert_after": "rd_salario_diario",
+				"depends_on": "eval:doc.rd_salarios_del_anio",
+				"description": "Regalía proporcional (art. 220): esta suma / 12",
+			},
+		],
+		"Leave Type": [
+			{
+				"fieldname": "rd_vacaciones",
+				"fieldtype": "Check",
+				"label": "Vacaciones RD (Código de Trabajo)",
+				"insert_after": "leave_type_name",
+				"description": "Al terminar el contrato, el pago (Leave Encashment) suma la proporción del año "
+				"incompleto (art. 180) y usa el salario diario de las prestaciones. Solo en empresas RD.",
+			},
+		],
+		"Leave Encashment": [
+			{
+				"fieldname": "rd_dias_proporcionales",
+				"fieldtype": "Float",
+				"label": "Días proporcionales (art. 180)",
+				"read_only": 1,
+				"insert_after": "leave_balance",
+				"depends_on": "eval:doc.rd_salario_diario",
+				"description": "Incluidos en el balance: proporción del año de servicio incompleto",
+			},
+			{
+				"fieldname": "rd_salario_promedio",
+				"fieldtype": "Currency",
+				"label": "Salario promedio mensual",
+				"options": "currency",
+				"read_only": 1,
+				"insert_after": "encashment_amount",
+				"depends_on": "eval:doc.rd_salario_diario",
+			},
+			{
+				"fieldname": "rd_salario_diario",
+				"fieldtype": "Currency",
+				"label": "Salario diario",
+				"options": "currency",
+				"read_only": 1,
+				"insert_after": "rd_salario_promedio",
+				"depends_on": "eval:doc.rd_salario_diario",
 			},
 		],
 		"Mode of Payment": [
@@ -616,23 +668,26 @@ def _es_fila_nomina(fila) -> bool:
 
 
 def prestaciones_y_feriados():
-	"""Tramos de prestaciones en la configuración, reglas de Gratuity RD y la lista de feriados RD."""
+	"""Tramos de prestaciones y vacaciones en la configuración, reglas de Gratuity RD, el tipo de
+	permiso Vacaciones RD y la lista de feriados RD."""
 	from erpnext_rd.nomina_rd import feriados, prestaciones
 
 	conf = frappe.get_single("Configuracion Nomina RD")
 	if prestaciones.inicializar_tramos(conf):
 		conf.save(ignore_permissions=True)
 	if hrms_instalado():
+		from erpnext_rd.nomina_rd import vacaciones
+
 		reglas_gratuity_sin_tramos()
+		periodo_opcional_en_vacaciones_rd()
 		prestaciones.crear_reglas()
+		vacaciones.crear_componente_y_tipo()
 	feriados.asegurar_lista_feriados()
 
 
 def reglas_gratuity_sin_tramos():
 	"""En una regla de prestación RD los tramos de HRMS (en años enteros) no aplican: se ocultan y
 	dejan de ser obligatorios, igual que los componentes. En las demás reglas siguen igual."""
-	from frappe.custom.doctype.property_setter.property_setter import make_property_setter
-
 	ajustes = (
 		("gratuity_rule_slabs", "reqd", "0", "Check"),
 		("gratuity_rule_slabs", "mandatory_depends_on", "eval:!doc.rd_prestacion", "Code"),
@@ -641,15 +696,31 @@ def reglas_gratuity_sin_tramos():
 		("applicable_earnings_component", "reqd", "0", "Check"),
 		("applicable_earnings_component", "mandatory_depends_on", "eval:!doc.rd_prestacion", "Code"),
 	)
+	_property_setters("Gratuity Rule", ajustes)
+
+
+def periodo_opcional_en_vacaciones_rd():
+	"""El *Leave Period* del Leave Encashment lo pone la app en el pago de vacaciones RD (ver
+	`leave_encashment_rd`); en los demás pagos sigue siendo obligatorio como en Frappe HR."""
+	_property_setters(
+		"Leave Encashment",
+		(
+			("leave_period", "reqd", "0", "Check"),
+			("leave_period", "mandatory_depends_on", "eval:!doc.rd_salario_diario", "Code"),
+		),
+	)
+
+
+def _property_setters(doctype: str, ajustes):
+	from frappe.custom.doctype.property_setter.property_setter import make_property_setter
+
 	for campo, propiedad, valor, tipo in ajustes:
-		make_property_setter(
-			"Gratuity Rule", campo, propiedad, valor, tipo, validate_fields_for_doctype=False
-		)
+		make_property_setter(doctype, campo, propiedad, valor, tipo, validate_fields_for_doctype=False)
 	# Con el módulo de la app, Frappe los borra al desinstalarla
 	frappe.db.set_value(
 		"Property Setter",
 		{
-			"doc_type": "Gratuity Rule",
+			"doc_type": doctype,
 			"module": ("is", "not set"),
 			"field_name": ("in", {a[0] for a in ajustes}),
 		},

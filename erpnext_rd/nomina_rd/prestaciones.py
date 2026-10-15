@@ -1,4 +1,5 @@
-"""Prestaciones laborales del Código de Trabajo (Ley 16-92): preaviso (art. 76) y auxilio de cesantía (art. 80).
+"""Prestaciones laborales del Código de Trabajo (Ley 16-92): preaviso (art. 76), auxilio de cesantía (art. 80)
+y salario de Navidad proporcional (regalía, arts. 219-220).
 
 No es un documento propio: se usa el *Gratuity* de Frappe HR (asiento, pago por nómina o por banco,
 estado y la *Full and Final Statement* de la salida del empleado). Una *Gratuity Rule* marcada con
@@ -8,6 +9,9 @@ estado y la *Full and Final Statement* de la salida del empleado). Una *Gratuity
 - Días según los tramos de *Configuracion Nomina RD* (editables). Un tramo "por cada año" paga sus
   días por año completo y la fracción que sobra se paga con los tramos de menos de un año.
 - Salario diario = salario promedio mensual del último año (art. 85) / 23.83 (configurable).
+- Regalía proporcional: la duodécima parte de los salarios ordinarios del año calendario hasta la salida.
+
+Las vacaciones no disfrutadas (arts. 177-182) van por el *Leave Encashment* de Frappe HR (`vacaciones.py`).
 """
 
 import frappe
@@ -19,13 +23,31 @@ from erpnext_rd.nomina_rd.salario import MESES_POR_FRECUENCIA
 
 CESANTIA = "Cesantía"
 PREAVISO = "Preaviso"
-REGLAS = {CESANTIA: "Cesantía RD", PREAVISO: "Preaviso RD"}
+REGALIA = "Regalía"
+REGLAS = {CESANTIA: "Cesantía RD", PREAVISO: "Preaviso RD", REGALIA: "Regalía RD"}
 TABLAS = {CESANTIA: "tramos_cesantia", PREAVISO: "tramos_preaviso"}
 
 # Valores para inicializar la configuración: desde meses, hasta meses (0 = sin límite), días, por cada año
 TRAMOS_PREAVISO = [(3, 6, 7, 0), (6, 12, 14, 0), (12, 0, 28, 0)]
 TRAMOS_CESANTIA = [(3, 6, 6, 0), (6, 12, 13, 0), (12, 60, 21, 1), (60, 0, 23, 1)]
-TRAMOS_INICIALES = {"tramos_preaviso": TRAMOS_PREAVISO, "tramos_cesantia": TRAMOS_CESANTIA}
+# Vacaciones: los tramos de menos de 12 meses son la proporción del año incompleto (art. 180); los demás,
+# los días de cada año cumplido (art. 177: 14 días laborables, 18 desde los cinco años)
+TRAMOS_VACACIONES = [
+	(5, 6, 6, 0),
+	(6, 7, 7, 0),
+	(7, 8, 8, 0),
+	(8, 9, 9, 0),
+	(9, 10, 10, 0),
+	(10, 11, 11, 0),
+	(11, 12, 12, 0),
+	(12, 60, 14, 0),
+	(60, 0, 18, 0),
+]
+TRAMOS_INICIALES = {
+	"tramos_preaviso": TRAMOS_PREAVISO,
+	"tramos_cesantia": TRAMOS_CESANTIA,
+	"tramos_vacaciones": TRAMOS_VACACIONES,
+}
 
 MESES_POR_ANIO = 12
 
@@ -72,30 +94,14 @@ def salario_promedio_mensual(empleado: str, salida, componentes: list[str]) -> f
 		fields=["name", "payroll_frequency"],
 	)
 	if recibos and componentes:
-		total = frappe.get_all(
-			"Salary Detail",
-			filters={
-				"parenttype": "Salary Slip",
-				"parentfield": "earnings",
-				"parent": ("in", [r.name for r in recibos]),
-				"salary_component": ("in", componentes),
-			},
-			fields=[{"SUM": "amount", "as": "total"}],
-		)[0].total
+		total = _ingresos_de_recibos([r.name for r in recibos], componentes)
 		# Meses que cubren los recibos según su frecuencia (quincenal = 1/2), como en salario.py
 		meses = min(MESES_POR_ANIO, sum(MESES_POR_FRECUENCIA.get(r.payroll_frequency, 1) for r in recibos))
-		if flt(total) and meses:
-			return flt(total) / meses
+		if total and meses:
+			return total / meses
 
-	base = frappe.get_all(
-		"Salary Structure Assignment",
-		filters={"employee": empleado, "docstatus": 1, "from_date": ("<=", salida)},
-		order_by="from_date desc",
-		pluck="base",
-		limit=1,
-	)
-	if base and flt(base[0]):
-		return flt(base[0])
+	if base := base_asignada(empleado, salida):
+		return base
 	frappe.throw(
 		_(
 			"No hay recibos de nómina ni asignación de estructura salarial para calcular el salario de {0}."
@@ -103,35 +109,107 @@ def salario_promedio_mensual(empleado: str, salida, componentes: list[str]) -> f
 	)
 
 
-def calcular(empleado: str, tipo: str, salida=None, componentes: list[str] | None = None) -> frappe._dict:
-	"""Preaviso o cesantía de un empleado a su fecha de salida (por defecto, la del empleado)."""
-	conf = frappe.get_cached_doc("Configuracion Nomina RD")
+def _ingresos_de_recibos(recibos: list[str], componentes: list[str]) -> float:
+	if not (recibos and componentes):
+		return 0
+	return flt(
+		frappe.get_all(
+			"Salary Detail",
+			filters={
+				"parenttype": "Salary Slip",
+				"parentfield": "earnings",
+				"parent": ("in", recibos),
+				"salary_component": ("in", componentes),
+			},
+			fields=[{"SUM": "amount", "as": "total"}],
+		)[0].total
+	)
+
+
+def base_asignada(empleado: str, fecha) -> float:
+	"""Base de la última asignación de estructura salarial aprobada a una fecha (0 si no hay)."""
+	base = frappe.get_all(
+		"Salary Structure Assignment",
+		filters={"employee": empleado, "docstatus": 1, "from_date": ("<=", fecha)},
+		order_by="from_date desc",
+		pluck="base",
+		limit=1,
+	)
+	return flt(base[0]) if base else 0
+
+
+def fechas_del_empleado(empleado: str, salida=None) -> tuple:
+	"""Fecha de ingreso y de salida (por defecto, la *Relieving Date* del empleado)."""
 	ingreso, fecha_salida = frappe.db.get_value("Employee", empleado, ["date_of_joining", "relieving_date"])
 	salida = salida or fecha_salida
 	if not salida:
 		frappe.throw(
 			_("Indique la fecha de salida (Relieving Date) del empleado {0}.").format(frappe.bold(empleado))
 		)
+	return getdate(ingreso), getdate(salida)
 
+
+def salario_diario(empleado: str, salida, componentes: list[str] | None = None) -> tuple[float, float]:
+	"""Salario promedio mensual y diario (promedio / días de salario por mes de la configuración)."""
+	conf = frappe.get_cached_doc("Configuracion Nomina RD")
+	mensual = salario_promedio_mensual(empleado, salida, componentes or componentes_ordinarios())
+	return flt(mensual, 2), flt(mensual / (flt(conf.dias_salario_mes) or 23.83), 2)
+
+
+def calcular(empleado: str, tipo: str, salida=None, componentes: list[str] | None = None) -> frappe._dict:
+	"""Preaviso, cesantía o regalía proporcional de un empleado a su fecha de salida."""
+	if tipo == REGALIA:
+		return regalia_proporcional(empleado, salida, componentes)
+
+	conf = frappe.get_cached_doc("Configuracion Nomina RD")
+	ingreso, salida = fechas_del_empleado(empleado, salida)
 	meses = meses_de_servicio(ingreso, salida)
 	dias = dias_de_prestacion(meses, conf.get(TABLAS[tipo]))
-	mensual = (
-		salario_promedio_mensual(empleado, salida, componentes or componentes_ordinarios()) if dias else 0
-	)
-	diario = flt(mensual / (flt(conf.dias_salario_mes) or 23.83), 2)
+	mensual, diario = salario_diario(empleado, salida, componentes) if dias else (0, 0)
 	return frappe._dict(
 		meses=meses,
 		dias=dias,
-		salario_mensual=flt(mensual, 2),
+		salario_mensual=mensual,
 		salario_diario=diario,
 		monto=flt(dias * diario, 2),
 	)
 
 
+def regalia_proporcional(empleado: str, salida=None, componentes: list[str] | None = None) -> frappe._dict:
+	"""Salario de Navidad de la salida (art. 220): salarios ordinarios del año calendario hasta la salida / 12.
+
+	Salen de los recibos aprobados del año; los meses que esos recibos no cubren (p. ej. el último, si
+	aún no se hizo su recibo) se estiman con la base de la última asignación de estructura salarial."""
+	from erpnext_rd.nomina_rd.calculos import regalia_pascual
+
+	ingreso, salida = fechas_del_empleado(empleado, salida)
+	inicio_anio = getdate(f"{salida.year}-01-01")
+	meses = meses_de_servicio(max(ingreso, inicio_anio), salida)
+
+	recibos = frappe.get_all(
+		"Salary Slip",
+		filters={"employee": empleado, "docstatus": 1, "end_date": ("between", [inicio_anio, salida])},
+		fields=["name", "payroll_frequency"],
+	)
+	total = _ingresos_de_recibos([r.name for r in recibos], componentes or componentes_ordinarios())
+	cubiertos = sum(MESES_POR_FRECUENCIA.get(r.payroll_frequency, 1) for r in recibos)
+	if meses > cubiertos:
+		total += (meses - cubiertos) * base_asignada(empleado, salida)
+
+	return frappe._dict(
+		meses=meses,
+		dias=0,
+		salario_mensual=0,
+		salario_diario=0,
+		salarios_del_anio=flt(total, 2),
+		monto=regalia_pascual(total),
+	)
+
+
 def crear_reglas():
-	"""Crea las reglas "Cesantía RD" y "Preaviso RD" de Gratuity si faltan. Los tramos no van en la
-	regla (HRMS los cuenta en años enteros) sino en Configuracion Nomina RD. Sin componentes: se usan
-	los ingresos que cotizan a la TSS (`componentes_ordinarios`); el usuario puede elegir otros."""
+	"""Crea las reglas "Cesantía RD", "Preaviso RD" y "Regalía RD" de Gratuity si faltan. Los tramos no
+	van en la regla (HRMS los cuenta en años enteros) sino en Configuracion Nomina RD. Sin componentes:
+	se usan los ingresos que cotizan a la TSS (`componentes_ordinarios`); el usuario puede elegir otros."""
 	for tipo, nombre in REGLAS.items():
 		if frappe.db.exists("Gratuity Rule", nombre):
 			continue

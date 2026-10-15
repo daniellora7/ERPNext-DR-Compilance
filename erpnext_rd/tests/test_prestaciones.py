@@ -1,4 +1,4 @@
-"""Prestaciones del Código de Trabajo (preaviso y cesantía) y feriados de RD, sin documentos."""
+"""Prestaciones del Código de Trabajo (preaviso, cesantía y vacaciones) y feriados de RD, sin documentos."""
 
 import unittest
 
@@ -13,6 +13,7 @@ def tramos(lista):
 
 CESANTIA = tramos(prestaciones.TRAMOS_CESANTIA)
 PREAVISO = tramos(prestaciones.TRAMOS_PREAVISO)
+VACACIONES = tramos(prestaciones.TRAMOS_VACACIONES)
 
 
 class TestPrestacionesRD(unittest.TestCase):
@@ -39,6 +40,14 @@ class TestPrestacionesRD(unittest.TestCase):
 	def test_preaviso_art_76(self):
 		for meses, dias in {2: 0, 3: 7, 7: 14, 12: 28, 120: 28}.items():
 			self.assertEqual(prestaciones.dias_de_prestacion(meses, PREAVISO), dias, f"{meses} meses")
+
+	def test_vacaciones_arts_177_y_180(self):
+		# Año cumplido: 14 días, 18 desde los cinco años
+		for meses, dias in {12: 14, 48: 14, 60: 18, 120: 18}.items():
+			self.assertEqual(prestaciones.dias_de_prestacion(meses, VACACIONES), dias, f"{meses} meses")
+		# Año incompleto (art. 180): nada antes de 5 meses; de 6 a 12 días entre 5 y 11 meses
+		for meses, dias in {4: 0, 5: 6, 6: 7, 9: 10, 11: 12}.items():
+			self.assertEqual(prestaciones.dias_de_prestacion(meses, VACACIONES), dias, f"{meses} meses")
 
 
 class TestFeriadosRD(unittest.TestCase):

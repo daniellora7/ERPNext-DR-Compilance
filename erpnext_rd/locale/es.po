@@ -10,3 +10,6 @@ msgstr ""
 
 msgid "Nomina RD"
 msgstr "Nómina RD"
+
+msgid "Leave Encashment"
+msgstr "Pago de permisos no disfrutados"

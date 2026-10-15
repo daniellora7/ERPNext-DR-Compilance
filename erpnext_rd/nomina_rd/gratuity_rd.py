@@ -1,4 +1,5 @@
-"""Gratuity de Frappe HR con el cálculo de las prestaciones RD (override_doctype_class en hooks.py).
+"""Gratuity de Frappe HR con el cálculo de las prestaciones RD y la regalía proporcional
+(override_doctype_class en hooks.py).
 
 Solo cambia el monto cuando la regla está marcada como prestación RD (`rd_prestacion`) y la empresa
 es dominicana; lo demás (asiento, pago, estado, liquidación final) sigue siendo de HRMS.
@@ -31,6 +32,7 @@ class GratuityRD(Gratuity):
 		self.rd_dias = r.dias
 		self.rd_salario_promedio = r.salario_mensual
 		self.rd_salario_diario = r.salario_diario
+		self.rd_salarios_del_anio = r.get("salarios_del_anio") or 0
 		return {
 			"current_work_experience": flt(
 				r.meses / prestaciones.MESES_POR_ANIO, self.precision("current_work_experience")

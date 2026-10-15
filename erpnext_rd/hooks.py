@@ -78,6 +78,7 @@ regional_overrides = {
 # del monto en las reglas marcadas con rd_prestacion. La clase solo se importa si HRMS está instalado.
 override_doctype_class = {
 	"Gratuity": "erpnext_rd.nomina_rd.gratuity_rd.GratuityRD",
+	"Leave Encashment": "erpnext_rd.nomina_rd.leave_encashment_rd.LeaveEncashmentRD",
 }
 
 doc_events = {
@@ -129,4 +130,6 @@ scheduler_events = {
 	},
 	# Extiende la lista "Feriados RD" al año siguiente (idempotente)
 	"monthly": ["erpnext_rd.nomina_rd.feriados.asegurar_lista_feriados"],
+	# Período de vacaciones en cada aniversario (si está activado en Configuracion Nomina RD)
+	"daily": ["erpnext_rd.nomina_rd.vacaciones.asignar_vacaciones"],
 }

@@ -122,9 +122,10 @@ class TestReciboNominaRD(IntegrationTestCase):
 			}
 		).submit()
 
-		from erpnext_rd.nomina_rd import salario
+		from erpnext_rd.nomina_rd import salario, vacaciones
 
 		salario.crear_componentes()
+		vacaciones.crear_componente_y_tipo()
 
 		for nombre, abbr, cotiza in (
 			("_Test Sueldo RD", "SUELDO_T", 1),
@@ -262,7 +263,7 @@ class TestReciboNominaRD(IntegrationTestCase):
 		"""El promedio sale de los ingresos que cotizan (el bono de 10,000 no cuenta)."""
 		from erpnext_rd.nomina_rd import prestaciones
 
-		# Agosto: los otros tests de la clase usan septiembre
+		self._aislar()
 		frappe.get_doc(
 			{
 				"doctype": "Salary Slip",
@@ -276,3 +277,99 @@ class TestReciboNominaRD(IntegrationTestCase):
 			self.empleado.name, "2026-09-30", prestaciones.componentes_ordinarios()
 		)
 		self.assertEqual(promedio, 80_000)
+
+	def test_regalia_proporcional_sobre_gratuity(self):
+		"""Regla "Regalía RD": salida 2026-09-30, 9 meses del año sin recibos -> 9 x 80,000 / 12."""
+		regalia = self._prestacion("Regalía RD")
+		self.assertEqual(regalia.rd_meses_servicio, 9)
+		self.assertEqual(regalia.rd_salarios_del_anio, 720_000)
+		self.assertEqual(regalia.amount, 60_000)
+
+	def test_regalia_con_recibo_aprobado(self):
+		"""El mes con recibo aprobado sale del recibo (el bono no cuenta) y no se vuelve a estimar."""
+		from erpnext_rd.nomina_rd import prestaciones
+
+		self._aislar()
+		frappe.get_doc(
+			{
+				"doctype": "Salary Slip",
+				"employee": self.empleado.name,
+				"start_date": "2026-08-01",
+				"posting_date": "2026-08-31",
+				"payroll_frequency": "Monthly",
+			}
+		).insert().submit()
+		r = prestaciones.regalia_proporcional(self.empleado.name, "2026-09-30")
+		self.assertEqual(r.salarios_del_anio, 720_000)
+
+	def _aislar(self):
+		# Las pruebas de la clase comparten datos: las que crean documentos deshacen lo suyo
+		frappe.db.savepoint("vacaciones_rd")
+		self.addCleanup(frappe.db.rollback, save_point="vacaciones_rd")
+
+	def _pago_vacaciones(self):
+		from erpnext_rd.nomina_rd import vacaciones
+
+		frappe.db.set_value("Employee", self.empleado.name, "relieving_date", "2026-09-30")
+		return frappe.get_doc(
+			{
+				"doctype": "Leave Encashment",
+				"employee": self.empleado.name,
+				"company": EMPRESA,
+				"leave_type": vacaciones.tipo_vacaciones(),
+				"encashment_date": "2026-09-30",
+			}
+		).insert()
+
+	def test_vacaciones_al_salir(self):
+		"""Ingreso 2025-01-01, salida 2026-09-30: los 14 días del año cumplido (asignados en el
+		aniversario) más 10 días por los 9 meses del año incompleto (art. 180) = 24 x 3,357.11."""
+		from erpnext_rd.nomina_rd import vacaciones
+
+		self._aislar()
+		frappe.db.set_single_value("Configuracion Nomina RD", "asignar_vacaciones", 1)
+		creadas = vacaciones.asignar_vacaciones("2026-03-01", [EMPRESA])
+		self.assertEqual(len(creadas), 1)
+		self.assertEqual(vacaciones.asignar_vacaciones("2026-03-01", [EMPRESA]), [])
+		asignacion = frappe.get_doc("Leave Allocation", creadas[0])
+		self.assertEqual(str(asignacion.from_date), "2026-01-01")
+		self.assertEqual(str(asignacion.to_date), "2026-12-31")
+		self.assertEqual(asignacion.new_leaves_allocated, 14)
+
+		pago = self._pago_vacaciones()
+		self.assertEqual(pago.leave_allocation, asignacion.name)
+		self.assertEqual(pago.rd_dias_proporcionales, 10)
+		self.assertEqual(pago.encashment_days, 24)
+		self.assertEqual(pago.rd_salario_diario, 3357.11)
+		self.assertEqual(pago.encashment_amount, 80_570.64)
+
+		# Solo los 14 días de la asignación se descuentan de ella
+		pago.submit()
+		self.assertEqual(
+			frappe.db.get_value("Leave Allocation", asignacion.name, "total_leaves_encashed"), 14
+		)
+
+	def test_vacaciones_sin_asignacion(self):
+		"""Sin asignación vigente solo se paga la proporción del año incompleto."""
+		self._aislar()
+		pago = self._pago_vacaciones()
+		self.assertFalse(pago.leave_allocation)
+		self.assertEqual(pago.encashment_days, 10)
+		pago.submit()
+
+	def test_vacaciones_solo_al_salir(self):
+		"""Art. 182: sin fecha de salida no se pagan vacaciones en dinero."""
+		from erpnext_rd.nomina_rd import vacaciones
+
+		self._aislar()
+		frappe.db.set_value("Employee", self.empleado.name, "relieving_date", None)
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc(
+				{
+					"doctype": "Leave Encashment",
+					"employee": self.empleado.name,
+					"company": EMPRESA,
+					"leave_type": vacaciones.tipo_vacaciones(),
+					"encashment_date": "2026-09-30",
+				}
+			).insert()

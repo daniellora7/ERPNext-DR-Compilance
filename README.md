@@ -13,18 +13,20 @@ Localización de **República Dominicana** para ERPNext v16 y Frappe HR, libre y
 
 ## Del lado de Frappe HR: Nómina RD (dock de Frappe HR → *Nómina RD*)
 
-Frappe HR es opcional. Cuando está instalado, la app lo adapta a la República Dominicana usando sus propios documentos (recibo de nómina, estructura salarial, Gratuity, liquidación final). Todo queda en una entrada **Nómina RD** del dock de Frappe HR, junto a Payroll, Leaves, etc.:
+Frappe HR es opcional. Cuando está instalado, la app lo adapta a la República Dominicana usando sus propios documentos (recibo de nómina, estructura salarial, permisos, Gratuity, liquidación final). Todo queda en una entrada **Nómina RD** del dock de Frappe HR, junto a Payroll, Leaves, etc.:
 
 - **Recibo de nómina** (*Salary Slip* de Frappe HR): calcula solo las deducciones de ley del empleado (AFP, SFS) y los aportes del empleador (AFP, SFS, SRL, INFOTEP) con los topes en salarios mínimos de la TSS, y la retención de ISR de asalariados con la escala anual, proyectada al año. Los componentes salariales de ley se crean solos, con sus cuentas del catálogo DGII. En cada componente se indica si cotiza a la TSS (por ejemplo, la regalía y los bonos no cotizan).
 - **Regalía pascual** (salario de Navidad, art. 219): la duodécima parte de los salarios ordinarios del año, exenta de ISR y TSS.
 - **Prestaciones laborales** sobre el *Gratuity* de Frappe HR: las reglas **Preaviso RD** (art. 76) y **Cesantía RD** (art. 80) calculan los días según el tiempo de servicio (los tramos de 3 a 6 meses y de 6 a 12 meses, y 21 o 23 días por año) y el salario diario (salario promedio del último año, art. 85, entre 23.83). El documento muestra los meses de servicio, los días y el salario usado. El asiento, el pago (por nómina o por banco) y la **liquidación final** (*Full and Final Statement*) siguen siendo los de Frappe HR.
+- **Regalía proporcional** al salir (art. 220): la regla **Regalía RD** del mismo *Gratuity* paga la duodécima parte de los salarios ordinarios del año hasta la salida. Los toma de los recibos aprobados; los meses que todavía no tienen recibo se estiman con el salario base.
+- **Vacaciones** con los permisos de Frappe HR: el tipo de permiso **Vacaciones RD** cuenta días laborables (sin feriados ni domingos). Si se activa en la configuración, cada aniversario se asigna el período del año cumplido: 14 días, 18 desde los cinco años (art. 177). Las solicitudes y el saldo son los de Frappe HR. Al terminar el contrato, el pago de vacaciones (*Leave Encashment*) suma los días pendientes y la proporción del año incompleto (art. 180: de 6 a 12 días desde los 5 meses), con el mismo salario diario de las prestaciones. Antes de la salida no deja pagarlas en dinero (art. 182). La liquidación final también lo incluye.
 - **Reclamos de gastos**: los tipos de reclamo usan la cuenta de gasto del catálogo DGII.
-- **Configuración Nómina RD**: tasas, topes, escala del ISR, tramos de preaviso y cesantía, días por mes y la lista de feriados, todo editable porque cambia por ley o resolución.
+- **Configuración Nómina RD**: tasas, topes, escala del ISR, tramos de preaviso, cesantía y vacaciones, días por mes y la lista de feriados, todo editable porque cambia por ley o resolución.
 
 ### Si Frappe HR se instala o se quita después
 
 - **Frappe HR ya instalado al instalar ERPNext RD**: la Nómina RD queda activa desde el principio.
-- **Frappe HR instalado después**: al terminar su instalación, ERPNext RD activa la Nómina RD sola, sin pasos en la consola. Crea los campos en sus documentos, los componentes de ley con sus cuentas, las reglas de prestaciones y la entrada en el dock.
+- **Frappe HR instalado después**: al terminar su instalación, ERPNext RD activa la Nómina RD sola, sin pasos en la consola. Crea los campos en sus documentos, los componentes de ley con sus cuentas, las reglas de prestaciones, el tipo de permiso de vacaciones y la entrada en el dock.
 - **Frappe HR desinstalado**: se retiran los campos que la app había agregado a sus documentos y la entrada del dock. La parte fiscal sigue funcionando igual.
 - **Sin Frappe HR**: ERPNext RD funciona completa en lo fiscal. Los feriados también, porque la lista de feriados es de ERPNext.
 

@@ -30,6 +30,9 @@
   "dias_salario_mes",
   "tramos_preaviso",
   "tramos_cesantia",
+  "section_vacaciones",
+  "asignar_vacaciones",
+  "tramos_vacaciones",
   "section_feriados",
   "actualizar_feriados",
   "dia_descanso",
@@ -199,6 +202,26 @@
    "options": "Tramo Prestacion RD"
   },
   {
+   "fieldname": "section_vacaciones",
+   "fieldtype": "Section Break",
+   "label": "Vacaciones",
+   "description": "Código de Trabajo: 14 días laborables por año cumplido, 18 desde los cinco años (art. 177), y la proporción del año incompleto al salir (art. 180). Se usan en el tipo de permiso Vacaciones RD de Frappe HR; al terminar el contrato se pagan con Leave Encashment (art. 182) usando el salario diario de las prestaciones."
+  },
+  {
+   "fieldname": "asignar_vacaciones",
+   "fieldtype": "Check",
+   "label": "Asignar vacaciones en cada aniversario",
+   "default": "0",
+   "description": "Cada día crea la asignación (Leave Allocation) del período de vacaciones a los empleados activos de empresas RD que cumplen un año más de servicio."
+  },
+  {
+   "fieldname": "tramos_vacaciones",
+   "fieldtype": "Table",
+   "label": "Días de vacaciones (arts. 177 y 180)",
+   "options": "Tramo Prestacion RD",
+   "description": "Hasta 12 meses: proporción del año incompleto. Desde 12 meses: días de cada año cumplido."
+  },
+  {
    "description": "Lista de feriados de ERPNext con los feriados de República Dominicana (Ley 139-97, con sus traslados). Se crea sola, se extiende cada año y queda como lista por defecto de las empresas RD que no tengan otra.",
    "fieldname": "section_feriados",
    "fieldtype": "Section Break",
@@ -232,7 +255,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-15 14:00:00.000000",
+ "modified": "2026-10-15 18:10:00.000000",
  "modified_by": "Administrator",
  "module": "Nomina RD",
  "name": "Configuracion Nomina RD",
