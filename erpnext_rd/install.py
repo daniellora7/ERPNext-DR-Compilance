@@ -28,8 +28,9 @@ MODULO = "DGII Fiscal"
 
 # DocTypes de Frappe HR que reciben campos de la app (solo si hrms está instalado)
 DOCTYPES_HRMS = ("Salary Component",)
-SIDEBAR = "RD Compliance"
-SECCION_NOMINA = "Nómina RD"
+# Sidebar de la Nómina RD (nomina_rd/sidebar): vive en el dock de Frappe HR, no en RD Compliance
+SIDEBAR_NOMINA = "Nomina RD"
+FILA_DOCK_NOMINA = {"link_type": "Sidebar", "link_to": SIDEBAR_NOMINA}
 
 
 def _opciones(lista):
@@ -456,37 +457,102 @@ def _formatos_fiscales() -> list[str]:
 
 
 def asegurar_navegacion():
-	"""Importa el sidebar de RD Compliance si falta.
+	"""Importa los sidebars de la app (RD Compliance y Nómina RD) si faltan.
 
-	Al agregar el módulo a un sitio existente, el sidebar se sincroniza antes de que exista el
+	Al agregar un módulo a un sitio existente, su sidebar se sincroniza antes de que exista el
 	Module Def y queda fuera hasta el siguiente migrate. Esto lo deja listo en la misma pasada.
 	"""
-	if frappe.db.exists("Sidebar", "RD Compliance"):
-		return
 	from frappe.modules.import_file import import_file_by_path
 
-	ruta = frappe.get_app_path(
-		"erpnext_rd", "rd_compliance", "sidebar", "rd_compliance", "rd_compliance.json"
-	)
-	import_file_by_path(ruta, force=True)
+	for modulo, nombre in (("rd_compliance", "RD Compliance"), ("nomina_rd", SIDEBAR_NOMINA)):
+		if frappe.db.exists("Sidebar", nombre):
+			continue
+		carpeta = frappe.scrub(nombre)
+		import_file_by_path(
+			frappe.get_app_path("erpnext_rd", modulo, "sidebar", carpeta, f"{carpeta}.json"), force=True
+		)
 
 
-def ajustar_menu_nomina():
-	"""Muestra la sección Nómina RD del menú solo si Frappe HR está instalado."""
-	if not frappe.db.exists("Sidebar", SIDEBAR):
+def dock_nomina():
+	"""Pone "Nómina RD" en el dock de Frappe HR si está instalado; si no, lo quita.
+
+	Una app solo monta su dock sobre una app (el nuestro va en ERPNext con RD Compliance), así que la
+	nómina entra por la capa del sitio del dock de Frappe HR, la misma que guarda "Organizar dock".
+	No se toca el archivo de HRMS. Si el sitio no tenía arreglo propio, se crea con el orden de HRMS
+	y la nómina al final; si ya lo tenía, solo se agrega la fila (y un usuario la puede ocultar).
+	"""
+	if not frappe.db.exists("DocType", "Dock"):
 		return
-	oculto = 0 if hrms_instalado() else 1
-	en_nomina = False
-	for fila in frappe.get_all(
-		"Sidebar Item",
-		filters={"parent": SIDEBAR, "parenttype": "Sidebar"},
-		fields=["name", "type", "label", "hidden"],
-		order_by="idx",
-	):
-		if fila.type == "Section Break":
-			en_nomina = fila.label == SECCION_NOMINA
-		if en_nomina and fila.hidden != oculto:
-			frappe.db.set_value("Sidebar Item", fila.name, "hidden", oculto, update_modified=False)
+	if not hrms_instalado():
+		quitar_dock_nomina()
+		return
+	from frappe.desk.doctype.dock.dock import SITE_LAYER, get_app_base
+
+	capas = _capas_dock_hrms()
+	sitio = next((capa for capa in capas if not capa.user), None)
+	if not sitio:
+		sitio = frappe.new_doc("Dock")
+		sitio.app, sitio.user = "hrms", SITE_LAYER
+		for fila in get_app_base("hrms"):
+			sitio.append("items", {**_destino(fila), "hidden": fila.get("hidden") or 0, "added": 0})
+		capas.append(sitio)
+
+	for capa in capas:
+		if any(_es_fila_nomina(fila) for fila in capa.items):
+			continue
+		# La capa del sitio trae la entrada (con ícono y título); la de un usuario solo la nombra,
+		# porque una capa guardada es el dock completo y lo que no nombra no aparece.
+		if capa is sitio:
+			capa.append(
+				"items", {**FILA_DOCK_NOMINA, "icon": "nomina-rd-duotone", "title": "Nómina RD", "added": 1}
+			)
+		else:
+			capa.append("items", {**FILA_DOCK_NOMINA, "added": 0})
+		capa.save(ignore_permissions=True)
+
+
+def quitar_dock_nomina():
+	"""Quita "Nómina RD" del dock de Frappe HR. Si la capa del sitio queda igual al dock de HRMS
+	(la creó esta app y nadie la cambió), se borra para que el sitio vuelva al de HRMS."""
+	if not frappe.db.exists("DocType", "Dock"):
+		return
+	from frappe.desk.doctype.dock.dock import get_app_dock
+
+	base = (
+		[(_destino(fila), fila.get("hidden") or 0) for fila in get_app_dock("hrms")]
+		if hrms_instalado()
+		else None
+	)
+	for capa in _capas_dock_hrms():
+		filas = [fila for fila in capa.items if not _es_fila_nomina(fila)]
+		if len(filas) == len(capa.items):
+			continue
+		sin_cambios = [
+			(_destino(fila), fila.hidden or 0)
+			for fila in filas
+			if not (fila.added or fila.icon or fila.title)
+		]
+		if not capa.user and base is not None and len(sin_cambios) == len(filas) and sin_cambios == base:
+			frappe.delete_doc("Dock", capa.name, force=True, ignore_permissions=True)
+			continue
+		capa.set("items", filas)
+		capa.save(ignore_permissions=True)
+
+
+def _capas_dock_hrms() -> list:
+	"""Capas del dock de Frappe HR que no son el archivo de la app: la del sitio y las de usuarios."""
+	return [
+		frappe.get_doc("Dock", nombre)
+		for nombre in frappe.get_all("Dock", filters={"app": "hrms", "standard": 0}, pluck="name")
+	]
+
+
+def _destino(fila) -> dict:
+	return {campo: fila.get(campo) or None for campo in ("link_type", "link_to", "url")}
+
+
+def _es_fila_nomina(fila) -> bool:
+	return fila.get("link_type") == "Sidebar" and fila.get("link_to") == SIDEBAR_NOMINA
 
 
 def programar_padron_inicial():
@@ -524,7 +590,7 @@ def setup():
 	inicializar_formas_pago()
 	inicializar_configuracion()
 	asegurar_navegacion()
-	ajustar_menu_nomina()
+	dock_nomina()
 	lista_padron_sin_filtro_reciente()
 	frappe.clear_cache()
 	catalogo_cuentas.aplicar_a_empresas_rd()
@@ -548,14 +614,14 @@ def al_instalar_app(app_name: str):
 
 
 def al_desinstalar_app(app_name: str):
-	"""after_app_uninstall: sin Frappe HR se quitan sus campos y la sección del menú."""
+	"""after_app_uninstall: sin Frappe HR se quitan sus campos y la Nómina RD del dock."""
 	if app_name != "hrms":
 		return
 	for nombre in frappe.get_all(
 		"Custom Field", filters={"dt": ("in", DOCTYPES_HRMS), "module": MODULO}, pluck="name"
 	):
 		frappe.delete_doc("Custom Field", nombre, force=True, ignore_permissions=True)
-	ajustar_menu_nomina()
+	quitar_dock_nomina()
 	# Frappe llama este hook después del último commit de la desinstalación
 	frappe.db.commit()  # nosemgrep
 	frappe.clear_cache()
@@ -575,5 +641,6 @@ def before_uninstall():
 		frappe.delete_doc("Scheduled Job Type", job, force=True, ignore_permissions=True)
 	if frappe.db.exists("DocType", "Dock") and frappe.db.exists("Dock", "erpnext_rd"):
 		frappe.delete_doc("Dock", "erpnext_rd", force=True, ignore_permissions=True)
+	quitar_dock_nomina()
 	frappe.db.delete("List View Settings", {"name": "Contribuyente DGII"})
 	frappe.clear_cache()

@@ -21,14 +21,14 @@ required_apps = ["frappe/erpnext"]
 
 # Navegación: un solo módulo "RD Compliance" en el dock de ERPNext (dock/erpnext_rd, mount_on =
 # erpnext), con su sidebar de secciones en rd_compliance/sidebar. Los módulos de código le ceden
-# su navegación, así todo lo suyo abre dentro de RD Compliance.
+# su navegación, así todo lo suyo abre dentro de RD Compliance. La excepción es Nomina RD: tiene su
+# propio sidebar (nomina_rd/sidebar, app = hrms) y va en el dock de Frappe HR (install.dock_nomina).
 app_include_icons = ["/assets/erpnext_rd/icons/erpnext-rd-icons.svg"]
 code_only_modules = {
 	"DGII Fiscal": ["RD Compliance"],
 	"DGII Reportes": ["RD Compliance"],
 	"Padron RNC": ["RD Compliance"],
 	"ECF": ["RD Compliance"],
-	"Nomina RD": ["RD Compliance"],
 	"ERPNext RD": ["RD Compliance"],
 }
 
