@@ -146,3 +146,87 @@ class TestECF(IntegrationTestCase):
 		self.assertEqual((d.monto(2950), d.precio(25.5), d.precio(0.1234)), ("2950.00", "25.5", "0.1234"))
 		self.assertEqual(d.fecha("2026-10-05"), "05-10-2026")
 		self.assertEqual(firma.datos_certificado(self.cert)["titular"], "EMPRESA DE PRUEBA SRL")
+
+
+SEMILLA = (
+	b'<?xml version="1.0" encoding="utf-8"?><SemillaModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+	b'xmlns:xsd="http://www.w3.org/2001/XMLSchema"><valor>abc</valor><fecha>2026-10-16T10:00:00</fecha></SemillaModel>'
+)
+
+
+class Respuesta:
+	def __init__(self, datos=None, contenido=b"", estado=200):
+		self.status_code, self._datos, self.content, self.text = estado, datos, contenido, str(datos)
+
+	def json(self):
+		if self._datos is None:
+			raise ValueError
+		return self._datos
+
+
+class SesionDGII:
+	"""Simula los servicios de la DGII y guarda lo que recibe."""
+
+	def __init__(self):
+		self.llamadas = []
+
+	def get(self, url, **kw):
+		self.llamadas.append(("GET", url, kw))
+		if url.endswith("/semilla"):
+			return Respuesta(contenido=SEMILLA)
+		return Respuesta({"trackId": "T-1", "codigo": 1, "estado": "Aceptado", "mensajes": []})
+
+	def post(self, url, **kw):
+		self.llamadas.append(("POST", url, kw))
+		if url.endswith("/validarsemilla"):
+			xml = kw["files"]["xml"][1]
+			assert firma.verificar(xml), "la semilla debe llegar firmada"
+			return Respuesta(
+				{"token": "TOKEN-1", "expira": "2099-01-01T00:00:00Z", "expedido": "2026-10-16T10:00:00Z"}
+			)
+		if "recepcionfc" in url:
+			return Respuesta({"codigo": 1, "estado": "Aceptado", "mensajes": [], "encf": "E320000000001"})
+		return Respuesta({"trackId": "T-1", "error": None, "mensaje": None})
+
+
+class TestClienteDGII(IntegrationTestCase):
+	def setUp(self):
+		from erpnext_rd.ecf.cliente import ClienteDGII
+
+		llave, cert = firma.cargar_certificado(certificado_de_prueba(), "prueba")
+		self.sesion = SesionDGII()
+		self.cliente = ClienteDGII("101000001", llave, cert, ambiente="TesteCF", sesion=self.sesion)
+		frappe_cache_borrar(self.cliente._clave_cache())
+
+	def test_token_con_semilla_firmada_y_en_cache(self):
+		self.assertEqual(self.cliente.token(), "TOKEN-1")
+		self.assertEqual(self.cliente.token(), "TOKEN-1")
+		urls = [u for _m, u, _k in self.sesion.llamadas]
+		self.assertEqual(
+			urls,
+			[
+				"https://ecf.dgii.gov.do/testecf/autenticacion/api/autenticacion/semilla",
+				"https://ecf.dgii.gov.do/testecf/autenticacion/api/autenticacion/validarsemilla",
+			],
+		)
+
+	def test_envio_y_consulta(self):
+		respuesta = self.cliente.enviar_ecf(b"<ECF/>", "E310000000001")
+		self.assertEqual(respuesta["trackId"], "T-1")
+		_metodo, url, kw = self.sesion.llamadas[-1]
+		self.assertEqual(url, "https://ecf.dgii.gov.do/testecf/recepcion/api/facturaselectronicas")
+		self.assertEqual(kw["headers"]["Authorization"], "bearer TOKEN-1")
+		self.assertEqual(kw["files"]["xml"][0], "101000001E310000000001.xml")
+		self.assertEqual(self.cliente.consultar_resultado("T-1")["estado"], "Aceptado")
+
+	def test_rfce_al_servicio_fc(self):
+		self.cliente.enviar_rfce(b"<RFCE/>", "E320000000001")
+		self.assertEqual(
+			self.sesion.llamadas[-1][1], "https://fc.dgii.gov.do/testecf/recepcionfc/api/recepcion/ecf"
+		)
+
+
+def frappe_cache_borrar(clave):
+	import frappe
+
+	frappe.cache.delete_value(clave)

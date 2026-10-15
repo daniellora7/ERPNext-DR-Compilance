@@ -9,6 +9,7 @@ contraseña. Se implementa con lxml y cryptography (ya incluidas en Frappe), sin
 """
 
 import base64
+import copy
 import hashlib
 
 from cryptography import x509
@@ -41,10 +42,12 @@ def _c14n(elemento) -> bytes:
 def _c14n_firma(info) -> bytes:
 	"""SignedInfo canonicalizado como raíz de su propio documento.
 
-	libxml2 agrega un `xmlns=""` falso al canonicalizar un elemento interno; serializado aparte conserva
-	los espacios de nombres que hereda (el de XMLDSig) y da la forma C14N inclusiva que calculan los
-	verificadores (comprobado con xmlsec1)."""
-	return _c14n(etree.fromstring(etree.tostring(info)))
+	libxml2 agrega un `xmlns=""` falso al canonicalizar un elemento interno. La copia lleva declarados
+	todos los espacios de nombres que SignedInfo tiene en alcance (el de XMLDSig y los del documento, p. ej.
+	xmlns:xsi de la semilla), que es la forma C14N inclusiva que calculan los verificadores (xmlsec1)."""
+	copia = etree.Element(info.tag, attrib=dict(info.attrib), nsmap=info.nsmap)
+	copia.extend(copy.deepcopy(hijo) for hijo in info)
+	return _c14n(copia)
 
 
 def _sub(padre, nombre, **atributos):
