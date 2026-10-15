@@ -14,6 +14,8 @@ estado y la *Full and Final Statement* de la salida del empleado). Una *Gratuity
 Las vacaciones no disfrutadas (arts. 177-182) van por el *Leave Encashment* de Frappe HR (`vacaciones.py`).
 """
 
+from datetime import date
+
 import frappe
 from dateutil.relativedelta import relativedelta
 from frappe import _
@@ -193,8 +195,9 @@ def regalia_proporcional(empleado: str, salida=None, componentes: list[str] | No
 	)
 	total = _ingresos_de_recibos([r.name for r in recibos], componentes or componentes_ordinarios())
 	cubiertos = sum(MESES_POR_FRECUENCIA.get(r.payroll_frequency, 1) for r in recibos)
-	if meses > cubiertos:
-		total += (meses - cubiertos) * base_asignada(empleado, salida)
+	estimados = max(meses - cubiertos, 0)
+	if estimados:
+		total += estimados * base_asignada(empleado, salida)
 
 	return frappe._dict(
 		meses=meses,
@@ -202,8 +205,16 @@ def regalia_proporcional(empleado: str, salida=None, componentes: list[str] | No
 		salario_mensual=0,
 		salario_diario=0,
 		salarios_del_anio=flt(total, 2),
+		meses_estimados=flt(estimados, 2),
 		monto=regalia_pascual(total),
 	)
+
+
+def corte_regalia(empleado: str, anio) -> date:
+	"""Hasta cuándo se cuentan los salarios de la regalía de un año: el 31 de diciembre o la salida."""
+	fin = date(int(anio), 12, 31)
+	salida = frappe.db.get_value("Employee", empleado, "relieving_date")
+	return min(getdate(salida), fin) if salida else fin
 
 
 def crear_reglas():

@@ -6,7 +6,7 @@ es dominicana; lo demás (asiento, pago, estado, liquidación final) sigue siend
 """
 
 import frappe
-from frappe.utils import flt
+from frappe.utils import cint, flt, getdate, today
 from hrms.payroll.doctype.gratuity.gratuity import Gratuity
 
 from erpnext_rd.dgii_fiscal.ncf import es_empresa_rd
@@ -19,6 +19,12 @@ class GratuityRD(Gratuity):
 			return None
 		return frappe.db.get_value("Gratuity Rule", self.gratuity_rule, "rd_prestacion") or None
 
+	def anio_de_pago(self) -> int:
+		fecha = (
+			self.payroll_date if cint(self.pay_via_salary_slip) and self.payroll_date else self.posting_date
+		)
+		return getdate(fecha or today()).year
+
 	def calculate_work_experience_and_amount(self) -> dict:
 		tipo = self.tipo_prestacion_rd()
 		if not tipo:
@@ -27,7 +33,13 @@ class GratuityRD(Gratuity):
 		componentes = frappe.get_all(
 			"Gratuity Applicable Component", filters={"parent": self.gratuity_rule}, pluck="salary_component"
 		)
-		r = prestaciones.calcular(self.employee, tipo, componentes=componentes)
+		# Regalía de diciembre de un empleado activo: los salarios del año hasta el 31 de diciembre
+		salida = (
+			prestaciones.corte_regalia(self.employee, self.anio_de_pago())
+			if tipo == prestaciones.REGALIA
+			else None
+		)
+		r = prestaciones.calcular(self.employee, tipo, salida=salida, componentes=componentes)
 		self.rd_meses_servicio = r.meses
 		self.rd_dias = r.dias
 		self.rd_salario_promedio = r.salario_mensual

@@ -112,6 +112,22 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
+   "label": "Regalía pascual (diciembre)",
+   "link_type": "Report",
+   "type": "Link",
+   "link_to": "Regalia Pascual"
+  },
+  {
+   "added": 0,
+   "child": 1,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
    "label": "Reglas de prestaciones",
    "link_type": "DocType",
    "type": "Link",
@@ -338,7 +354,7 @@
    "link_to": "Salary Structure"
   }
  ],
- "modified": "2026-10-15 21:00:00.000000",
+ "modified": "2026-10-15 23:00:00.000000",
  "modified_by": "Administrator",
  "module": "Nomina RD",
  "name": "Nomina RD",

@@ -770,12 +770,13 @@ def prestaciones_y_feriados():
 	if prestaciones.inicializar_tramos(conf):
 		conf.save(ignore_permissions=True)
 	if hrms_instalado():
-		from erpnext_rd.nomina_rd import vacaciones
+		from erpnext_rd.nomina_rd import regalia, vacaciones
 
 		reglas_gratuity_sin_tramos()
 		periodo_opcional_en_vacaciones_rd()
 		prestaciones.crear_reglas()
 		vacaciones.crear_componente_y_tipo()
+		regalia.crear_componente()
 	feriados.asegurar_lista_feriados()
 
 

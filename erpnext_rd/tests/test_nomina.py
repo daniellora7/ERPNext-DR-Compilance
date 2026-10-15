@@ -122,10 +122,11 @@ class TestReciboNominaRD(IntegrationTestCase):
 			}
 		).submit()
 
-		from erpnext_rd.nomina_rd import salario, vacaciones
+		from erpnext_rd.nomina_rd import regalia, salario, vacaciones
 
 		salario.crear_componentes()
 		vacaciones.crear_componente_y_tipo()
+		regalia.crear_componente()
 
 		for nombre, abbr, cotiza in (
 			("_Test Sueldo RD", "SUELDO_T", 1),
@@ -354,6 +355,51 @@ class TestReciboNominaRD(IntegrationTestCase):
 		self.assertEqual((r["renta"], r["aportes_tss"], r["isr"]), (90_000, 4728, 9900.94))
 		self.assertEqual(r["diferencia"], 0)
 		self.assertEqual(str(ir3.fecha_limite(2026, 10)), "2026-11-10")
+
+	def test_regalia_de_diciembre(self):
+		"""Regalía de diciembre de un empleado activo: octubre sale del recibo y los otros 11 meses se
+		estiman con la base (12 x 80,000 / 12). Se paga en el recibo de diciembre, sin ISR ni TSS, y va
+		en el archivo de la TSS como ingreso exento."""
+		from erpnext_rd.nomina_rd import regalia, tss
+
+		self._aislar()
+		frappe.db.set_value("Employee", self.empleado.name, "relieving_date", None)
+
+		def recibo(mes):
+			return (
+				frappe.get_doc(
+					{
+						"doctype": "Salary Slip",
+						"employee": self.empleado.name,
+						"start_date": f"2026-{mes}-01",
+						"payroll_frequency": "Monthly",
+					}
+				)
+				.insert()
+				.submit()
+			)
+
+		octubre = recibo(10)
+		fila = next(f for f in regalia.obtener(EMPRESA, 2026) if f["employee"] == self.empleado.name)
+		self.assertEqual((fila["meses"], fila["meses_estimados"], fila["regalia"]), (12, 11, 80_000))
+		self.assertFalse(fila["gratuity"])
+
+		creadas = regalia.crear_regalias(EMPRESA, 2026)["creadas"]
+		self.assertEqual(len(creadas), 1)
+		self.assertEqual(regalia.crear_regalias(EMPRESA, 2026)["creadas"], [])
+		g = frappe.get_doc("Gratuity", creadas[0])
+		self.assertEqual(
+			(g.amount, str(g.payroll_date), g.salary_component), (80_000, "2026-12-15", regalia.COMPONENTE)
+		)
+		g.submit()
+
+		diciembre = recibo(12)
+		self.assertIn(regalia.COMPONENTE, {f.salary_component for f in diciembre.earnings})
+		isr = {f.abbr: f.amount for f in diciembre.deductions}
+		self.assertEqual(isr["ISR"], {f.abbr: f.amount for f in octubre.deductions}["ISR"])
+
+		f = next(f for f in tss.obtener(EMPRESA, 2026, 12) if f["employee"] == self.empleado.name)
+		self.assertEqual((f["salario_ss"], f["otras_remuneraciones"], f["regalia"]), (80_000, 10_000, 80_000))
 
 	def _aislar(self):
 		# Las pruebas de la clase comparten datos: las que crean documentos deshacen lo suyo

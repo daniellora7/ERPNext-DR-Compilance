@@ -32,7 +32,7 @@ Decisión: el usuario quiere probar todo en Docker local antes de configurar Git
 3. **Cierre de Fase 3:** ~~apoyo IT-1 e IR-17~~ (hecho); falta solo la pre-validación con datos reales → tag `v0.3.0`.
 4. **Fase 1 pendiente:** repo privado en GitHub (los workflows de CI ya están escritos), despliegue en Dokploy con backups.
 5. **Fase 4 — e-CF** (requiere certificado `.p12` y alta como emisor electrónico ante la DGII).
-6. **Fase 5 — Nómina RD (en Frappe HR):** ✅ preaviso, cesantía, regalía proporcional, vacaciones y feriados; faltan la regalía de diciembre en la nómina, IR-13 y escala ISR 2027 (Ley 30-26). ✅ datos RD del empleado. ✅ archivo de autodeterminación TSS (AM). ✅ resumen IR-3.
+6. **Fase 5 — Nómina RD (en Frappe HR):** ✅ preaviso, cesantía, regalía proporcional, vacaciones y feriados; ✅ regalía de diciembre en la nómina; faltan IR-13 y escala ISR 2027 (Ley 30-26). ✅ datos RD del empleado. ✅ archivo de autodeterminación TSS (AM). ✅ resumen IR-3.
 7. Más adelante: logo de la app; formato de impresión por empresa para las que no son de RD.
 
 ## Estructura del repo (GitHub, público: `daniellora7/ERPNext-DR-Compilance`)
@@ -99,6 +99,7 @@ Script reports + exportación TXT en el formato oficial:
 - **Objetivo: que Frappe HR quede adaptado a la República Dominicana.** Todo lo de nómina y RRHH vive del lado de Frappe HR: entrada *Nómina RD* en su dock (capa del sitio, sin tocar HRMS) con su propio sidebar; ya no es una sección de RD Compliance. ✅ navegación.
 - ✅ **Prestaciones**: preaviso (art. 76) y cesantía (art. 80) sobre el *Gratuity* de HRMS (reglas "Preaviso RD" y "Cesantía RD"), tramos editables; la liquidación final de HRMS las incluye.
 - ✅ **Regalía proporcional** (art. 220): regla "Regalía RD" del mismo *Gratuity* (salarios ordinarios del año hasta la salida / 12).
+- ✅ **Regalía de diciembre** (arts. 219-222): reporte *Regalía pascual* + creación en bloque de los *Gratuity* "Regalía RD" (borrador) pagados en el recibo de diciembre con el componente *Regalía Pascual* (exento de ISR y TSS).
 - ✅ **Vacaciones** (arts. 177-182): *Leave Type* "Vacaciones RD", asignación en cada aniversario (14 / 18 días, opcional) y pago al salir con *Leave Encashment* (saldo + proporción del art. 180, salario diario de las prestaciones).
 - ✅ **Datos RD del empleado** (*Employee* de ERPNext): tipo de documento (cédula, NSS, pasaporte u otro), cédula revisada (solo avisa), NSS, segundo apellido, AFP y ARS (catálogo *Entidad Seguridad Social RD*), clave de nómina y tipo de ingreso TSS, búsqueda por cédula.
 - ✅ **Archivo de autodeterminación TSS (AM)**: reporte *Autodeterminacion TSS* + TXT de ancho fijo (instructivo TSS v6.0) desde los recibos aprobados. Pendiente: archivo de novedades (NV) y rectificativa.
