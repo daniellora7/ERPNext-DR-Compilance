@@ -24,6 +24,18 @@ DIAS = {
 }
 
 
+def dia_habil(fecha):
+	"""La misma fecha o el siguiente día laborable (sin sábados, domingos ni feriados de RD): así corre
+	la DGII los vencimientos que caen en día no laborable."""
+	from holidays import country_holidays
+
+	fecha = getdate(fecha)
+	feriados = country_holidays(CODIGO_PAIS, years=[fecha.year, fecha.year + 1])
+	while fecha.weekday() >= 5 or fecha in feriados:
+		fecha = add_days(fecha, 1)
+	return fecha
+
+
 def asegurar_lista_feriados():
 	"""Crea o extiende la lista y la deja por defecto en las empresas RD sin lista. Idempotente."""
 	conf = frappe.get_single("Configuracion Nomina RD")

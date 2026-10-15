@@ -386,6 +386,18 @@ class TestReciboNominaRD(IntegrationTestCase):
 		self.assertEqual((r["renta"], r["aportes_tss"], r["isr"]), (90_000, 4728, 9900.94))
 		self.assertEqual(r["diferencia"], 0)
 		self.assertEqual(str(ir3.fecha_limite(2026, 10)), "2026-11-10")
+		self.assertEqual(str(ir3.fecha_limite(2025, 12)), "2026-01-12")  # el 10 cae sábado
+
+		# IR-13: la suma del año (aquí solo octubre)
+		from erpnext_rd.nomina_rd import ir13
+
+		datos = ir13.meses(EMPRESA, 2026)
+		e = next(f for f in ir13.por_empleado(datos) if f["employee"] == self.empleado.name)
+		self.assertEqual((e["meses"], e["renta"], e["isr"], e["isr_retenido"]), (1, 90_000, 9900.94, 9900.94))
+		self.assertFalse(e["_avisos"])
+		octubre = ir13.por_mes(datos)[9]
+		self.assertEqual((octubre["mes"], octubre["isr_retenido"]), ("Oct", 9900.94))
+		self.assertEqual(str(ir13.fecha_limite(2026)), "2027-03-15")
 
 	def test_regalia_de_diciembre(self):
 		"""Regalía de diciembre de un empleado activo: octubre sale del recibo y los otros 11 meses se

@@ -16,7 +16,7 @@ import frappe
 from frappe import _
 from frappe.utils import add_months, flt, formatdate
 
-from erpnext_rd.nomina_rd import calculos, tss
+from erpnext_rd.nomina_rd import calculos, feriados, tss
 
 TOLERANCIA = 1.0  # pesos: redondeos de quincenas y semanas
 
@@ -58,8 +58,8 @@ def obtener(company: str, anio, mes) -> list[dict]:
 
 
 def fecha_limite(anio, mes) -> date:
-	"""Día 10 del mes siguiente (si cae en fin de semana o feriado, la DGII lo corre al día laborable)."""
-	return add_months(date(int(anio), int(mes), 10), 1)
+	"""Día 10 del mes siguiente; si cae en fin de semana o feriado, el siguiente día laborable."""
+	return feriados.dia_habil(add_months(date(int(anio), int(mes), 10), 1))
 
 
 def _columnas() -> list[dict]:
