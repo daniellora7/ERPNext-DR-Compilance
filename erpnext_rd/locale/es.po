@@ -46,3 +46,9 @@ msgstr "Tramo de prestación"
 
 msgid "Padron RNC"
 msgstr "Padrón RNC"
+
+msgid "Emisor ECF"
+msgstr "Emisor e-CF"
+
+msgid "Envio ECF"
+msgstr "Envío e-CF"

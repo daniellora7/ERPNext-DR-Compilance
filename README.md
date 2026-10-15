@@ -9,7 +9,7 @@ Localización de **República Dominicana** para ERPNext v16 y Frappe HR, libre y
 - **Padrón RNC**: padrón de contribuyentes de la DGII (cada día a las 2:00 a. m. revisa si la DGII publicó uno nuevo y solo entonces lo descarga) y autocompletado de la razón social.
 - **Panel RD Compliance** (*RD Compliance → Panel de cumplimiento*, dentro del escritorio; también en `/rd-compliance`): en una pantalla, los plazos y montos del 606, 607, 608, 609, IT-1 e IR-17 del mes, las secuencias NCF por agotarse o vencer y los registros con observaciones antes de enviarlos. Hecho con [frappe-ui](https://ui.frappe.io), el mismo estilo del escritorio de Frappe v16.
 - **Feriados de RD**: una lista de feriados de ERPNext, *Feriados RD*, con los feriados dominicanos y sus traslados según la Ley 139-97 (los toma de la misma librería que usa el botón "Agregar feriados locales" de ERPNext) y el domingo como día de descanso. Se crea sola, se extiende cada año hasta el 31 de diciembre del año siguiente y queda como lista por defecto de las empresas RD que no tengan otra. Lo que edites a mano (por ejemplo, un decreto que mueva un feriado) se respeta.
-- **e-CF** (en desarrollo): facturación electrónica directa con la DGII.
+- **e-CF** (facturación electrónica directa con la DGII): XML de los diez tipos (E31 a E47) y del resumen de consumo (RFCE) según los esquemas oficiales, firma digital con el certificado .p12 de la empresa, envío y consulta del resultado. Falta la certificación ante la DGII con un certificado real.
 
 ## Del lado de Frappe HR: Nómina RD (dock de Frappe HR → *Nómina RD*)
 

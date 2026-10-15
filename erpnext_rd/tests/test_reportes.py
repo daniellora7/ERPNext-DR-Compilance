@@ -167,6 +167,42 @@ class TestReportesDGII(IntegrationTestCase):
 		self.assertEqual((linea["IndicadorFacturacion"], linea["IndicadorBienoServicio"]), (1, 2))
 		self.assertEqual(datos_venta["Encabezado"]["Emisor"]["DireccionEmisor"], "Av. Winston Churchill 1")
 
+		# Emisión completa con el emisor configurado y la DGII simulada
+		from unittest.mock import patch
+
+		from erpnext_rd.ecf import emision
+		from erpnext_rd.tests.test_ecf import SesionDGII
+
+		archivo = frappe.get_doc(
+			{
+				"doctype": "File",
+				"file_name": "certificado.p12",
+				"content": certificado_de_prueba(),
+				"is_private": 1,
+			}
+		).insert()
+		frappe.get_doc(
+			{
+				"doctype": "Emisor ECF",
+				"company": EMPRESA,
+				"habilitado": 1,
+				"certificado": archivo.file_url,
+				"clave_certificado": "prueba",
+			}
+		).insert()
+		self.assertEqual(frappe.db.get_value("Emisor ECF", EMPRESA, "titular"), "EMPRESA DE PRUEBA SRL")
+		frappe.cache.delete_value(f"erpnext_rd:ecf_token:TesteCF:{RNC_EMPRESA}")
+		with patch("erpnext_rd.ecf.cliente.requests.Session", SesionDGII):
+			nombre = emision.emitir("Sales Invoice", si.name)
+			envio = frappe.get_doc("Envio ECF", nombre)
+			self.assertEqual((envio.estado, envio.track_id, envio.encf), ("En proceso", "T-1", si.rd_ncf))
+			self.assertEqual(frappe.db.get_value("File", {"file_url": envio.xml}, "is_private"), 1)
+			self.assertEqual(
+				frappe.db.get_value("Sales Invoice", si.name, "rd_codigo_seguridad"), envio.codigo_seguridad
+			)
+			emision.consultar_pendientes()
+			self.assertEqual(frappe.db.get_value("Envio ECF", nombre, "estado"), "Aceptado")
+
 		pi = frappe.get_doc(
 			{
 				"doctype": "Purchase Invoice",

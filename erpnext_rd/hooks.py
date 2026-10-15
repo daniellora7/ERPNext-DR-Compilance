@@ -102,6 +102,7 @@ doc_events = {
 	"Sales Invoice": {
 		"validate": "erpnext_rd.dgii_fiscal.ncf.validar_venta",
 		"before_submit": "erpnext_rd.dgii_fiscal.ncf.asignar_ncf_venta",
+		"on_submit": "erpnext_rd.ecf.emision.al_aprobar",
 		"before_cancel": "erpnext_rd.dgii_fiscal.ncf.antes_de_cancelar_venta",
 	},
 	"POS Invoice": {
@@ -112,6 +113,7 @@ doc_events = {
 	"Purchase Invoice": {
 		"validate": "erpnext_rd.dgii_fiscal.ncf.validar_compra",
 		"before_submit": "erpnext_rd.dgii_fiscal.ncf.antes_de_validar_compra",
+		"on_submit": "erpnext_rd.ecf.emision.al_aprobar",
 		"before_cancel": "erpnext_rd.dgii_fiscal.ncf.antes_de_cancelar_compra",
 	},
 }
@@ -134,6 +136,8 @@ jinja = {
 scheduler_events = {
 	"cron": {
 		"0 2 * * *": ["erpnext_rd.padron_rnc.padron.encolar"],
+		# Resultado de los e-CF enviados a la DGII que siguen en proceso
+		"*/15 * * * *": ["erpnext_rd.ecf.emision.consultar_pendientes"],
 	},
 	# Extiende la lista "Feriados RD" al año siguiente (idempotente)
 	"monthly": ["erpnext_rd.nomina_rd.feriados.asegurar_lista_feriados"],
