@@ -22,6 +22,7 @@ Frappe **v16.52.0** (`FRAPPE_BRANCH` en `deploy/Containerfile`), ERPNext **v16.5
 - **HRMS es opcional**: lo que toque sus DocTypes se condiciona con `nomina_rd.hrms_instalado()`.
 - **Marketplace**: instalable sin acceso a la máquina (`after_install`/`after_migrate`, patches), funciona sin HRMS y se desinstala limpio (todo Property Setter lleva `module` de la app).
 - **Interfaz**: estándar frappe-ui. Solo tokens CSS (`--ink-*`, `--surface-*`, `--outline-*`; avisos `--ink-amber-8`, errores `--ink-red-6`), nunca hex ni Bootstrap (salvo formatos de impresión). Revisar en claro y oscuro.
+- **Formatos imprimibles: siempre editables en el constructor de formatos de Frappe** (Print Format no estándar del constructor, bloques HTML/Jinja; ver `erpnext_rd/formatos.py`). Nunca formatos estándar ni `{% include %}` a plantillas de la app.
 - Nómina RD va del lado de Frappe HR (sidebar `nomina_rd`); lo fiscal, en el sidebar único de RD Compliance.
 - Código de terceros solo con licencia GPL-3, LGPL-3 o MIT. La app es GPL-3.0.
 

@@ -1,0 +1,22 @@
+{%- set v = rd_datos_volante(doc) -%}
+<div class="rd-volante">
+	<div class="rd-caja">
+		<table>
+			<tr>
+				<td style="width: 55%">
+					<div><b>Empleado:</b> {{ v.empleado }} <span class="rd-muted">({{ doc.employee }})</span></div>
+					{% if v.documento %}<div><b>{{ v.tipo_documento }}:</b> {{ v.documento }}</div>{% endif %}
+					{% if v.nss %}<div><b>NSS:</b> {{ v.nss }}</div>{% endif %}
+					{% if v.cargo %}<div><b>Cargo:</b> {{ v.cargo }}</div>{% endif %}
+					{% if v.departamento %}<div><b>Departamento:</b> {{ v.departamento }}</div>{% endif %}
+				</td>
+				<td>
+					{% if v.ingreso %}<div><b>Fecha de ingreso:</b> {{ v.ingreso }}</div>{% endif %}
+					{% if v.afp %}<div><b>AFP:</b> {{ v.afp }}</div>{% endif %}
+					{% if v.ars %}<div><b>ARS:</b> {{ v.ars }}</div>{% endif %}
+					<div><b>Días pagados:</b> {{ v.dias }}</div>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>

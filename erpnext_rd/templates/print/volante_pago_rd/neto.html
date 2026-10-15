@@ -1,0 +1,8 @@
+<div class="rd-volante">
+	<div class="rd-neto">
+		<table>
+			<tr><td>Neto a pagar</td><td class="num">{{ doc.get_formatted("net_pay") }}</td></tr>
+		</table>
+		{% if doc.total_in_words %}<div class="rd-muted">{{ doc.total_in_words }}</div>{% endif %}
+	</div>
+</div>

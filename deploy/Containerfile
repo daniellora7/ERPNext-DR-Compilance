@@ -51,6 +51,17 @@ RUN chmod -R g=u /home/frappe/frappe-bench
 
 WORKDIR /home/frappe/frappe-bench
 
+# PDF de los formatos del constructor de formatos de Frappe (motor Chrome): bibliotecas del sistema y
+# Chromium dentro de la imagen, para no depender de descargarlo la primera vez que se imprime.
+USER root
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    libatk-bridge2.0-0 libatk1.0-0 libnss3 libcups2 libdrm2 libxkbcommon0 libxcomposite1 \
+    libxdamage1 libxfixes3 libxrandr2 libgbm1 libpango-1.0-0 libcairo2 libasound2 \
+  && rm -rf /var/lib/apt/lists/*
+USER frappe
+RUN bench setup-chrome
+
 # Assets en la capa de la imagen; el entrypoint los enlaza al volumen sites
 RUN cp -r /home/frappe/frappe-bench/sites/assets /home/frappe/frappe-bench/assets && \
   rm -rf /home/frappe/frappe-bench/sites/assets

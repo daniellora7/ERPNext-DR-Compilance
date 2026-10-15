@@ -7,6 +7,7 @@ configura solo, sin pasos en la consola, para que la app se pueda instalar desde
 import frappe
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
+from erpnext_rd import formatos
 from erpnext_rd.dgii_fiscal import catalogo_cuentas
 from erpnext_rd.dgii_fiscal import catalogos as cat
 from erpnext_rd.dgii_fiscal.catalogos import (
@@ -939,6 +940,7 @@ def lista_padron_sin_filtro_reciente():
 
 def setup():
 	crear_campos_personalizados()
+	formatos.asegurar_fiscales()
 	formato_impresion_por_defecto()
 	crear_tipos_comprobante()
 	inicializar_formas_pago()

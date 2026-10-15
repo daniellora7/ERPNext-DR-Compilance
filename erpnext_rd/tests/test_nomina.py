@@ -623,7 +623,9 @@ class TestReciboNominaRD(IntegrationTestCase):
 		self._aislar()
 		cedula = cedula_valida("0010000007")
 		frappe.db.set_value(
-			"Employee", self.empleado.name, {"rd_cedula": cedula, "rd_nss": "12345678", "relieving_date": None}
+			"Employee",
+			self.empleado.name,
+			{"rd_cedula": cedula, "rd_nss": "12345678", "relieving_date": None},
 		)
 		volante.crear_formato()
 		recibo = frappe.get_doc(

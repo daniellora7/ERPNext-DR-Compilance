@@ -1,0 +1,22 @@
+.rd-volante { font-family: "Inter", Arial, sans-serif; font-size: 11px; color: #222; }
+.rd-volante table { width: 100%; border-collapse: collapse; }
+.rd-volante .rd-cab td { vertical-align: top; }
+.rd-volante .rd-empresa { font-size: 16px; font-weight: 700; }
+.rd-volante .rd-titulo { font-size: 14px; font-weight: 700; text-align: right; }
+.rd-volante .rd-der { text-align: right; }
+.rd-volante .rd-muted { color: #666; }
+.rd-volante .rd-caja { border: 1px solid #ccc; border-radius: 6px; padding: 8px 10px; margin-top: 10px; }
+.rd-volante .rd-caja td { padding: 2px 0; vertical-align: top; }
+.rd-volante .rd-columnas { margin-top: 12px; }
+.rd-volante .rd-columnas > tbody > tr > td { width: 50%; vertical-align: top; }
+.rd-volante .rd-columnas > tbody > tr > td:first-child { padding-right: 8px; }
+.rd-volante .rd-columnas > tbody > tr > td:last-child { padding-left: 8px; }
+.rd-volante .rd-detalle th { background: #f3f3f3; border-bottom: 1px solid #ccc; padding: 6px; text-align: left; font-size: 10px; text-transform: uppercase; }
+.rd-volante .rd-detalle td { border-bottom: 1px solid #eee; padding: 5px 6px; }
+.rd-volante .rd-detalle .rd-subtotal td { font-weight: 700; border-top: 1px solid #ccc; border-bottom: none; }
+.rd-volante .num { text-align: right !important; white-space: nowrap; }
+.rd-volante .rd-neto { margin-top: 12px; border: 2px solid #222; border-radius: 6px; padding: 8px 10px; }
+.rd-volante .rd-neto td { font-size: 14px; font-weight: 700; }
+.rd-volante .rd-aportes { margin-top: 12px; font-size: 10px; }
+.rd-volante .rd-firma { margin-top: 40px; width: 45%; border-top: 1px solid #222; text-align: center; padding-top: 4px; }
+.rd-volante .rd-estado { text-align: center; font-size: 16px; font-weight: 700; color: #c00; margin: 6px 0; }

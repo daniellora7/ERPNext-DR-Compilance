@@ -3,18 +3,34 @@
 Muestra lo que el empleado necesita ver en RD: empresa y RNC, documento (cédula, NSS o pasaporte), NSS,
 AFP y ARS, ingresos y descuentos de ley (AFP, SFS, ISR, INFOTEP), neto a pagar y, como información,
 los aportes del empleador a la TSS e INFOTEP. El formato se crea por código (`crear_formato`) solo si
-Frappe HR está instalado, porque un archivo de formato no se podría sincronizar sin el DocType.
+Frappe HR está instalado, porque un archivo de formato no se podría sincronizar sin el DocType, y se
+hace con el constructor de formatos de Frappe para editarlo ahí (`erpnext_rd/formatos.py`).
 """
 
 import frappe
 from frappe.utils import cint, flt, formatdate
 
 from erpnext_rd.dgii_reportes.datos import rnc_empresa
+from erpnext_rd.formatos import por_documento
 from erpnext_rd.nomina_rd import hrms_instalado
 
 FORMATO = "Volante de pago RD"
 DOCTYPE = "Salary Slip"
-PLANTILLA = '{% include "erpnext_rd/templates/print/volante_pago_rd.html" %}'
+# Hecho con el constructor de formatos de Frappe, un bloque por parte (ver erpnext_rd/formatos.py)
+DEFINICION = {
+	"name": FORMATO,
+	"doc_type": DOCTYPE,
+	"carpeta": "volante_pago_rd",
+	"margen": 12,
+	"bloques": [
+		("Encabezado (empresa y período)", "encabezado"),
+		("Datos del empleado", "empleado"),
+		("Ingresos y descuentos", "detalle"),
+		("Neto a pagar", "neto"),
+		("Aportes del empleador", "aportes"),
+		("Firma", "firma"),
+	],
+}
 TIPOS_DOCUMENTO = {"C": "Cédula", "N": "NSS", "P": "Pasaporte"}
 
 
@@ -32,6 +48,7 @@ def _filas(doc, tabla: str) -> list[frappe._dict]:
 	]
 
 
+@por_documento
 def rd_datos_volante(doc) -> frappe._dict:
 	"""Datos del volante (método Jinja registrado en hooks.py)."""
 	from erpnext_rd.nomina_rd import tss
@@ -85,25 +102,9 @@ def crear_formato():
 	"""Crea el formato si Frappe HR está instalado y lo deja por defecto si el recibo no tiene otro."""
 	if not hrms_instalado():
 		return
-	if not frappe.db.exists("Print Format", FORMATO):
-		frappe.get_doc(
-			{
-				"doctype": "Print Format",
-				"name": FORMATO,
-				"doc_type": DOCTYPE,
-				"module": "Nomina RD",
-				"standard": "No",
-				"custom_format": 1,
-				"print_format_type": "Jinja",
-				"default_print_language": "es",
-				"font_size": 11,
-				"margin_top": 12,
-				"margin_bottom": 12,
-				"margin_left": 12,
-				"margin_right": 12,
-				"html": PLANTILLA,
-			}
-		).insert(ignore_permissions=True)
+	from erpnext_rd import formatos
+
+	formatos.asegurar(DEFINICION, "Nomina RD")
 	if not frappe.db.get_value(
 		"Property Setter", {"doc_type": DOCTYPE, "property": "default_print_format"}, "value"
 	):

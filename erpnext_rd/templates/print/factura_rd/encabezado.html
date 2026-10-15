@@ -1,0 +1,26 @@
+{%- set f = rd_datos_fiscales(doc) -%}
+{%- set m = doc.currency -%}
+<div class="rd-factura">
+	{%- if doc.docstatus == 0 %}<div class="rd-estado">BORRADOR — SIN VALOR FISCAL</div>{% endif -%}
+	{%- if doc.docstatus == 2 %}<div class="rd-estado">ANULADA</div>{% endif %}
+	<table class="rd-cab">
+		<tr>
+			<td style="width: 55%">
+				<div class="rd-empresa">{{ f.emisor.nombre }}</div>
+				<div><b>RNC:</b> {{ f.emisor.rnc or "" }}</div>
+				{% if f.emisor.direccion %}<div class="rd-muted">{{ f.emisor.direccion }}</div>{% endif %}
+				{% if f.emisor.telefono %}<div class="rd-muted">Tel.: {{ f.emisor.telefono }}</div>{% endif %}
+				{% if f.emisor.email %}<div class="rd-muted">{{ f.emisor.email }}</div>{% endif %}
+			</td>
+			<td>
+				<div class="rd-titulo">{{ f.titulo }}</div>
+				{% if f.ncf %}
+				<div class="rd-ncf">{{ "e-NCF" if f.es_electronico else "NCF" }}: {{ f.ncf }}</div>
+				{% if f.ncf_vencimiento %}<div class="rd-der">Válido hasta: {{ f.ncf_vencimiento }}</div>{% endif %}
+				{% endif %}
+				<div class="rd-der">Fecha: {{ f.fecha }}</div>
+				<div class="rd-der rd-muted">Factura: {{ doc.name }}</div>
+			</td>
+		</tr>
+	</table>
+</div>

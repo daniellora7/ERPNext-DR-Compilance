@@ -1,0 +1,22 @@
+{%- set f = rd_datos_fiscales(doc) -%}
+{%- set m = doc.currency -%}
+<div class="rd-factura">
+	<div class="rd-caja">
+		<table>
+			<tr>
+				<td style="width: 60%">
+					<div><b>Cliente:</b> {{ f.comprador.nombre }}</div>
+					{% if f.comprador.identificacion %}
+					<div><b>{{ f.comprador.tipo_identificacion }}:</b> {{ f.comprador.identificacion }}</div>
+					{% endif %}
+					{% if f.comprador.direccion %}<div class="rd-muted">{{ f.comprador.direccion }}</div>{% endif %}
+				</td>
+				<td>
+					{% if f.ncf_modificado %}<div><b>NCF modificado:</b> {{ f.ncf_modificado }}</div>{% endif %}
+					{% if doc.due_date and not doc.is_pos %}<div><b>Vence:</b> {{ frappe.utils.formatdate(doc.due_date) }}</div>{% endif %}
+					{% if doc.po_no %}<div><b>Orden de compra:</b> {{ doc.po_no }}</div>{% endif %}
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>
