@@ -416,6 +416,71 @@ def campos_personalizados() -> dict:
 				"depends_on": "eval:doc.rd_salario_diario",
 			},
 		],
+		"Employee": [
+			{
+				"fieldname": "rd_segundo_apellido",
+				"fieldtype": "Data",
+				"label": "Segundo apellido",
+				"insert_after": "last_name",
+				"description": "En el apellido va el primero. La TSS los pide por separado.",
+			},
+			{
+				"fieldname": "rd_section_datos",
+				"fieldtype": "Section Break",
+				"label": "República Dominicana (TSS / DGII)",
+				"insert_after": "date_of_joining",
+				"description": "Datos para el archivo de la TSS (SUIR) y las declaraciones de la DGII (IR-3, IR-13). "
+				"Solo se validan en empresas RD.",
+			},
+			{
+				"fieldname": "rd_tipo_documento",
+				"fieldtype": "Select",
+				"label": "Tipo de documento",
+				"options": "Cédula\nNSS\nPasaporte",
+				"default": "Cédula",
+				"insert_after": "rd_section_datos",
+				"description": "Extranjeros sin cédula: el NSS que asigna la TSS o el pasaporte (campo Passport Number).",
+			},
+			{
+				"fieldname": "rd_cedula",
+				"fieldtype": "Data",
+				"label": "Cédula",
+				"insert_after": "rd_tipo_documento",
+				"depends_on": "eval:doc.rd_tipo_documento == 'Cédula'",
+				"search_index": 1,
+				"in_standard_filter": 1,
+				"description": "11 dígitos, con o sin guiones",
+			},
+			{
+				"fieldname": "rd_nss",
+				"fieldtype": "Data",
+				"label": "NSS (Seguridad Social)",
+				"insert_after": "rd_cedula",
+			},
+			{
+				"fieldname": "rd_column_datos",
+				"fieldtype": "Column Break",
+				"insert_after": "rd_nss",
+			},
+			{
+				"fieldname": "rd_afp",
+				"fieldtype": "Link",
+				"label": "AFP",
+				"options": "Entidad Seguridad Social RD",
+				"insert_after": "rd_column_datos",
+				"link_filters": '[["Entidad Seguridad Social RD","tipo","=","AFP"],'
+				'["Entidad Seguridad Social RD","deshabilitada","=",0]]',
+			},
+			{
+				"fieldname": "rd_ars",
+				"fieldtype": "Link",
+				"label": "ARS",
+				"options": "Entidad Seguridad Social RD",
+				"insert_after": "rd_afp",
+				"link_filters": '[["Entidad Seguridad Social RD","tipo","=","ARS"],'
+				'["Entidad Seguridad Social RD","deshabilitada","=",0]]',
+			},
+		],
 		"Mode of Payment": [
 			{
 				"fieldname": "rd_forma_pago",
@@ -699,6 +764,33 @@ def reglas_gratuity_sin_tramos():
 	_property_setters("Gratuity Rule", ajustes)
 
 
+def datos_del_empleado():
+	"""Catálogo de AFP y ARS, y buscar empleados también por cédula."""
+	from frappe.custom.doctype.property_setter.property_setter import make_property_setter
+
+	from erpnext_rd.nomina_rd import empleado
+
+	empleado.crear_entidades()
+	campos = [c.strip() for c in (frappe.get_meta("Employee").search_fields or "").split(",") if c.strip()]
+	if "rd_cedula" not in campos:
+		make_property_setter(
+			"Employee",
+			None,
+			"search_fields",
+			", ".join([*campos, "rd_cedula"]),
+			"Data",
+			for_doctype=True,
+			validate_fields_for_doctype=False,
+		)
+		frappe.db.set_value(
+			"Property Setter",
+			{"doc_type": "Employee", "property": "search_fields", "module": ("is", "not set")},
+			"module",
+			MODULO,
+			update_modified=False,
+		)
+
+
 def periodo_opcional_en_vacaciones_rd():
 	"""El *Leave Period* del Leave Encashment lo pone la app en el pago de vacaciones RD (ver
 	`leave_encashment_rd`); en los demás pagos sigue siendo obligatorio como en Frappe HR."""
@@ -766,6 +858,7 @@ def setup():
 	inicializar_configuracion()
 	asegurar_navegacion()
 	dock_nomina()
+	datos_del_empleado()
 	prestaciones_y_feriados()
 	lista_padron_sin_filtro_reciente()
 	frappe.clear_cache()

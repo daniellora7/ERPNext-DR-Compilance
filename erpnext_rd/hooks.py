@@ -92,6 +92,9 @@ doc_events = {
 	"Customer": {
 		"validate": "erpnext_rd.dgii_fiscal.identificacion.validar_party",
 	},
+	"Employee": {
+		"validate": "erpnext_rd.nomina_rd.empleado.validar_empleado",
+	},
 	"Supplier": {
 		"validate": "erpnext_rd.dgii_fiscal.identificacion.validar_party",
 	},

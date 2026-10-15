@@ -253,6 +253,22 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
+   "label": "AFP y ARS",
+   "link_type": "DocType",
+   "type": "Link",
+   "link_to": "Entidad Seguridad Social RD"
+  },
+  {
+   "added": 0,
+   "child": 1,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
    "label": "Componentes salariales",
    "link_type": "DocType",
    "type": "Link",
@@ -275,7 +291,7 @@
    "link_to": "Salary Structure"
   }
  ],
- "modified": "2026-10-15 18:00:00.000000",
+ "modified": "2026-10-15 19:00:00.000000",
  "modified_by": "Administrator",
  "module": "Nomina RD",
  "name": "Nomina RD",
