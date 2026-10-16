@@ -13,8 +13,25 @@ setConfig("resourceFetcher", frappeRequest)
 const { setColorScheme } = useColorScheme()
 setColorScheme({ Dark: "dark", Light: "light" }[window.desk_theme] || "system")
 
+// Ancho completo o compacto, según la apariencia que el usuario eligió en el escritorio. Frappe la guarda
+// en localStorage (mismo sitio) y la aplica como la clase full-width del <body> del escritorio.
+const aplicarAncho = (completo) => {
+	document.documentElement.dataset.ancho = completo ? "completo" : "compacto"
+}
+try {
+	aplicarAncho(JSON.parse(localStorage.container_fullwidth || "false"))
+} catch {
+	aplicarAncho(false)
+}
+
 if (embebido) {
 	const escritorio = window.top
+
+	// Dentro del escritorio sigue a su <body> también cuando el usuario cambia la opción con el panel abierto
+	const cuerpo = escritorio.document.body
+	const seguirAncho = () => aplicarAncho(cuerpo.classList.contains("full-width"))
+	seguirAncho()
+	new MutationObserver(seguirAncho).observe(cuerpo, { attributes: true, attributeFilter: ["class"] })
 
 	// El tema sigue al del escritorio también cuando el usuario lo cambia con el panel abierto
 	const raiz = escritorio.document.documentElement

@@ -1,0 +1,109 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "links": [],
+ "modified": "2026-10-18 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "ECF",
+ "owner": "Administrator",
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "name": "Set Pruebas ECF",
+ "autoname": "SET-ECF-.#####",
+ "naming_rule": "Expression (old style)",
+ "track_changes": 1,
+ "description": "Set de pruebas de la certificación e-CF (CerteCF): firma los e-CF del archivo de la DGII y los envía.",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "share": 1
+  }
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Empresa",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "archivo",
+   "fieldtype": "Attach",
+   "label": "Set de pruebas de la DGII (Excel o CSV)",
+   "reqd": 1,
+   "description": "El archivo que la DGII entrega en el portal de certificación: una fila por e-CF y una columna por elemento del XML (las repetidas con [1], [2]…)."
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "estado",
+   "fieldtype": "Select",
+   "label": "Estado",
+   "read_only": 1,
+   "in_list_view": 1,
+   "options": "Pendiente\nFirmado\nEnviado\nCon errores",
+   "default": "Pendiente"
+  },
+  {
+   "fieldname": "generados",
+   "fieldtype": "Int",
+   "label": "e-CF firmados",
+   "read_only": 1
+  },
+  {
+   "fieldname": "enviados",
+   "fieldtype": "Int",
+   "label": "e-CF enviados",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_resultado",
+   "fieldtype": "Section Break",
+   "label": "Resultado"
+  },
+  {
+   "fieldname": "resultado",
+   "fieldtype": "Small Text",
+   "label": "Filas con errores",
+   "read_only": 1
+  }
+ ],
+ "field_order": [
+  "company",
+  "archivo",
+  "column_break_1",
+  "estado",
+  "generados",
+  "enviados",
+  "section_resultado",
+  "resultado"
+ ]
+}

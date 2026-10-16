@@ -9,6 +9,12 @@ Configuración DGII. Flujo:
    Las facturas de consumo (E32) menores al monto de la configuración van como resumen (RFCE) al
    servicio de recepción FC, que responde directamente el estado.
 3. Consulta del resultado por trackId (Aceptado, Aceptado condicional, Rechazado, En proceso).
+4. Anulación de rangos de e-NCF no usados (ANECF), copia de la aprobación comercial (ACECF) y consulta
+   del directorio de receptores electrónicos (URLs de otro contribuyente).
+
+`ClienteReceptor` habla directamente con otro contribuyente (entrega del e-CF al comprador y de la
+aprobación comercial al emisor). Un servicio que no responde (5xx, 429, sin conexión) es contingencia:
+el envío se reintenta (ver `emision.reintentar_contingencia`).
 """
 
 import json
@@ -27,7 +33,14 @@ TIEMPO_ESPERA = 60
 
 
 class ErrorDGII(frappe.ValidationError):
-	pass
+	def __init__(self, mensaje="", codigo: int | None = None):
+		super().__init__(mensaje)
+		self.codigo = codigo
+
+	@property
+	def sin_servicio(self) -> bool:
+		"""El servicio no respondió (caído, saturado): se reintenta más tarde (contingencia)."""
+		return self.codigo is None or self.codigo >= 500 or self.codigo == 429
 
 
 class ClienteDGII:
@@ -57,7 +70,8 @@ class ClienteDGII:
 			raise ErrorDGII(
 				_("La DGII respondió {0}: {1}").format(
 					r.status_code, json.dumps(datos, ensure_ascii=False)[:500]
-				)
+				),
+				r.status_code,
 			)
 		return datos
 
@@ -69,7 +83,9 @@ class ClienteDGII:
 	def semilla(self) -> bytes:
 		r = self.sesion.get(self._url(ECF, "/autenticacion/api/autenticacion/semilla"), timeout=TIEMPO_ESPERA)
 		if r.status_code >= 400:
-			raise ErrorDGII(_("No se pudo obtener la semilla de la DGII ({0})").format(r.status_code))
+			raise ErrorDGII(
+				_("No se pudo obtener la semilla de la DGII ({0})").format(r.status_code), r.status_code
+			)
 		return r.content
 
 	def token(self) -> str:
@@ -122,7 +138,42 @@ class ClienteDGII:
 		)
 		return self._respuesta(r)
 
+	def anular_rangos(self, xml_firmado: bytes, nombre: str) -> dict:
+		"""Anulación de rangos de e-NCF no utilizados (ANECF): devuelve {rnc, codigo, nombre, mensajes}."""
+		r = self.sesion.post(
+			self._url(ECF, "/anulacionrangos/api/operaciones/anularrango"),
+			headers=self._autorizacion(),
+			files={"xml": (nombre, xml_firmado, "text/xml")},
+			timeout=TIEMPO_ESPERA,
+		)
+		return self._respuesta(r)
+
+	def enviar_aprobacion(self, xml_firmado: bytes, nombre: str) -> dict:
+		"""Aprobación o rechazo comercial (ACECF) de un e-CF recibido: copia para la DGII."""
+		r = self.sesion.post(
+			self._url(ECF, "/aprobacioncomercial/api/aprobacioncomercial"),
+			headers=self._autorizacion(),
+			files={"xml": (nombre, xml_firmado, "text/xml")},
+			timeout=TIEMPO_ESPERA,
+		)
+		return self._respuesta(r)
+
 	# --------------------------------------------------------------- consultas
+
+	def directorio(self, rnc: str) -> dict | None:
+		"""URLs del contribuyente si es receptor electrónico ({urlRecepcion, urlAceptacion, urlOpcional})."""
+		r = self.sesion.get(
+			self._url(ECF, "/consultadirectorio/api/consultas/obtenerdirectorioporrnc"),
+			headers=self._autorizacion(),
+			params={"RNC": rnc},
+			timeout=TIEMPO_ESPERA,
+		)
+		if r.status_code == 404:
+			return None
+		datos = self._respuesta(r)
+		if isinstance(datos, list):
+			datos = datos[0] if datos else None
+		return datos if datos and datos.get("urlRecepcion") else None
 
 	def consultar_resultado(self, track_id: str) -> dict:
 		r = self.sesion.get(
@@ -146,3 +197,74 @@ class ClienteDGII:
 			timeout=TIEMPO_ESPERA,
 		)
 		return self._respuesta(r)
+
+
+class ClienteReceptor:
+	"""Intercambio directo con otro contribuyente electrónico, en las URLs que publica en el directorio
+	de la DGII: entrega del e-CF al comprador (responde el acuse de recibo, ARECF) y de la aprobación
+	comercial (ACECF) al emisor. Las rutas son las del estándar de la DGII bajo la URL registrada:
+	/fe/autenticacion/api/semilla, /fe/autenticacion/api/validacioncertificado, /fe/recepcion/api/ecf y
+	/fe/aprobacioncomercial/api/ecf. Si el receptor no tiene autenticación se envía sin token."""
+
+	def __init__(self, urls: dict, llave, certificado, sesion=None):
+		self.urls = urls
+		self.llave = llave
+		self.certificado = certificado
+		self.sesion = sesion or requests.Session()
+		self._token = None
+
+	@staticmethod
+	def _base(url: str | None) -> str:
+		return (url or "").split("/fe/")[0].rstrip("/")
+
+	def _url(self, clave: str, ruta: str) -> str:
+		base = self._base(self.urls.get(clave) or self.urls.get("urlRecepcion"))
+		if not base:
+			raise ErrorDGII(_("El receptor no tiene URL de servicio"), 404)
+		return base + ruta
+
+	def _encabezados(self) -> dict:
+		if self._token is None:
+			try:
+				semilla = self.sesion.get(
+					self._url("urlOpcional", "/fe/autenticacion/api/semilla"), timeout=TIEMPO_ESPERA
+				)
+				if semilla.status_code >= 400:
+					raise ErrorDGII("", semilla.status_code)
+				r = self.sesion.post(
+					self._url("urlOpcional", "/fe/autenticacion/api/validacioncertificado"),
+					files={
+						"xml": ("semilla.xml", firma.firmar(semilla.content, self.llave, self.certificado))
+					},
+					timeout=TIEMPO_ESPERA,
+				)
+				self._token = (r.json() or {}).get("token") or "" if r.status_code < 400 else ""
+			except (ErrorDGII, OSError, ValueError):
+				self._token = ""
+		return {"Authorization": f"bearer {self._token}"} if self._token else {}
+
+	def enviar_ecf(self, xml_firmado: bytes, nombre: str) -> bytes:
+		"""Entrega el e-CF; devuelve el acuse de recibo (ARECF) firmado por el comprador."""
+		r = self.sesion.post(
+			self._url("urlRecepcion", "/fe/recepcion/api/ecf"),
+			headers=self._encabezados(),
+			files={"xml": (nombre, xml_firmado, "text/xml")},
+			timeout=TIEMPO_ESPERA,
+		)
+		if r.status_code >= 400:
+			raise ErrorDGII(
+				_("El comprador respondió {0}: {1}").format(r.status_code, r.text[:300]), r.status_code
+			)
+		return r.content
+
+	def enviar_aprobacion(self, xml_firmado: bytes, nombre: str):
+		r = self.sesion.post(
+			self._url("urlAceptacion", "/fe/aprobacioncomercial/api/ecf"),
+			headers=self._encabezados(),
+			files={"xml": (nombre, xml_firmado, "text/xml")},
+			timeout=TIEMPO_ESPERA,
+		)
+		if r.status_code >= 400:
+			raise ErrorDGII(
+				_("El emisor respondió {0}: {1}").format(r.status_code, r.text[:300]), r.status_code
+			)

@@ -19,7 +19,7 @@
 		</div>
 	</PageHeader>
 
-	<div class="mx-auto w-full max-w-6xl space-y-8 px-5 py-6">
+	<div class="contenido-panel mx-auto w-full max-w-6xl space-y-8 px-5 py-6">
 		<Alert
 			v-if="ctx.error || datos.error"
 			theme="red"

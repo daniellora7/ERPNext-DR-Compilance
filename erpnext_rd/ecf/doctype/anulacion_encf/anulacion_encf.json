@@ -1,0 +1,163 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "links": [],
+ "modified": "2026-10-18 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "ECF",
+ "owner": "Administrator",
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "name": "Anulacion ENCF",
+ "autoname": "ANU-ENCF-.#####",
+ "naming_rule": "Expression (old style)",
+ "is_submittable": 1,
+ "track_changes": 1,
+ "description": "Anulación de rangos de e-NCF no utilizados ante la DGII (ANECF).",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "share": 1,
+   "submit": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "share": 1,
+   "submit": 1
+  },
+  {
+   "role": "Accounts User",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1
+  }
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Empresa",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "estado",
+   "fieldtype": "Select",
+   "label": "Estado",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "options": "Borrador\nFirmado\nEnviado\nAceptado\nRechazado\nError",
+   "default": "Borrador",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cantidad",
+   "fieldtype": "Int",
+   "label": "e-NCF anulados",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "fecha_anulacion",
+   "fieldtype": "Datetime",
+   "label": "Fecha de la anulación",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "section_rangos",
+   "fieldtype": "Section Break",
+   "label": "Rangos",
+   "description": "Secuencias de e-NCF autorizadas que no se van a usar. Al validar se firma la anulación (ANECF), se envía a la DGII y la secuencia salta el rango."
+  },
+  {
+   "fieldname": "rangos",
+   "fieldtype": "Table",
+   "options": "Anulacion ENCF Rango",
+   "label": "Rangos",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_dgii",
+   "fieldtype": "Section Break",
+   "label": "DGII"
+  },
+  {
+   "fieldname": "xml",
+   "fieldtype": "Attach",
+   "label": "Anulación firmada (ANECF)",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "mensajes",
+   "fieldtype": "Small Text",
+   "label": "Mensajes",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "respuesta",
+   "fieldtype": "Code",
+   "options": "JSON",
+   "label": "Respuesta de la DGII",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Anulacion ENCF",
+   "label": "Modificado desde",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  }
+ ],
+ "field_order": [
+  "company",
+  "estado",
+  "column_break_1",
+  "cantidad",
+  "fecha_anulacion",
+  "section_rangos",
+  "rangos",
+  "section_dgii",
+  "xml",
+  "mensajes",
+  "column_break_2",
+  "respuesta",
+  "amended_from"
+ ]
+}

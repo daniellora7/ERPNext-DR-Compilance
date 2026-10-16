@@ -53,6 +53,295 @@ msgstr "Emisor e-CF"
 msgid "Envio ECF"
 msgstr "Envío e-CF"
 
+msgid "ECF Recibido"
+msgstr "e-CF recibido"
+
+msgid "Anulacion ENCF"
+msgstr "Anulación de e-NCF"
+
+msgid "Anulacion ENCF Rango"
+msgstr "Rango de e-NCF anulado"
+
+msgid "Set Pruebas ECF"
+msgstr "Set de pruebas e-CF"
+
+# ---------------------------------------------------------------------------
+# Frappe HR: correcciones de su catálogo oficial de español (traducciones erradas, p. ej. «Tipo de
+# Cambio» por Shift Type o «Losa» por Slab, y Leave como «vacaciones»). Mismo glosario del bloque
+# siguiente: Leave = permiso, Checkin = marcación, Slab = escala o tramo. Se mantienen aunque el bloque
+# siguiente se borre; revisar al subir de versión por si el catálogo oficial ya las corrigió.
+# ---------------------------------------------------------------------------
+
+msgid "Advance"
+msgstr "Anticipo"
+
+msgid "Allocated Leaves"
+msgstr "Permisos asignados"
+
+msgid "Allow Encashment"
+msgstr "Permitir el pago de los no disfrutados"
+
+msgid "Attendance From Date"
+msgstr "Asistencia desde"
+
+msgid "Attendance To Date"
+msgstr "Asistencia hasta"
+
+msgid "Auto Leave Encashment"
+msgstr "Pago automático de permisos no disfrutados"
+
+msgid "Carry Forwarded Leaves"
+msgstr "Permisos arrastrados"
+
+msgid "Casual Leave"
+msgstr "Permiso ocasional"
+
+msgid "Check-in Date"
+msgstr "Fecha de entrada"
+
+msgid "Earned Leave"
+msgstr "Permiso acumulable"
+
+msgid "Earned Leave Frequency"
+msgstr "Frecuencia de los permisos acumulables"
+
+msgid "Employee Advance Summary"
+msgstr "Resumen de anticipos de empleados"
+
+msgid "Employee Checkin"
+msgstr "Marcación del empleado"
+
+msgid "Employee Onboarding"
+msgstr "Incorporación de empleados"
+
+msgid "Employee {0} is on Leave on {1}"
+msgstr "El empleado {0} está de permiso el {1}"
+
+msgid "Encashment"
+msgstr "Pago de los no disfrutados"
+
+msgid "Encashment Amount"
+msgstr "Monto a pagar"
+
+msgid "Expense Approver Mandatory In Expense Claim"
+msgstr "Aprobador de gastos obligatorio en el reembolso de gastos"
+
+msgid "Expense Claim Account"
+msgstr "Cuenta del reembolso de gastos"
+
+msgid "Expense Claim Advance"
+msgstr "Anticipo del reembolso de gastos"
+
+msgid "Expense Claim Type"
+msgstr "Tipo de reembolso de gastos"
+
+msgid "Expense Claim for Vehicle Log {0}"
+msgstr "Reembolso de gastos del registro de vehículo {0}"
+
+msgid "Expense Claim {0} already exists for the Vehicle Log"
+msgstr "El reembolso de gastos {0} ya existe para el registro de vehículo"
+
+msgid "Expire Carry Forwarded Leaves (Days)"
+msgstr "Vencimiento de los permisos arrastrados (días)"
+
+msgid "Holiday List for Optional Leave"
+msgstr "Lista de festividades para los permisos opcionales"
+
+msgid "Import Attendance"
+msgstr "Importar asistencia"
+
+msgid "Income Tax Slab"
+msgstr "Escala del impuesto sobre la renta"
+
+msgid "Income Tax Slab Other Charges"
+msgstr "Otros cargos de la escala del impuesto sobre la renta"
+
+msgid "Income Tax Slab not set in Salary Structure Assignment: {0}"
+msgstr "La asignación de estructura salarial {0} no tiene escala del impuesto sobre la renta"
+
+msgid "Income Tax Slab: {0} is disabled"
+msgstr "La escala del impuesto sobre la renta {0} está deshabilitada"
+
+msgid "Is Earned Leave"
+msgstr "Es un permiso acumulable"
+
+msgid "Is Leave Without Pay"
+msgstr "Es un permiso sin sueldo"
+
+msgid "Last Sync of Checkin"
+msgstr "Última sincronización de marcaciones"
+
+msgid "Leave Allocation"
+msgstr "Asignación de permisos"
+
+msgid "Leave Allocations"
+msgstr "Asignaciones de permisos"
+
+msgid "Leave Application"
+msgstr "Solicitud de permiso"
+
+msgid "Leave Approval Notification"
+msgstr "Notificación de aprobación del permiso"
+
+msgid "Leave Approval Notification Template"
+msgstr "Plantilla de notificación de aprobación del permiso"
+
+msgid "Leave Approver Mandatory In Leave Application"
+msgstr "Aprobador obligatorio en la solicitud de permiso"
+
+msgid "Leave Approver Name"
+msgstr "Nombre del aprobador de permisos"
+
+msgid "Leave Balance"
+msgstr "Saldo de permisos"
+
+msgid "Leave Balance Before Application"
+msgstr "Saldo de permisos antes de la solicitud"
+
+msgid "Leave Block List Allow"
+msgstr "Permitir en la lista de bloqueo de permisos"
+
+msgid "Leave Block List Allowed"
+msgstr "Permitidos en la lista de bloqueo de permisos"
+
+msgid "Leave Block List Date"
+msgstr "Fecha de la lista de bloqueo de permisos"
+
+msgid "Leave Block List Dates"
+msgstr "Fechas de la lista de bloqueo de permisos"
+
+msgid "Leave Block List Name"
+msgstr "Nombre de la lista de bloqueo de permisos"
+
+msgid "Leave Blocked"
+msgstr "Permiso bloqueado"
+
+msgid "Leave Control Panel"
+msgstr "Panel de control de permisos"
+
+msgid "Leave Encashment Amount Per Day"
+msgstr "Monto diario del pago de permisos no disfrutados"
+
+msgid "Leave Ledger Entry"
+msgstr "Asiento del libro de permisos"
+
+msgid "Leave Period"
+msgstr "Período de permisos"
+
+msgid "Leave Policy"
+msgstr "Política de permisos"
+
+msgid "Leave Policy Detail"
+msgstr "Detalle de la política de permisos"
+
+msgid "Leave Policy Details"
+msgstr "Detalles de la política de permisos"
+
+msgid "Leave Status Notification"
+msgstr "Notificación del estado del permiso"
+
+msgid "Leave Status Notification Template"
+msgstr "Plantilla de notificación del estado del permiso"
+
+msgid "Leave Type"
+msgstr "Tipo de permiso"
+
+msgid "Leave Type is mandatory"
+msgstr "El tipo de permiso es obligatorio"
+
+msgid "Leave Type {0} cannot be carry-forwarded"
+msgstr "El tipo de permiso {0} no se puede arrastrar"
+
+msgid "Leave Type {0} is not encashable"
+msgstr "El tipo de permiso {0} no se paga si no se disfruta"
+
+msgid "Leave Without Pay"
+msgstr "Permiso sin sueldo"
+
+msgid "Leave Without Pay does not match with approved {} records"
+msgstr "Los permisos sin sueldo no coinciden con los registros aprobados de {}"
+
+msgid "Leaves"
+msgstr "Permisos"
+
+msgid "Leaves Allocated"
+msgstr "Permisos asignados"
+
+msgid "Leaves per Year"
+msgstr "Permisos por año"
+
+msgid "Maximum Carry Forwarded Leaves"
+msgstr "Máximo de permisos arrastrados"
+
+msgid "New Leaves Allocated"
+msgstr "Nuevos permisos asignados"
+
+msgid "New Leaves Allocated (In Days)"
+msgstr "Nuevos permisos asignados (en días)"
+
+msgid "No Leaves Allocated to Employee: {0} for Leave Type: {1}"
+msgstr "El empleado {0} no tiene permisos asignados del tipo {1}"
+
+msgid "On Leave"
+msgstr "De permiso"
+
+msgid "Payroll"
+msgstr "Nómina"
+
+msgid "Process Attendance After"
+msgstr "Procesar la asistencia a partir de"
+
+msgid "Re-allocate Leaves"
+msgstr "Reasignar permisos"
+
+msgid "Role Allowed to Create Backdated Leave Application"
+msgstr "Rol que puede crear solicitudes de permiso con fecha pasada"
+
+msgid "Shift Actual End"
+msgstr "Fin real del turno"
+
+msgid "Shift Actual Start"
+msgstr "Inicio real del turno"
+
+msgid "Shift Type"
+msgstr "Tipo de turno"
+
+msgid "Show Leaves Of All Department Members In Calendar"
+msgstr "Mostrar en el calendario los permisos de todo el departamento"
+
+msgid "Strictly based on Log Type in Employee Checkin"
+msgstr "Solo según el tipo de registro de la marcación"
+
+msgid "Taxable Salary Slab"
+msgstr "Tramo de salario gravable"
+
+msgid "Total Advance Amount"
+msgstr "Monto total del anticipo"
+
+msgid "Total Leave Days"
+msgstr "Total de días de permiso"
+
+msgid "Total Leaves"
+msgstr "Total de permisos"
+
+msgid "Total Leaves Allocated"
+msgstr "Total de permisos asignados"
+
+msgid "Total Leaves Encashed"
+msgstr "Total de permisos pagados"
+
+msgid "Total leaves allocated is mandatory for Leave Type {0}"
+msgstr "El total de permisos asignados es obligatorio para el tipo de permiso {0}"
+
+msgid "Travel Advance Required"
+msgstr "Requiere anticipo de viaje"
+
+msgid "Unpaid Expense Claim"
+msgstr "Reembolsos de gastos sin pagar"
+
+msgid "Warning: Leave application contains following block dates"
+msgstr "Advertencia: la solicitud de permiso tiene estas fechas bloqueadas"
+
 # ---------------------------------------------------------------------------
 # Frappe HR: textos que faltan en su catálogo oficial de español (v16 y develop).
 # Se aportan a Frappe HR por Crowdin; cuando lleguen al catálogo oficial, este bloque se puede borrar.
