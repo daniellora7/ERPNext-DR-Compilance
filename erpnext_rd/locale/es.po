@@ -53,6 +53,18 @@ msgstr "Emisor e-CF"
 msgid "Envio ECF"
 msgstr "Envío e-CF"
 
+msgid "ECF Recibido"
+msgstr "e-CF recibido"
+
+msgid "Anulacion ENCF"
+msgstr "Anulación de e-NCF"
+
+msgid "Anulacion ENCF Rango"
+msgstr "Rango de e-NCF anulado"
+
+msgid "Set Pruebas ECF"
+msgstr "Set de pruebas e-CF"
+
 # ---------------------------------------------------------------------------
 # Frappe HR: textos que faltan en su catálogo oficial de español (v16 y develop).
 # Se aportan a Frappe HR por Crowdin; cuando lleguen al catálogo oficial, este bloque se puede borrar.

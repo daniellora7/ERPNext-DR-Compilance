@@ -38,6 +38,11 @@ website_route_rules = [
 	{"from_route": "/rd-compliance/<path:app_path>", "to_route": "rd-compliance"},
 ]
 
+# Servicios públicos del receptor e-CF (/fe/...: autenticación, recepción y aprobación comercial)
+page_renderer = ["erpnext_rd.ecf.receptor.ReceptorECF"]
+# Su token «bearer» (Frappe lo tomaría por uno de OAuth y rechazaría la petición)
+auth_hooks = ["erpnext_rd.ecf.receptor.autenticar"]
+
 # Nombres del dock en el idioma del usuario (Frappe v16 no los traduce)
 boot_session = "erpnext_rd.boot.boot_session"
 
@@ -117,7 +122,11 @@ doc_events = {
 	"Purchase Invoice": {
 		"validate": "erpnext_rd.dgii_fiscal.ncf.validar_compra",
 		"before_submit": "erpnext_rd.dgii_fiscal.ncf.antes_de_validar_compra",
-		"on_submit": "erpnext_rd.ecf.emision.al_aprobar",
+		"on_submit": [
+			"erpnext_rd.ecf.emision.al_aprobar",
+			# Enlaza el e-CF recibido del proveedor con el mismo e-NCF
+			"erpnext_rd.ecf.recepcion.vincular_factura",
+		],
 		"before_cancel": "erpnext_rd.dgii_fiscal.ncf.antes_de_cancelar_compra",
 	},
 }
@@ -141,7 +150,12 @@ scheduler_events = {
 	"cron": {
 		"0 2 * * *": ["erpnext_rd.padron_rnc.padron.encolar"],
 		# Resultado de los e-CF enviados a la DGII que siguen en proceso
-		"*/15 * * * *": ["erpnext_rd.ecf.emision.consultar_pendientes"],
+		# y reenvío de los que quedaron en contingencia; entrega de los aceptados a sus compradores
+		"*/15 * * * *": [
+			"erpnext_rd.ecf.emision.consultar_pendientes",
+			"erpnext_rd.ecf.emision.reintentar_contingencia",
+			"erpnext_rd.ecf.emision.entregar_a_compradores",
+		],
 	},
 	# Extiende la lista "Feriados RD" al año siguiente (idempotente)
 	"monthly": ["erpnext_rd.nomina_rd.feriados.asegurar_lista_feriados"],

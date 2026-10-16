@@ -24,6 +24,13 @@ RSA_SHA256 = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"
 SHA256 = "http://www.w3.org/2001/04/xmlenc#sha256"
 ENVELOPED = "http://www.w3.org/2000/09/xmldsig#enveloped-signature"
 
+# XML de terceros (proveedores, la DGII): sin entidades ni red, contra XXE y bombas de entidades
+PARSER = etree.XMLParser(resolve_entities=False, no_network=True, huge_tree=False)
+
+
+def leer(xml: bytes) -> etree._Element:
+	return etree.fromstring(xml, PARSER)
+
 
 def cargar_certificado(p12: bytes, clave: str | None):
 	"""(llave privada, certificado) del .p12."""
@@ -56,7 +63,7 @@ def _sub(padre, nombre, **atributos):
 
 def firmar(xml: bytes | etree._Element, llave, certificado) -> bytes:
 	"""Devuelve el XML con la firma al final del elemento raíz."""
-	raiz = etree.fromstring(xml) if isinstance(xml, bytes) else xml
+	raiz = leer(xml) if isinstance(xml, bytes) else xml
 	for previa in raiz.findall(f"{{{DS}}}Signature"):
 		raiz.remove(previa)
 
@@ -83,24 +90,27 @@ def firmar(xml: bytes | etree._Element, llave, certificado) -> bytes:
 
 def codigo_seguridad(xml_firmado: bytes) -> str:
 	"""Los primeros 6 caracteres del valor de la firma (SignatureValue), como pide la DGII."""
-	valor = etree.fromstring(xml_firmado).findtext(f".//{{{DS}}}SignatureValue") or ""
+	valor = leer(xml_firmado).findtext(f".//{{{DS}}}SignatureValue") or ""
 	return valor.strip()[:6]
 
 
 def verificar(xml_firmado: bytes) -> bool:
 	"""Comprueba el digest y la firma con el certificado incluido (para pruebas y diagnósticos)."""
-	raiz = etree.fromstring(xml_firmado)
-	firma = raiz.find(f"{{{DS}}}Signature")
-	if firma is None:
+	try:
+		raiz = leer(xml_firmado)
+		firma = raiz.find(f"{{{DS}}}Signature")
+		if firma is None:
+			return False
+		info = firma.find(f"{{{DS}}}SignedInfo")
+		digest = firma.findtext(f".//{{{DS}}}DigestValue")
+		valor = base64.b64decode(firma.findtext(f"{{{DS}}}SignatureValue"))
+		certificado = x509.load_der_x509_certificate(
+			base64.b64decode(firma.findtext(f".//{{{DS}}}X509Certificate"))
+		)
+	except (etree.XMLSyntaxError, TypeError, ValueError):
 		return False
-	info = firma.find(f"{{{DS}}}SignedInfo")
-	digest = firma.findtext(f".//{{{DS}}}DigestValue")
-	valor = base64.b64decode(firma.findtext(f"{{{DS}}}SignatureValue"))
-	certificado = x509.load_der_x509_certificate(
-		base64.b64decode(firma.findtext(f".//{{{DS}}}X509Certificate"))
-	)
 
-	sin_firma = etree.fromstring(xml_firmado)
+	sin_firma = leer(xml_firmado)
 	sin_firma.remove(sin_firma.find(f"{{{DS}}}Signature"))
 	if base64.b64encode(hashlib.sha256(_c14n(sin_firma)).digest()).decode() != digest:
 		return False

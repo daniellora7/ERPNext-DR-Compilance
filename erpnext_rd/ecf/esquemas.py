@@ -3,7 +3,8 @@
 Los XSD de `xsd/` son los de la DGII (Documentación sobre e-CF → Documentación Técnica (XSD)). El XML
 se arma recorriendo el esquema de cada tipo: de los datos (un dict anidado con los nombres de los
 elementos) solo se emiten los elementos que ese tipo acepta y en el orden que el esquema exige. Así el
-mismo código sirve para los diez tipos (E31 … E47) y el resumen de factura de consumo (RFCE), y se
+mismo código sirve para los diez tipos (E31 … E47), el resumen de factura de consumo (RFCE), la
+aprobación comercial (ACECF), el acuse de recibo (ARECF) y la anulación de rangos (ANECF), y se
 adapta solo cuando la DGII actualiza un esquema.
 
 Reglas del armado:
@@ -22,7 +23,14 @@ from lxml import etree
 
 XS = "{http://www.w3.org/2001/XMLSchema}"
 CARPETA = os.path.join(os.path.dirname(__file__), "xsd")
-ARCHIVOS = {**{t: f"e{t}.xsd" for t in (31, 32, 33, 34, 41, 43, 44, 45, 46, 47)}, "RFCE": "rfce32.xsd"}
+ARCHIVOS = {
+	**{t: f"e{t}.xsd" for t in (31, 32, 33, 34, 41, 43, 44, 45, 46, 47)},
+	"RFCE": "rfce32.xsd",
+	# Aprobación comercial, acuse de recibo y anulación de rangos de e-NCF
+	"ACECF": "acecf.xsd",
+	"ARECF": "arecf.xsd",
+	"ANECF": "anecf.xsd",
+}
 
 
 class FaltaDato(frappe.ValidationError):
@@ -130,8 +138,10 @@ def construir(tipo, datos: dict) -> etree._Element:
 
 def errores(tipo, xml: bytes) -> list[str]:
 	"""Errores del XML (ya firmado) frente al XSD oficial; vacío si es válido."""
+	from erpnext_rd.ecf.firma import leer
+
 	validador = esquema(tipo)
-	if validador.validate(etree.fromstring(xml)):
+	if validador.validate(leer(xml)):
 		return []
 	return [f"{e.line}: {e.message}" for e in validador.error_log]
 

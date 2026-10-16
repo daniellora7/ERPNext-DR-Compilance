@@ -1,0 +1,262 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "links": [],
+ "modified": "2026-10-18 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "ECF",
+ "owner": "Administrator",
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "name": "ECF Recibido",
+ "autoname": "ECF-REC-.#####",
+ "naming_rule": "Expression (old style)",
+ "title_field": "razon_social_emisor",
+ "show_title_field_in_link": 1,
+ "track_changes": 1,
+ "description": "e-CF recibidos de proveedores en los servicios de recepción de la empresa, con su acuse de recibo y la aprobación comercial.",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts User",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1
+  }
+ ],
+ "fields": [
+  {
+   "fieldname": "encf",
+   "fieldtype": "Data",
+   "label": "e-NCF",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "tipo_ecf",
+   "fieldtype": "Data",
+   "label": "Tipo",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fecha_emision",
+   "fieldtype": "Date",
+   "label": "Fecha de emisión",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "monto_total",
+   "fieldtype": "Currency",
+   "label": "Monto total",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "total_itbis",
+   "fieldtype": "Currency",
+   "label": "ITBIS",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Empresa",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "rnc_emisor",
+   "fieldtype": "Data",
+   "label": "RNC del emisor",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "razon_social_emisor",
+   "fieldtype": "Data",
+   "label": "Emisor",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "proveedor",
+   "fieldtype": "Link",
+   "options": "Supplier",
+   "label": "Proveedor",
+   "description": "Se busca por el RNC del emisor."
+  },
+  {
+   "fieldname": "factura_compra",
+   "fieldtype": "Link",
+   "options": "Purchase Invoice",
+   "label": "Factura de compra",
+   "description": "Se vincula sola al aprobar una factura de compra de este proveedor con este e-NCF."
+  },
+  {
+   "fieldname": "section_recepcion",
+   "fieldtype": "Section Break",
+   "label": "Recepción"
+  },
+  {
+   "fieldname": "estado",
+   "fieldtype": "Select",
+   "label": "Acuse de recibo",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "options": "Recibido\nNo recibido"
+  },
+  {
+   "fieldname": "motivo_no_recibido",
+   "fieldtype": "Data",
+   "label": "Motivo",
+   "read_only": 1,
+   "depends_on": "eval:doc.estado=='No recibido'"
+  },
+  {
+   "fieldname": "fecha_recepcion",
+   "fieldtype": "Datetime",
+   "label": "Fecha de recepción",
+   "read_only": 1
+  },
+  {
+   "fieldname": "codigo_seguridad",
+   "fieldtype": "Data",
+   "label": "Código de seguridad",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "xml",
+   "fieldtype": "Attach",
+   "label": "e-CF recibido (XML)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "acuse",
+   "fieldtype": "Attach",
+   "label": "Acuse de recibo enviado (ARECF)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_aprobacion",
+   "fieldtype": "Section Break",
+   "label": "Aprobación comercial",
+   "depends_on": "eval:doc.estado=='Recibido'"
+  },
+  {
+   "fieldname": "aprobacion",
+   "fieldtype": "Select",
+   "label": "Aprobación comercial",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "options": "Pendiente\nAprobado\nRechazado",
+   "default": "Pendiente",
+   "description": "Con los botones Aprobar o Rechazar se firma la aprobación comercial (ACECF) y se envía a la DGII y al emisor."
+  },
+  {
+   "fieldname": "motivo_rechazo",
+   "fieldtype": "Small Text",
+   "label": "Motivo del rechazo",
+   "read_only": 1,
+   "depends_on": "eval:doc.aprobacion=='Rechazado'"
+  },
+  {
+   "fieldname": "fecha_aprobacion",
+   "fieldtype": "Datetime",
+   "label": "Fecha de la aprobación",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "envio_aprobacion",
+   "fieldtype": "Select",
+   "label": "Envío de la aprobación",
+   "read_only": 1,
+   "options": "\nFirmada\nEnviada\nError"
+  },
+  {
+   "fieldname": "xml_aprobacion",
+   "fieldtype": "Attach",
+   "label": "Aprobación comercial (ACECF)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "mensajes",
+   "fieldtype": "Small Text",
+   "label": "Mensajes",
+   "read_only": 1
+  }
+ ],
+ "field_order": [
+  "encf",
+  "tipo_ecf",
+  "fecha_emision",
+  "monto_total",
+  "total_itbis",
+  "column_break_1",
+  "company",
+  "rnc_emisor",
+  "razon_social_emisor",
+  "proveedor",
+  "factura_compra",
+  "section_recepcion",
+  "estado",
+  "motivo_no_recibido",
+  "fecha_recepcion",
+  "codigo_seguridad",
+  "column_break_2",
+  "xml",
+  "acuse",
+  "section_aprobacion",
+  "aprobacion",
+  "motivo_rechazo",
+  "fecha_aprobacion",
+  "column_break_3",
+  "envio_aprobacion",
+  "xml_aprobacion",
+  "mensajes"
+ ]
+}

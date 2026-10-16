@@ -52,6 +52,10 @@ def fecha(valor) -> str:
 	return getdate(valor).strftime("%d-%m-%Y")
 
 
+def fecha_hora(valor=None) -> str:
+	return (valor or now_datetime()).strftime("%d-%m-%Y %H:%M:%S")
+
+
 def monto(valor) -> str:
 	return f"{flt(valor, 2):.2f}"
 
@@ -261,7 +265,7 @@ def datos_ecf(doc, fecha_firma=None) -> dict:
 		"Encabezado": encabezado,
 		"DetallesItems": {"Item": items},
 		"InformacionReferencia": referencia[0] if referencia else None,
-		"FechaHoraFirma": (fecha_firma or now_datetime()).strftime("%d-%m-%Y %H:%M:%S"),
+		"FechaHoraFirma": fecha_hora(fecha_firma),
 	}
 	return datos
 
