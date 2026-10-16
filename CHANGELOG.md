@@ -13,6 +13,7 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 - Anticipos del ISR (art. 314): base anual con los datos del IR-2, cuota mensual, reporte del año y recordatorio.
 - Cuadre fiscal del IR-2: ajuste por inflación (anexo D-2) con los multiplicadores de la DGII, depreciación fiscal por categoría del art. 287 (anexos D y D-1) frente a la contable, ajustes del anexo G y liquidación estimada del impuesto. Categoría fiscal en las categorías de activo. Reparaciones de edificaciones por encima del 10% capitalizadas y formato de impresión del cuadre.
 - Recordatorio del IR-2, 120 días después del cierre del año fiscal.
+- Anexos A-1 (balance general) y B-1 (estado de resultados) del IR-2 por casilla, con la casilla en cada cuenta (asignada en el catálogo DGII). El cuadre toma de ahí el beneficio antes del ISR.
 
 ### Nómina RD
 - Dependientes adicionales del SFS en la ficha del empleado, con el per cápita y el Fonamat descontados en cada recibo.
