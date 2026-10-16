@@ -151,6 +151,8 @@ jinja = {
 scheduler_events = {
 	"cron": {
 		"0 2 * * *": ["erpnext_rd.padron_rnc.padron.encolar"],
+		# Tasa del dólar del Banco Central (publica la del día al final de la tarde)
+		"0 7,19 * * *": ["erpnext_rd.dgii_fiscal.tasa_bcrd.tarea_programada"],
 		# Resultado de los e-CF enviados a la DGII que siguen en proceso
 		# y reenvío de los que quedaron en contingencia; entrega de los aceptados a sus compradores
 		"*/15 * * * *": [

@@ -9,6 +9,7 @@ La app solo actúa en las empresas con país **Dominican Republic**. Las empresa
 1. En la empresa (*Company*), el país debe ser **Dominican Republic** y el **RNC** debe estar en *Tax ID*, sin guiones. La app lo valida con el dígito verificador y el padrón de la DGII.
 2. Si la empresa no tiene movimientos, la app aplica el **catálogo de cuentas DGII** (NIIF PYMES), con las plantillas de ITBIS y de retenciones. Se controla en *RD Compliance → Configuración DGII*.
 3. El **padrón RNC** se descarga solo al instalar la app y después cada día a las 2:00 a. m., si la DGII publicó uno nuevo. Al escribir un RNC o una cédula en un cliente o un proveedor, la razón social se completa sola.
+4. La **tasa del dólar** del Banco Central se registra sola cada día laborable como tipo de cambio USD → DOP, y ERPNext la usa en las facturas, los pagos y la revaluación. Por defecto es la tasa de compra; en *Configuración DGII* se puede cambiar a la de venta, o usar compra en las ventas y venta en las compras. Un tipo de cambio puesto a mano para una fecha no se cambia.
 
 ## 2. Comprobantes fiscales (NCF)
 

@@ -15,6 +15,15 @@
   "exigir_ncf_en_compras",
   "section_catalogo",
   "aplicar_catalogo_cuentas",
+  "section_tasa_bcrd",
+  "tasa_bcrd_activa",
+  "tasa_bcrd_tipo",
+  "column_tasa_bcrd",
+  "tasa_bcrd_ultima_fecha",
+  "tasa_bcrd_compra",
+  "tasa_bcrd_venta",
+  "tasa_bcrd_ultima_verificacion",
+  "tasa_bcrd_version",
   "section_padron",
   "padron_ultima_sincronizacion",
   "padron_registros",
@@ -120,11 +129,68 @@
    "fieldtype": "Data",
    "label": "Versión del archivo DGII",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_tasa_bcrd",
+   "fieldtype": "Section Break",
+   "label": "Tasa del dólar (Banco Central)"
+  },
+  {
+   "default": "1",
+   "fieldname": "tasa_bcrd_activa",
+   "fieldtype": "Check",
+   "label": "Registrar cada día la tasa del dólar del Banco Central",
+   "description": "Crea el tipo de cambio USD → DOP de cada día laborable con la tasa de referencia del mercado spot. No cambia los tipos de cambio que ya existan."
+  },
+  {
+   "default": "Compra",
+   "fieldname": "tasa_bcrd_tipo",
+   "fieldtype": "Select",
+   "label": "Tasa a usar",
+   "options": "Compra\nVenta\nCompra en ventas, venta en compras",
+   "description": "La Junta Monetaria usa la tasa de compra para revaluar los activos y pasivos en dólares."
+  },
+  {
+   "fieldname": "column_tasa_bcrd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tasa_bcrd_ultima_fecha",
+   "fieldtype": "Date",
+   "label": "Última tasa publicada",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tasa_bcrd_compra",
+   "fieldtype": "Float",
+   "label": "Compra",
+   "precision": "4",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tasa_bcrd_venta",
+   "fieldtype": "Float",
+   "label": "Venta",
+   "precision": "4",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tasa_bcrd_ultima_verificacion",
+   "fieldtype": "Datetime",
+   "label": "Última verificación",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tasa_bcrd_version",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Versión del archivo BCRD",
+   "read_only": 1
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-14 21:00:00.000000",
+ "modified": "2026-10-16 20:00:00.000000",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Configuracion DGII",

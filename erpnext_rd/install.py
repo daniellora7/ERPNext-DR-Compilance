@@ -712,6 +712,9 @@ def inicializar_configuracion():
 	"""Guarda las configuraciones una vez para que sus valores por defecto queden en la base."""
 	if not frappe.db.exists("Singles", {"doctype": "Configuracion DGII"}):
 		frappe.get_single("Configuracion DGII").save(ignore_permissions=True)
+	for campo, valor in (("tasa_bcrd_activa", 1), ("tasa_bcrd_tipo", "Compra")):
+		if not frappe.db.exists("Singles", {"doctype": "Configuracion DGII", "field": campo}):
+			frappe.db.set_single_value("Configuracion DGII", campo, valor)
 
 	# Campos agregados después de guardar la configuración: quedan con su valor por defecto
 	for campo, valor in (

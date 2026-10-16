@@ -8,5 +8,21 @@ frappe.ui.form.on("Configuracion DGII", {
 				frappe.msgprint(message)
 			);
 		});
+		boton_tasa_dolar(frm);
 	},
 });
+
+function boton_tasa_dolar(frm) {
+	frm.add_custom_button(__("Actualizar tasa del dólar"), () => {
+		frappe
+			.call({
+				method: "erpnext_rd.dgii_fiscal.tasa_bcrd.actualizar_ahora",
+				freeze: true,
+				freeze_message: __("Consultando el Banco Central..."),
+			})
+			.then(({ message }) => {
+				frappe.msgprint(message);
+				frm.reload_doc();
+			});
+	});
+}
