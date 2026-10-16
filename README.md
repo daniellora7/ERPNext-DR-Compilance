@@ -6,7 +6,7 @@ Localización de **República Dominicana** para ERPNext v16 y Frappe HR, libre y
 
 ![RD Compliance: panel de cumplimiento con los plazos de la DGII, las secuencias NCF y el menú del módulo](docs/capturas/rd-compliance.png)
 
-- **DGII Fiscal**: tipos de comprobante (B01–B17, E31–E47), secuencias NCF sin duplicados, NCF en ventas, compras y POS, validación de RNC y Cédula, catálogo de cuentas DGII (NIIF PYMES) con plantillas de ITBIS y retenciones, formatos de impresión fiscales.
+- **DGII Fiscal**: tipos de comprobante (B01–B17, E31–E47), secuencias NCF sin duplicados, NCF en ventas, compras y POS (las devoluciones toman la nota de crédito B04/E34 solas), validación de RNC y Cédula, catálogo de cuentas DGII (NIIF PYMES) con plantillas de ITBIS y retenciones, formatos de impresión fiscales editables en el constructor de Frappe, con un formato de factura por empresa.
 - **DGII Reportes**: formatos 606, 607, 608 y 609 con descarga del TXT oficial, y resúmenes de apoyo para el IT-1 y el IR-17.
 - **Padrón RNC**: padrón de contribuyentes de la DGII (cada día a las 2:00 a. m. revisa si la DGII publicó uno nuevo y solo entonces lo descarga) y autocompletado de la razón social.
 - **Panel RD Compliance** (*RD Compliance → Panel de cumplimiento*, dentro del escritorio; también en `/rd-compliance`): en una pantalla, los plazos y montos del 606, 607, 608, 609, IT-1 e IR-17 del mes, las secuencias NCF por agotarse o vencer y los registros con observaciones antes de enviarlos. Hecho con [frappe-ui](https://ui.frappe.io), el mismo estilo del escritorio de Frappe v16.
@@ -33,7 +33,9 @@ Opcional: se activa sola si Frappe HR está instalado (antes o después) y se re
 
 La app no modifica el código de ERPNext ni de Frappe HR: todo va por hooks, campos personalizados y configuraciones, así que se pueden actualizar sin conflictos.
 
-Toda la lógica (fiscal y de nómina) se aplica solo a las empresas con país *Dominican Republic*, así que la app convive con empresas de otros países en el mismo sitio.
+Toda la lógica (fiscal y de nómina) se aplica solo a las empresas con país *Dominican Republic*, así que la app convive con empresas de otros países en el mismo sitio: esas imprimen sus facturas con el formato estándar o con el que elijan en la empresa.
+
+Una prueba de punta a punta registra un mes completo (ventas, notas de crédito, anulaciones, compras con retenciones, pagos al exterior y nómina) y comprueba que el 606, 607, 608, 609, IT-1, IR-17, IR-3 y el archivo de la TSS cuadran con el libro mayor y entre sí.
 
 Paso a paso para configurar una empresa: [guía de uso](docs/GUIA-DE-USO.md).
 
@@ -54,15 +56,20 @@ Requiere ERPNext v16. Frappe HR es opcional: si está instalado (antes o despué
 
 ### Docker
 
-El repositorio trae una imagen y un stack Compose con Frappe + ERPNext + Frappe HR + ERPNext RD en un solo sitio y una sola base MariaDB (ver `deploy/`).
+El repositorio trae una imagen y un stack Compose con Frappe + ERPNext + Frappe HR + ERPNext RD en un solo sitio y una sola base MariaDB, con respaldo diario automático (ver `deploy/`).
 
 ```bash
 cp deploy/.env.example deploy/.env   # cambiar contraseñas
-docker compose -f deploy/compose.yaml --env-file deploy/.env up -d --build
+docker build -f deploy/Containerfile -t erpnext-rd:local .   # o usar la imagen de GHCR
+docker compose -f deploy/compose.yaml --env-file deploy/.env up -d
 docker compose -f deploy/compose.yaml --env-file deploy/.env logs -f create-site
 ```
 
 Abrir http://localhost:8090 con el usuario `Administrator` y la contraseña `ADMIN_PASSWORD` del `.env`.
+
+### Servidor (Dokploy)
+
+Con la imagen publicada en GHCR, dominio con HTTPS y respaldo diario: [guía de despliegue en Dokploy](docs/DOKPLOY.md). Respaldos, copia a S3 y restauración: [docs/RESPALDOS.md](docs/RESPALDOS.md).
 
 ## Estructura
 
@@ -71,8 +78,10 @@ Abrir http://localhost:8090 con el usuario `Administrator` y la contraseña `ADM
 | `erpnext_rd/` | La app Frappe (módulos DGII Fiscal, DGII Reportes, Padron RNC, ECF y el menú RD Compliance del lado de ERPNext; Nomina RD del lado de Frappe HR) |
 | `pyproject.toml` | Paquete de la app (lo usan `bench get-app` y Frappe Cloud) |
 | `frontend/` | Panel RD Compliance (Vue 3 + frappe-ui); `bench build` lo compila |
-| `deploy/` | Imagen Docker, stack Compose y script de CI |
+| `deploy/` | Imagen Docker, stack Compose (con el servicio de respaldo) y script de CI |
 | `docs/GUIA-DE-USO.md` | Guía de uso para configurar una empresa |
+| `docs/DOKPLOY.md` | Despliegue en un servidor con Dokploy |
+| `docs/RESPALDOS.md` | Respaldo diario, copia fuera del servidor y restauración |
 | `docs/PLAN.md` | Plan, fases y estado del proyecto |
 
 ## Desarrollo
