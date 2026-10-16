@@ -891,3 +891,19 @@ class TestReportesDGII(IntegrationTestCase):
 		base = ir2.crear_base_anticipos(c26.name)
 		self.assertEqual(frappe.db.get_value("Base Anticipo ISR", base, "ejercicio"), 2026)
 		self.assertEqual(ir2.crear_base_anticipos(c26.name), base)
+
+		# Reparaciones del edificio por encima del 10% del costo fiscal ajustado: el exceso se capitaliza
+		c25.edificaciones[0].reparaciones = 300_000
+		c25.save()
+		self.assertEqual(c25.edificaciones[0].reparaciones_capitalizadas, 300_000 - 251_880)
+		self.assertEqual(c25.edificaciones[0].costo_fiscal_final, 2_392_860 + 48_120)
+		otros = [a for a in c25.ajustes if a.concepto == ir2.OTROS_POSITIVOS]
+		self.assertEqual([(a.monto, a.origen) for a in otros], [(48_120, ir2.AUTOMATICO)])
+		self.assertEqual(c25.total_positivos, 50_000 + 48_120)
+
+		# Formato de impresión del cuadre
+		ir2.crear_formato()
+		html = frappe.get_print(ir2.DOCTYPE, c25.name, ir2.FORMATO["name"])
+		self.assertIn("Cuadre fiscal IR-2", html)
+		self.assertIn("Edificio", html)
+		self.assertIn("1.17 Otros ajustes positivos", html)

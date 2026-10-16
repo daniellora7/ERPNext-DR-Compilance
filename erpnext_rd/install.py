@@ -1142,6 +1142,7 @@ def setup():
 	crear_campos_personalizados()
 	formatos.asegurar_fiscales()
 	cheque.crear_formato()
+	ir2.crear_formato()
 	formato_impresion_por_defecto()
 	crear_tipos_comprobante()
 	inicializar_formas_pago()

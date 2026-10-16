@@ -1,0 +1,17 @@
+<div class="rd-ir2">
+	<h3>Ajustes fiscales (anexo G)</h3>
+	{% if doc.ajustes %}
+	<table class="rd-detalle">
+		<thead><tr><th>Concepto</th><th>Detalle</th><th class="num">Positivos</th><th class="num">Negativos</th></tr></thead>
+		<tbody>
+			{% for a in doc.ajustes %}
+			<tr><td>{{ a.concepto }}</td><td>{{ a.detalle or "" }}</td>
+				<td class="num">{% if a.tipo == "Positivo" %}{{ a.get_formatted("monto", doc) }}{% endif %}</td>
+				<td class="num">{% if a.tipo == "Negativo" %}{{ a.get_formatted("monto", doc) }}{% endif %}</td></tr>
+			{% endfor %}
+		</tbody>
+		<tfoot><tr><td colspan="2"><b>Totales</b></td><td class="num"><b>{{ doc.get_formatted("total_positivos") }}</b></td>
+			<td class="num"><b>{{ doc.get_formatted("total_negativos") }}</b></td></tr></tfoot>
+	</table>
+	{% else %}<p class="rd-muted">Sin ajustes.</p>{% endif %}
+</div>
