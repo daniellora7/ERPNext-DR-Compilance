@@ -21,6 +21,8 @@ La app solo actúa en las empresas con país **Dominican Republic**. Las empresa
 
 Los formatos de impresión **Factura Fiscal RD** y **Recibo POS RD** (80 mm) se pueden editar en el constructor de formatos de Frappe.
 
+Para los pagos con cheque está el formato **Cheque RD** del *Payment Entry* (Entrada de pago): arriba el cheque con la fecha, el beneficiario y el monto en números y en letras; abajo el comprobante de pago con las facturas pagadas, las retenciones, el asiento y las firmas. Escriba el número de cheque en *Nº de referencia* y su fecha en *Fecha de referencia*. Cada banco ubica los campos en otro lugar: ajuste las medidas al inicio del CSS del formato (constructor de formatos → CSS) e imprima una prueba en papel normal, puesta sobre un cheque, antes de usar los cheques reales. Se imprime sin membrete.
+
 ## 3. Declaraciones DGII
 
 En *RD Compliance → Declaraciones DGII*:

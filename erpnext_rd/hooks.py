@@ -140,6 +140,7 @@ jinja = {
 	"methods": [
 		"erpnext_rd.dgii_fiscal.impresion.rd_datos_fiscales",
 		"erpnext_rd.nomina_rd.volante.rd_datos_volante",
+		"erpnext_rd.dgii_fiscal.cheque.rd_datos_cheque",
 	],
 }
 
