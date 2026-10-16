@@ -12,6 +12,10 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 - Proporcionalidad del ITBIS (art. 349): proveedores y compras con ITBIS sujeto a proporcionalidad, columna del 606 y porcentaje no admitido en el resumen del IT-1.
 - Anticipos del ISR (art. 314): base anual con los datos del IR-2, cuota mensual, reporte del año y recordatorio.
 
+### Nómina RD
+- Dependientes adicionales del SFS en la ficha del empleado, con el per cápita y el Fonamat descontados en cada recibo.
+- Registro de subsidios de la SISALRIL (enfermedad común, maternidad y lactancia) con el monto estimado y el seguimiento del reembolso.
+
 ## v0.3.0 (primera versión)
 
 Para Frappe v16.52, ERPNext v16.51 y Frappe HR v16.51 (opcional).

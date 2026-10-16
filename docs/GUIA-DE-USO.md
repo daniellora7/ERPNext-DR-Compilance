@@ -83,6 +83,8 @@ En *RD Compliance → Anulación de e-NCF*, agregue los rangos (la app propone d
    - En diciembre, genere la regalía pascual. Al año, la bonificación y el IR-13.
 5. **Prestaciones al salir:** el *Gratuity* de Frappe HR usa las reglas "Preaviso RD", "Cesantía RD" y "Regalía RD". Las vacaciones pendientes se pagan con *Leave Encashment*.
 6. **Horas extras:** use el tipo "Horas extras RD" de Frappe HR. Los recargos de ley se aplican solos: 35 %, 100 % sobre 68 horas semanales y en feriados, y 15 % más en la parte nocturna.
+7. **Dependientes adicionales del SFS:** si el trabajador afilió a sus padres, suegros o hijos mayores de 21 años en la TSS, regístrelos en su ficha (*Dependientes adicionales del SFS*) con la fecha desde. Cada recibo descuenta el per cápita más el Fonamat de cada uno (RD$1,970.42 al mes desde octubre 2026; el monto se cambia en la configuración).
+8. **Subsidios de la SISALRIL:** registre cada licencia médica, de maternidad o lactancia en *Nómina RD → Subsidios de la SISALRIL*. La app toma el salario de los recibos de nómina y estima el subsidio: enfermedad común desde el 4.º día (60 % ambulatoria, 40 % hospitalaria, hasta 182 días), maternidad (tres meses de salario cotizable) y lactancia (33 %, 12 % o 6 % del salario por doce meses, hasta tres salarios mínimos). El monto definitivo lo calcula la SISALRIL; anote el estado y lo que se reciba para controlar los reembolsos.
 
 ## Soporte
 
