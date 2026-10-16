@@ -180,7 +180,7 @@ CUENTAS = [
 	),
 	("210309", "Retención de Dividendos por Pagar", "Tax", "Current Tax Liabilities", {}),
 	("2104", "Obligaciones Laborales", "", "Other Current Liabilities", {}),
-	("210401", "Nómina por Pagar", "", "Other Current Liabilities", {}),
+	("210401", "Nómina por Pagar", "Payable", "Other Current Liabilities", {}),
 	("210402", "TSS por Pagar (AFP, SFS y SRL)", "", "Other Current Liabilities", {}),
 	("210403", "INFOTEP por Pagar", "", "Other Current Liabilities", {}),
 	("210404", "Regalía Pascual por Pagar", "", "Short-term Provisions", {}),

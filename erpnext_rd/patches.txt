@@ -6,3 +6,4 @@
 # Patches added in this section will be executed after doctypes are migrated
 erpnext_rd.patches.v0_3.retenciones_ley_30_26
 erpnext_rd.patches.v0_3.escala_isr_2027
+erpnext_rd.patches.v0_3.nomina_por_pagar_payable

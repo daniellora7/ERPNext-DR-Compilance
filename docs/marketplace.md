@@ -30,22 +30,30 @@ Todas las tasas y escalas se editan en la configuración. Solo actúa en empresa
 
 ## Capturas (tema oscuro, 1440 × 900)
 
-| Módulo | Archivo |
+Tomadas en un sitio de demostración con empresas y datos ficticios: un mes registrado con la prueba de punta a punta (`erpnext_rd/tests/test_punta_a_punta.py`).
+
+| Captura | Archivo |
 |---|---|
-| RD Compliance: panel de cumplimiento | `docs/capturas/rd-compliance.png` |
-| Nómina RD: configuración de la nómina | `docs/capturas/nomina-rd.png` |
+| RD Compliance: panel de cumplimiento con los plazos del mes | `docs/capturas/rd-compliance.png` |
+| Factura Fiscal RD (crédito fiscal B01) | `docs/capturas/factura-fiscal-rd.png` |
+| Nómina RD: autodeterminación de la TSS | `docs/capturas/nomina-rd.png` |
+| Volante de pago RD | `docs/capturas/volante-pago-rd.png` |
 
 ![RD Compliance](capturas/rd-compliance.png)
 
+![Factura Fiscal RD](capturas/factura-fiscal-rd.png)
+
 ![Nómina RD](capturas/nomina-rd.png)
 
-Opcionales para más adelante: factura fiscal impresa, formato 606, envío e-CF aceptado, recibo de nómina y archivo de la TSS.
+![Volante de pago RD](capturas/volante-pago-rd.png)
+
+Opcionales para más adelante: formato 606 y envío e-CF aceptado (con el certificado real).
 
 ## Pendiente
 
 - [ ] Rama `version-16` (Frappe Cloud instala por rama) y tag `v0.3.0`: se crean desde `main` cuando `develop` se fusione (ver `CHANGELOG.md`).
 - [x] CI público en verde en cada PR.
-- [x] Capturas de los dos módulos (`docs/capturas/`).
+- [x] Capturas en tema oscuro con datos ficticios (`docs/capturas/`).
 - [x] Enlace de soporte (issues de GitHub con plantillas) y documentación de uso (`docs/GUIA-DE-USO.md`).
 - [x] Padrón RNC medido: descarga 46 s (zip de 23 MB) e importación de 793 985 registros en 3 min 16 s con 154 MB de memoria pico, en la cola `long`.
 - [x] Logo: `erpnext_rd/public/images/erpnext_rd_logo.svg` (`app_logo_url`).

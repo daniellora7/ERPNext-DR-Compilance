@@ -39,6 +39,11 @@ if [ "$estado" != "0" ]; then
 	exit 1
 fi
 
+if [ "${DEV:-0}" = "1" ]; then
+	# El código montado puede traer traducciones más nuevas que las compiladas en la imagen
+	compose exec -T backend bench compile-po-to-mo --app erpnext_rd --force
+fi
+
 echo "==> Tests"
 compose exec -T backend bench --site "$SITE_NAME" set-config allow_tests true
 compose exec -T backend bench --site "$SITE_NAME" run-tests --app erpnext_rd --failfast
