@@ -907,3 +907,41 @@ class TestReportesDGII(IntegrationTestCase):
 		self.assertIn("Cuadre fiscal IR-2", html)
 		self.assertIn("Edificio", html)
 		self.assertIn("1.17 Otros ajustes positivos", html)
+
+	def test_anexos_a1_b1_ir2(self):
+		from erpnext_rd.dgii_reportes import estados_ir2
+
+		self.assertEqual(
+			frappe.db.get_value("Account", cuenta("4101"), "rd_casilla_ir2"),
+			estados_ir2.casilla("B-1", "1.1"),
+		)
+		r = estados_ir2.calcular(EMPRESA, "2026-01-01", "2026-12-31")
+		self.assertEqual(r.avisos, [])
+		self.assertEqual(r.totales_a1["6"], r.totales_a1["11"])
+		self.assertTrue(r.totales_a1["1"] > 0)
+
+		ingresos, gastos = frappe.db.sql(
+			"""SELECT SUM(IF(a.root_type = 'Income', g.credit - g.debit, 0)),
+				SUM(IF(a.root_type = 'Expense', g.debit - g.credit, 0))
+			FROM `tabGL Entry` g JOIN `tabAccount` a ON a.name = g.account
+			WHERE g.company = %s AND g.is_cancelled = 0 AND g.posting_date BETWEEN '2026-01-01' AND '2026-12-31'""",
+			EMPRESA,
+		)[0]
+		self.assertAlmostEqual(r.totales_b1["4"], float(ingresos), places=2)
+		self.assertAlmostEqual(r.totales_b1["14"], float(ingresos) - float(gastos), places=2)
+		self.assertEqual(r.b1["1.1"], r.totales_b1["1"])  # solo ventas locales
+		self.assertAlmostEqual(r.a1["10.5"], r.totales_b1["14"], places=2)  # sin ISR registrado
+
+		columnas, filas, mensaje, _grafico, resumen = estados_ir2.reporte(
+			{"company": EMPRESA, "desde": "2026-01-01", "hasta": "2026-12-31"}
+		)
+		self.assertIn(
+			{
+				"casilla": "14",
+				"descripcion": "Beneficio (pérdida) antes del impuesto sobre la renta",
+				"monto": r.totales_b1["14"],
+				"negrita": 1,
+			},
+			filas,
+		)
+		self.assertEqual(resumen[0]["value"], r.totales_a1["6"])
