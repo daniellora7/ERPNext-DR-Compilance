@@ -82,6 +82,22 @@ class TestDockTraducido(unittest.TestCase):
 		finally:
 			frappe.local.lang = idioma
 
+	@unittest.skipUnless(hrms_instalado(), "requiere Frappe HR")
+	def test_correcciones_del_catalogo_de_frappe_hr(self):
+		"""Traducciones erradas del catálogo oficial de Frappe HR, corregidas en el es.po de la app."""
+		idioma = frappe.local.lang
+		try:
+			frappe.local.lang = "es"
+			for texto, esperado in (
+				("Shift Type", "Tipo de turno"),
+				("Income Tax Slab", "Escala del impuesto sobre la renta"),
+				("Leave Application", "Solicitud de permiso"),
+				("Employee Checkin", "Marcación del empleado"),
+			):
+				self.assertEqual(frappe._(texto), esperado)
+		finally:
+			frappe.local.lang = idioma
+
 
 @unittest.skipUnless(hrms_instalado(), "requiere Frappe HR")
 class TestDockNominaRD(unittest.TestCase):
