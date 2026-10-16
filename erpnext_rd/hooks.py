@@ -38,6 +38,9 @@ website_route_rules = [
 	{"from_route": "/rd-compliance/<path:app_path>", "to_route": "rd-compliance"},
 ]
 
+# Nombres del dock en el idioma del usuario (Frappe v16 no los traduce)
+boot_session = "erpnext_rd.boot.boot_session"
+
 # Instalación
 # ------------
 

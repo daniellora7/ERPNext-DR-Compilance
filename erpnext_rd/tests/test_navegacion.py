@@ -38,6 +38,51 @@ class TestSidebarRDCompliance(unittest.TestCase):
 		self.assertNotIn("Configuración Nómina RD", items)
 
 
+class TestDockTraducido(unittest.TestCase):
+	def test_titulos_en_el_idioma_del_usuario(self):
+		"""Frappe v16 no traduce los nombres del dock: la app los traduce al armar la sesión."""
+		from erpnext_rd.boot import traducir_dock
+
+		def bootinfo():
+			return frappe._dict(
+				dock={"erpnext": [{"link_type": "Sidebar", "link_to": "Accounts", "title": "Accounts"}]},
+				app_data=[{"app_name": "erpnext", "dock": [{"link_to": "Selling", "title": "Selling"}]}],
+			)
+
+		idioma = frappe.local.lang
+		try:
+			frappe.local.lang = "es"
+			es = bootinfo()
+			traducir_dock(es)
+			self.assertEqual(es.dock["erpnext"][0]["title"], "Cuentas")
+			self.assertEqual(es.app_data[0]["dock"][0]["title"], "Ventas")
+			# El destino no cambia: es lo que identifica la entrada al guardar "Organizar dock"
+			self.assertEqual(es.dock["erpnext"][0]["link_to"], "Accounts")
+
+			frappe.local.lang = "en"
+			en = bootinfo()
+			traducir_dock(en)
+			self.assertEqual(en.dock["erpnext"][0]["title"], "Accounts")
+		finally:
+			frappe.local.lang = idioma
+
+	@unittest.skipUnless(hrms_instalado(), "requiere Frappe HR")
+	def test_frappe_hr_completo_en_espanol(self):
+		"""Los textos que faltan en el catálogo de Frappe HR vienen en el es.po de la app."""
+		idioma = frappe.local.lang
+		try:
+			frappe.local.lang = "es"
+			for texto, esperado in (
+				("HR Setup", "Configuración de RR. HH."),
+				("Tenure", "Trayectoria"),
+				("Recruitment", "Reclutamiento"),
+				("Salary Slip", "Recibo de nómina"),
+			):
+				self.assertEqual(frappe._(texto), esperado)
+		finally:
+			frappe.local.lang = idioma
+
+
 @unittest.skipUnless(hrms_instalado(), "requiere Frappe HR")
 class TestDockNominaRD(unittest.TestCase):
 	def setUp(self):
