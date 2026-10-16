@@ -108,6 +108,15 @@ def _tipo(codigo: str):
 	return tipo
 
 
+def _tipo_de_la_original(doc) -> bool:
+	"""La devolución o nota de débito creada desde la factura (Crear → Devolución) trae el tipo de la
+	original (B01, E31...): se cambia por el de la nota."""
+	if not doc.rd_tipo_comprobante or not (doc.is_return or doc.get("is_debit_note")):
+		return False
+	nota = "Crédito" if doc.is_return else "Débito"
+	return frappe.get_cached_value("Tipo Comprobante Fiscal", doc.rd_tipo_comprobante, "nota") != nota
+
+
 def _ncf_original(doctype: str, return_against: str | None) -> str | None:
 	if not return_against:
 		return None
@@ -169,7 +178,7 @@ def validar_venta(doc, method=None):
 		doc.rd_tipo_comprobante = doc.rd_ncf = doc.rd_ncf_vencimiento = doc.rd_secuencia_ncf = None
 		return
 
-	if not doc.rd_tipo_comprobante:
+	if not doc.rd_tipo_comprobante or _tipo_de_la_original(doc):
 		doc.rd_tipo_comprobante = tipo_por_defecto_venta(doc)
 	tipo = _tipo(doc.rd_tipo_comprobante)
 
@@ -241,7 +250,7 @@ def validar_compra(doc, method=None):
 	"""doc_events: Purchase Invoice -> validate."""
 	if not es_empresa_rd(doc.company):
 		return
-	if not doc.rd_tipo_comprobante:
+	if not doc.rd_tipo_comprobante or _tipo_de_la_original(doc):
 		doc.rd_tipo_comprobante = tipo_por_defecto_compra(doc)
 	tipo = _tipo(doc.rd_tipo_comprobante)
 

@@ -2,13 +2,27 @@
 // License: GNU General Public License v3. See license.txt
 // Sales / POS / Purchase Invoice: filtra los tipos de comprobante válidos.
 
+// Formato de impresión de la empresa (frappe.boot.rd_formatos, ver boot.py): lo usan el botón Imprimir
+// y el diálogo de correo, que toman el predeterminado del DocType.
+function erpnext_rd_formato_de_empresa(frm) {
+	const formatos = frappe.boot.rd_formatos?.[frm.doctype];
+	if (!formatos) return;
+	frm.meta.default_print_format = formatos.empresas[frm.doc.company] || formatos.defecto;
+}
+
 const erpnext_rd_invoice = {
+	company(frm) {
+		erpnext_rd_formato_de_empresa(frm);
+	},
+
 	setup(frm) {
 		const filtro = frm.doctype === "Purchase Invoice" ? "aplica_compras" : "aplica_ventas";
 		frm.set_query("rd_tipo_comprobante", () => ({ filters: { habilitado: 1, [filtro]: 1 } }));
 	},
 
 	refresh(frm) {
+		erpnext_rd_formato_de_empresa(frm);
+
 		// e-CF: emitir (generar, firmar y enviar según el emisor) y ver sus envíos
 		const electronico = (frm.doc.rd_tipo_comprobante || "").startsWith("E") && frm.doc.rd_ncf;
 		if (frm.doctype === "POS Invoice" || frm.doc.docstatus !== 1 || !electronico) return;

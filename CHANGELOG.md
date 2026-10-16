@@ -10,7 +10,8 @@ Para Frappe v16.52, ERPNext v16.51 y Frappe HR v16.51 (opcional).
 - Tipos de comprobante B01–B17 y E31–E47 y secuencias NCF sin duplicados, en ventas, compras y POS.
 - Validación de RNC y cédula, y padrón RNC de la DGII actualizado cada día.
 - Catálogo de cuentas DGII (NIIF PYMES) con plantillas de ITBIS y retenciones (Ley 30-26).
-- Formatos de impresión *Factura Fiscal RD* y *Recibo POS RD*, editables en el constructor.
+- Formatos de impresión *Factura Fiscal RD* y *Recibo POS RD*, editables en el constructor. Cada empresa puede elegir su formato de factura; las de otros países usan el estándar.
+- Las devoluciones creadas desde la factura toman solas la nota de crédito (B04/E34).
 - Formatos 606, 607, 608 y 609 con su TXT, y resúmenes del IT-1 y el IR-17.
 - Panel de cumplimiento con plazos, montos y secuencias. Respeta la apariencia «Ancho completo» del escritorio.
 
@@ -26,8 +27,13 @@ Para Frappe v16.52, ERPNext v16.51 y Frappe HR v16.51 (opcional).
 - AFP, SFS, ISR y aportes del empleador en el recibo, con topes de la TSS y escalas del ISR 2026 y 2027.
 - Preaviso, cesantía, regalía (proporcional y de diciembre), vacaciones, bonificación anual y feriados RD.
 - Horas extras con los recargos de ley, incluido el nocturno (art. 204).
+- La cuenta *Nómina por Pagar* del catálogo DGII queda lista para validar la nómina de Frappe HR.
 - Archivos de la TSS (AM, NV, RT), resúmenes IR-3 e IR-13, y planillas DGT-3 y DGT-4 para el SIRLA.
 - Volante de pago RD y datos RD del empleado.
+
+### Despliegue
+- Respaldo diario automático de la base y los archivos, con limpieza de los viejos.
+- Guías de despliegue en Dokploy y de respaldo y restauración.
 
 ### Idioma
 - Nombres del dock en el idioma del usuario.

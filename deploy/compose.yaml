@@ -1,5 +1,7 @@
 # Stack ERPNext + HRMS + erpnext_rd (basado en frappe_docker/pwd.yml).
-# Local:   docker compose -f deploy/compose.yaml --env-file deploy/.env up -d --build
+# Local:      docker build -f deploy/Containerfile -t erpnext-rd:local .
+#             docker compose -f deploy/compose.yaml --env-file deploy/.env up -d
+# Producción: la imagen publicada en GHCR (ERPNEXT_IMAGE / ERPNEXT_IMAGE_TAG); ver docs/DOKPLOY.md.
 # Una sola instancia: un sitio ($SITE_NAME) = una base de datos MariaDB con las 3 apps.
 
 x-erpnext: &erpnext
@@ -21,9 +23,6 @@ x-after-configurator: &after-configurator
 services:
   configurator:
     <<: *erpnext
-    build:
-      context: ..
-      dockerfile: deploy/Containerfile
     restart: "no"
     entrypoint: ["bash", "-c"]
     command:
@@ -87,8 +86,9 @@ services:
     depends_on:
       - backend
       - websocket
+    # Solo en la máquina (127.0.0.1): en un servidor el acceso público va por el proxy con HTTPS.
     ports:
-      - "${HTTP_PUBLISH_PORT:-8090}:8080"
+      - "${HTTP_BIND_ADDRESS:-127.0.0.1}:${HTTP_PUBLISH_PORT:-8090}:8080"
 
   websocket:
     <<: [*erpnext, *after-configurator]
@@ -108,6 +108,30 @@ services:
   scheduler:
     <<: [*erpnext, *after-configurator]
     command: ["bench", "schedule"]
+
+  # Respaldo diario de la base y los archivos (bench backup --with-files) a la hora BACKUP_HORA
+  # (UTC; 07:00 UTC = 3:00 a. m. en RD). Quedan en sites/<sitio>/private/backups y se borran los de
+  # más de BACKUP_DIAS días. Copia fuera del servidor: S3 Backup Settings de Frappe (docs/RESPALDOS.md).
+  backup:
+    <<: [*erpnext, *after-configurator]
+    entrypoint: ["bash", "-c"]
+    command:
+      - >
+        while true; do
+          ahora=$$(date -u +%s);
+          objetivo=$$(date -u -d "$$BACKUP_HORA" +%s);
+          if [ "$$objetivo" -le "$$ahora" ]; then objetivo=$$((objetivo + 86400)); fi;
+          echo "Próximo respaldo: $$(date -u -d @$$objetivo)";
+          sleep $$((objetivo - ahora));
+          if bench --site all backup --with-files; then
+            find sites/*/private/backups -type f -mtime +$$BACKUP_DIAS -delete;
+          else
+            echo "El respaldo falló" >&2;
+          fi;
+        done
+    environment:
+      BACKUP_HORA: ${BACKUP_HORA:-07:00}
+      BACKUP_DIAS: ${BACKUP_DIAS:-7}
 
   db:
     image: mariadb:11.8

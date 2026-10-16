@@ -415,9 +415,6 @@ def _fila_607(doc, hasta, desde_retencion=None) -> dict | None:
 		_("Falta RNC / Cédula del cliente")
 		if not numero and doc.rd_tipo_comprobante not in TIPOS_CONSUMO
 		else "",
-		_("Factura de consumo menor a RD$250,000: va en el resumen de la OFV, no en el TXT")
-		if not en_txt
-		else "",
 		_("Informado de nuevo por retención hecha en este período") if desde_retencion else "",
 	]
 
