@@ -19,3 +19,4 @@ services:
   queue-short: *app-mount
   queue-long: *app-mount
   scheduler: *app-mount
+  backup: *app-mount
