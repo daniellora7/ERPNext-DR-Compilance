@@ -120,7 +120,7 @@
 						:href="rutaDocumento('Secuencia NCF', 'new')"
 					/>
 				</div>
-				<div v-else class="divide-y divide-outline-gray-1 rounded-6 border border-outline-gray-1 bg-surface-base">
+				<div v-else class="divide-y divide-outline-gray-1 rounded-6 border border-outline-gray-2 bg-surface-base">
 					<div
 						v-for="s in r.secuencias"
 						:key="s.name"
@@ -161,12 +161,12 @@
 				</p>
 				<div
 					v-if="!r.avisos.total"
-					class="flex items-center gap-2 rounded-6 border border-outline-gray-1 bg-surface-base px-4 py-3 text-base text-ink-gray-6"
+					class="flex items-center gap-2 rounded-6 border border-outline-gray-2 bg-surface-base px-4 py-3 text-base text-ink-gray-6"
 				>
 					<span class="lucide-circle-check size-4 text-ink-green-6" />
 					Sin observaciones en el período.
 				</div>
-				<div v-else class="divide-y divide-outline-gray-1 rounded-6 border border-outline-gray-1 bg-surface-base">
+				<div v-else class="divide-y divide-outline-gray-1 rounded-6 border border-outline-gray-2 bg-surface-base">
 					<div
 						v-for="(a, i) in r.avisos.lista"
 						:key="i"

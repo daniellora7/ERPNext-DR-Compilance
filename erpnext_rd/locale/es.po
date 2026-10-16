@@ -52,3 +52,5328 @@ msgstr "Emisor e-CF"
 
 msgid "Envio ECF"
 msgstr "Envío e-CF"
+
+# ---------------------------------------------------------------------------
+# Frappe HR: textos que faltan en su catálogo oficial de español (v16 y develop).
+# Se aportan a Frappe HR por Crowdin; cuando lleguen al catálogo oficial, este bloque se puede borrar.
+# ---------------------------------------------------------------------------
+
+msgid " Salary slips starting on or after this date will be considered for arrear calculations"
+msgstr " Los recibos de nómina con fecha de inicio igual o posterior a esta fecha se tomarán en cuenta para el cálculo de retroactivos"
+
+msgid "'employee_fieldname' must be one of {0}."
+msgstr "'employee_fieldname' debe ser uno de {0}."
+
+msgid "<b>Base</b> amount has not been set for the following employee(s): {0}"
+msgstr "No se ha definido el monto <b>base</b> para los siguientes empleados: {0}"
+
+msgid ""
+"<h3>Help</h3>\n"
+"\n"
+"<p>Notes:</p>\n"
+"\n"
+"<ol>\n"
+"<li>Use field <code>base</code> for using base salary of the Employee</li>\n"
+"<li>Use Salary Component abbreviations in conditions and formulas. <code>BS = Basic Salary</code></li>\n"
+"<li>Use field name for employee details in conditions and formulas. <code>Employment Type = employment_type</code><code>Branch = branch</code></li>\n"
+"<li>Use field name from Salary Slip in conditions and formulas. <code>Payment Days = payment_days</code><code>Leave without pay = leave_without_pay</code></li>\n"
+"<li>Direct Amount can also be entered based on Condition. See example 3</li></ol>\n"
+"\n"
+"<h4>Examples</h4>\n"
+"<ol>\n"
+"<li>Calculating Basic Salary based on <code>base</code>\n"
+"<pre><code>Condition: base &lt; 10000</code></pre>\n"
+"<pre><code>Formula: base * .2</code></pre></li>\n"
+"<li>Calculating HRA based on Basic Salary<code>BS</code> \n"
+"<pre><code>Condition: BS &gt; 2000</code></pre>\n"
+"<pre><code>Formula: BS * .1</code></pre></li>\n"
+"<li>Calculating TDS based on Employment Type<code>employment_type</code> \n"
+"<pre><code>Condition: employment_type==\"Intern\"</code></pre>\n"
+"<pre><code>Amount: 1000</code></pre></li>\n"
+"</ol>"
+msgstr ""
+"<h3>Ayuda</h3>\n"
+"\n"
+"<p>Notas:</p>\n"
+"\n"
+"<ol>\n"
+"<li>Use el campo <code>base</code> para usar el salario base del empleado</li>\n"
+"<li>Use las abreviaturas de los componentes salariales en las condiciones y fórmulas. <code>BS = Basic Salary</code></li>\n"
+"<li>Use el nombre del campo para los datos del empleado en las condiciones y fórmulas. <code>Employment Type = employment_type</code><code>Branch = branch</code></li>\n"
+"<li>Use el nombre del campo del recibo de nómina en las condiciones y fórmulas. <code>Payment Days = payment_days</code><code>Leave without pay = leave_without_pay</code></li>\n"
+"<li>También se puede indicar un monto directo según una condición. Vea el ejemplo 3</li></ol>\n"
+"\n"
+"<h4>Ejemplos</h4>\n"
+"<ol>\n"
+"<li>Cálculo del salario básico según <code>base</code>\n"
+"<pre><code>Condition: base &lt; 10000</code></pre>\n"
+"<pre><code>Formula: base * .2</code></pre></li>\n"
+"<li>Cálculo del HRA según el salario básico<code>BS</code> \n"
+"<pre><code>Condition: BS &gt; 2000</code></pre>\n"
+"<pre><code>Formula: BS * .1</code></pre></li>\n"
+"<li>Cálculo del TDS según el tipo de empleo<code>employment_type</code> \n"
+"<pre><code>Condition: employment_type==\"Intern\"</code></pre>\n"
+"<pre><code>Amount: 1000</code></pre></li>\n"
+"</ol>"
+
+msgid ""
+"<h4>Condition Examples</h4>\n"
+"<ol>\n"
+"<li>Applying tax if employee born between 31-12-1937 and 01-01-1958 (Employees aged 60 to 80)<br>\n"
+"<code>Condition: date_of_birth&gt;date(1937, 12, 31) and date_of_birth&lt;date(1958, 01, 01)</code></li><br><li>Applying tax by employee gender<br>\n"
+"<code>Condition: gender==\"Male\"</code></li><br>\n"
+"<li>Applying tax by Salary Component<br>\n"
+"<code>Condition: base &gt; 10000</code></li></ol>"
+msgstr ""
+"<h4>Ejemplos de condiciones</h4>\n"
+"<ol>\n"
+"<li>Aplicar el impuesto si el empleado nació entre el 31-12-1937 y el 01-01-1958 (empleados de 60 a 80 años)<br>\n"
+"<code>Condition: date_of_birth&gt;date(1937, 12, 31) and date_of_birth&lt;date(1958, 01, 01)</code></li><br><li>Aplicar el impuesto según el sexo del empleado<br>\n"
+"<code>Condition: gender==\"Male\"</code></li><br>\n"
+"<li>Aplicar el impuesto según el componente salarial<br>\n"
+"<code>Condition: base &gt; 10000</code></li></ol>"
+
+msgid "<h5>Employees on Half Day</h5>"
+msgstr "<h5>Empleados con medio día</h5>"
+
+msgid "<h5>Unmarked Employees</h5>"
+msgstr "<h5>Empleados sin asistencia marcada</h5>"
+
+msgid "<hr>"
+msgstr "<hr>"
+
+msgid "<span class=\"h4\"><b>Transactions &amp; Reports</b></span>"
+msgstr "<span class=\"h4\"><b>Transacciones y reportes</b></span>"
+
+msgid "<table class='table table-bordered'><tr><th>{0}</th><th>{1}</th></tr>"
+msgstr "<table class='table table-bordered'><tr><th>{0}</th><th>{1}</th></tr>"
+
+msgid "A Job Requisition already exists for {0} requested by {1} for the same department.<br> Do you want to continue?"
+msgstr "Ya existe una requisición de personal para {0} solicitada por {1} para el mismo departamento.<br> ¿Desea continuar?"
+
+msgid "A bonus, arrear or deduction for one payroll period. See [Additional Salary](https://docs.frappe.io/hr/additional-salary)."
+msgstr "Una bonificación, un retroactivo o una deducción para un período de nómina. Vea [Salario adicional](https://docs.frappe.io/hr/additional-salary)."
+
+msgid "A course you run for employees, with its trainer and what it covers. See [Training Program](https://docs.frappe.io/hr/training-program)."
+msgstr "Un curso que se imparte a los empleados, con su instructor y su contenido. Vea [Programa de capacitación](https://docs.frappe.io/hr/training-program)."
+
+msgid "A kind of leave, such as casual or sick, and its rules. See [Leave Type](https://docs.frappe.io/hr/leave-type)."
+msgstr "Una clase de permiso, como el ordinario o el de enfermedad, y sus reglas. Vea [Tipo de permiso](https://docs.frappe.io/hr/leave-type)."
+
+msgid "A measurable target for an employee, tracked against a KRA. See [Goal](https://docs.frappe.io/hr/goal)."
+msgstr "Una meta medible de un empleado, ligada a un KRA. Vea [Objetivo](https://docs.frappe.io/hr/goal)."
+
+msgid "A punch from a biometric device or the mobile app. Auto attendance turns these into attendance. See [Employee Checkin](https://docs.frappe.io/hr/employee-checkin)."
+msgstr "Una marcación de un reloj biométrico o de la aplicación móvil. La asistencia automática las convierte en asistencia. Vea [Marcación del empleado](https://docs.frappe.io/hr/employee-checkin)."
+
+msgid "A reviewer's ratings and comments on an employee for the cycle. See [Employee Performance Feedback](https://docs.frappe.io/hr/employee-performance-feedback)."
+msgstr "Las calificaciones y comentarios de un evaluador sobre un empleado en el ciclo. Vea [Retroalimentación de desempeño](https://docs.frappe.io/hr/employee-performance-feedback)."
+
+msgid "A role you are hiring for, which you can publish on your job portal. See [Job Opening](https://docs.frappe.io/hr/job-opening)."
+msgstr "Un puesto que se busca cubrir y que se puede publicar en el portal de empleos. Vea [Vacante](https://docs.frappe.io/hr/job-opening)."
+
+msgid "A session of a training program and the employees attending it. See [Training Event](https://docs.frappe.io/hr/training-event)."
+msgstr "Una sesión de un programa de capacitación y los empleados que asisten. Vea [Evento de capacitación](https://docs.frappe.io/hr/training-event)."
+
+msgid "A shift's working hours and the rules for marking attendance from check-ins. See [Shift Type](https://docs.frappe.io/hr/shift-type)."
+msgstr "El horario de un turno y las reglas para marcar la asistencia a partir de las marcaciones. Vea [Tipo de turno](https://docs.frappe.io/hr/shift-type)."
+
+msgid "Absent Buffer (Days)"
+msgstr "Margen para ausencia (días)"
+
+msgid "Account type should be set {0} for payroll payable account {1}, please set and try again"
+msgstr "La cuenta de nómina por pagar {1} debe tener el tipo de cuenta {0}. Configúrelo e intente de nuevo"
+
+msgid "Accounts not set for Salary Component {0}"
+msgstr "No se han definido las cuentas del componente salarial {0}"
+
+msgid "Accrual"
+msgstr "Acumulación"
+
+msgid "Accrual Arrears"
+msgstr "Retroactivos acumulados"
+
+msgid "Accrual Component"
+msgstr "Componente de acumulación"
+
+msgid "Accrual Component can only be set for Earning Salary Components."
+msgstr "El componente de acumulación solo se puede definir en componentes salariales de ingreso."
+
+msgid "Accrual Component can only be set for Flexible Benefit Salary Components with accrual payout methods."
+msgstr "El componente de acumulación solo se puede definir en componentes salariales de beneficio flexible con métodos de pago por acumulación."
+
+msgid "Accrual Component must be set for Flexible Benefit Salary Components with accrual payout methods."
+msgstr "Los componentes salariales de beneficio flexible con métodos de pago por acumulación deben tener un componente de acumulación."
+
+msgid "Accrue and payout at end of payroll period"
+msgstr "Acumular y pagar al final del período de nómina"
+
+msgid "Accrue per cycle, pay only on claim"
+msgstr "Acumular en cada ciclo y pagar solo al reclamar"
+
+msgid "Accrued Benefits"
+msgstr "Beneficios acumulados"
+
+msgid "Accrued Earnings Report"
+msgstr "Reporte de ingresos acumulados"
+
+msgid "Accrued amount {0} is less than paid amount {1} for Benefit {2} in payroll period {3}"
+msgstr "El monto acumulado {0} es menor que el monto pagado {1} del beneficio {2} en el período de nómina {3}"
+
+msgid "Action on Submission"
+msgstr "Acción al validar"
+
+msgid "Actual Overtime Duration"
+msgstr "Duración real de las horas extras"
+
+msgid "Actual balances aren't available because the leave application spans over different leave allocations. You can still apply for leaves which would be compensated during the next allocation."
+msgstr "No se muestran los saldos reales porque la solicitud de permiso abarca varias asignaciones de permisos. Aun así puede solicitar permisos que se compensarán en la próxima asignación."
+
+msgid "Add Checkin"
+msgstr "Agregar marcación"
+
+msgid "Add Checkin for Another Employee"
+msgstr "Agregar marcación de otro empleado"
+
+msgid "Add Day-wise Dates"
+msgstr "Agregar fechas por día"
+
+msgid "Add Employee"
+msgstr "Agregar empleado"
+
+msgid "Add Employee Property"
+msgstr "Agregar propiedad del empleado"
+
+msgid "Add Expense"
+msgstr "Agregar gasto"
+
+msgid "Add Feedback"
+msgstr "Agregar retroalimentación"
+
+msgid "Add Job Applicant"
+msgstr "Agregar candidato"
+
+msgid "Add Tax"
+msgstr "Agregar impuesto"
+
+msgid "Add a key result area"
+msgstr "Agregar un área clave de resultados"
+
+msgid "Add a leave type"
+msgstr "Agregar un tipo de permiso"
+
+msgid "Add a salary component"
+msgstr "Agregar un componente salarial"
+
+msgid "Add an applicant"
+msgstr "Agregar un candidato"
+
+msgid "Add income tax slabs"
+msgstr "Agregar tramos del impuesto sobre la renta"
+
+msgid "Add unused leaves from previous leave period's allocation to this allocation"
+msgstr "Sumar a esta asignación los permisos no usados de la asignación del período anterior"
+
+msgid "Add your employees"
+msgstr "Agregue a sus empleados"
+
+msgid "Added tax components from the Salary Component master as the salary structure didn't have any tax component."
+msgstr "Se agregaron los componentes de impuestos del maestro de componentes salariales porque la estructura salarial no tenía ninguno."
+
+msgid "Additional Salary for this salary component with {0} enabled already exists for this date"
+msgstr "Ya existe un salario adicional para este componente salarial con {0} activado en esta fecha"
+
+msgid "Adjust Allocation"
+msgstr "Ajustar asignación"
+
+msgid "Adjustment Created Successfully"
+msgstr "Ajuste creado correctamente"
+
+msgid "Adjustment Type"
+msgstr "Tipo de ajuste"
+
+msgid "Advance Account Required"
+msgstr "Se requiere la cuenta de anticipos"
+
+msgid "Advance Account is mandatory. Please set the {0} in the Company {1} and submit this document."
+msgstr "La cuenta de anticipos es obligatoria. Defina {0} en la compañía {1} y valide este documento."
+
+msgid "Advance Account {} currency should be same as Salary Currency of Employee {}. Please select same currency Advance Account"
+msgstr "La moneda de la cuenta de anticipos {} debe ser la misma que la moneda salarial del empleado {}. Seleccione una cuenta de anticipos en esa moneda"
+
+msgid "All Exchange Gain/Loss amount of {0} has been booked through {1}"
+msgstr "Toda la ganancia o pérdida cambiaria de {0} se registró mediante {1}"
+
+msgid "All Goals"
+msgstr "Todos los objetivos"
+
+msgid "All allocated assets should be returned before submission"
+msgstr "Todos los activos asignados deben devolverse antes de validar"
+
+msgid "All the mandatory tasks for employee creation are not completed yet."
+msgstr "Aún no se han completado todas las tareas obligatorias para crear el empleado."
+
+msgid "Allocate Based On Leave Policy"
+msgstr "Asignar según la política de permisos"
+
+msgid "Allocate Leave"
+msgstr "Asignar permisos"
+
+msgid "Allocate leaves to {0} employee(s)?"
+msgstr "¿Asignar permisos a {0} empleado(s)?"
+
+msgid "Allocate on Day"
+msgstr "Asignar el día"
+
+msgid "Allocated Amount (Company Currency)"
+msgstr "Monto asignado (moneda de la compañía)"
+
+msgid "Allocated Via"
+msgstr "Asignado mediante"
+
+msgid "Allocating Leave"
+msgstr "Asignando permisos"
+
+msgid "Allocation Date"
+msgstr "Fecha de asignación"
+
+msgid "Allocation Details"
+msgstr "Detalles de la asignación"
+
+msgid "Allocation is greater than the maximum allowed {0} for leave type {1}"
+msgstr "La asignación supera el máximo permitido {0} para el tipo de permiso {1}"
+
+msgid "Allocation to Adjust"
+msgstr "Asignación a ajustar"
+
+msgid "Allocation was skipped due to exceeding annual allocation set in leave policy"
+msgstr "Se omitió la asignación porque supera la asignación anual definida en la política de permisos"
+
+msgid "Allocation was skipped due to maximum leave allocation limit set in leave type. Please increase the limit and retry failed allocation."
+msgstr "Se omitió la asignación por el límite máximo de asignación definido en el tipo de permiso. Aumente el límite y vuelva a intentar las asignaciones fallidas."
+
+msgid "Allow Employee Checkin from Mobile App"
+msgstr "Permitir marcaciones desde la aplicación móvil"
+
+msgid "Allow Geolocation Tracking"
+msgstr "Permitir el seguimiento de la ubicación"
+
+msgid "Allow Leave Application After (Calendar Days)"
+msgstr "Permitir solicitar permisos después de (días calendario)"
+
+msgid "Allow Multiple Shift Assignments for Same Date"
+msgstr "Permitir varias asignaciones de turno en la misma fecha"
+
+msgid "Allow Over Allocation"
+msgstr "Permitir asignar de más"
+
+msgid "Allow claim for full benefit amount"
+msgstr "Permitir reclamar el monto total del beneficio"
+
+msgid "Allow expense claims to be raised in a currency other than the company currency"
+msgstr "Permitir reclamos de gastos en una moneda distinta a la de la compañía"
+
+msgid "Allows allocating more leaves than the number of days in the allocation period."
+msgstr "Permite asignar más permisos que los días del período de asignación."
+
+msgid "Amount Based on Formula"
+msgstr "Monto según fórmula"
+
+msgid "Amount Exceeds Available Balance"
+msgstr "El monto supera el saldo disponible"
+
+msgid "Amount claimed via Expense Claim"
+msgstr "Monto reclamado mediante reembolso de gastos"
+
+msgid "Amount of expense"
+msgstr "Monto del gasto"
+
+msgid "Amount paid against this encashment"
+msgstr "Monto pagado por este pago de permisos"
+
+msgid "Amount scheduled for deduction via salary"
+msgstr "Monto programado para descontar del salario"
+
+msgid "Amount should not be less than zero"
+msgstr "El monto no debe ser menor que cero"
+
+msgid "Amount that has been paid against this advance"
+msgstr "Monto pagado por este anticipo"
+
+msgid "An Arrear document already exists for employee {0} with salary structure {1} in payroll period {2}"
+msgstr "Ya existe un retroactivo para el empleado {0} con la estructura salarial {1} en el período de nómina {2}"
+
+msgid "An area an employee is measured on, such as quality or delivery. See [Appraisal Template](https://docs.frappe.io/hr/appraisal-template)."
+msgstr "Un aspecto en el que se evalúa al empleado, como la calidad o la puntualidad en las entregas. Vea [Plantilla de evaluación](https://docs.frappe.io/hr/appraisal-template)."
+
+msgid "An attendance record is linked to this checkin. Please cancel the attendance before modifying time."
+msgstr "Esta marcación tiene un registro de asistencia vinculado. Cancele la asistencia antes de cambiar la hora."
+
+msgid "An earning or deduction on the salary slip, such as Basic or Provident Fund. See [Salary Component](https://docs.frappe.io/hr/salary-component)."
+msgstr "Un ingreso o una deducción del recibo de nómina, como el salario básico o el fondo de pensiones. Vea [Componente salarial](https://docs.frappe.io/hr/salary-component)."
+
+msgid "An employee's claim for money they spent on work. The expense approver approves and submits it. See [Expense Claim](https://docs.frappe.io/hr/expense-claim)."
+msgstr "La solicitud de un empleado para que le devuelvan lo que gastó en el trabajo. El aprobador de gastos la aprueba y la valida. Vea [Reembolso de gastos](https://docs.frappe.io/hr/expense-claim)."
+
+msgid "An employee's request for time off. Their leave approver approves and submits it. See [Leave Application](https://docs.frappe.io/hr/leave-application)."
+msgstr "La solicitud de un empleado para ausentarse. Su aprobador de permisos la aprueba y la valida. Vea [Solicitud de permiso](https://docs.frappe.io/hr/leave-application)."
+
+msgid "An employee's request to be marked present for days on duty or working from home. See [Attendance Request](https://docs.frappe.io/hr/attendance-request)."
+msgstr "La solicitud de un empleado para que lo marquen presente en días de trabajo fuera de la oficina o desde casa. Vea [Solicitud de asistencia](https://docs.frappe.io/hr/attendance-request)."
+
+msgid "An error occurred while attempting to log out!"
+msgstr "¡Ocurrió un error al cerrar la sesión!"
+
+msgid "An interview round with the applicant and the people interviewing them. See [Interview](https://docs.frappe.io/hr/interview)."
+msgstr "Una ronda de entrevistas con el candidato y las personas que lo entrevistan. Vea [Entrevista](https://docs.frappe.io/hr/interview)."
+
+msgid "An unknown error occurred while fetching your geolocation"
+msgstr "Ocurrió un error desconocido al obtener su ubicación"
+
+msgid "Annual Allocation Exceeded"
+msgstr "Se superó la asignación anual"
+
+msgid "Annual CTC"
+msgstr "Costo anual para la empresa (CTC)"
+
+msgid "Annual Gross Earning"
+msgstr "Ingreso bruto anual"
+
+msgid "Annual Taxable Amount"
+msgstr "Monto imponible anual"
+
+msgid "Any other remarks, noteworthy effort that should go in the records"
+msgstr "Otras observaciones o esfuerzos destacables que deban quedar registrados"
+
+msgid "Applicable Earnings Component"
+msgstr "Componente de ingreso aplicable"
+
+msgid "Applicable Salary Components"
+msgstr "Componentes salariales aplicables"
+
+msgid "Applicant Rating"
+msgstr "Calificación del candidato"
+
+msgid "Applicant for a Job"
+msgstr "Candidato a un empleo"
+
+msgid "Application"
+msgstr "Solicitud"
+
+msgid "Application Web Form Route"
+msgstr "Ruta del formulario web de postulación"
+
+msgid "Applications received:"
+msgstr "Postulaciones recibidas:"
+
+msgid "Apply / Approve Leaves"
+msgstr "Solicitar / aprobar permisos"
+
+msgid "Apply for Leave"
+msgstr "Solicitar permiso"
+
+msgid "Apply for Public Holiday"
+msgstr "Aplicar en feriados"
+
+msgid "Apply for Weekend"
+msgstr "Aplicar en fines de semana"
+
+msgid "Appraisal KRA"
+msgstr "KRA de la evaluación"
+
+msgid "Appraisal Linking"
+msgstr "Vinculación con la evaluación"
+
+msgid "Appraisal Overview"
+msgstr "Resumen de evaluaciones"
+
+msgid "Appraisal Template"
+msgstr "Plantilla de evaluación"
+
+msgid "Appraisal Template Missing"
+msgstr "Falta la plantilla de evaluación"
+
+msgid "Appraisal Template not found for some designations."
+msgstr "No se encontró la plantilla de evaluación de algunos cargos."
+
+msgid "Appraisal creation is queued. It may take a few minutes."
+msgstr "La creación de las evaluaciones está en cola. Puede tardar unos minutos."
+
+msgid "Appraisal {0} already exists for Employee {1} for this Appraisal Cycle or overlapping period"
+msgstr "Ya existe la evaluación {0} del empleado {1} para este ciclo de evaluación o para un período que se solapa"
+
+msgid "Appraisal {0} does not belong to Employee {1}"
+msgstr "La evaluación {0} no pertenece al empleado {1}"
+
+msgid "Appraisals (This Year)"
+msgstr "Evaluaciones (este año)"
+
+msgid "Appraise an employee"
+msgstr "Evaluar a un empleado"
+
+msgid "Appraisee"
+msgstr "Evaluado"
+
+msgid "Appraisees: {0}"
+msgstr "Evaluados: {0}"
+
+msgid "Approval and funding for a work trip before it happens. See [Travel Request](https://docs.frappe.io/hr/travel-request)."
+msgstr "Aprobación y fondos para un viaje de trabajo antes de que ocurra. Vea [Solicitud de viaje](https://docs.frappe.io/hr/travel-request)."
+
+msgid "Approve"
+msgstr "Aprobar"
+
+msgid "Approve a leave request"
+msgstr "Aprobar una solicitud de permiso"
+
+msgid "Approve an expense claim"
+msgstr "Aprobar un reembolso de gastos"
+
+msgid "Approve an expense claim and pay the employee back."
+msgstr "Apruebe un reembolso de gastos y devuélvale el dinero al empleado."
+
+msgid "Approved Claims (This Month)"
+msgstr "Reembolsos aprobados (este mes)"
+
+msgid "Approved claims that have not been paid back yet."
+msgstr "Reembolsos aprobados que todavía no se han pagado."
+
+msgid "Approvers"
+msgstr "Aprobadores"
+
+msgid "Are you sure you want to delete the attachment"
+msgstr "¿Seguro que desea eliminar el adjunto?"
+
+msgid "Are you sure you want to delete the {0}"
+msgstr "¿Seguro que desea eliminar {0}?"
+
+msgid "Are you sure you want to email the selected salary slips?"
+msgstr "¿Seguro que desea enviar por correo los recibos de nómina seleccionados?"
+
+msgid "Are you sure you want to reject the Employee Referral?"
+msgstr "¿Seguro que desea rechazar la recomendación de empleado?"
+
+msgid "Arrear"
+msgstr "Retroactivo"
+
+msgid "Arrear Component"
+msgstr "Componente de retroactivo"
+
+msgid "Arrear Component cannot be set for Salary Components based on taxable salary."
+msgstr "No se puede definir un componente de retroactivo en componentes salariales basados en el salario imponible."
+
+msgid "Arrear Start Date"
+msgstr "Fecha de inicio del retroactivo"
+
+msgid "Arrears"
+msgstr "Retroactivos"
+
+msgid "Asset Recovery Cost for {0}: {1}"
+msgstr "Costo de recuperación de activos de {0}: {1}"
+
+msgid "Assets Allocated"
+msgstr "Activos asignados"
+
+msgid "Assign Salary Structure"
+msgstr "Asignar estructura salarial"
+
+msgid "Assign Salary Structure to {0} employee(s)?"
+msgstr "¿Asignar la estructura salarial a {0} empleado(s)?"
+
+msgid "Assign Shift"
+msgstr "Asignar turno"
+
+msgid "Assign Shift Schedule"
+msgstr "Asignar horario de turnos"
+
+msgid "Assign Structure"
+msgstr "Asignar estructura"
+
+msgid "Assign a shift"
+msgstr "Asignar un turno"
+
+msgid "Assign it to an employee"
+msgstr "Asígnela a un empleado"
+
+msgid "Assigning Salary Structure"
+msgstr "Asignando la estructura salarial"
+
+msgid "Assigning Structure..."
+msgstr "Asignando la estructura..."
+
+msgid "Assignment Date: "
+msgstr "Fecha de asignación: "
+
+msgid "Assignment Failed"
+msgstr "Falló la asignación"
+
+msgid "Assignment Starts From"
+msgstr "La asignación empieza el"
+
+msgid "Assignment must start between {0} and {1}"
+msgstr "La asignación debe empezar entre {0} y {1}"
+
+msgid "Assignment start date cannot be outside holiday list dates"
+msgstr "La fecha de inicio de la asignación no puede quedar fuera de las fechas de la lista de festividades"
+
+msgid "Associate Job Opening"
+msgstr "Vincular vacante"
+
+msgid "Associated Document"
+msgstr "Documento asociado"
+
+msgid "Associated Document Type"
+msgstr "Tipo de documento asociado"
+
+msgid "At least one interview has to be selected."
+msgstr "Debe seleccionar al menos una entrevista."
+
+msgid "Attach Proof"
+msgstr "Adjuntar comprobante"
+
+msgid "Attempted"
+msgstr "Intentado"
+
+msgid "Attendance Calendar"
+msgstr "Calendario de asistencia"
+
+msgid "Attendance Request History"
+msgstr "Historial de solicitudes de asistencia"
+
+msgid "Attendance Settings"
+msgstr "Configuración de asistencia"
+
+msgid "Attendance Warnings"
+msgstr "Advertencias de asistencia"
+
+msgid "Attendance date {0} can not be less than employee {1}'s joining date: {2}"
+msgstr "La fecha de asistencia {0} no puede ser anterior a la fecha de ingreso del empleado {1}: {2}"
+
+msgid "Attendance for all the employees under this criteria has been marked already."
+msgstr "Ya se marcó la asistencia de todos los empleados que cumplen estos criterios."
+
+msgid "Attendance for employee {0} is already marked for an overlapping shift {1}: {2}"
+msgstr "La asistencia del empleado {0} ya está marcada para un turno que se solapa {1}: {2}"
+
+msgid "Attendance for employee {0} is already marked for the date {1}: {2}"
+msgstr "La asistencia del empleado {0} ya está marcada para la fecha {1}: {2}"
+
+msgid "Attendance for employee {0} is already marked for the following dates: {1}"
+msgstr "La asistencia del empleado {0} ya está marcada en las siguientes fechas: {1}"
+
+msgid "Attendance for the following dates will be skipped/overwritten on submission"
+msgstr "Al validar se omitirá o sobrescribirá la asistencia de las siguientes fechas"
+
+msgid "Attendance from {0} to {1} has already been marked for the Employee {2}"
+msgstr "La asistencia del {0} al {1} ya está marcada para el empleado {2}"
+
+msgid "Attendance has been marked for all the employees between the selected payroll dates."
+msgstr "Se marcó la asistencia de todos los empleados entre las fechas de nómina seleccionadas."
+
+msgid "Attendance is pending for these employees between the selected payroll dates. Mark attendance to proceed. Refer {0} for details."
+msgstr "Falta la asistencia de estos empleados entre las fechas de nómina seleccionadas. Márquela para continuar. Consulte {0} para más detalles."
+
+msgid "Attendance marked successfully"
+msgstr "Asistencia marcada correctamente"
+
+msgid "Attendance marked successfully."
+msgstr "Asistencia marcada con éxito."
+
+msgid "AttendanceRequestListView"
+msgstr "AttendanceRequestListView"
+
+msgid "Attrition Count"
+msgstr "Cantidad de bajas"
+
+msgid "Automated Based on Goal Progress"
+msgstr "Automático según el avance de los objetivos"
+
+msgid "Automatic Leave Allocation has failed for the following Earned Leaves: {0}. Please check {1} for more details."
+msgstr "Falló la asignación automática de los siguientes permisos acumulables: {0}. Revise {1} para más detalles."
+
+msgid "Automatically fetches all assets allocated to the employee, if any"
+msgstr "Trae automáticamente los activos asignados al empleado, si los hay"
+
+msgid "Automatically update Last Sync of Checkin"
+msgstr "Actualizar automáticamente la última sincronización de marcaciones"
+
+msgid "Available Leave(s)"
+msgstr "Permisos disponibles"
+
+msgid "Available Leaves"
+msgstr "Permisos disponibles"
+
+msgid "Average Feedback Score"
+msgstr "Puntuación media de la retroalimentación"
+
+msgid "Average Rating"
+msgstr "Calificación media"
+
+msgid "Average of Goal Score, Feedback Score, and Self Appraisal Score"
+msgstr "Promedio de la puntuación de objetivos, de retroalimentación y de autoevaluación"
+
+msgid "Average rating of demonstrated skills"
+msgstr "Calificación media de las habilidades demostradas"
+
+msgid "Avg Feedback Score"
+msgstr "Puntuación media de retroalimentación"
+
+msgid "Avg Utilization"
+msgstr "Utilización media"
+
+msgid "Avg Utilization (Billed Only)"
+msgstr "Utilización media (solo facturado)"
+
+msgid "Back to Login"
+msgstr "Regresar para iniciar sesión"
+
+msgid "Backdated Leave Application is restricted. Please set the {} in {}"
+msgstr "No se permiten solicitudes de permiso con fecha pasada. Defina {} en {}"
+
+msgid "Bank/Cash Account Not Set"
+msgstr "No se ha definido la cuenta de banco o caja"
+
+msgid "Bank/Cash Account Required"
+msgstr "Se requiere una cuenta de banco o caja"
+
+msgid "Base"
+msgstr "Base"
+
+msgid "Base, Variable & Leave Encashment"
+msgstr "Base, variable y pago de permisos"
+
+msgid "Below is the list of upcoming holidays for you:"
+msgstr "Estos son sus próximos días festivos:"
+
+msgid "Benefit Amount"
+msgstr "Monto del beneficio"
+
+msgid "Benefit Application"
+msgstr "Solicitud de beneficios"
+
+msgid "Benefit Claim"
+msgstr "Reclamo de beneficio"
+
+msgid "Benefit Claims"
+msgstr "Reclamos de beneficios"
+
+msgid "Benefit Claims (This Month)"
+msgstr "Reclamos de beneficios (este mes)"
+
+msgid "Benefit Details"
+msgstr "Detalles del beneficio"
+
+msgid "Benefit Ledger"
+msgstr "Libro de beneficios"
+
+msgid "Benefit amount of component {0} exceeds {1}"
+msgstr "El monto del beneficio del componente {0} supera {1}"
+
+msgid "Benefit amount of component {0} should be greater than 0"
+msgstr "El monto del beneficio del componente {0} debe ser mayor que 0"
+
+msgid "Benefit amount {0} for Salary Component {1} should not be greater than maximum benefit amount {2} set in {3}"
+msgstr "El monto del beneficio {0} del componente salarial {1} no debe superar el monto máximo de beneficio {2} definido en {3}"
+
+msgid "Bill Amount"
+msgstr "Monto facturado"
+
+msgid "Billed Hours"
+msgstr "Horas facturadas"
+
+msgid "Billed Hours (B)"
+msgstr "Horas facturadas (B)"
+
+msgid "Birthdays"
+msgstr "Cumpleaños"
+
+msgid "Block Holidays on important days."
+msgstr "Bloquear permisos en días importantes."
+
+msgid "Boarding Status"
+msgstr "Estado de incorporación"
+
+msgid "Body"
+msgstr "Cuerpo"
+
+msgid "Bonus"
+msgstr "Bonificación"
+
+msgid "Bookkeeping for once-per-site activation telemetry. The document name is the event name, so the primary key makes claiming a milestone atomic across concurrent transactions."
+msgstr "Registro de la telemetría de activación que se envía una sola vez por sitio. El nombre del documento es el del evento, así que la clave primaria hace que registrar un hito sea atómico entre transacciones simultáneas."
+
+msgid "Branch: {0}"
+msgstr "Sucursal: {0}"
+
+msgid "Build a salary structure"
+msgstr "Crear una estructura salarial"
+
+msgid "Build a salary structure, assign it and run payroll."
+msgstr "Cree una estructura salarial, asígnela y corra la nómina."
+
+msgid "Build an appraisal template"
+msgstr "Crear una plantilla de evaluación"
+
+msgid "Bulk Assignment"
+msgstr "Asignación masiva"
+
+msgid "Bulk Leave Policy Assignment"
+msgstr "Asignación masiva de políticas de permisos"
+
+msgid "Bulk Salary Structure Assignment"
+msgstr "Asignación masiva de estructuras salariales"
+
+msgid "Bulk attendance marking is already in progress for employee {0}. You can monitor the job status {1}"
+msgstr "Ya se está marcando la asistencia masiva del empleado {0}. Puede seguir el estado del proceso {1}"
+
+msgid "Bulk attendance marking is queued with a background job. It may take a while. You can monitor the job status {0}"
+msgstr "La marcación masiva de asistencia quedó en cola en segundo plano. Puede tardar un rato. Puede seguir el estado del proceso {0}"
+
+msgid "Bundle leave types into a policy"
+msgstr "Agrupar tipos de permiso en una política"
+
+msgid "By default, the Final Score is calculated as the average of Goal Score, Feedback Score, and Self Appraisal Score. Enable this to set a different formula"
+msgstr "Por defecto, la puntuación final es el promedio de la puntuación de objetivos, de retroalimentación y de autoevaluación. Active esta opción para usar otra fórmula"
+
+msgid "CTC"
+msgstr "CTC"
+
+msgid "CTC Missing for Employee"
+msgstr "Falta el CTC del empleado"
+
+msgid "Calculate Final Score based on Formula"
+msgstr "Calcular la puntuación final con una fórmula"
+
+msgid "Calculate Gratuity Amount Based On"
+msgstr "Calcular el monto de la indemnización según"
+
+msgid "Cancel the Payment Entry made against it, correct the advance account to be of type Receivable, and create a new Payment Entry."
+msgstr "Cancele la entrada de pago hecha contra él, corrija la cuenta de anticipos para que sea de tipo Por cobrar y cree una nueva entrada de pago."
+
+msgid "Cancellation Queued"
+msgstr "Cancelación en cola"
+
+msgid "Cancelling Vehicle Log {0} will delete draft Expense Claim {1} because it only contains Vehicle Expenses.<br><br>Do you want to continue?"
+msgstr "Cancelar el registro de vehículo {0} eliminará el borrador del reembolso de gastos {1} porque solo contiene gastos del vehículo.<br><br>¿Desea continuar?"
+
+msgid "Cancelling Vehicle Log {0} will update draft Expense Claim {1}.<br><br>Vehicle Expenses rows will be removed. Other expenses will remain.<br><br>Do you want to continue?"
+msgstr "Cancelar el registro de vehículo {0} actualizará el borrador del reembolso de gastos {1}.<br><br>Se quitarán las filas de gastos del vehículo. Los demás gastos se mantienen.<br><br>¿Desea continuar?"
+
+msgid "Cannot Modify Time"
+msgstr "No se puede cambiar la hora"
+
+msgid "Cannot allocate more leaves due to maximum leave allocation limit of {0} in leave policy assignment"
+msgstr "No se pueden asignar más permisos por el límite máximo de asignación de {0} en la asignación de política de permisos"
+
+msgid "Cannot allocate more leaves due to maximum leaves allowed limit of {0} in {1} leave type."
+msgstr "No se pueden asignar más permisos por el límite máximo de {0} permisos permitidos en el tipo de permiso {1}."
+
+msgid "Cannot break shift after end date"
+msgstr "No se puede dividir el turno después de la fecha de fin"
+
+msgid "Cannot break shift before start date"
+msgstr "No se puede dividir el turno antes de la fecha de inicio"
+
+msgid "Cannot calculate payroll correction for salary component {0} because salary slip {1} has zero {2}."
+msgstr "No se puede calcular la corrección de nómina del componente salarial {0} porque el recibo de nómina {1} tiene {2} en cero."
+
+msgid "Cannot cancel Shift Assignment: {0} as it is linked to Attendance: {1}"
+msgstr "No se puede cancelar la asignación de turno {0} porque está vinculada a la asistencia {1}"
+
+msgid "Cannot cancel Shift Assignment: {0} as it is linked to Employee Checkin: {1}"
+msgstr "No se puede cancelar la asignación de turno {0} porque está vinculada a la marcación {1}"
+
+msgid "Cannot create Salary Slip for Employee joining after Payroll Period"
+msgstr "No se puede crear el recibo de nómina de un empleado que ingresa después del período de nómina"
+
+msgid "Cannot create Salary Slip for Employee who has left before Payroll Period"
+msgstr "No se puede crear el recibo de nómina de un empleado que salió antes del período de nómina"
+
+msgid "Cannot create Salary Slip: no active Salary Structure is assigned to employee {0}."
+msgstr "No se puede crear el recibo de nómina: el empleado {0} no tiene una estructura salarial activa asignada."
+
+msgid "Cannot create a Job Applicant against a closed Job Opening"
+msgstr "No se puede crear un candidato para una vacante cerrada"
+
+msgid "Cannot create or change transactions against an Appraisal Cycle with status {0}."
+msgstr "No se pueden crear ni modificar transacciones de un ciclo de evaluación con estado {0}."
+
+msgid "Cannot mark attendance for an Inactive employee {0}"
+msgstr "No se puede marcar la asistencia del empleado inactivo {0}"
+
+msgid "Cannot update allocation for {0} after submission"
+msgstr "No se puede actualizar la asignación de {0} después de validarla"
+
+msgid "Cannot update status of Goal groups"
+msgstr "No se puede actualizar el estado de los grupos de objetivos"
+
+msgid "Cause of Grievance"
+msgstr "Causa de la queja"
+
+msgid "Changed the Status for Other Half from {0} to {1} via Attendance Request as the status is Half Day"
+msgstr "Se cambió el estado de la otra mitad de {0} a {1} mediante la solicitud de asistencia, porque el estado es Medio día"
+
+msgid "Changed the status from {0} to {1} and Status for Other Half to {2} via Attendance Request"
+msgstr "Se cambió el estado de {0} a {1} y el de la otra mitad a {2} mediante la solicitud de asistencia"
+
+msgid "Changing '{0}' to {1}."
+msgstr "Cambiando '{0}' a {1}."
+
+msgid "Changing KRA in this parent goal will align all the child goals to the same KRA, if any."
+msgstr "Cambiar el KRA de este objetivo principal alineará todos sus objetivos secundarios al mismo KRA, si los hay."
+
+msgid "Check <a href='/app/List/Error Log?reference_doctype={0}'>{1}</a> for more details"
+msgstr "Revise <a href='/app/List/Error Log?reference_doctype={0}'>{1}</a> para más detalles"
+
+msgid "Check Error Log {0} for more details."
+msgstr "Revise el registro de errores {0} para más detalles."
+
+msgid "Check In"
+msgstr "Marcar entrada"
+
+msgid "Check Out"
+msgstr "Marcar salida"
+
+msgid "Check each employee's tax"
+msgstr "Revisar el impuesto de cada empleado"
+
+msgid "Check in to create your first log."
+msgstr "Marque su entrada para crear su primer registro."
+
+msgid "Check leave balances"
+msgstr "Revisar los saldos de permisos"
+
+msgid "Check the month's attendance"
+msgstr "Revisar la asistencia del mes"
+
+msgid "Check {0} for more details"
+msgstr "Revise {0} para más detalles"
+
+msgid "Check-in"
+msgstr "Entrada"
+
+msgid "Check-out"
+msgstr "Salida"
+
+msgid "Checkin Radius"
+msgstr "Radio de marcación"
+
+msgid "Checking In..."
+msgstr "Marcando entrada..."
+
+msgid "Checking Out..."
+msgstr "Marcando salida..."
+
+msgid "Child nodes can only be created under 'Group' type nodes"
+msgstr "Solo se pueden crear nodos secundarios bajo nodos de tipo 'Grupo'"
+
+msgid "Choose flexible benefits"
+msgstr "Elegir beneficios flexibles"
+
+msgid ""
+"Choose how the hourly overtime amount is calculated:\n"
+"<ol style=\"padding-left:15px\"><li>Fixed Hourly Rate: A fixed, manually entered hourly rate.</li>\n"
+"<li>Salary Component-Based:\n"
+"\n"
+"(Sum of selected component amounts) ÷ (Payment Days) ÷ (Standard Daily Hours)</li></ol>"
+msgstr ""
+"Elija cómo se calcula el monto por hora de las horas extras:\n"
+"<ol style=\"padding-left:15px\"><li>Tarifa fija por hora: una tarifa por hora fija que se ingresa a mano.</li>\n"
+"<li>Según componentes salariales:\n"
+"\n"
+"(Suma de los montos de los componentes seleccionados) ÷ (Días de pago) ÷ (Horas diarias estándar)</li></ol>"
+
+msgid "Choose the date on which you want to create these components as arrears."
+msgstr "Elija la fecha en la que se crearán estos componentes como retroactivos."
+
+msgid "Claim History"
+msgstr "Historial de reclamos"
+
+msgid "Claim an Expense"
+msgstr "Reclamar un gasto"
+
+msgid "Claimed amount of employee {0} exceeds maximum amount eligible for claim {1}"
+msgstr "El monto reclamado por el empleado {0} supera el monto máximo que puede reclamar {1}"
+
+msgid "Claimed amount of employee {0} should be greater than 0"
+msgstr "El monto reclamado por el empleado {0} debe ser mayor que 0"
+
+msgid "Claims"
+msgstr "Reclamos"
+
+msgid "Click {0} to change the configuration and then resave salary slip"
+msgstr "Haga clic en {0} para cambiar la configuración y luego vuelva a guardar el recibo de nómina"
+
+msgid "Close Job Opening"
+msgstr "Cerrar vacante"
+
+msgid "Closed On"
+msgstr "Cerrada el"
+
+msgid "Closes On"
+msgstr "Cierra el"
+
+msgid "Closes on:"
+msgstr "Cierra el:"
+
+msgid "Closing this Job Opening for {1} may not be according to the Staffing Plan {0}.<br><br>Do you want to close this Job Opening?"
+msgstr "Cerrar esta vacante de {1} puede no ajustarse al plan de personal {0}.<br><br>¿Desea cerrar esta vacante?"
+
+msgid "Company Information"
+msgstr "Información de la compañía"
+
+msgid "Compare scores across a cycle"
+msgstr "Comparar las puntuaciones de un ciclo"
+
+msgid "Completing onboarding"
+msgstr "Completando la incorporación"
+
+msgid "Condition & Formula"
+msgstr "Condición y fórmula"
+
+msgid "Condition and Formula Help"
+msgstr "Ayuda sobre condiciones y fórmulas"
+
+msgid "Confirm {0}"
+msgstr "Confirmar {0}"
+
+msgid "Consider Grace Period"
+msgstr "Tomar en cuenta el período de gracia"
+
+msgid "Consider Marked Attendance on Holidays"
+msgstr "Tomar en cuenta la asistencia marcada en días festivos"
+
+msgid "Consider Tax Exemption Declaration"
+msgstr "Tomar en cuenta la declaración de exención de impuestos"
+
+msgid "Consolidate Leave Types"
+msgstr "Consolidar tipos de permiso"
+
+msgid "Could not update Goal"
+msgstr "No se pudo actualizar el objetivo"
+
+msgid "Could not update goals"
+msgstr "No se pudieron actualizar los objetivos"
+
+msgid "Couldn't automatically pick a Bank/Cash Account for this return. Please set one in the Accounting Entries below, or set a Default Cash Account in the {0} to avoid this next time."
+msgstr "No se pudo elegir automáticamente una cuenta de banco o caja para esta devolución. Defina una en los asientos contables de abajo o defina una cuenta de caja por defecto en {0} para evitarlo la próxima vez."
+
+msgid "Country Fixture Deletion Failed"
+msgstr "Falló la eliminación de los datos del país"
+
+msgid "Country Setup failed"
+msgstr "Falló la configuración del país"
+
+msgid "Country of Residence"
+msgstr "País de residencia"
+
+msgid "Create Additional Salary"
+msgstr "Crear salario adicional"
+
+msgid "Create Appointment Letter"
+msgstr "Crear carta de nombramiento"
+
+msgid "Create Appraisal"
+msgstr "Crear evaluación"
+
+msgid "Create Appraisal Cycle"
+msgstr "Crear ciclo de evaluación"
+
+msgid "Create Appraisal Template"
+msgstr "Crear plantilla de evaluación"
+
+msgid "Create Appraisals"
+msgstr "Crear evaluaciones"
+
+msgid "Create Assignments"
+msgstr "Crear asignaciones"
+
+msgid "Create Attendance Request"
+msgstr "Crear solicitud de asistencia"
+
+msgid "Create Benefit Application"
+msgstr "Crear solicitud de beneficios"
+
+msgid "Create Declaration"
+msgstr "Crear declaración"
+
+msgid "Create Employee Advance"
+msgstr "Crear anticipo a empleado"
+
+msgid "Create Expense Claim"
+msgstr "Crear reembolso de gastos"
+
+msgid "Create Goal"
+msgstr "Crear objetivo"
+
+msgid "Create Gratuity Rule"
+msgstr "Crear regla de indemnización"
+
+msgid "Create Holiday List"
+msgstr "Crear lista de festividades"
+
+msgid "Create Income Tax Slab"
+msgstr "Crear tramo del impuesto sobre la renta"
+
+msgid "Create Interview"
+msgstr "Crear entrevista"
+
+msgid "Create Job Applicant"
+msgstr "Crear candidato"
+
+msgid "Create Job Offer"
+msgstr "Crear oferta de trabajo"
+
+msgid "Create Job Opening"
+msgstr "Crear vacante"
+
+msgid "Create KRA"
+msgstr "Crear KRA"
+
+msgid "Create Leave Policy"
+msgstr "Crear política de permisos"
+
+msgid "Create Leave Type"
+msgstr "Crear tipo de permiso"
+
+msgid "Create Overtime Slip For Eligible Employee(s)"
+msgstr "Crear recibo de horas extras para los empleados elegibles"
+
+msgid "Create Overtime Slips"
+msgstr "Crear recibos de horas extras"
+
+msgid "Create Payroll Entry"
+msgstr "Crear entrada de nómina"
+
+msgid "Create Payroll Period"
+msgstr "Crear período de nómina"
+
+msgid "Create Salary Component"
+msgstr "Crear componente salarial"
+
+msgid "Create Salary Structure"
+msgstr "Crear estructura salarial"
+
+msgid "Create Shift Type"
+msgstr "Crear tipo de turno"
+
+msgid "Create Shifts After"
+msgstr "Crear turnos después de"
+
+msgid "Create Template"
+msgstr "Crear plantilla"
+
+msgid "Create Training Event"
+msgstr "Crear evento de capacitación"
+
+msgid "Create Training Program"
+msgstr "Crear programa de capacitación"
+
+msgid "Create Travel Request"
+msgstr "Crear solicitud de viaje"
+
+msgid "Create {0}"
+msgstr "Crear {0}"
+
+msgid "Creates salary slips for everyone in a period and books the salary. See [Payroll Entry](https://docs.frappe.io/hr/payroll-entry)."
+msgstr "Crea los recibos de nómina de todos en un período y contabiliza el salario. Vea [Entrada de nómina](https://docs.frappe.io/hr/payroll-entry)."
+
+msgid "Creating Appraisals"
+msgstr "Creando evaluaciones"
+
+msgid "Creation Date"
+msgstr "Fecha de creación"
+
+msgid "Creation Failed"
+msgstr "Falló la creación"
+
+msgid "Creation of Salary Structure Assignments has been queued. It may take a few minutes."
+msgstr "La creación de las asignaciones de estructura salarial quedó en cola. Puede tardar unos minutos."
+
+msgid "Creation of {0} has been queued. It may take a few minutes."
+msgstr "La creación de {0} quedó en cola. Puede tardar unos minutos."
+
+msgid "Criteria based on which employee should be rated in Performance Feedback and Self Appraisal"
+msgstr "Criterios con los que se califica al empleado en la retroalimentación de desempeño y en la autoevaluación"
+
+msgid "Currency "
+msgstr "Moneda "
+
+msgid "Currency of selected Income Tax Slab should be {0} instead of {1}"
+msgstr "La moneda del tramo del impuesto sobre la renta seleccionado debe ser {0} y no {1}"
+
+msgid "Current CTC"
+msgstr "CTC actual"
+
+msgid "Current Employer "
+msgstr "Empleador actual "
+
+msgid "Current Job Title"
+msgstr "Cargo actual"
+
+msgid "Current Month Income Tax"
+msgstr "Impuesto sobre la renta del mes actual"
+
+msgid "Current Password"
+msgstr "Contraseña actual"
+
+msgid "Current Payroll Period"
+msgstr "Período de nómina actual"
+
+msgid "Current Slab"
+msgstr "Tramo actual"
+
+msgid "Current Work Experience"
+msgstr "Experiencia laboral actual"
+
+msgid "Currently, there is no {0} leave period for this date to create/update leave allocation."
+msgstr "Por ahora no hay un período de permisos {0} en esta fecha para crear o actualizar la asignación de permisos."
+
+msgid "Custom Range"
+msgstr "Rango personalizado"
+
+msgid "Cycle Name"
+msgstr "Nombre del ciclo"
+
+msgid "Cycles"
+msgstr "Ciclos"
+
+msgid "Date Range Exceeded"
+msgstr "Se superó el rango de fechas"
+
+msgid "Date {0} is repeated in Overtime Details"
+msgstr "La fecha {0} está repetida en el detalle de horas extras"
+
+msgid "Dates & Reason"
+msgstr "Fechas y motivo"
+
+msgid "Dates Based On"
+msgstr "Fechas según"
+
+msgid "Days for which Holidays are blocked for this department."
+msgstr "Días en los que se bloquean los permisos para este departamento."
+
+msgid "Days to Reverse"
+msgstr "Días a revertir"
+
+msgid "Days to Reverse must be greater than zero."
+msgstr "Los días a revertir deben ser mayores que cero."
+
+msgid "Decision Pending"
+msgstr "Decisión pendiente"
+
+msgid "Declare tax exemptions"
+msgstr "Declarar exenciones de impuestos"
+
+msgid "Deduct the right tax"
+msgstr "Retener el impuesto correcto"
+
+msgid "Deduction Arrears"
+msgstr "Retroactivos de deducciones"
+
+msgid "Deduction Reports"
+msgstr "Reportes de deducciones"
+
+msgid "Deduction from Salary"
+msgstr "Descuento del salario"
+
+msgid "Deductions before tax calculation"
+msgstr "Deducciones antes del cálculo del impuesto"
+
+msgid "Default Base Pay"
+msgstr "Salario base por defecto"
+
+msgid "Default Employee Advance Account"
+msgstr "Cuenta de anticipos a empleados por defecto"
+
+msgid "Default Expense Claim Payable Account"
+msgstr "Cuenta por pagar de reembolsos de gastos por defecto"
+
+msgid "Default Payroll Payable Account"
+msgstr "Cuenta de nómina por pagar por defecto"
+
+msgid "Default Shift"
+msgstr "Turno por defecto"
+
+msgid "Define a shift"
+msgstr "Definir un turno"
+
+msgid "Define a shift, put an employee on it and mark their attendance."
+msgstr "Defina un turno, asígnele un empleado y marque su asistencia."
+
+msgid "Delete Attachment"
+msgstr "Eliminar adjunto"
+
+msgid "Delete {0}"
+msgstr "Eliminar {0}"
+
+msgid "Department Wise Employee Count"
+msgstr "Cantidad de empleados por departamento"
+
+msgid "Department Wise Openings"
+msgstr "Vacantes por departamento"
+
+msgid "Department {0} does not belong to company: {1}"
+msgstr "El departamento {0} no pertenece a la compañía: {1}"
+
+msgid "Department: {0}"
+msgstr "Departamento: {0}"
+
+msgid "Depends On Payment Days"
+msgstr "Depende de los días de pago"
+
+msgid "Description of a Job Opening"
+msgstr "Descripción de una vacante"
+
+msgid "Designation: {0}"
+msgstr "Cargo: {0}"
+
+msgid "Disable {0} for the {1} component, to prevent the amount from being deducted twice, as its formula already uses a payment-days-based component."
+msgstr "Desactive {0} en el componente {1} para que el monto no se descuente dos veces, porque su fórmula ya usa un componente basado en los días de pago."
+
+msgid "Disable {0} or {1} to proceed."
+msgstr "Desactive {0} o {1} para continuar."
+
+msgid "Disabling Push Notifications..."
+msgstr "Desactivando las notificaciones push..."
+
+msgid "Do Not Include in Accounting Entries"
+msgstr "No incluir en los asientos contables"
+
+msgid "Do you want to update the Job Applicant {0} as {1} based on this interview result?"
+msgstr "¿Desea actualizar el candidato {0} a {1} según el resultado de esta entrevista?"
+
+msgid "Document {0} failed!"
+msgstr "¡Falló el documento {0}!"
+
+msgid "Download Failed"
+msgstr "Falló la descarga"
+
+msgid "Duplicate Application"
+msgstr "Postulación duplicada"
+
+msgid "Duplicate Assignment"
+msgstr "Asignación duplicada"
+
+msgid "Duplicate Attendance"
+msgstr "Asistencia duplicada"
+
+msgid "Duplicate Claim Detected"
+msgstr "Se detectó un reclamo duplicado"
+
+msgid "Duplicate Leave Adjustment"
+msgstr "Ajuste de permisos duplicado"
+
+msgid "Duplicate Overwritten Salary"
+msgstr "Salario sobrescrito duplicado"
+
+msgid "Duplicate Salary Withholding"
+msgstr "Retención de salario duplicada"
+
+msgid "ERROR({0}): {1}"
+msgstr "ERROR({0}): {1}"
+
+msgid "Each employee's attendance for every day of the month."
+msgstr "La asistencia de cada empleado en cada día del mes."
+
+msgid "Each employee's goal, feedback and self appraisal scores in a cycle."
+msgstr "Las puntuaciones de objetivos, retroalimentación y autoevaluación de cada empleado en un ciclo."
+
+msgid "Early Exit By"
+msgstr "Salida anticipada por"
+
+msgid "Early Exits"
+msgstr "Salidas anticipadas"
+
+msgid "Earned Leave Schedule"
+msgstr "Calendario de permisos acumulables"
+
+msgid "Earned Leaves"
+msgstr "Permisos acumulables"
+
+msgid "Earned Leaves are allocated as per the configured frequency via scheduler."
+msgstr "Los permisos acumulables se asignan automáticamente con la frecuencia configurada."
+
+msgid "Earned Leaves are auto-allocated via scheduler based on the annual allocation set in the Leave Policy: {0}"
+msgstr "Los permisos acumulables se asignan automáticamente según la asignación anual definida en la política de permisos: {0}"
+
+msgid "Earned Leaves are leaves earned by an Employee after working with the company for a certain amount of time. Enabling this will allocate leaves on pro-rata basis by automatically updating Leave Allocation for leaves of this type at intervals set by 'Earned Leave Frequency."
+msgstr "Los permisos acumulables son los que gana un empleado tras trabajar cierto tiempo en la compañía. Al activar esta opción, los permisos de este tipo se asignan de forma proporcional, actualizando automáticamente la asignación de permisos con el intervalo definido en 'Frecuencia de permisos acumulables'."
+
+msgid "Earning Arrears"
+msgstr "Retroactivos de ingresos"
+
+msgid "Earning Salary Component is required for Employee Referral Bonus."
+msgstr "La bonificación por recomendación de empleado requiere un componente salarial de ingreso."
+
+msgid "Earnings & Deductions"
+msgstr "Ingresos y deducciones"
+
+msgid "Edit Expense Item"
+msgstr "Editar gasto"
+
+msgid "Edit Expense Tax"
+msgstr "Editar impuesto del gasto"
+
+msgid "Effective From"
+msgstr "Vigente desde"
+
+msgid "Effective To"
+msgstr "Vigente hasta"
+
+msgid "Email Salary Slips"
+msgstr "Enviar recibos de nómina por correo"
+
+msgid "Employee Advance Account"
+msgstr "Cuenta de anticipos del empleado"
+
+msgid "Employee Advance Balance"
+msgstr "Saldo de anticipos del empleado"
+
+msgid "Employee Advance return is scheduled via Additional Salary: {0} | <a href='{1}'> {2} </a>"
+msgstr "La devolución del anticipo del empleado está programada mediante el salario adicional: {0} | <a href='{1}'> {2} </a>"
+
+msgid "Employee Advance {0} has {1} available for return. {2} has already been scheduled for deduction in {3}."
+msgstr "El anticipo del empleado {0} tiene {1} disponible para devolver. Ya hay {2} programado para descontarse en {3}."
+
+msgid "Employee Advance {0} is in currency {1} and can only be claimed in an Expense Claim of the same currency. This Expense Claim is in {2}."
+msgstr "El anticipo del empleado {0} está en la moneda {1} y solo se puede reclamar en un reembolso de gastos de la misma moneda. Este reembolso de gastos está en {2}."
+
+msgid "Employee Advance {0} is linked to account {1}, which is not of type Receivable. Please correct the account type before making a payment against it."
+msgstr "El anticipo del empleado {0} está vinculado a la cuenta {1}, que no es de tipo Por cobrar. Corrija el tipo de cuenta antes de hacerle un pago."
+
+msgid "Employee Advance {0} is linked to account {1}, which is not of type Receivable. {2}"
+msgstr "El anticipo del empleado {0} está vinculado a la cuenta {1}, que no es de tipo Por cobrar. {2}"
+
+msgid "Employee Advance {0}'s payment does not match its Receivable account. This can happen if the account's type was changed after the payment was made. {1}"
+msgstr "El pago del anticipo del empleado {0} no coincide con su cuenta por cobrar. Puede ocurrir si el tipo de la cuenta cambió después de hacer el pago. {1}"
+
+msgid "Employee Benefit Detail"
+msgstr "Detalle de beneficios del empleado"
+
+msgid "Employee Benefit Ledger"
+msgstr "Libro de beneficios del empleado"
+
+msgid "Employee Birthday"
+msgstr "Cumpleaños del empleado"
+
+msgid "Employee CTC Break-up"
+msgstr "Desglose del CTC del empleado"
+
+msgid "Employee Checkin History"
+msgstr "Historial de marcaciones del empleado"
+
+msgid "Employee Company"
+msgstr "Compañía del empleado"
+
+msgid "Employee Cost Center"
+msgstr "Centro de costos del empleado"
+
+msgid "Employee Exit"
+msgstr "Despido de empleado"
+
+msgid "Employee Exit Settings"
+msgstr "Configuración de salida de empleados"
+
+msgid "Employee Exits"
+msgstr "Salidas de empleados"
+
+msgid "Employee Exits (This Year)"
+msgstr "Salidas de empleados (este año)"
+
+msgid "Employee Feedback Criteria"
+msgstr "Criterio de retroalimentación del empleado"
+
+msgid "Employee Feedback Rating"
+msgstr "Calificación de retroalimentación del empleado"
+
+msgid "Employee Grievance"
+msgstr "Queja del empleado"
+
+msgid "Employee Hours Utilization"
+msgstr "Utilización de horas de los empleados"
+
+msgid "Employee Hours Utilization Based On Timesheet"
+msgstr "Utilización de horas de los empleados según el registro de horas"
+
+msgid "Employee Image"
+msgstr "Foto del empleado"
+
+msgid "Employee Info"
+msgstr "Datos del empleado"
+
+msgid "Employee Information"
+msgstr "Información del empleado"
+
+msgid "Employee Leave Balance"
+msgstr "Saldo de permisos del empleado"
+
+msgid "Employee Leave Balance Summary"
+msgstr "Resumen del saldo de permisos del empleado"
+
+msgid "Employee Loan"
+msgstr "Préstamo al empleado"
+
+msgid "Employee Naming By"
+msgstr "Nombrar a los empleados por"
+
+msgid "Employee Onboarding: {0} already exists for Job Applicant: {1}"
+msgstr "Ya existe la incorporación de empleado {0} para el candidato {1}"
+
+msgid "Employee Onboarding: {0} already exists for Job Offer: {1}"
+msgstr "Ya existe la incorporación de empleado {0} para la oferta de trabajo {1}"
+
+msgid "Employee Performance Feedback"
+msgstr "Retroalimentación de desempeño del empleado"
+
+msgid "Employee Referral {0} already exists for email: {1}"
+msgstr "Ya existe la recomendación de empleado {0} para el correo {1}"
+
+msgid "Employee Referral {0} is not applicable for referral bonus."
+msgstr "La recomendación de empleado {0} no aplica para la bonificación por recomendación."
+
+msgid "Employee Referrals"
+msgstr "Recomendaciones de empleados"
+
+msgid "Employee Required"
+msgstr "Se requiere el empleado"
+
+msgid "Employee Responsible "
+msgstr "Empleado responsable "
+
+msgid "Employee Retained"
+msgstr "Empleado retenido"
+
+msgid "Employee Status"
+msgstr "Estado del empleado"
+
+msgid "Employee advance account {0} should be of type {1}."
+msgstr "La cuenta de anticipos del empleado {0} debe ser de tipo {1}."
+
+msgid "Employee can be named by Employee ID if you assign one, or via Naming Series. Select your preference here."
+msgstr "Los empleados se pueden nombrar por su ID de empleado, si les asigna uno, o con una serie de nombres. Elija su preferencia aquí."
+
+msgid "Employee must be a non-empty string."
+msgstr "El empleado debe ser un texto no vacío."
+
+msgid "Employee name"
+msgstr "Nombre del empleado"
+
+msgid "Employee not found"
+msgstr "No se encontró el empleado"
+
+msgid "Employee records are created using the selected option"
+msgstr "Los registros de empleados se crean con la opción seleccionada"
+
+msgid "Employee was marked Absent due to missing Employee Checkins."
+msgstr "El empleado se marcó ausente porque faltan sus marcaciones."
+
+msgid "Employee was marked Absent for not meeting the working hours threshold."
+msgstr "El empleado se marcó ausente por no cumplir el mínimo de horas trabajadas."
+
+msgid "Employee was marked Absent for other half due to missing Employee Checkins."
+msgstr "El empleado se marcó ausente en la otra mitad porque faltan sus marcaciones."
+
+msgid "Employee {0} : {1}"
+msgstr "Empleado {0} : {1}"
+
+msgid "Employee {0} already has an Attendance Request {1} that overlaps with this period"
+msgstr "El empleado {0} ya tiene una solicitud de asistencia {1} que se solapa con este período"
+
+msgid "Employee {0} already has an active Shift {1}: {2} that overlaps within this period."
+msgstr "El empleado {0} ya tiene un turno activo {1}: {2} que se solapa con este período."
+
+msgid "Employee {0} does not belong to Company {1}"
+msgstr "El empleado {0} no pertenece a la compañía {1}"
+
+msgid "Employee {0} does not belong to company: {1}"
+msgstr "El empleado {0} no pertenece a la compañía: {1}"
+
+msgid "Employee {0} has already applied for Shift {1}: {2} that overlaps within this period"
+msgstr "El empleado {0} ya solicitó el turno {1}: {2} que se solapa con este período"
+
+msgid "Employee {0} has already applied for {1} between {2} and {3} : {4}"
+msgstr "El empleado {0} ya solicitó {1} entre {2} y {3} : {4}"
+
+msgid "Employee {0} has already claimed the benefit '{1}' for {2} ({3}).<br>To prevent overpayments, only one claim per benefit type is allowed in each payroll cycle."
+msgstr "El empleado {0} ya reclamó el beneficio '{1}' para {2} ({3}).<br>Para evitar pagos de más, solo se permite un reclamo por tipo de beneficio en cada ciclo de nómina."
+
+msgid "Employee {0} not found in Training Event Participants."
+msgstr "No se encontró al empleado {0} entre los participantes del evento de capacitación."
+
+msgid "Employee {0} relieved on {1} must be set as 'Left'"
+msgstr "El empleado {0}, desvinculado el {1}, debe tener el estado 'Inactivo'"
+
+msgid "Employee: {0} have to complete minimum {1} years for gratuity"
+msgstr "El empleado {0} debe cumplir al menos {1} años para la indemnización"
+
+msgid "Employees Joining (This Quarter)"
+msgstr "Empleados que ingresan (este trimestre)"
+
+msgid "Employees Relieving (This Quarter)"
+msgstr "Empleados que salen (este trimestre)"
+
+msgid "Employees Working on a Holiday"
+msgstr "Empleados que trabajan en un día festivo"
+
+msgid "Employees by branch, department, designation or grade."
+msgstr "Empleados por sucursal, departamento, cargo o grado."
+
+msgid "Employees cannot give feedback to themselves. Use {0} instead: {1}"
+msgstr "Un empleado no puede darse retroalimentación a sí mismo. Use {0} en su lugar: {1}"
+
+msgid "Employees on Half Day HTML"
+msgstr "HTML de empleados con medio día"
+
+msgid "Employees on leave this month"
+msgstr "Empleados de permiso este mes"
+
+msgid "Employees on leave today"
+msgstr "Empleados de permiso hoy"
+
+msgid "Employees will miss holiday reminders from {} until {}. <br> Do you want to proceed with this change?"
+msgstr "Los empleados no recibirán recordatorios de días festivos desde {} hasta {}. <br> ¿Desea continuar con este cambio?"
+
+msgid "Employees without Feedback: {0}"
+msgstr "Empleados sin retroalimentación: {0}"
+
+msgid "Employees without Goals: {0}"
+msgstr "Empleados sin objetivos: {0}"
+
+msgid "Employer Contribution"
+msgstr "Aporte del empleador"
+
+msgid "Employer Contributions"
+msgstr "Aportes del empleador"
+
+msgid "Employer contribution accrual for salaries from {0} to {1}"
+msgstr "Provisión de los aportes del empleador por los salarios del {0} al {1}"
+
+msgid "Employment Type"
+msgstr "Tipo de empleo"
+
+msgid "Enable Early Exit Marking"
+msgstr "Activar el marcado de salidas anticipadas"
+
+msgid "Enable Late Entry Marking"
+msgstr "Activar el marcado de entradas tardías"
+
+msgid "Enable Multi-Currency Expense Claims"
+msgstr "Activar reembolsos de gastos en varias monedas"
+
+msgid "Enable Push Notifications"
+msgstr "Activar notificaciones push"
+
+msgid "Enable this to use a specific multiplier for public holidays. If unchecked, the standard multiplier will be used instead."
+msgstr "Active esta opción para usar un multiplicador propio en los días feriados. Si no está marcada, se usa el multiplicador estándar."
+
+msgid "Enable this to use a specific multiplier for weekends. If unchecked, the standard multiplier will be used instead."
+msgstr "Active esta opción para usar un multiplicador propio en los fines de semana. Si no está marcada, se usa el multiplicador estándar."
+
+msgid "Enable {0} to mark absent on the same day"
+msgstr "Active {0} para marcar la ausencia el mismo día"
+
+msgid "Enabled only for Employee Benefit components from Salary Structure Assignment"
+msgstr "Solo se activa para los componentes de beneficios del empleado que vienen de la asignación de estructura salarial"
+
+msgid "Enabling Push Notifications..."
+msgstr "Activando las notificaciones push..."
+
+msgid "Encashment Days"
+msgstr "Días a pagar"
+
+msgid "Encashment Days cannot exceed {0} {1} as per Leave Type settings"
+msgstr "Los días a pagar no pueden superar {0} {1} según la configuración del tipo de permiso"
+
+msgid "Encashment Limit Applied"
+msgstr "Se aplicó el límite de pago"
+
+msgid "End date: {0}"
+msgstr "Fecha de fin: {0}"
+
+msgid "Enter Interview Type"
+msgstr "Ingrese el tipo de entrevista"
+
+msgid "Enter a non-zero value to adjust."
+msgstr "Ingrese un valor distinto de cero para ajustar."
+
+msgid "Enter the Standard Working Hours for a normal work day. These hours will be used in calculations of reports such as Employee Hours Utilization and Project Profitability analysis."
+msgstr "Ingrese las horas de trabajo estándar de un día normal. Se usan en cálculos de reportes como la utilización de horas de los empleados y el análisis de rentabilidad de proyectos."
+
+msgid "Enter the number of Leave Without Pay (LWP) days you want to reverse. This value cannot exceed the total LWP days recorded for the selected month"
+msgstr "Ingrese la cantidad de días de permiso sin sueldo (LWP) que desea revertir. No puede superar el total de días LWP registrados en el mes seleccionado"
+
+msgid "Enter the number of leaves you want to allocate for the period."
+msgstr "Ingrese la cantidad de permisos que desea asignar para el período."
+
+msgid "Enter yearly benefit amounts"
+msgstr "Ingresar los montos anuales de beneficios"
+
+msgid "Enter your email address and we'll send you a link to reset your password."
+msgstr "Ingrese su correo electrónico y le enviaremos un enlace para restablecer su contraseña."
+
+msgid "Enter {0}"
+msgstr "Ingrese {0}"
+
+msgid "Error creating {0}"
+msgstr "Error al crear {0}"
+
+msgid "Error deleting {0}"
+msgstr "Error al eliminar {0}"
+
+msgid "Error downloading PDF"
+msgstr "Error al descargar el PDF"
+
+msgid "Error in calculating project profitability"
+msgstr "Error al calcular la rentabilidad del proyecto"
+
+msgid "Error in formula or condition"
+msgstr "Error en la fórmula o la condición"
+
+msgid "Error in formula or condition: {0} in Income Tax Slab"
+msgstr "Error en la fórmula o la condición: {0} en el tramo del impuesto sobre la renta"
+
+msgid "Error in some rows"
+msgstr "Error en algunas filas"
+
+msgid "Error updating {0}"
+msgstr "Error al actualizar {0}"
+
+msgid "Error while evaluating the {doctype} {doclink} at row {row_id}. <br><br> <b>Error:</b> {error} <br><br> <b>Hint:</b> {description}"
+msgstr "Error al evaluar {doctype} {doclink} en la fila {row_id}. <br><br> <b>Error:</b> {error} <br><br> <b>Sugerencia:</b> {description}"
+
+msgid "Evaluation Method cannot be changed as there are existing appraisals created for this cycle"
+msgstr "No se puede cambiar el método de evaluación porque ya hay evaluaciones creadas para este ciclo"
+
+msgid "Every 2 Weeks"
+msgstr "Cada 2 semanas"
+
+msgid "Every 3 Weeks"
+msgstr "Cada 3 semanas"
+
+msgid "Every 4 Weeks"
+msgstr "Cada 4 semanas"
+
+msgid "Every Week"
+msgstr "Cada semana"
+
+msgid "Every salary slip in a period, component by component."
+msgstr "Todos los recibos de nómina de un período, componente por componente."
+
+msgid "Everyone, let’s congratulate them on their work anniversary!"
+msgstr "¡Felicitemos todos a nuestros compañeros por su aniversario laboral!"
+
+msgid "Everyone, let’s congratulate {0} on their birthday."
+msgstr "Felicitemos todos a {0} por su cumpleaños."
+
+msgid "Exchange rate of Payment Entry against Employee Advance"
+msgstr "Tipo de cambio de la entrada de pago del anticipo al empleado"
+
+msgid "Exclude Holidays"
+msgstr "Excluir días festivos"
+
+msgid "Excluded {0} Non-Encashable Leaves for {1}"
+msgstr "Se excluyeron {0} permisos no pagables de {1}"
+
+msgid "Exemption Declaration"
+msgstr "Declaración de exención"
+
+msgid "Exemption Proofs"
+msgstr "Comprobantes de exención"
+
+msgid "Exemption Submission Proof"
+msgstr "Comprobante de exención presentado"
+
+msgid "Existing Record"
+msgstr "Registro existente"
+
+msgid "Existing Shift Assignments"
+msgstr "Asignaciones de turno existentes"
+
+msgid "Exit Confirmed"
+msgstr "Salida confirmada"
+
+msgid "Exit Details"
+msgstr "Detalles de la salida"
+
+msgid "Exit Interview"
+msgstr "Entrevista de salida"
+
+msgid "Exit Interview Pending"
+msgstr "Entrevista de salida pendiente"
+
+msgid "Exit Interview {0} already exists for Employee: {1}"
+msgstr "Ya existe la entrevista de salida {0} del empleado {1}"
+
+msgid "Exit Questionnaire"
+msgstr "Cuestionario de salida"
+
+msgid "Exit Questionnaire Notification"
+msgstr "Notificación del cuestionario de salida"
+
+msgid "Exit Questionnaire Notification Template"
+msgstr "Plantilla de notificación del cuestionario de salida"
+
+msgid "Exit Questionnaire Pending"
+msgstr "Cuestionario de salida pendiente"
+
+msgid "Exit Questionnaire Web Form"
+msgstr "Formulario web del cuestionario de salida"
+
+msgid "Exits (This Month)"
+msgstr "Salidas (este mes)"
+
+msgid "Expected Average Rating"
+msgstr "Calificación media esperada"
+
+msgid "Expected By"
+msgstr "Esperado para"
+
+msgid "Expected Compensation"
+msgstr "Remuneración esperada"
+
+msgid "Expected Salary Range per month"
+msgstr "Rango salarial mensual esperado"
+
+msgid "Expected Skill Set"
+msgstr "Habilidades esperadas"
+
+msgid "Expected Skillset"
+msgstr "Habilidades esperadas"
+
+msgid "Expense Approver"
+msgstr "Aprobador de gastos"
+
+msgid "Expense Claim Summary"
+msgstr "Resumen de reembolsos de gastos"
+
+msgid "Expense Claims"
+msgstr "Reembolsos de gastos"
+
+msgid "Expense Claims (This Month)"
+msgstr "Reembolsos de gastos (este mes)"
+
+msgid "Expense Item"
+msgstr "Gasto"
+
+msgid "Expense Tax"
+msgstr "Impuesto del gasto"
+
+msgid "Expenses & Advances"
+msgstr "Gastos y anticipos"
+
+msgid "Expenses Settings"
+msgstr "Configuración de gastos"
+
+msgid "Expire Leaves"
+msgstr "Vencer permisos"
+
+msgid "Expired Leave(s)"
+msgstr "Permisos vencidos"
+
+msgid "Expired Leaves"
+msgstr "Permisos vencidos"
+
+msgid "Exporting..."
+msgstr "Exportando..."
+
+msgid "Failed to delete defaults for country {0}."
+msgstr "No se pudieron eliminar los valores por defecto del país {0}."
+
+msgid "Failed to download PDF"
+msgstr "No se pudo descargar el PDF"
+
+msgid "Failed to download PDF: {0}"
+msgstr "No se pudo descargar el PDF: {0}"
+
+msgid "Failed to personalize your setup"
+msgstr "No se pudo personalizar su configuración"
+
+msgid "Failed to send reset link"
+msgstr "No se pudo enviar el enlace para restablecer"
+
+msgid "Failed to send the Interview Reschedule notification. Please configure your email account."
+msgstr "No se pudo enviar la notificación de reprogramación de la entrevista. Configure su cuenta de correo."
+
+msgid "Failed to setup defaults for country {0}."
+msgstr "No se pudieron configurar los valores por defecto del país {0}."
+
+msgid "Failed to update password"
+msgstr "Falló al actualizar contraseña"
+
+msgid "Failed to update the Job Applicant status"
+msgstr "No se pudo actualizar el estado del candidato"
+
+msgid "Failed to {0} {1} for employees:"
+msgstr "No se pudo {0} {1} para los empleados:"
+
+msgid "Failure Details"
+msgstr "Detalles del error"
+
+msgid "Failure Reason"
+msgstr "Motivo del error"
+
+msgid "Failure of Automatic Allocation of Earned Leaves"
+msgstr "Falló la asignación automática de permisos acumulables"
+
+msgid "Feedback Count"
+msgstr "Cantidad de retroalimentaciones"
+
+msgid "Feedback HTML"
+msgstr "HTML de retroalimentación"
+
+msgid "Feedback Ratings"
+msgstr "Calificaciones de retroalimentación"
+
+msgid "Feedback Reminder Notification Template"
+msgstr "Plantilla de notificación del recordatorio de retroalimentación"
+
+msgid "Feedback Score"
+msgstr "Puntuación de retroalimentación"
+
+msgid "Feedback Summary"
+msgstr "Resumen de retroalimentación"
+
+msgid "Feedback cannot be recorded for an absent Employee."
+msgstr "No se puede registrar retroalimentación de un empleado ausente."
+
+msgid "Feedback {0} added successfully"
+msgstr "Retroalimentación {0} agregada correctamente"
+
+msgid "Fetch Geolocation"
+msgstr "Obtener ubicación"
+
+msgid "Fetch Overtime Details"
+msgstr "Traer detalle de horas extras"
+
+msgid "Fetch Shift"
+msgstr "Traer turno"
+
+msgid "Fetch Shifts"
+msgstr "Traer turnos"
+
+msgid "Fetching Employees"
+msgstr "Trayendo empleados"
+
+msgid "Fetching Shift"
+msgstr "Trayendo turno"
+
+msgid "Fetching your geolocation"
+msgstr "Obteniendo su ubicación"
+
+msgid "File Preview"
+msgstr "Vista previa del archivo"
+
+msgid "Filled"
+msgstr "Cubierta"
+
+msgid "Filter Employees"
+msgstr "Filtrar empleados"
+
+msgid "Filter by Shift"
+msgstr "Filtrar por turno"
+
+msgid "Final Decision"
+msgstr "Decisión final"
+
+msgid "Final Score"
+msgstr "Puntuación final"
+
+msgid "Final Score Formula"
+msgstr "Fórmula de la puntuación final"
+
+msgid "First Day"
+msgstr "Primer día"
+
+msgid "Fixed Hourly Rate"
+msgstr "Tarifa fija por hora"
+
+msgid "Fleet Management"
+msgstr "Gestión de flota"
+
+msgid "Flexible Benefit"
+msgstr "Beneficio flexible"
+
+msgid "Flexible Component"
+msgstr "Componente flexible"
+
+msgid "FnF Pending"
+msgstr "Liquidación final pendiente"
+
+msgid "For Designation "
+msgstr "Para el cargo "
+
+#, python-format
+msgid "For a day of leave taken, if you still pay (say) 50% of the daily salary, then enter 0.50 in this field."
+msgstr "Si por cada día de permiso tomado todavía paga, por ejemplo, el 50 % del salario diario, ingrese 0.50 en este campo."
+
+msgid "Formula/Amount"
+msgstr "Fórmula/monto"
+
+msgid "Fraction of Applicable Earnings "
+msgstr "Fracción de los ingresos aplicables "
+
+msgid "Fraction of Daily Salary per Leave"
+msgstr "Fracción del salario diario por permiso"
+
+msgid "Fractional Cost"
+msgstr "Costo fraccional"
+
+msgid "Frappe HR"
+msgstr "Frappe HR"
+
+msgid "From Date must come before To Date"
+msgstr "La fecha desde debe ser anterior a la fecha hasta"
+
+msgid "From Date {0} cannot be after Payroll Period end date {1}"
+msgstr "La fecha desde {0} no puede ser posterior a la fecha de fin del período de nómina {1}"
+
+msgid "From Date {0} cannot be before Payroll Period start date {1}"
+msgstr "La fecha desde {0} no puede ser anterior a la fecha de inicio del período de nómina {1}"
+
+msgid "From and to dates are madatory for recurring type additional salaries."
+msgstr "Las fechas desde y hasta son obligatorias para los salarios adicionales recurrentes."
+
+msgid "From and to dates are mandatory for recurring type additional salaries."
+msgstr "Las fechas desde y hasta son obligatorias para los salarios adicionales recurrentes."
+
+msgid "From here, you can enable encashment for the balance leaves."
+msgstr "Desde aquí puede activar el pago de los permisos no usados."
+
+msgid "From {0} to {1}"
+msgstr "Del {0} al {1}"
+
+msgid "From(Year)"
+msgstr "Desde (año)"
+
+msgid "Fuchsia"
+msgstr "Fucsia"
+
+msgid "Fuel Expenses"
+msgstr "Gastos de combustible"
+
+msgid "Full and Final Asset"
+msgstr "Activo de la liquidación final"
+
+msgid "Full and Final Outstanding Statement"
+msgstr "Saldo pendiente de la liquidación final"
+
+msgid "Future Income Tax"
+msgstr "Impuesto sobre la renta futuro"
+
+msgid "Gain Loss Account"
+msgstr "Cuenta de ganancia o pérdida"
+
+msgid "Geolocation Error"
+msgstr "Error de ubicación"
+
+msgid "Geolocation is not supported by your current browser"
+msgstr "Su navegador actual no permite obtener la ubicación"
+
+msgid "Get Job Requisitions"
+msgstr "Traer requisiciones de personal"
+
+msgid "Get the app on your device for easy access & a better experience!"
+msgstr "¡Instale la aplicación en su dispositivo para entrar más fácil y tener una mejor experiencia!"
+
+msgid "Get the app on your iPhone for easy access & a better experience"
+msgstr "Instale la aplicación en su iPhone para entrar más fácil y tener una mejor experiencia"
+
+msgid "Get to know Frappe HR"
+msgstr "Conozca Frappe HR"
+
+msgid "Give Feedback"
+msgstr "Dar retroalimentación"
+
+msgid "Give an employee an advance"
+msgstr "Darle un anticipo a un empleado"
+
+msgid "Give an employee leave"
+msgstr "Darle permisos a un empleado"
+
+msgid "Give feedback"
+msgstr "Dar retroalimentación"
+
+msgid "Go to Login"
+msgstr "Ir al inicio de sesión"
+
+msgid "Go to Reset Password page"
+msgstr "Ir a la página para restablecer la contraseña"
+
+msgid "Goal Completion (%)"
+msgstr "Cumplimiento del objetivo (%)"
+
+msgid "Goal Score"
+msgstr "Puntuación de objetivos"
+
+msgid "Goal Score (%)"
+msgstr "Puntuación de objetivos (%)"
+
+msgid "Goal Score (weighted)"
+msgstr "Puntuación de objetivos (ponderada)"
+
+msgid "Goal progress percentage cannot be more than 100."
+msgstr "El porcentaje de avance del objetivo no puede ser mayor que 100."
+
+msgid "Goal should be aligned with the same KRA as its parent goal."
+msgstr "El objetivo debe estar alineado con el mismo KRA que su objetivo principal."
+
+msgid "Goal should be owned by the same employee as its parent goal."
+msgstr "El objetivo debe pertenecer al mismo empleado que su objetivo principal."
+
+msgid "Goal should belong to the same Appraisal Cycle as its parent goal."
+msgstr "El objetivo debe pertenecer al mismo ciclo de evaluación que su objetivo principal."
+
+msgid "Goal updated successfully"
+msgstr "Objetivo actualizado correctamente"
+
+msgid "Goals In Progress"
+msgstr "Objetivos en curso"
+
+msgid "Goals updated successfully"
+msgstr "Objetivos actualizados correctamente"
+
+msgid "Gratuity"
+msgstr "Indemnización por antigüedad"
+
+msgid "Gratuity Applicable Component"
+msgstr "Componente aplicable a la indemnización"
+
+msgid "Gratuity Rule"
+msgstr "Regla de indemnización"
+
+msgid "Gratuity Rule Slab"
+msgstr "Tramo de la regla de indemnización"
+
+msgid "Grievance"
+msgstr "Queja"
+
+msgid "Grievance Against"
+msgstr "Queja contra"
+
+msgid "Grievance Against Party"
+msgstr "Parte contra la que se presenta la queja"
+
+msgid "Grievance Details"
+msgstr "Detalles de la queja"
+
+msgid "Grievance Type"
+msgstr "Tipo de queja"
+
+msgid "Gross Earnings"
+msgstr "Ingresos brutos"
+
+msgid "Gross Pay (Company Currency)"
+msgstr "Salario bruto (moneda de la compañía)"
+
+msgid "Gross Year To Date"
+msgstr "Bruto acumulado del año"
+
+msgid "Gross Year To Date(Company Currency)"
+msgstr "Bruto acumulado del año (moneda de la compañía)"
+
+msgid "Group goal's progress is auto-calculated based on the child goals."
+msgstr "El avance de un objetivo de grupo se calcula automáticamente a partir de sus objetivos secundarios."
+
+msgid "HR"
+msgstr "RR. HH."
+
+msgid "HR & Payroll"
+msgstr "RR. HH. y nómina"
+
+msgid "HR & Payroll Settings"
+msgstr "Configuración de RR. HH. y nómina"
+
+msgid "HR Setup"
+msgstr "Configuración de RR. HH."
+
+msgid "HR Telemetry Milestone"
+msgstr "Hito de telemetría de RR. HH."
+
+msgid "HRMS"
+msgstr "HRMS"
+
+msgid "Half Day Date cannot be a holiday"
+msgstr "La fecha del medio día no puede ser un día festivo"
+
+msgid "Half Day Marked Employee Header"
+msgstr "Encabezado de empleados con medio día marcado"
+
+msgid "Half Day Records"
+msgstr "Registros de medio día"
+
+msgid "Handle an exit"
+msgstr "Gestionar una salida"
+
+msgid "Health Insurance"
+msgstr "Seguro de salud"
+
+msgid "Health Insurance No"
+msgstr "N.º de seguro de salud"
+
+msgid "Health Insurance Provider"
+msgstr "Proveedor del seguro de salud"
+
+msgid "Hello"
+msgstr "Hola"
+
+msgid "Hey {}! This email is to remind you about the upcoming holidays."
+msgstr "¡Hola, {}! Este correo es para recordarle los próximos días festivos."
+
+msgid "Hey, {0} 👋"
+msgstr "Hola, {0} 👋"
+
+msgid "Hire your first employee"
+msgstr "Contrate a su primer empleado"
+
+msgid "Hiring Count"
+msgstr "Cantidad de contrataciones"
+
+msgid "Hiring Pipeline"
+msgstr "Embudo de contratación"
+
+msgid "Hiring vs Attrition Count"
+msgstr "Contrataciones frente a bajas"
+
+msgid "Holiday List Assignment"
+msgstr "Asignación de lista de festividades"
+
+msgid "Holiday List Assignment for {0} already exists for date {1}: {2}"
+msgstr "Ya existe una asignación de lista de festividades de {0} para la fecha {1}: {2}"
+
+msgid "Holiday List End"
+msgstr "Fin de la lista de festividades"
+
+msgid "Holiday List Start"
+msgstr "Inicio de la lista de festividades"
+
+msgid "Holidays in this month"
+msgstr "Días festivos de este mes"
+
+msgid "Holidays this Month."
+msgstr "Días festivos de este mes."
+
+msgid "Holidays this Week."
+msgstr "Días festivos de esta semana."
+
+msgid "Horizontal Break"
+msgstr "Separador horizontal"
+
+msgid "Hour Rate (Company Currency)"
+msgstr "Tarifa por hora (moneda de la compañía)"
+
+msgid "Hourly Rate"
+msgstr "Tarifa por hora"
+
+msgid "How an employee splits their flexible benefit amount across components. See [Employee Benefit Application](https://docs.frappe.io/hr/employee-benefit-application)."
+msgstr "Cómo reparte un empleado su monto de beneficios flexibles entre los componentes. Vea [Solicitud de beneficios del empleado](https://docs.frappe.io/hr/employee-benefit-application)."
+
+msgid "How gratuity is calculated from years of service. See [Gratuity Rule](https://docs.frappe.io/hr/gratuity-rule)."
+msgstr "Cómo se calcula la indemnización según los años de servicio. Vea [Regla de indemnización](https://docs.frappe.io/hr/gratuity-rule)."
+
+msgid "How many days of each leave type an employee gets in a year. See [Leave Policy](https://docs.frappe.io/hr/leave-policy)."
+msgstr "Cuántos días de cada tipo de permiso recibe un empleado al año. Vea [Política de permisos](https://docs.frappe.io/hr/leave-policy)."
+
+msgid "How many employees do you have?"
+msgstr "¿Cuántos empleados tiene?"
+
+msgid "How much of each leave type every employee has left."
+msgstr "Cuánto le queda a cada empleado de cada tipo de permiso."
+
+msgid "IFSC"
+msgstr "IFSC"
+
+msgid "If checked, Payroll Payable will be booked against each employee"
+msgstr "Si se marca, la nómina por pagar se registra por cada empleado"
+
+msgid "If checked, flexible benefits are considered only if benefit application exists"
+msgstr "Si se marca, los beneficios flexibles solo se toman en cuenta si existe una solicitud de beneficios"
+
+msgid "If checked, overtime slip creation can be handled as part of payroll processing"
+msgstr "Si se marca, los recibos de horas extras se pueden crear como parte del proceso de nómina"
+
+msgid "If enabled, auto attendance will be marked on holidays if Employee Checkins exist"
+msgstr "Si se activa, la asistencia automática se marca en días festivos cuando hay marcaciones del empleado"
+
+msgid "If enabled, candidates who have already applied with the same email address will not be allowed to apply again"
+msgstr "Si se activa, los candidatos que ya se postularon con el mismo correo no podrán volver a postularse"
+
+msgid "If enabled, deducts payment days for absent attendance on holidays. By default, holidays are considered as paid"
+msgstr "Si se activa, descuenta días de pago por las ausencias marcadas en días festivos. Por defecto, los días festivos se consideran pagados"
+
+msgid "If enabled, the amount will be excluded from accounting entries during Journal Entry creation."
+msgstr "Si se activa, el monto se excluye de los asientos contables al crear el asiento de diario."
+
+msgid "If enabled, the component will be considered as a tax component and the amount will be auto-calculated as per the configured income tax slabs"
+msgstr "Si se activa, el componente se considera de impuestos y el monto se calcula automáticamente según los tramos del impuesto sobre la renta configurados"
+
+msgid "If enabled, the component will be considered in the Income Tax Deductions report"
+msgstr "Si se activa, el componente se toma en cuenta en el reporte de deducciones del impuesto sobre la renta"
+
+msgid "If enabled, the component will not be displayed in the salary slip if the amount is zero"
+msgstr "Si se activa, el componente no se muestra en el recibo de nómina cuando el monto es cero"
+
+msgid "If enabled, the total no. of applications received for this opening will be displayed on the website"
+msgstr "Si se activa, el sitio web muestra el total de postulaciones recibidas para esta vacante"
+
+msgid "If enabled, the value specified or calculated in this component will not contribute to the earnings or deductions. However, it's value can be referenced by other components that can be added or deducted. "
+msgstr "Si se activa, el valor indicado o calculado en este componente no suma a los ingresos ni a las deducciones. Sin embargo, otros componentes que sí se suman o descuentan pueden usar su valor. "
+
+msgid "If enabled, this component allows to accrue amounts without adding them to earnings. The accrued balance is tracked in the Employee Benefit Ledger and can be paid out later as needed."
+msgstr "Si se activa, este componente permite acumular montos sin sumarlos a los ingresos. El saldo acumulado se lleva en el libro de beneficios del empleado y se puede pagar más adelante, cuando haga falta."
+
+msgid "If enabled, this component will be included in arrear calculations"
+msgstr "Si se activa, este componente se incluye en el cálculo de retroactivos"
+
+msgid "If enabled, total no. of working days will include holidays, and this will reduce the value of Salary Per Day"
+msgstr "Si se activa, el total de días laborables incluye los días festivos, lo que reduce el salario por día"
+
+msgid "If greater than zero, this sets the maximum benefit amount assignable to any employee"
+msgstr "Si es mayor que cero, define el monto máximo de beneficio que se puede asignar a un empleado"
+
+msgid "If set, the job opening will be closed automatically after this date"
+msgstr "Si se define, la vacante se cierra automáticamente después de esta fecha"
+
+msgid "If you are using loans in salary slips, please install the {0} app from Frappe Cloud Marketplace or GitHub to continue using loan integration with payroll."
+msgstr "Si usa préstamos en los recibos de nómina, instale la aplicación {0} desde el Marketplace de Frappe Cloud o desde GitHub para seguir usando la integración de préstamos con la nómina."
+
+msgid "In case of any error during this background process, the system will add a comment about the error on this Payroll Entry and revert to the Submitted status"
+msgstr "Si ocurre un error durante este proceso en segundo plano, el sistema agregará un comentario con el error en esta entrada de nómina y volverá al estado Validado"
+
+msgid "Incentive"
+msgstr "Incentivo"
+
+msgid "Include Company Descendants"
+msgstr "Incluir compañías subordinadas"
+
+msgid "Include Holidays"
+msgstr "Incluir días festivos"
+
+msgid "Include Shift Attendance Without Checkins"
+msgstr "Incluir asistencia por turno sin marcaciones"
+
+msgid "Income Source"
+msgstr "Fuente de ingresos"
+
+msgid "Income Tax"
+msgstr "Impuesto sobre la renta"
+
+msgid "Income Tax Breakup"
+msgstr "Desglose del impuesto sobre la renta"
+
+msgid "Income Tax Computation"
+msgstr "Cálculo del impuesto sobre la renta"
+
+msgid "Income Tax Deducted Till Date"
+msgstr "Impuesto sobre la renta retenido hasta la fecha"
+
+msgid "Income Tax Slab is mandatory since the Salary Structure {0} has a tax component {1}"
+msgstr "El tramo del impuesto sobre la renta es obligatorio porque la estructura salarial {0} tiene el componente de impuestos {1}"
+
+msgid "Income Tax Slab: "
+msgstr "Losa de impuesto sobre la renta: "
+
+msgid "Income from Other Sources"
+msgstr "Ingresos de otras fuentes"
+
+msgid "Incorrect Weightage Allocation"
+msgstr "Distribución de ponderaciones incorrecta"
+
+msgid "Indicates the number of leaves that cannot be encashed from the leave balance. E.g. with a leave balance of 10 and 4 Non-Encashable Leaves, you can encash 6, while the remaining 4 can be carried forward or expired"
+msgstr "Indica cuántos permisos del saldo no se pueden pagar. Por ejemplo, con un saldo de 10 permisos y 4 no pagables, puede cobrar 6 y los otros 4 se pueden transferir al siguiente período o vencer"
+
+msgid "Install"
+msgstr "Instalar"
+
+msgid "Install Frappe HR"
+msgstr "Instalar Frappe HR"
+
+msgid "Insufficient Balance"
+msgstr "Saldo insuficiente"
+
+msgid "Insufficient leave balance for Leave Type {0}"
+msgstr "Saldo de permisos insuficiente para el tipo de permiso {0}"
+
+msgid "Interest Income Account"
+msgstr "Cuenta de ingresos por intereses"
+
+msgid "Internet"
+msgstr "Internet"
+
+msgid "Interview"
+msgstr "Entrevista"
+
+msgid "Interview Detail"
+msgstr "Detalle de la entrevista"
+
+msgid "Interview Details"
+msgstr "Detalles de la entrevista"
+
+msgid "Interview Feedback"
+msgstr "Retroalimentación de la entrevista"
+
+msgid "Interview Feedback Reminder"
+msgstr "Recordatorio de retroalimentación de la entrevista"
+
+msgid "Interview Feedback {0} submitted successfully"
+msgstr "Retroalimentación de la entrevista {0} validada correctamente"
+
+msgid "Interview Not Rescheduled"
+msgstr "No se reprogramó la entrevista"
+
+msgid "Interview Reminder"
+msgstr "Recordatorio de entrevista"
+
+msgid "Interview Reminder Notification Template"
+msgstr "Plantilla de notificación del recordatorio de entrevista"
+
+msgid "Interview Rescheduled successfully"
+msgstr "Entrevista reprogramada correctamente"
+
+msgid "Interview Scheduled Date"
+msgstr "Fecha programada de la entrevista"
+
+msgid "Interview Status"
+msgstr "Estado de la entrevista"
+
+msgid "Interview Summary"
+msgstr "Resumen de la entrevista"
+
+msgid "Interview Type"
+msgstr "Tipo de entrevista"
+
+msgid "Interview Type Name"
+msgstr "Nombre del tipo de entrevista"
+
+msgid "Interview Type {0} is only applicable for Designation {1}"
+msgstr "El tipo de entrevista {0} solo aplica al cargo {1}"
+
+msgid "Interview Type {0} is only applicable for the Designation {1}"
+msgstr "El tipo de entrevista {0} solo aplica al cargo {1}"
+
+msgid "Interview Type {0} is only for Designation {1}. Job Applicant has applied for the role {2}"
+msgstr "El tipo de entrevista {0} es solo para el cargo {1}. El candidato se postuló al puesto {2}"
+
+msgid "Interview scheduled successfully"
+msgstr "Entrevista programada correctamente"
+
+msgid "Interview: {0} Rescheduled"
+msgstr "Entrevista {0} reprogramada"
+
+msgid "Interviewer"
+msgstr "Entrevistador"
+
+msgid "Interviewers"
+msgstr "Entrevistadores"
+
+msgid "Interviews (This Week)"
+msgstr "Entrevistas (esta semana)"
+
+msgid "Invalid Accrual Component"
+msgstr "Componente de acumulación no válido"
+
+msgid "Invalid Additional Salary"
+msgstr "Salario adicional no válido"
+
+msgid "Invalid Arrear Component"
+msgstr "Componente de retroactivo no válido"
+
+msgid "Invalid Benefit Amounts"
+msgstr "Montos de beneficios no válidos"
+
+msgid "Invalid Dates"
+msgstr "Fechas no válidas"
+
+msgid "Invalid LWP Days Reversed"
+msgstr "Días LWP revertidos no válidos"
+
+msgid "Invalid Leave Ledger Entry"
+msgstr "Movimiento del libro de permisos no válido"
+
+msgid "Invalid Payroll Payable Account. The account currency must be {0} or {1}"
+msgstr "Cuenta de nómina por pagar no válida. La moneda de la cuenta debe ser {0} o {1}"
+
+msgid "Invalid Shift Times"
+msgstr "Horario de turno no válido"
+
+msgid "Invalid employee filter: {0}"
+msgstr "Filtro de empleados no válido: {0}"
+
+msgid "Invalid parameters provided. Please pass the required arguments."
+msgstr "Los parámetros recibidos no son válidos. Envíe los argumentos requeridos."
+
+msgid "Invalid shift filter: {0}"
+msgstr "Filtro de turnos no válido: {0}"
+
+msgid "Investigated"
+msgstr "Investigada"
+
+msgid "Investigation Details"
+msgstr "Detalles de la investigación"
+
+msgid "Is Allocated"
+msgstr "Está asignado"
+
+msgid "Is Applicable for Referral Bonus"
+msgstr "Aplica para la bonificación por recomendación"
+
+msgid "Is Compensatory Leave"
+msgstr "Es permiso compensatorio"
+
+msgid "Is Partially Paid Leave"
+msgstr "Es permiso pagado parcialmente"
+
+msgid "Is Recurring Additional Salary"
+msgstr "Es salario adicional recurrente"
+
+msgid "Is Salary Released"
+msgstr "Salario liberado"
+
+msgid "Is Salary Withheld"
+msgstr "Salario retenido"
+
+msgid "Job Applicant"
+msgstr "Candidato"
+
+msgid "Job Applicant Pipeline"
+msgstr "Embudo de candidatos"
+
+msgid "Job Applicant {0} created successfully."
+msgstr "Candidato {0} creado correctamente."
+
+msgid "Job Applicants are not allowed to appear twice for the same Interview Type. Interview {0} already scheduled for Job Applicant {1}"
+msgstr "Un candidato no puede presentarse dos veces al mismo tipo de entrevista. La entrevista {0} ya está programada para el candidato {1}"
+
+msgid "Job Application"
+msgstr "Postulación"
+
+msgid "Job Offer Status Not Updated"
+msgstr "No se actualizó el estado de la oferta de trabajo"
+
+msgid "Job Offer Term Template"
+msgstr "Plantilla de condiciones de la oferta de trabajo"
+
+msgid "Job Offer {0} already exists for {1}"
+msgstr "Ya existe la oferta de trabajo {0} para {1}"
+
+msgid "Job Offers (This Month)"
+msgstr "Ofertas de trabajo (este mes)"
+
+msgid "Job Opening Associated"
+msgstr "Vacante asociada"
+
+msgid "Job Opening Template"
+msgstr "Plantilla de vacante"
+
+msgid "Job Openings"
+msgstr "Vacantes"
+
+msgid "Job Openings for the designation {0} are already open or the hiring is complete as per the Staffing Plan {1}"
+msgstr "Las vacantes del cargo {0} ya están abiertas o la contratación ya se completó según el plan de personal {1}"
+
+msgid "Job Portal"
+msgstr "Portal de empleos"
+
+msgid "Job Requisition"
+msgstr "Requisición de personal"
+
+msgid "Job Requisition {0} has been associated with Job Opening {1}"
+msgstr "La requisición de personal {0} se asoció a la vacante {1}"
+
+msgid "KRA"
+msgstr "KRA"
+
+msgid "KRA Evaluation Method"
+msgstr "Método de evaluación de los KRA"
+
+msgid "KRA updated for all child goals."
+msgstr "Se actualizó el KRA de todos los objetivos secundarios."
+
+msgid "KRA vs Goals"
+msgstr "KRA y objetivos"
+
+msgid "KRAs"
+msgstr "KRA"
+
+msgid "Key Result Area"
+msgstr "Área clave de resultados"
+
+msgid "LWP Days Reversed ({0}) does not match actual Payroll Corrections total ({1}) for employee {2} from {3} to {4}"
+msgstr "Los días LWP revertidos ({0}) no coinciden con el total real de correcciones de nómina ({1}) del empleado {2} del {3} al {4}"
+
+msgid "Last Day"
+msgstr "Último día"
+
+msgid "Last Odometer Value "
+msgstr "Última lectura del odómetro "
+
+msgid "Last {0} was at {1}"
+msgstr "Su última {0} fue a las {1}"
+
+msgid "Late Entries"
+msgstr "Entradas tardías"
+
+msgid "Late Entry & Early Exit Settings for Auto Attendance"
+msgstr "Entradas tardías y salidas anticipadas en la asistencia automática"
+
+msgid "Late Entry (This Month)"
+msgstr "Entradas tardías (este mes)"
+
+msgid "Late Entry By"
+msgstr "Entrada tardía por"
+
+msgid "Latitude and longitude values are required for checking in."
+msgstr "Se requieren la latitud y la longitud para marcar la entrada."
+
+msgid "Latitude: {0}°"
+msgstr "Latitud: {0}°"
+
+msgid "Leave & Attendance"
+msgstr "Permisos y asistencia"
+
+msgid "Leave Adjustment"
+msgstr "Ajuste de permisos"
+
+msgid "Leave Adjustment for this allocation already exists: {0}. Please amend existing adjustment."
+msgstr "Ya existe un ajuste de permisos para esta asignación: {0}. Modifique el ajuste existente."
+
+msgid "Leave Allocation Exists"
+msgstr "Ya existe la asignación de permisos"
+
+msgid "Leave Application period cannot be across two non-consecutive leave allocations {0} and {1}."
+msgstr "El período de la solicitud de permiso no puede abarcar dos asignaciones de permisos no consecutivas {0} y {1}."
+
+msgid "Leave Applications by Type"
+msgstr "Solicitudes de permiso por tipo"
+
+msgid "Leave Approver"
+msgstr "Aprobador de permisos"
+
+msgid "Leave Approver Missing"
+msgstr "Falta el aprobador de permisos"
+
+msgid "Leave Approver is mandatory"
+msgstr "El aprobador de permisos es obligatorio"
+
+msgid "Leave Balance Summary"
+msgstr "Resumen de saldos de permisos"
+
+msgid "Leave Block List"
+msgstr "Lista de bloqueo de permisos"
+
+msgid "Leave Details"
+msgstr "Detalles de permisos"
+
+msgid "Leave History"
+msgstr "Historial de permisos"
+
+msgid "Leave Ledger"
+msgstr "Libro de permisos"
+
+msgid "Leave Ledger Entry's To date needs to be after From date. Currently, From Date is {0} and To Date is {1}"
+msgstr "La fecha hasta del movimiento del libro de permisos debe ser posterior a la fecha desde. Ahora la fecha desde es {0} y la fecha hasta es {1}"
+
+msgid "Leave Policy Assignment"
+msgstr "Asignación de política de permisos"
+
+msgid "Leave Policy Assignment Overlap"
+msgstr "Asignaciones de política de permisos solapadas"
+
+msgid "Leave Policy Name"
+msgstr "Nombre de la política de permisos"
+
+msgid "Leave Policy: {0} already assigned for Employee {1} for period {2} to {3}"
+msgstr "La política de permisos {0} ya está asignada al empleado {1} para el período del {2} al {3}"
+
+msgid "Leave Settings"
+msgstr "Configuración de permisos"
+
+msgid "Leave Setup"
+msgstr "Configuración de permisos"
+
+msgid "Leave Type can either be compensatory or earned leave."
+msgstr "El tipo de permiso puede ser compensatorio o acumulable, no ambos."
+
+msgid "Leave Type can either be without pay or partial pay"
+msgstr "El tipo de permiso puede ser sin sueldo o con sueldo parcial, no ambos"
+
+msgid "Leave allocation is skipped for {0}, because number of leaves to be allocated is 0."
+msgstr "Se omitió la asignación de permisos de {0} porque la cantidad de permisos a asignar es 0."
+
+msgid "Leave allocation {0} is linked with the Leave Application {1}"
+msgstr "La asignación de permisos {0} está vinculada a la solicitud de permiso {1}"
+
+msgid "Leave already have been assigned for this Leave Policy Assignment"
+msgstr "Ya se asignaron los permisos de esta asignación de política de permisos"
+
+msgid "Leave for optional holiday"
+msgstr "Permiso para feriado opcional"
+
+msgid "Leave of type {0} cannot be longer than {1}."
+msgstr "Un permiso de tipo {0} no puede durar más de {1}."
+
+msgid "Leave policy could not be assigned to the following employees:"
+msgstr "No se pudo asignar la política de permisos a los siguientes empleados:"
+
+msgid "Leave(s) Allocated"
+msgstr "Permisos asignados"
+
+msgid "Leave(s) Expired"
+msgstr "Permisos vencidos"
+
+msgid "Leave(s) Pending Approval"
+msgstr "Permisos pendientes de aprobación"
+
+msgid "Leave(s) Taken"
+msgstr "Permisos tomados"
+
+msgid "Leaves & Holidays"
+msgstr "Permisos y días festivos"
+
+msgid "Leaves After Adjustment"
+msgstr "Permisos después del ajuste"
+
+msgid "Leaves Expired"
+msgstr "Permisos vencidos"
+
+msgid "Leaves Pending Approval"
+msgstr "Permisos pendientes de aprobación"
+
+msgid "Leaves for the Leave Type {0} won't be carry-forwarded since carry-forwarding is disabled."
+msgstr "Los permisos del tipo {0} no se transferirán al siguiente período porque la transferencia está desactivada."
+
+msgid "Leaves to Adjust"
+msgstr "Permisos a ajustar"
+
+msgid "Leaves you can avail against a holiday you worked on. You can claim Compensatory Off Leave using Compensatory Leave Request. Click {0} to know more"
+msgstr "Permisos que puede tomar a cambio de un día festivo trabajado. Puede reclamar el día libre compensatorio con una solicitud de permiso compensatorio. Haga clic en {0} para saber más"
+
+msgid "Liability Account"
+msgstr "Cuenta de pasivo"
+
+msgid "Liability account credited for employer contributions. Applicable only for Employer Contribution components, where Account is debited as the expense."
+msgstr "Cuenta de pasivo que se acredita por los aportes del empleador. Solo aplica a los componentes de aporte del empleador, en los que la cuenta se debita como gasto."
+
+msgid "Lime"
+msgstr "Lima"
+
+msgid "Link the cycle and tag KRA to your goal to update the appraisal's goal score based on the goal progress"
+msgstr "Vincule el ciclo y asigne el KRA a su objetivo para que la puntuación de objetivos de la evaluación se actualice según su avance"
+
+msgid "Linked Job Offer {0} was {1}. Please update the Job Offer status if this hire was intended."
+msgstr "La oferta de trabajo vinculada {0} está {1}. Actualice el estado de la oferta si esta contratación era la intención."
+
+msgid "Linked Project {} and Tasks deleted."
+msgstr "Se eliminaron el proyecto {} vinculado y sus tareas."
+
+msgid "Loan Account"
+msgstr "Cuenta del préstamo"
+
+msgid "Loan Product"
+msgstr "Producto de préstamo"
+
+msgid "Loan Repayment"
+msgstr "Pago del préstamo"
+
+msgid "Loan cannot be repayed from salary for Employee {0} because salary is processed in currency {1}"
+msgstr "El préstamo del empleado {0} no se puede pagar desde el salario porque el salario se procesa en la moneda {1}"
+
+msgid "Locating..."
+msgstr "Ubicando..."
+
+msgid "Log Out"
+msgstr "Cerrar sesión"
+
+msgid "Log Type: {0}"
+msgstr "Tipo de registro: {0}"
+
+msgid "Login Failed"
+msgstr "Falló el inicio de sesión"
+
+msgid "Login to Frappe HR"
+msgstr "Iniciar sesión en Frappe HR"
+
+msgid "Longitude: {0}°"
+msgstr "Longitud: {0}°"
+
+msgid "Look at your workforce"
+msgstr "Conozca a su personal"
+
+msgid "Lower Range"
+msgstr "Rango inferior"
+
+msgid "MICR"
+msgstr "MICR"
+
+msgid "Make Bank Entry"
+msgstr "Crear asiento bancario"
+
+msgid "Make an offer"
+msgstr "Hacer una oferta"
+
+msgid "Manage time off"
+msgstr "Gestionar el tiempo libre"
+
+msgid "Mandatory Benefit Application"
+msgstr "Solicitud de beneficios obligatoria"
+
+msgid "Mandatory fields required in {0}"
+msgstr "Los siguientes campos son obligatorios en {0}"
+
+msgid "Manual Rating"
+msgstr "Calificación manual"
+
+msgid "Manually"
+msgstr "Manualmente"
+
+msgid "Mark Auto Attendance on Holidays"
+msgstr "Marcar asistencia automática en días festivos"
+
+msgid "Mark as Completed"
+msgstr "Marcar como completado"
+
+msgid "Mark as In Progress"
+msgstr "Marcar como en curso"
+
+msgid "Mark as {0}"
+msgstr "Marcar como {0}"
+
+msgid "Mark attendance"
+msgstr "Marcar asistencia"
+
+msgid "Mark attendance as {0} for {1} on selected dates?"
+msgstr "¿Marcar la asistencia como {0} para {1} en las fechas seleccionadas?"
+
+msgid "Mark attendance for existing check-in/out logs before changing shift settings"
+msgstr "Marque la asistencia de las marcaciones de entrada y salida existentes antes de cambiar la configuración del turno"
+
+msgid "Mark {0} as Completed?"
+msgstr "¿Marcar {0} como completado?"
+
+msgid "Mark {0} {1} as {2}?"
+msgstr "¿Marcar {0} {1} como {2}?"
+
+msgid "Marking Attendance"
+msgstr "Marcando asistencia"
+
+msgid "Masters"
+msgstr "Maestros"
+
+msgid "Max Amount Eligible For Claim"
+msgstr "Monto máximo que se puede reclamar"
+
+msgid "Maximum Benefit Amount"
+msgstr "Monto máximo de beneficios"
+
+msgid "Maximum Consecutive Leaves Allowed"
+msgstr "Máximo de permisos consecutivos permitidos"
+
+msgid "Maximum Consecutive Leaves Exceeded"
+msgstr "Se superó el máximo de permisos consecutivos"
+
+msgid "Maximum Encashable Leaves"
+msgstr "Máximo de permisos pagables"
+
+msgid "Maximum Leave Allocation Allowed per Leave Period"
+msgstr "Máximo de permisos a asignar por período de permisos"
+
+msgid "Maximum Overtime Hours Allowed"
+msgstr "Máximo de horas extras permitidas"
+
+msgid "Maximum Overtime Hours Allowed Per Day"
+msgstr "Máximo de horas extras permitidas por día"
+
+msgid "Maximum annual taxable income eligible for full tax relief. No tax is applied if income does not exceed this limit"
+msgstr "Ingreso imponible anual máximo con alivio fiscal total. No se aplica impuesto si el ingreso no supera este límite"
+
+msgid "Maximum encashable leaves for {0} are {1}"
+msgstr "El máximo de permisos pagables de {0} es {1}"
+
+msgid "Minimum Year for Gratuity"
+msgstr "Años mínimos para la indemnización"
+
+msgid "Minimum calendar days required since Date of Joining to apply for this leave"
+msgstr "Días calendario mínimos desde la fecha de ingreso para solicitar este permiso"
+
+msgid "Missing Advance Account"
+msgstr "Falta la cuenta de anticipos"
+
+msgid "Missing Configuration"
+msgstr "Falta configuración"
+
+msgid "Missing Field"
+msgstr "Falta un campo"
+
+msgid "Missing Mandatory Field"
+msgstr "Falta un campo obligatorio"
+
+msgid "Missing Opening Entries"
+msgstr "Faltan los asientos de apertura"
+
+msgid "Missing Relieving Date"
+msgstr "Falta la fecha de salida"
+
+msgid "Missing Salary Components"
+msgstr "Faltan componentes salariales"
+
+msgid "Missing Tax Slab"
+msgstr "Falta el tramo de impuestos"
+
+msgid "Missing value for filters"
+msgstr "Faltan valores en los filtros"
+
+msgid "Money paid before the expense, settled later against the claim. See [Employee Advance](https://docs.frappe.io/hr/employee-advance)."
+msgstr "Dinero que se entrega antes del gasto y que luego se liquida con el reembolso. Vea [Anticipo a empleado](https://docs.frappe.io/hr/employee-advance)."
+
+msgid "Month To Date"
+msgstr "Acumulado del mes"
+
+msgid "Month To Date(Company Currency)"
+msgstr "Acumulado del mes (moneda de la compañía)"
+
+msgid "Multiple Additional Salaries with overwrite property exist for Salary Component {0} between {1} and {2}."
+msgstr "Hay varios salarios adicionales que sobrescriben el componente salarial {0} entre {1} y {2}."
+
+msgid "Multiple Shift Assignments"
+msgstr "Varias asignaciones de turno"
+
+msgid ""
+"Multipliers that adjust the hourly overtime amount for specific scenarios\n"
+"\n"
+msgstr ""
+"Multiplicadores que ajustan el monto por hora de las horas extras en situaciones específicas\n"
+"\n"
+
+msgid "My Advances"
+msgstr "Mis anticipos"
+
+msgid "My Claims"
+msgstr "Mis reembolsos"
+
+msgid "My Leaves"
+msgstr "Mis permisos"
+
+msgid "My Requests"
+msgstr "Mis solicitudes"
+
+msgid "Name error"
+msgstr "Error de nombre"
+
+msgid "Net Pay (Company Currency)"
+msgstr "Salario neto (moneda de la compañía)"
+
+msgid "Net Pay Info"
+msgstr "Información del salario neto"
+
+msgid "New Expense Item"
+msgstr "Nuevo gasto"
+
+msgid "New Expense Tax"
+msgstr "Nuevo impuesto del gasto"
+
+msgid "New Feedback"
+msgstr "Nueva retroalimentación"
+
+msgid "New Hires (This Month)"
+msgstr "Nuevas contrataciones (este mes)"
+
+msgid "New Hires (This Year)"
+msgstr "Nuevas contrataciones (este año)"
+
+msgid "New Leave(s) Allocated"
+msgstr "Nuevos permisos asignados"
+
+msgid "New passwords do not match"
+msgstr "Las contraseñas nuevas no coinciden"
+
+msgid "New shift assignments will be created after this date."
+msgstr "Las nuevas asignaciones de turno se crearán después de esta fecha."
+
+msgid "No Bank/Cash Account found for currency {0}. Please create one under company {1}."
+msgstr "No se encontró una cuenta de banco o caja en la moneda {0}. Cree una en la compañía {1}."
+
+msgid "No Employees Selected"
+msgstr "No hay empleados seleccionados"
+
+msgid "No Holiday List was found for Employee {0} or their company {1} for date {2}. Please assign through {3}"
+msgstr "No se encontró una lista de festividades para el empleado {0} ni para su compañía {1} en la fecha {2}. Asígnela mediante {3}"
+
+msgid "No Interview has been scheduled."
+msgstr "No hay entrevistas programadas."
+
+msgid "No Leave Period Found"
+msgstr "No se encontró un período de permisos"
+
+msgid "No Salary Slip found for Employee: {0}"
+msgstr "No se encontró un recibo de nómina del empleado {0}"
+
+msgid "No Salary Slips with {0} found for employee {1} for payroll period {2}."
+msgstr "No se encontraron recibos de nómina con {0} del empleado {1} en el período de nómina {2}."
+
+msgid "No Salary Structure Assignment found for employee {0} on date {1}"
+msgstr "No se encontró una asignación de estructura salarial del empleado {0} en la fecha {1}"
+
+msgid "No Salary Structure Assignment found for employee {0} on or before {1}"
+msgstr "No se encontró una asignación de estructura salarial del empleado {0} en la fecha {1} o antes"
+
+msgid "No Salary Structure assigned to Employee {0} on the given date {1}"
+msgstr "El empleado {0} no tiene una estructura salarial asignada en la fecha {1}"
+
+msgid "No Salary Structures"
+msgstr "No hay estructuras salariales"
+
+msgid "No Shift Requests Selected"
+msgstr "No hay solicitudes de turno seleccionadas"
+
+msgid "No active Salary Structure Assignment found for employee {0} with salary structure {1} on or after arrear start date {2}"
+msgstr "No se encontró una asignación de estructura salarial activa del empleado {0} con la estructura salarial {1} en la fecha de inicio del retroactivo {2} o después"
+
+msgid "No active employee found associated with the email ID {0}. Try logging in with your employee email ID or contact your HR manager for access."
+msgstr "No se encontró un empleado activo asociado al correo {0}. Intente iniciar sesión con su correo de empleado o pida acceso a su gerente de RR. HH."
+
+msgid "No applicable Earning component found in last salary slip for Gratuity Rule: {0}"
+msgstr "No se encontró un componente de ingreso aplicable en el último recibo de nómina para la regla de indemnización {0}"
+
+msgid "No applicable Earning components found for Gratuity Rule: {0}"
+msgstr "No se encontraron componentes de ingreso aplicables para la regla de indemnización {0}"
+
+msgid "No applicable slab found for the calculation of gratuity amount as per the Gratuity Rule: {0}"
+msgstr "No se encontró un tramo aplicable para calcular el monto de la indemnización según la regla de indemnización {0}"
+
+msgid "No arrear components found in the existing salary slips."
+msgstr "No se encontraron componentes de retroactivo en los recibos de nómina existentes."
+
+msgid "No arrear components found in the salary slip. Ensure Arrear Component is checked in the Salary Component master."
+msgstr "No se encontraron componentes de retroactivo en el recibo de nómina. Verifique que el componente salarial tenga marcado Componente de retroactivo."
+
+msgid "No arrear details found"
+msgstr "No se encontraron detalles del retroactivo"
+
+msgid "No attendance records found for employee {0} between {1} and {2}"
+msgstr "No se encontraron registros de asistencia del empleado {0} entre {1} y {2}"
+
+msgid "No attendance records found for this criteria."
+msgstr "No se encontraron registros de asistencia con estos criterios."
+
+msgid "No attendance records found."
+msgstr "No se encontraron registros de asistencia."
+
+msgid "No attendance records to create due to following reasons"
+msgstr "No hay registros de asistencia que crear por los siguientes motivos"
+
+msgid "No changes found in timings."
+msgstr "No hay cambios en los horarios."
+
+msgid "No check-ins yet"
+msgstr "Todavía no hay marcaciones"
+
+msgid "No employees found"
+msgstr "No se encontraron empleados"
+
+msgid "No employees found for the mentioned criteria:<br>Company: {0}<br> Currency: {1}<br>Payroll Payable Account: {2}"
+msgstr "No se encontraron empleados con los criterios indicados:<br>Compañía: {0}<br> Moneda: {1}<br>Cuenta de nómina por pagar: {2}"
+
+msgid "No employees found for the selected criteria"
+msgstr "No se encontraron empleados con los criterios seleccionados"
+
+msgid "No employees found with selected filters and active salary structure"
+msgstr "No se encontraron empleados con los filtros seleccionados y una estructura salarial activa"
+
+msgid "No expenses added"
+msgstr "No se han agregado gastos"
+
+msgid "No feedback has been received yet"
+msgstr "Todavía no se ha recibido retroalimentación"
+
+msgid "No items selected"
+msgstr "No hay elementos seleccionados"
+
+msgid "No leave allocation found for {0} for {1} on given date."
+msgstr "No se encontró una asignación de permisos de {0} para {1} en la fecha indicada."
+
+msgid "No leaves have been allocated."
+msgstr "No se han asignado permisos."
+
+msgid "No login methods are available. Please contact your administrator."
+msgstr "No hay métodos de inicio de sesión disponibles. Contacte a su administrador."
+
+msgid "No of. Positions"
+msgstr "N.º de puestos"
+
+msgid "No salary slips found for the selected employee from {0}"
+msgstr "No se encontraron recibos de nómina del empleado seleccionado desde {0}"
+
+msgid "No taxes added"
+msgstr "No se han agregado impuestos"
+
+msgid "No valid shift found for log time"
+msgstr "No se encontró un turno válido para la hora del registro"
+
+msgid "No {0} Selected"
+msgstr "No hay {0} seleccionados"
+
+msgid "No {0} added"
+msgstr "No se han agregado {0}"
+
+msgid "Non Taxable Earnings"
+msgstr "Ingresos no imponibles"
+
+msgid "Non-Billed Hours"
+msgstr "Horas no facturadas"
+
+msgid "Non-Billed Hours (NB)"
+msgstr "Horas no facturadas (NB)"
+
+msgid "Non-Encashable Leaves"
+msgstr "Permisos no pagables"
+
+msgid "Note: Shift will not be overwritten in existing attendance records"
+msgstr "Nota: el turno no se sobrescribe en los registros de asistencia existentes"
+
+msgid "Note: Total allocated leaves {0} shouldn't be less than already approved leaves {1} for the period"
+msgstr "Nota: el total de permisos asignados {0} no debe ser menor que los permisos ya aprobados {1} en el período"
+
+msgid "Note: Your salary slip is password protected, the password to unlock the PDF is of the format {0}."
+msgstr "Nota: su recibo de nómina está protegido con contraseña. La contraseña para abrir el PDF tiene el formato {0}."
+
+msgid "Notification Template"
+msgstr "Plantilla de notificación"
+
+msgid "Number of Employees on Leave (This Month)"
+msgstr "Cantidad de empleados de permiso (este mes)"
+
+msgid "Number of Employees on Leave (Today)"
+msgstr "Cantidad de empleados de permiso (hoy)"
+
+msgid "Number of Leaves"
+msgstr "Cantidad de permisos"
+
+msgid "Number of Withholding Cycles"
+msgstr "Cantidad de ciclos de retención"
+
+msgid "Number of days after the shift ends before marking Absent for missing attendance. Set to 0 to mark Absent on the same day, right after the shift's checkout window closes (requires 'Automatically update Last Sync of Checkin' to be enabled)."
+msgstr "Días después del fin del turno antes de marcar Ausente por falta de asistencia. Ponga 0 para marcar Ausente el mismo día, en cuanto cierre la ventana de salida del turno (requiere activar 'Actualizar automáticamente la última sincronización de marcaciones')."
+
+msgid "Number of leaves eligible for encashment based on leave type settings"
+msgstr "Cantidad de permisos que se pueden pagar según la configuración del tipo de permiso"
+
+msgid "OTP Code"
+msgstr "Código OTP"
+
+msgid "OTP Verification"
+msgstr "Verificación OTP"
+
+msgid "Obtained Average Rating"
+msgstr "Calificación media obtenida"
+
+msgid "Odometer Value"
+msgstr "Lectura del odómetro"
+
+msgid "Off-Shift"
+msgstr "Fuera de turno"
+
+msgid "Off-shift"
+msgstr "Fuera de turno"
+
+msgid "Offer Terms"
+msgstr "Condiciones de la oferta"
+
+msgid "Onboard a new hire"
+msgstr "Incorporar a un nuevo empleado"
+
+msgid "Onboarding"
+msgstr "Incorporación"
+
+msgid "Onboarding Activities"
+msgstr "Actividades de incorporación"
+
+msgid "Onboarding Begins On"
+msgstr "La incorporación empieza el"
+
+msgid "One employee's ratings for a cycle. The cycle can create these for everyone in it. See [Appraisal](https://docs.frappe.io/hr/appraisal)."
+msgstr "Las calificaciones de un empleado en un ciclo. El ciclo puede crearlas para todos sus participantes. Vea [Evaluación](https://docs.frappe.io/hr/appraisal)."
+
+msgid "Ongoing Appraisal Cycles"
+msgstr "Ciclos de evaluación en curso"
+
+msgid "Only Completed documents can be submitted"
+msgstr "Solo se pueden validar los documentos completados"
+
+msgid "Only Employee Grievance with status {0} or {1} can be submitted"
+msgstr "Solo se pueden validar las quejas de empleados con estado {0} o {1}"
+
+msgid "Only Interviewer Are allowed to submit Interview Feedback"
+msgstr "Solo los entrevistadores pueden validar la retroalimentación de la entrevista"
+
+msgid "Only Interviews with Cleared or Rejected status can be submitted."
+msgstr "Solo se pueden validar las entrevistas con estado Aprobada o Rechazada."
+
+msgid "Only interviewers can submit feedback"
+msgstr "Solo los entrevistadores pueden validar la retroalimentación"
+
+msgid "Only {0} Goals can be {1}"
+msgstr "Solo los objetivos {0} pueden ser {1}"
+
+msgid "Open & Approved"
+msgstr "Abiertas y aprobadas"
+
+msgid "Open Appraisal Overview"
+msgstr "Abrir el resumen de evaluaciones"
+
+msgid "Open Employee Analytics"
+msgstr "Abrir el análisis de empleados"
+
+msgid "Open Employee Leave Balance"
+msgstr "Abrir el saldo de permisos de los empleados"
+
+msgid "Open Expenses"
+msgstr "Abrir Gastos"
+
+msgid "Open Feedback"
+msgstr "Abrir retroalimentación"
+
+msgid "Open Full Form"
+msgstr "Abrir el formulario completo"
+
+msgid "Open Income Tax Computation"
+msgstr "Abrir el cálculo del impuesto sobre la renta"
+
+msgid "Open Leaves"
+msgstr "Abrir Permisos"
+
+msgid "Open Monthly Attendance Sheet"
+msgstr "Abrir la hoja de asistencia mensual"
+
+msgid "Open Now"
+msgstr "Abrir ahora"
+
+msgid "Open Payroll"
+msgstr "Abrir Nómina"
+
+msgid "Open Performance"
+msgstr "Abrir Desempeño"
+
+msgid "Open Recruitment"
+msgstr "Abrir Reclutamiento"
+
+msgid "Open Recruitment Analytics"
+msgstr "Abrir el análisis de reclutamiento"
+
+msgid "Open Resume in New Tab"
+msgstr "Abrir el currículum en otra pestaña"
+
+msgid "Open Salary Register"
+msgstr "Abrir el registro de salarios"
+
+msgid "Open Shift & Attendance"
+msgstr "Abrir Turnos y asistencia"
+
+msgid "Open Tax & Benefits"
+msgstr "Abrir Impuestos y beneficios"
+
+msgid "Open Tenure"
+msgstr "Abrir Trayectoria"
+
+msgid "Open Unpaid Claims"
+msgstr "Abrir los reembolsos sin pagar"
+
+msgid "Open Unpaid Expense Claim"
+msgstr "Abrir los reembolsos de gastos sin pagar"
+
+msgid "Open a job"
+msgstr "Abrir una vacante"
+
+msgid "Open a job, add an applicant and make them an offer."
+msgstr "Abra una vacante, agregue un candidato y hágale una oferta."
+
+msgid "Opening closed."
+msgstr "Vacante cerrada."
+
+msgid "Openings, applicants and offers for each designation in a staffing plan."
+msgstr "Vacantes, candidatos y ofertas de cada cargo en un plan de personal."
+
+msgid "Optional Leaves are holidays that Employees can choose to avail from a list of holidays published by the company."
+msgstr "Los permisos opcionales son días festivos que los empleados pueden elegir tomar de una lista de feriados publicada por la compañía."
+
+msgid "Optional. Leave blank to use the Mode of Payment set on this Advance, or the Company's Default Cash Account."
+msgstr "Opcional. Déjelo en blanco para usar la forma de pago de este anticipo o la cuenta de caja por defecto de la compañía."
+
+msgid "Organizational Chart"
+msgstr "Organigrama"
+
+msgid "Outgoing Salary"
+msgstr "Salida de salarios"
+
+msgid "Over Allocation"
+msgstr "Asignación de más"
+
+msgid "Overall Average Rating"
+msgstr "Calificación media general"
+
+msgid "Overlapping Attendance Request"
+msgstr "Solicitudes de asistencia solapadas"
+
+msgid "Overlapping Shift Attendance"
+msgstr "Asistencia en turnos solapados"
+
+msgid "Overlapping Shift Requests"
+msgstr "Solicitudes de turno solapadas"
+
+msgid "Overlapping Shifts"
+msgstr "Turnos solapados"
+
+msgid "Overtime"
+msgstr "Horas extras"
+
+msgid "Overtime Amount Calculation"
+msgstr "Cálculo del monto de horas extras"
+
+msgid "Overtime Details"
+msgstr "Detalle de horas extras"
+
+msgid "Overtime Duration"
+msgstr "Duración de las horas extras"
+
+msgid "Overtime Duration for {0} is greater than Maximum Overtime Hours Allowed"
+msgstr "La duración de las horas extras de {0} supera el máximo de horas extras permitidas"
+
+msgid "Overtime Salary Component"
+msgstr "Componente salarial de horas extras"
+
+msgid "Overtime Slip"
+msgstr "Recibo de horas extras"
+
+msgid "Overtime Slip Creation Error for {0}"
+msgstr "Error al crear el recibo de horas extras de {0}"
+
+msgid "Overtime Slip Creation Failed"
+msgstr "Falló la creación del recibo de horas extras"
+
+msgid "Overtime Slip Step"
+msgstr "Paso de recibos de horas extras"
+
+msgid "Overtime Slip Submission Error for {0}"
+msgstr "Error al validar el recibo de horas extras de {0}"
+
+msgid "Overtime Slip Submission Failed"
+msgstr "Falló la validación del recibo de horas extras"
+
+msgid "Overtime Slip Submitted"
+msgstr "Recibo de horas extras validado"
+
+msgid "Overtime Slip created for {0} employee(s)"
+msgstr "Se crearon recibos de horas extras para {0} empleado(s)"
+
+msgid "Overtime Slip creation is queued. It may take a few minutes"
+msgstr "La creación de los recibos de horas extras quedó en cola. Puede tardar unos minutos"
+
+msgid "Overtime Slip submission is queued. It may take a few minutes"
+msgstr "La validación de los recibos de horas extras quedó en cola. Puede tardar unos minutos"
+
+msgid "Overtime Slip:{0} has been created between {1} and {2}"
+msgstr "Ya existe el recibo de horas extras {0} entre {1} y {2}"
+
+msgid "Overtime Slips Created"
+msgstr "Recibos de horas extras creados"
+
+msgid "Overtime Slips submitted for {0} employee(s)"
+msgstr "Se validaron recibos de horas extras para {0} empleado(s)"
+
+msgid "Overtime Type"
+msgstr "Tipo de horas extras"
+
+msgid "Overtime earnings will be booked under this salary component for payout."
+msgstr "Los ingresos por horas extras se registran en este componente salarial para su pago."
+
+msgid "Overwrite Salary Structure Amount is disabled as the Salary Component: {0} not part of the Salary Structure: {1}"
+msgstr "Se desactivó Sobrescribir el monto de la estructura salarial porque el componente salarial {0} no forma parte de la estructura salarial {1}"
+
+msgid "PWA Notification"
+msgstr "Notificación PWA"
+
+msgid "Paid via Salary Slip"
+msgstr "Pagado mediante recibo de nómina"
+
+msgid "Parent Goal"
+msgstr "Objetivo principal"
+
+msgid "Partly Claimed and Returned"
+msgstr "Reclamado y devuelto en parte"
+
+msgid "Password reset link has been sent to your email."
+msgstr "Se envió a su correo el enlace para restablecer la contraseña."
+
+msgid "Pay Details"
+msgstr "Detalles del pago"
+
+msgid "Pay Rate Multipliers"
+msgstr "Multiplicadores de la tarifa de pago"
+
+msgid "Pay Via Payment Entry"
+msgstr "Pagar mediante entrada de pago"
+
+msgid "Pay a one-off amount"
+msgstr "Pagar un monto único"
+
+msgid "Pay the employee back"
+msgstr "Devolverle el dinero al empleado"
+
+msgid "Pay via Payment Entry"
+msgstr "Pagar mediante entrada de pago"
+
+msgid "Pay via Salary Slip"
+msgstr "Pagar mediante recibo de nómina"
+
+msgid "Payable Account is mandatory to submit an Expense Claim"
+msgstr "La cuenta por pagar es obligatoria para validar un reembolso de gastos"
+
+msgid "Payment Date"
+msgstr "Fecha de pago"
+
+msgid "Payment Days Calculation Help"
+msgstr "Ayuda sobre el cálculo de los días de pago"
+
+msgid "Payment Days Dependency"
+msgstr "Dependencia de los días de pago"
+
+msgid "Payment Days calculations are based on these Payroll Settings"
+msgstr "El cálculo de los días de pago se basa en esta configuración de nómina"
+
+msgid "Payment and Accounting"
+msgstr "Pago y contabilidad"
+
+msgid "Payout"
+msgstr "Pago"
+
+msgid "Payout Method"
+msgstr "Método de pago"
+
+msgid "Payout Unclaimed Amount in Final Payroll Cycle"
+msgstr "Pagar el monto no reclamado en el último ciclo de nómina"
+
+msgid "Payroll Based On"
+msgstr "Nómina basada en"
+
+msgid "Payroll Correction"
+msgstr "Corrección de nómina"
+
+msgid "Payroll Correction Child"
+msgstr "Detalle de la corrección de nómina"
+
+msgid "Payroll Cost Center"
+msgstr "Centro de costos de nómina"
+
+msgid "Payroll Cost Centers"
+msgstr "Centros de costos de nómina"
+
+msgid "Payroll Entry cancellation is queued. It may take a few minutes"
+msgstr "La cancelación de la entrada de nómina quedó en cola. Puede tardar unos minutos"
+
+msgid "Payroll Info"
+msgstr "Información de la nómina"
+
+msgid "Payroll Payable Account"
+msgstr "Cuenta de nómina por pagar"
+
+msgid "Payroll date cannot be in the past. This is to ensure that claims are made for the current or future payroll cycles."
+msgstr "La fecha de nómina no puede ser pasada. Así los reclamos se hacen para el ciclo de nómina actual o los siguientes."
+
+msgid "Payroll date is mandatory for non-recurring type additional salaries."
+msgstr "La fecha de nómina es obligatoria para los salarios adicionales no recurrentes."
+
+msgid "Pending (unpaid) amount from previous advances"
+msgstr "Monto pendiente (sin pagar) de anticipos anteriores"
+
+msgid "Pending Asset Returns"
+msgstr "Devoluciones de activos pendientes"
+
+msgid "Pending FnF"
+msgstr "Liquidación final pendiente"
+
+msgid "Pending Interviews"
+msgstr "Entrevistas pendientes"
+
+msgid "Pending Questionnaires"
+msgstr "Cuestionarios pendientes"
+
+msgid "Percent of CTC (%)"
+msgstr "Porcentaje del CTC (%)"
+
+msgid "Performance Management"
+msgstr "Gestión del desempeño"
+
+msgid "Permanently cancel {0}"
+msgstr "Cancelar {0} de forma permanente"
+
+msgid "Permanently submit {0}"
+msgstr "Validar {0} de forma permanente"
+
+msgid "Pick an approved claim from the list this opens and use Create > Payment on it. The payment is then linked to the claim and marks it paid. See [Expense Claim](https://docs.frappe.io/hr/expense-claim#payment-for-expense-claim)."
+msgstr "Elija un reembolso aprobado de la lista que se abre y use Crear > Pago en él. El pago queda vinculado al reembolso y lo marca como pagado. Vea [Reembolso de gastos](https://docs.frappe.io/hr/expense-claim#payment-for-expense-claim)."
+
+msgid "Plan a training program"
+msgstr "Planificar un programa de capacitación"
+
+msgid "Plan a work trip"
+msgstr "Planificar un viaje de trabajo"
+
+msgid "Please Enable Auto Attendance and complete the setup first."
+msgstr "Primero active la asistencia automática y complete la configuración."
+
+msgid "Please Select Company First"
+msgstr "Primero seleccione la compañía"
+
+msgid "Please assign a Salary Structure for Employee {0} applicable from or before {1} first"
+msgstr "Primero asigne al empleado {0} una estructura salarial vigente desde el {1} o antes"
+
+msgid "Please create a new {0} for the date {1} first."
+msgstr "Primero cree un nuevo {0} para la fecha {1}."
+
+msgid "Please delete the Employee {0} to cancel this document"
+msgstr "Elimine el empleado {0} para cancelar este documento"
+
+msgid "Please enter a valid email address"
+msgstr "Por favor, introduzca una dirección de correo válida"
+
+msgid "Please enter your email address"
+msgstr "Ingrese su correo electrónico"
+
+msgid "Please fill all fields"
+msgstr "Complete todos los campos"
+
+msgid "Please fill in Employee, Posting Date, and Company before fetching overtime details."
+msgstr "Complete el empleado, la fecha de contabilización y la compañía antes de traer el detalle de horas extras."
+
+msgid "Please reduce {0} to avoid shift time overlapping with itself"
+msgstr "Reduzca {0} para que el horario del turno no se solape consigo mismo"
+
+msgid "Please see attachment"
+msgstr "Vea el adjunto"
+
+msgid "Please select Filter Based On"
+msgstr "Seleccione Filtrar según"
+
+msgid "Please select From Date and Payroll Frequency first"
+msgstr "Primero seleccione la fecha desde y la frecuencia de nómina"
+
+msgid "Please select From Date."
+msgstr "Seleccione la fecha desde."
+
+msgid "Please select Shift Schedule and assignment date(s)."
+msgstr "Seleccione el horario de turnos y las fechas de asignación."
+
+msgid "Please select Shift Type and assignment date(s)."
+msgstr "Seleccione el tipo de turno y las fechas de asignación."
+
+msgid "Please select a company first"
+msgstr "Primero seleccione una compañía"
+
+msgid "Please select a company first."
+msgstr "Primero seleccione una compañía."
+
+msgid "Please select a date."
+msgstr "Seleccione una fecha."
+
+msgid "Please select an Applicant"
+msgstr "Seleccione un candidato"
+
+msgid "Please select an Employee before continuing."
+msgstr "Seleccione un empleado antes de continuar."
+
+msgid "Please select at least one Shift Request to perform this action."
+msgstr "Seleccione al menos una solicitud de turno para realizar esta acción."
+
+msgid "Please select at least one employee to perform this action."
+msgstr "Seleccione al menos un empleado para realizar esta acción."
+
+msgid "Please select at least one row to perform this action."
+msgstr "Seleccione al menos una fila para realizar esta acción."
+
+msgid "Please select company."
+msgstr "Seleccione la compañía."
+
+msgid "Please select employee first"
+msgstr "Primero seleccione el empleado"
+
+msgid "Please select employees to create appraisals for"
+msgstr "Seleccione los empleados para los que se crearán evaluaciones"
+
+msgid "Please select half day attendance status."
+msgstr "Seleccione el estado de asistencia del medio día."
+
+msgid "Please select month and year."
+msgstr "Seleccione el mes y el año."
+
+msgid "Please select the Appraisal Cycle first."
+msgstr "Primero seleccione el ciclo de evaluación."
+
+msgid "Please select the attendance status."
+msgstr "Seleccione el estado de asistencia."
+
+msgid "Please select the employees you want to mark attendance for."
+msgstr "Seleccione los empleados a los que desea marcar la asistencia."
+
+msgid "Please select the salary slips to email"
+msgstr "Seleccione los recibos de nómina que desea enviar por correo"
+
+msgid "Please set \"Default Payroll Payable Account\" in Company Defaults"
+msgstr "Defina la \"Cuenta de nómina por pagar por defecto\" en los valores por defecto de la compañía"
+
+msgid "Please set Basic and HRA component in Company {0}"
+msgstr "Defina los componentes de salario básico y HRA en la compañía {0}"
+
+msgid "Please set Earning Component for Leave type: {0}."
+msgstr "Defina el componente de ingreso del tipo de permiso {0}."
+
+msgid "Please set Leave Approver for the Employee: {0}"
+msgstr "Defina el aprobador de permisos del empleado {0}"
+
+msgid "Please set Relieving Date for employee: {0}"
+msgstr "Defina la fecha de salida del empleado {0}"
+
+msgid "Please set a Default Bank/Cash Account in the Company {0}"
+msgstr "Defina una cuenta de banco o caja por defecto en la compañía {0}"
+
+msgid "Please set a date range less than 90 days."
+msgstr "Defina un rango de fechas menor de 90 días."
+
+msgid "Please set a {0} on this document, or a Default Bank/Cash Account in the Company {1}"
+msgstr "Defina {0} en este documento o una cuenta de banco o caja por defecto en la compañía {1}"
+
+msgid "Please set account in Salary Component {0}"
+msgstr "Defina la cuenta en el componente salarial {0}"
+
+msgid "Please set cost to company(CTC) for employee {0} in the {1}"
+msgstr "Defina el costo para la empresa (CTC) del empleado {0} en {1}"
+
+msgid "Please set employee's total cost to company to see CTC breakup."
+msgstr "Defina el costo total para la empresa del empleado para ver el desglose del CTC."
+
+msgid "Please set expense and liability accounts in Salary Component {0}"
+msgstr "Defina las cuentas de gasto y de pasivo en el componente salarial {0}"
+
+msgid "Please set the Advance Account {0} or in {1}"
+msgstr "Defina la cuenta de anticipos {0} o en {1}"
+
+msgid "Please set the Appraisal Template for all the {0} or select the template in the Employees table below."
+msgstr "Defina la plantilla de evaluación de todos los {0} o seleccione la plantilla en la tabla de empleados de abajo."
+
+msgid "Please set the Holiday List."
+msgstr "Defina la lista de festividades."
+
+msgid "Please set the date range."
+msgstr "Defina el rango de fechas."
+
+msgid "Please set the relieving date for employee {0}"
+msgstr "Defina la fecha de salida del empleado {0}"
+
+msgid "Please set {0} and {1} in {2}."
+msgstr "Defina {0} y {1} en {2}."
+
+msgid "Please set {0} for Employee {1}"
+msgstr "Defina {0} del empleado {1}"
+
+msgid "Please set {0} for the Employee: {1}"
+msgstr "Defina {0} del empleado {1}"
+
+msgid "Please set {0} to get CTC report"
+msgstr "Defina {0} para obtener el reporte de CTC"
+
+msgid "Please specify the job applicant to be updated."
+msgstr "Indique el candidato que se debe actualizar."
+
+msgid "Please specify {0} and {1} (if any), for the correct tax calculation in future salary slips."
+msgstr "Indique {0} y {1} (si aplica) para que el impuesto se calcule bien en los próximos recibos de nómina."
+
+msgid "Please submit the {0} before marking the cycle as Completed"
+msgstr "Valide {0} antes de marcar el ciclo como completado"
+
+msgid "Posting date"
+msgstr "Fecha de contabilización"
+
+msgid "Present Records"
+msgstr "Registros de presencia"
+
+msgid "Prevent Duplicate Applications"
+msgstr "Evitar postulaciones duplicadas"
+
+msgid "Prevent self approval for expense claims even if user has permissions"
+msgstr "Impedir que un usuario apruebe sus propios reembolsos de gastos aunque tenga permisos"
+
+msgid "Prevent self approval for leaves even if user has permissions"
+msgstr "Impedir que un usuario apruebe sus propios permisos aunque tenga permisos"
+
+msgid "Principal Amount"
+msgstr "Monto principal"
+
+msgid "Printed On {0}"
+msgstr "Impreso el {0}"
+
+msgid "Process Payroll Accounting Entry based on Employee"
+msgstr "Procesar el asiento contable de nómina por empleado"
+
+msgid "Process Requests"
+msgstr "Procesar solicitudes"
+
+msgid "Process Shift Requests"
+msgstr "Procesar solicitudes de turno"
+
+msgid "Process leave encashment via a separate Payment Entry instead of Salary Slip"
+msgstr "Pagar los permisos con una entrada de pago aparte en lugar del recibo de nómina"
+
+msgid "Process {0} Shift Request(s) as <b>{1}</b>?"
+msgstr "¿Procesar {0} solicitud(es) de turno como <b>{1}</b>?"
+
+msgid "Processing Requests"
+msgstr "Procesando solicitudes"
+
+msgid "Processing Requests..."
+msgstr "Procesando solicitudes..."
+
+msgid "Processing of Shift Requests has been queued. It may take a few minutes."
+msgstr "El procesamiento de las solicitudes de turno quedó en cola. Puede tardar unos minutos."
+
+msgid "Profit"
+msgstr "Ganancia"
+
+msgid "Project Profitability"
+msgstr "Rentabilidad del proyecto"
+
+msgid "Promotions (This Month)"
+msgstr "Promociones (este mes)"
+
+msgid "Proof of what was declared, so the exemption counts in the final tax. See [Employee Tax Exemption Proof Submission](https://docs.frappe.io/hr/employee-tax-exemption-proof-submission)."
+msgstr "Comprobantes de lo declarado, para que la exención cuente en el impuesto final. Vea [Presentación de comprobantes de exención](https://docs.frappe.io/hr/employee-tax-exemption-proof-submission)."
+
+msgid "Provide a short reason for leave."
+msgstr "Indique brevemente el motivo del permiso."
+
+msgid "Public Holiday Multiplier"
+msgstr "Multiplicador de días feriados"
+
+msgid "Publish Applications Received"
+msgstr "Publicar las postulaciones recibidas"
+
+msgid "Publish Salary Range"
+msgstr "Publicar el rango salarial"
+
+msgid "Purpose & Amount"
+msgstr "Propósito y monto"
+
+msgid "Push Notification permission denied"
+msgstr "Se negó el permiso para notificaciones push"
+
+msgid "Push notifications disabled"
+msgstr "Notificaciones push desactivadas"
+
+msgid "Push notifications have been disabled on your site"
+msgstr "Las notificaciones push están desactivadas en su sitio"
+
+msgid "Puts an employee on a salary structure with their base pay from a date. See [Salary Structure Assignment](https://docs.frappe.io/hr/salary-structure-assignment)."
+msgstr "Asigna una estructura salarial a un empleado, con su salario base, desde una fecha. Vea [Asignación de estructura salarial](https://docs.frappe.io/hr/salary-structure-assignment)."
+
+msgid "Puts an employee on a shift from a date. See [Shift Assignment](https://docs.frappe.io/hr/shift-assignment)."
+msgstr "Asigna un turno a un empleado desde una fecha. Vea [Asignación de turno](https://docs.frappe.io/hr/shift-assignment)."
+
+msgid "Questionnaire Email Sent"
+msgstr "Cuestionario enviado por correo"
+
+msgid "Quick Filters"
+msgstr "Filtros rápidos"
+
+msgid "Quick Links"
+msgstr "Enlaces rápidos"
+
+msgid "Radius within which check-in is allowed (in meters)"
+msgstr "Radio dentro del cual se permite marcar la entrada (en metros)"
+
+msgid "Rate Goals Manually"
+msgstr "Calificar objetivos manualmente"
+
+msgid "Rating Criteria"
+msgstr "Criterios de calificación"
+
+msgid "Ratings"
+msgstr "Calificaciones"
+
+msgid "Reason for Adjustment"
+msgstr "Motivo del ajuste"
+
+msgid "Reason for Requesting"
+msgstr "Motivo de la solicitud"
+
+msgid "Reason for Withholding Salary"
+msgstr "Motivo de la retención del salario"
+
+msgid "Reason for skipping auto attendance:"
+msgstr "Motivo por el que se omitió la asistencia automática:"
+
+msgid "Recent Attendance Requests"
+msgstr "Solicitudes de asistencia recientes"
+
+msgid "Recent Expenses"
+msgstr "Gastos recientes"
+
+msgid "Recent Leaves"
+msgstr "Permisos recientes"
+
+msgid "Recent Shift Requests"
+msgstr "Solicitudes de turno recientes"
+
+msgid "Recommended for a single biometric device / checkins via mobile app"
+msgstr "Recomendado para un solo reloj biométrico o para marcaciones desde la aplicación móvil"
+
+msgid "Record a check-in"
+msgstr "Registrar una marcación"
+
+msgid "Recover Cost"
+msgstr "Recuperar el costo"
+
+msgid "Recruitment"
+msgstr "Reclutamiento"
+
+msgid "Reduce"
+msgstr "Reducir"
+
+msgid "Reducing maximum leaves allowed after allocation may cause scheduler to allocate incorrect number of earned leaves. Proceed with caution."
+msgstr "Reducir el máximo de permisos permitidos después de asignarlos puede hacer que se asigne una cantidad incorrecta de permisos acumulables. Proceda con cuidado."
+
+msgid "Reduction is more than {0}'s available leave balance {1} for leave type {2}"
+msgstr "La reducción supera el saldo de permisos disponible de {0}, {1}, para el tipo de permiso {2}"
+
+msgid "Referral Bonus Payment Status"
+msgstr "Estado del pago de la bonificación por recomendación"
+
+msgid "Referral Details"
+msgstr "Detalles de la recomendación"
+
+msgid "Referrer Details"
+msgstr "Datos de quien recomienda"
+
+msgid "Referrer Name"
+msgstr "Nombre de quien recomienda"
+
+msgid "Reflections"
+msgstr "Reflexiones"
+
+msgid "Reject"
+msgstr "Rechazar"
+
+msgid "Reject Employee Referral"
+msgstr "Rechazar la recomendación de empleado"
+
+msgid "Rejected Claims (This Month)"
+msgstr "Reembolsos rechazados (este mes)"
+
+msgid "Rejection"
+msgstr "Rechazo"
+
+msgid "Release Withheld Salaries"
+msgstr "Liberar salarios retenidos"
+
+msgid "Released"
+msgstr "Liberado"
+
+msgid "Relieving Date Missing"
+msgstr "Falta la fecha de salida"
+
+msgid "Reminders"
+msgstr "Recordatorios"
+
+msgid "Remove if Zero Valued"
+msgstr "Quitar si el valor es cero"
+
+msgid "Reopen Job Opening"
+msgstr "Reabrir vacante"
+
+msgid "Repay From Salary"
+msgstr "Descontar del salario"
+
+msgid "Repay Unclaimed Amount from Salary"
+msgstr "Descontar del salario el monto no reclamado"
+
+msgid "Repeat On Days"
+msgstr "Repetir los días"
+
+msgid "Reports To"
+msgstr "Reporta a"
+
+msgid "Request Attendance"
+msgstr "Solicitar asistencia"
+
+msgid "Request Leave"
+msgstr "Solicitar permiso"
+
+msgid "Request a Leave"
+msgstr "Solicitar un permiso"
+
+msgid "Request a Shift"
+msgstr "Solicitar un turno"
+
+msgid "Request an Advance"
+msgstr "Solicitar un anticipo"
+
+msgid "Request attendance"
+msgstr "Solicitar asistencia"
+
+msgid "Requested By"
+msgstr "Solicitado por"
+
+msgid "Requested By (Name)"
+msgstr "Solicitado por (nombre)"
+
+msgid "Required Skills"
+msgstr "Habilidades requeridas"
+
+msgid "Reschedule Interview"
+msgstr "Reprogramar entrevista"
+
+msgid "Restrict Backdated Leave Application"
+msgstr "Restringir solicitudes de permiso con fecha pasada"
+
+msgid "Resume Link"
+msgstr "Enlace al currículum"
+
+msgid "Resume link"
+msgstr "Enlace al currículum"
+
+msgid "Retained"
+msgstr "Retenido"
+
+msgid "Retirement Age (In Years)"
+msgstr "Edad de retiro (en años)"
+
+msgid "Retry Failed"
+msgstr "Reintentar fallidas"
+
+msgid "Retry Failed Allocations"
+msgstr "Reintentar asignaciones fallidas"
+
+msgid "Retry Successful"
+msgstr "Reintento correcto"
+
+msgid "Retrying allocations"
+msgstr "Reintentando asignaciones"
+
+msgid "Return Advance"
+msgstr "Devolver anticipo"
+
+msgid "Return amount cannot be greater than unclaimed amount"
+msgstr "El monto a devolver no puede ser mayor que el monto no reclamado"
+
+msgid "Review performance"
+msgstr "Revisar el desempeño"
+
+msgid "Review the salary register"
+msgstr "Revisar el registro de salarios"
+
+msgid "Review various other settings related to Employee Leaves and Expense Claim"
+msgstr "Revise otras opciones relacionadas con los permisos de los empleados y los reembolsos de gastos"
+
+msgid "Reviewer"
+msgstr "Evaluador"
+
+msgid "Reviewer Name"
+msgstr "Nombre del evaluador"
+
+msgid "Revised CTC"
+msgstr "CTC revisado"
+
+msgid "Roster"
+msgstr "Planificación de turnos"
+
+msgid "Roster Color"
+msgstr "Color en la planificación de turnos"
+
+msgid "Round off Work Experience"
+msgstr "Redondear la experiencia laboral"
+
+msgid "Route to the custom Job Application Webform"
+msgstr "Ruta al formulario web personalizado de postulación"
+
+msgid "Row #{0}: The {1} Component has the options {2} and {3} enabled."
+msgstr "Fila #{0}: el componente {1} tiene activadas las opciones {2} y {3}."
+
+msgid "Row #{0}: Timesheet amount will overwrite the Earning component amount for the Salary Component {1}"
+msgstr "Fila #{0}: el monto del registro de horas sobrescribirá el monto del componente de ingreso del componente salarial {1}"
+
+msgid "Row No {0}: Amount cannot be greater than the Outstanding Amount against Expense Claim {1}. Outstanding Amount is {2}"
+msgstr "Fila n.º {0}: el monto no puede ser mayor que el monto pendiente del reembolso de gastos {1}. El monto pendiente es {2}"
+
+msgid "Row {0}# Paid Amount cannot be greater than Encashment amount"
+msgstr "Fila {0}# el monto pagado no puede ser mayor que el monto a pagar por los permisos"
+
+msgid "Row {0}# Paid Amount cannot be greater than Total amount"
+msgstr "Fila {0}# el monto pagado no puede ser mayor que el monto total"
+
+msgid "Row {0}: From (Year) can not be greater than To (Year)"
+msgstr "Fila {0}: Desde (año) no puede ser mayor que Hasta (año)"
+
+msgid "Row {0}: Goal Score cannot be greater than {1}"
+msgstr "Fila {0}: la puntuación de objetivos no puede ser mayor que {1}"
+
+msgid "Row {0}: Paid amount {1} is greater than pending accrued amount {2} against loan {3}"
+msgstr "Fila {0}: el monto pagado {1} es mayor que el monto acumulado pendiente {2} del préstamo {3}"
+
+msgid "Row {0}: {1}"
+msgstr "Fila {0}: {1}"
+
+msgid "Row {0}: {1}, {2} and {3} are required against advance {4}."
+msgstr "Fila {0}: {1}, {2} y {3} son obligatorios para el anticipo {4}."
+
+msgid "Run payroll"
+msgstr "Correr la nómina"
+
+msgid "Run your first payroll"
+msgstr "Corra su primera nómina"
+
+msgid "Salary Component Based"
+msgstr "Según componentes salariales"
+
+msgid "Salary Component {0} cannot be selected more than once in Employee Benefits"
+msgstr "El componente salarial {0} no se puede seleccionar más de una vez en los beneficios del empleado"
+
+msgid "Salary Component {0} is currently not used in any Salary Structure."
+msgstr "El componente salarial {0} no se usa actualmente en ninguna estructura salarial."
+
+msgid "Salary Component {0} must be of type 'Earning' to be used in Employee Benefit Ledger"
+msgstr "El componente salarial {0} debe ser de tipo 'Ingreso' para usarse en el libro de beneficios del empleado"
+
+msgid "Salary Expectation"
+msgstr "Expectativa salarial"
+
+msgid "Salary Information"
+msgstr "Información salarial"
+
+msgid "Salary Paid Per"
+msgstr "Salario pagado por"
+
+msgid "Salary Range"
+msgstr "Rango salarial"
+
+msgid "Salary Slip"
+msgstr "Recibo de nómina"
+
+msgid "Salary Slip Leave"
+msgstr "Permiso del recibo de nómina"
+
+msgid "Salary Slip Reference"
+msgstr "Referencia del recibo de nómina"
+
+msgid "Salary Slip creation is queued. It may take a few minutes"
+msgstr "La creación de los recibos de nómina quedó en cola. Puede tardar unos minutos"
+
+msgid "Salary Slip not found."
+msgstr "No se encontró el recibo de nómina."
+
+msgid "Salary Slip submission is queued. It may take a few minutes"
+msgstr "La validación de los recibos de nómina quedó en cola. Puede tardar unos minutos"
+
+msgid "Salary Slip {0} failed for Payroll Entry {1}"
+msgstr "Falló el recibo de nómina {0} de la entrada de nómina {1}"
+
+msgid "Salary Slip {0} failed. You can resolve the {1} and retry {0}."
+msgstr "Falló el recibo de nómina {0}. Puede resolver {1} y volver a intentar {0}."
+
+msgid "Salary Slips"
+msgstr "Recibos de nómina"
+
+msgid "Salary Slips already exist for employees {}, and will not be processed by this payroll."
+msgstr "Ya existen recibos de nómina para los empleados {}, así que esta nómina no los procesará."
+
+msgid "Salary Slips submitted for period from {0} to {1}"
+msgstr "Recibos de nómina validados para el período del {0} al {1}"
+
+msgid "Salary Structure Assignment field"
+msgstr "Campo de asignación de estructura salarial"
+
+msgid "Salary Structure Assignment not found for employee {0} on date {1}"
+msgstr "No se encontró una asignación de estructura salarial del empleado {0} en la fecha {1}"
+
+msgid "Salary Structure must be submitted before submission of {0}"
+msgstr "La estructura salarial debe estar validada antes de validar {0}"
+
+msgid "Salary Structure not assigned for employee {0} for date {1}"
+msgstr "El empleado {0} no tiene una estructura salarial asignada en la fecha {1}"
+
+msgid "Salary Structure {0} does not belong to company {1}"
+msgstr "La estructura salarial {0} no pertenece a la compañía {1}"
+
+msgid "Salary Structure: "
+msgstr "Estructura salarial: "
+
+msgid "Salary Structures updated successfully"
+msgstr "Estructuras salariales actualizadas correctamente"
+
+msgid "Salary Withholding"
+msgstr "Retención de salario"
+
+msgid "Salary Withholding Cycle"
+msgstr "Ciclo de retención de salario"
+
+msgid "Salary Withholding {0} already exists for employee {1} for the selected period"
+msgstr "Ya existe la retención de salario {0} del empleado {1} para el período seleccionado"
+
+msgid "Salary components of type Provident Fund, Additional Provident Fund or Provident Fund Loan are not set up."
+msgstr "No se han configurado componentes salariales de tipo fondo de pensiones, fondo de pensiones adicional o préstamo del fondo de pensiones."
+
+msgid "Salary components should be part of the Salary Structure."
+msgstr "Los componentes salariales deben formar parte de la estructura salarial."
+
+msgid "Salary slip emails have been enqueued for sending. Check {0} for status."
+msgstr "Los correos de los recibos de nómina quedaron en cola de envío. Revise {0} para ver el estado."
+
+msgid "Sanctioned Amount"
+msgstr "Monto aprobado"
+
+msgid "Sanctioned Amount (Company Currency)"
+msgstr "Monto aprobado (moneda de la compañía)"
+
+msgid "Schedule Interview"
+msgstr "Programar entrevista"
+
+msgid "Schedule a training"
+msgstr "Programar una capacitación"
+
+msgid "Schedule an interview"
+msgstr "Programar una entrevista"
+
+msgid "Scheduled On"
+msgstr "Programada el"
+
+msgid "Scores"
+msgstr "Puntuaciones"
+
+msgid "Search for Jobs"
+msgstr "Buscar empleos"
+
+msgid "See CTC Break-up"
+msgstr "Ver desglose del CTC"
+
+msgid "See what is still owed"
+msgstr "Ver lo que todavía se debe"
+
+msgid "Select Applicable Components for Overtime Type"
+msgstr "Seleccione los componentes aplicables del tipo de horas extras"
+
+msgid "Select Interview Type First"
+msgstr "Primero seleccione el tipo de entrevista"
+
+msgid "Select Interview first"
+msgstr "Primero seleccione la entrevista"
+
+msgid "Select Month for LWP Reversal"
+msgstr "Seleccionar el mes para revertir LWP"
+
+msgid "Select Payroll Frequency."
+msgstr "Seleccione la frecuencia de nómina."
+
+msgid "Select Payroll Period"
+msgstr "Seleccionar período de nómina"
+
+msgid "Select Shift Requests"
+msgstr "Seleccionar solicitudes de turno"
+
+msgid "Select if any of the days selected for request are holidays"
+msgstr "Selecciónelo si alguno de los días de la solicitud es festivo"
+
+msgid "Select the Employee for which you want to allocate leaves."
+msgstr "Seleccione el empleado al que desea asignar permisos."
+
+msgid "Select the Employee."
+msgstr "Seleccione el empleado."
+
+msgid "Select the Leave Type like Sick leave, Privilege Leave, Casual Leave, etc."
+msgstr "Seleccione el tipo de permiso, como enfermedad, vacaciones, permiso ordinario, etc."
+
+msgid "Select the date after which this Leave Allocation will expire."
+msgstr "Seleccione la fecha después de la cual vencerá esta asignación de permisos."
+
+msgid "Select the date from which this Leave Allocation will be valid."
+msgstr "Seleccione la fecha desde la que será válida esta asignación de permisos."
+
+msgid "Select the end date for your Leave Application."
+msgstr "Seleccione la fecha de fin de su solicitud de permiso."
+
+msgid "Select the salary components whose total will be used from the salary slip to calculate the hourly overtime rate."
+msgstr "Seleccione los componentes salariales del recibo de nómina cuyo total se usará para calcular la tarifa por hora de las horas extras."
+
+msgid "Select the start date for your Leave Application."
+msgstr "Seleccione la fecha de inicio de su solicitud de permiso."
+
+msgid "Select this if you want shift assignments to be automatically created indefinitely."
+msgstr "Selecciónelo si desea que las asignaciones de turno se creen automáticamente sin fecha de fin."
+
+msgid "Select type of leave the employee wants to apply for, like Sick Leave, Privilege Leave, Casual Leave, etc."
+msgstr "Seleccione el tipo de permiso que el empleado desea solicitar, como enfermedad, vacaciones, permiso ordinario, etc."
+
+msgid "Select your Leave Approver i.e. the person who approves or rejects your leaves."
+msgstr "Seleccione su aprobador de permisos, es decir, la persona que aprueba o rechaza sus permisos."
+
+msgid "Selected employee advance is not of employee {0}"
+msgstr "El anticipo seleccionado no es del empleado {0}"
+
+msgid "Selected employee advance is not of employee {}"
+msgstr "El anticipo seleccionado no es del empleado {}"
+
+msgid "Self Appraisal"
+msgstr "Autoevaluación"
+
+msgid "Self Appraisal Pending: {0}"
+msgstr "Autoevaluación pendiente: {0}"
+
+msgid "Self Appraisal Score"
+msgstr "Puntuación de autoevaluación"
+
+msgid "Self Score"
+msgstr "Puntuación propia"
+
+msgid "Self-approval for Expense Claims is not allowed"
+msgstr "No se permite aprobar sus propios reembolsos de gastos"
+
+msgid "Self-approval for leaves is not allowed"
+msgstr "No se permite aprobar sus propios permisos"
+
+msgid "Send Exit Questionnaire"
+msgstr "Enviar cuestionario de salida"
+
+msgid "Send Exit Questionnaires"
+msgstr "Enviar cuestionarios de salida"
+
+msgid "Send Interview Feedback Reminder"
+msgstr "Enviar recordatorio de retroalimentación de entrevistas"
+
+msgid "Send Interview Reminder"
+msgstr "Enviar recordatorio de entrevistas"
+
+msgid "Send Leave Notification"
+msgstr "Enviar notificación de permisos"
+
+msgid "Send Reset Link"
+msgstr "Enviar enlace para restablecer"
+
+msgid "Send an appointment letter"
+msgstr "Enviar una carta de nombramiento"
+
+msgid "Sender Copy"
+msgstr "Copia al remitente"
+
+msgid "Sending Failed due to missing email information for employee(s): {1}"
+msgstr "No se pudo enviar porque falta el correo de los empleados: {1}"
+
+msgid "Sent Successfully: {0}"
+msgstr "Enviado correctamente: {0}"
+
+msgid "Separation Activities"
+msgstr "Actividades de desvinculación"
+
+msgid "Separation Begins On"
+msgstr "La desvinculación empieza el"
+
+msgid "Set \"From(Year)\" and \"To(Year)\" to 0 for no upper and lower limit."
+msgstr "Ponga \"Desde (año)\" y \"Hasta (año)\" en 0 para no tener límite superior ni inferior."
+
+msgid "Set Assignment Details"
+msgstr "Definir los detalles de la asignación"
+
+msgid "Set Leave Details"
+msgstr "Definir los detalles de los permisos"
+
+msgid "Set Relieving Date for Employee: {0}"
+msgstr "Defina la fecha de salida del empleado {0}"
+
+msgid "Set a goal"
+msgstr "Fijar un objetivo"
+
+msgid "Set filters to fetch employees"
+msgstr "Defina filtros para traer empleados"
+
+msgid "Set opening balances for earnings and taxes from the previous employer"
+msgstr "Defina los saldos de apertura de ingresos e impuestos del empleador anterior"
+
+msgid "Set optional filters to fetch employees in the appraisee list"
+msgstr "Defina filtros opcionales para traer empleados a la lista de evaluados"
+
+msgid "Set the frequency for holiday reminders"
+msgstr "Defina la frecuencia de los recordatorios de días festivos"
+
+msgid "Set the payroll period and tax slabs, and record what employees declare."
+msgstr "Defina el período de nómina y los tramos de impuestos, y registre lo que declaran los empleados."
+
+msgid "Set the properties that should be updated in the Employee master on promotion submission"
+msgstr "Defina las propiedades que se deben actualizar en el maestro de empleados al validar la promoción"
+
+msgid "Set the status to {0} if required."
+msgstr "Cambie el estado a {0} si hace falta."
+
+msgid "Set up a gratuity rule"
+msgstr "Configurar una regla de indemnización"
+
+msgid "Set up what employees are measured on and run an appraisal cycle."
+msgstr "Defina en qué se evalúa a los empleados y corra un ciclo de evaluación."
+
+msgid "Set your holidays"
+msgstr "Definir sus días festivos"
+
+msgid "Set your holidays and leave types, give leave and approve a request."
+msgstr "Defina sus días festivos y tipos de permiso, asigne permisos y apruebe una solicitud."
+
+msgid "Set your payroll period"
+msgstr "Definir su período de nómina"
+
+msgid "Set {0} for selected employees"
+msgstr "Definir {0} para los empleados seleccionados"
+
+msgid "Settings Missing"
+msgstr "Falta configuración"
+
+msgid "Settle against Advances"
+msgstr "Liquidar contra anticipos"
+
+msgid "Settle all Payables and Receivables before submission"
+msgstr "Liquide todas las cuentas por pagar y por cobrar antes de validar"
+
+msgid "Settle employee expenses"
+msgstr "Liquidar los gastos de los empleados"
+
+msgid "Shared document with the user {0} with 'Submit' permission"
+msgstr "Documento compartido con el usuario {0} con permiso para 'Validar'"
+
+msgid "Shift Actual End Time"
+msgstr "Hora real de fin del turno"
+
+msgid "Shift Actual Start Time"
+msgstr "Hora real de inicio del turno"
+
+msgid "Shift Assignment Details"
+msgstr "Detalles de la asignación de turno"
+
+msgid "Shift Assignment History"
+msgstr "Historial de asignaciones de turno"
+
+msgid "Shift Assignment Tool"
+msgstr "Herramienta de asignación de turnos"
+
+msgid "Shift Assignments"
+msgstr "Asignaciones de turno"
+
+msgid "Shift Assignments created for the schedule between {0} and {1} via background job"
+msgstr "Se crearon en segundo plano las asignaciones de turno del horario entre {0} y {1}"
+
+msgid "Shift Attendance"
+msgstr "Asistencia por turno"
+
+msgid "Shift Details"
+msgstr "Detalles del turno"
+
+msgid "Shift End Time"
+msgstr "Hora de fin del turno"
+
+msgid "Shift Location"
+msgstr "Ubicación del turno"
+
+msgid "Shift Request Approver"
+msgstr "Aprobador de solicitudes de turno"
+
+msgid "Shift Request Filters"
+msgstr "Filtros de solicitudes de turno"
+
+msgid "Shift Request History"
+msgstr "Historial de solicitudes de turno"
+
+msgid "Shift Requests ending before this date will be excluded."
+msgstr "Se excluyen las solicitudes de turno que terminan antes de esta fecha."
+
+msgid "Shift Requests starting after this date will be excluded."
+msgstr "Se excluyen las solicitudes de turno que empiezan después de esta fecha."
+
+msgid "Shift Schedule"
+msgstr "Horario de turnos"
+
+msgid "Shift Schedule Assignment"
+msgstr "Asignación de horario de turnos"
+
+msgid "Shift Settings"
+msgstr "Configuración de turnos"
+
+msgid "Shift Setup"
+msgstr "Configuración de turnos"
+
+msgid "Shift Start Time"
+msgstr "Hora de inicio del turno"
+
+msgid "Shift Status"
+msgstr "Estado del turno"
+
+msgid "Shift Timings"
+msgstr "Horario del turno"
+
+msgid "Shift Tools"
+msgstr "Herramientas de turnos"
+
+msgid "Shift and Attendance"
+msgstr "Turnos y asistencia"
+
+msgid "Shift assignments for {0} after {1} are already created. Please change {2} date to a date later than {3} {4}"
+msgstr "Ya se crearon las asignaciones de turno de {0} después de {1}. Cambie la fecha {2} a una posterior a {3} {4}"
+
+msgid "Shift has been successfully updated to {0}."
+msgstr "El turno se cambió correctamente a {0}."
+
+msgid "Shortlist"
+msgstr "Preseleccionar"
+
+msgid "Shortlisted"
+msgstr "Preseleccionado"
+
+msgid "Show Employer Contributions"
+msgstr "Mostrar aportes del empleador"
+
+msgid "Show Leave Balances in Salary Slip"
+msgstr "Mostrar los saldos de permisos en el recibo de nómina"
+
+msgid "Show Unread"
+msgstr "Mostrar no leídas"
+
+msgid "Showing"
+msgstr "Mostrando"
+
+msgid "Skill Assessment"
+msgstr "Evaluación de habilidades"
+
+msgid "Someone who applied for a job opening. Applications from the job portal arrive here. See [Job Applicant](https://docs.frappe.io/hr/job-applicant)."
+msgstr "Alguien que se postuló a una vacante. Las postulaciones del portal de empleos llegan aquí. Vea [Candidato](https://docs.frappe.io/hr/job-applicant)."
+
+msgid "Source and target shifts cannot be the same"
+msgstr "El turno de origen y el de destino no pueden ser el mismo"
+
+msgid "Staffing Details"
+msgstr "Detalles de la dotación de personal"
+
+msgid "Standard Multiplier"
+msgstr "Multiplicador estándar"
+
+msgid "Standard Working Hours"
+msgstr "Horas de trabajo estándar"
+
+msgid "Start Onboarding"
+msgstr "Iniciar incorporación"
+
+msgid "Start Separation"
+msgstr "Iniciar desvinculación"
+
+msgid "Start an appraisal cycle"
+msgstr "Iniciar un ciclo de evaluación"
+
+msgid "Start date cannot be greater than end date"
+msgstr "La fecha de inicio no puede ser posterior a la fecha de fin"
+
+msgid "Start date cannot be greater than end date."
+msgstr "La fecha de inicio no puede ser posterior a la fecha de fin."
+
+msgid "Start date: {0}"
+msgstr "Fecha de inicio: {0}"
+
+msgid "Start time and end time cannot be same."
+msgstr "La hora de inicio y la de fin no pueden ser iguales."
+
+msgid "Status for Other Half"
+msgstr "Estado de la otra mitad"
+
+msgid "Submission Failed"
+msgstr "Falló la validación"
+
+msgid "Submission of {0} before {1} is not allowed"
+msgstr "No se permite validar {0} antes de {1}"
+
+msgid "Submit Feedback"
+msgstr "Validar retroalimentación"
+
+msgid "Submit Now"
+msgstr "Enviar ahora"
+
+msgid "Submit Overtime Slips"
+msgstr "Validar recibos de horas extras"
+
+msgid "Submit proof of exemptions"
+msgstr "Presentar comprobantes de exenciones"
+
+msgid "Submitted via Payroll Entry"
+msgstr "Validado mediante entrada de nómina"
+
+msgid "Subsidiary companies have already planned for {1} vacancies at a budget of {2}. Staffing Plan for {0} should allocate more vacancies and budget for {3} than planned for its subsidiary companies"
+msgstr "Las compañías subsidiarias ya planificaron {1} vacantes con un presupuesto de {2}. El plan de personal de {0} debe asignar más vacantes y presupuesto para {3} que lo planificado por sus compañías subsidiarias"
+
+msgid "Successfully created {0} for employees:"
+msgstr "Se creó {0} correctamente para los empleados:"
+
+msgid "Successfully {0} {1} for the following employees:"
+msgstr "{1}: {0} con éxito para los siguientes empleados:"
+
+msgid "Sum of all previous slabs"
+msgstr "Suma de todos los tramos anteriores"
+
+msgid "Sum of benefit amounts {0} exceeds maximum limit of {1}"
+msgstr "La suma de los montos de beneficios {0} supera el límite máximo de {1}"
+
+msgid "Sync {0}"
+msgstr "Sincronizar {0}"
+
+msgid "Syntax error"
+msgstr "Error de sintaxis"
+
+msgid "Syntax error in condition: {0} in Income Tax Slab"
+msgstr "Error de sintaxis en la condición: {0} en el tramo del impuesto sobre la renta"
+
+msgid "Take Exact Completed Years"
+msgstr "Tomar los años completos exactos"
+
+msgid "Tap"
+msgstr "Toque"
+
+msgid "Tax & Exemption Setup"
+msgstr "Configuración de impuestos y exenciones"
+
+msgid "Tax Deducted Till Date"
+msgstr "Impuesto retenido hasta la fecha"
+
+msgid "Tax Exemption Declaration"
+msgstr "Declaración de exención de impuestos"
+
+msgid "Tax Exemption Proofs (This Year)"
+msgstr "Comprobantes de exención de impuestos (este año)"
+
+msgid "Taxable Earnings Till Date"
+msgstr "Ingresos imponibles hasta la fecha"
+
+msgid "Taxable Income Relief Threshold Limit"
+msgstr "Límite de ingreso imponible para alivio fiscal"
+
+msgid "Taxable income, exemptions and tax for each employee in a payroll period."
+msgstr "Ingreso imponible, exenciones e impuesto de cada empleado en un período de nómina."
+
+msgid "Taxes & Charges"
+msgstr "Impuestos y cargos"
+
+msgid "Taxi"
+msgstr "Taxi"
+
+msgid "Team Advances"
+msgstr "Anticipos del equipo"
+
+msgid "Team Claims"
+msgstr "Reembolsos del equipo"
+
+msgid "Team Leaves"
+msgstr "Permisos del equipo"
+
+msgid "Team Requests"
+msgstr "Solicitudes del equipo"
+
+msgid "Template Name"
+msgstr "Nombre de la plantilla"
+
+msgid "Tenure"
+msgstr "Trayectoria"
+
+msgid "Thank you"
+msgstr "Gracias"
+
+msgid "Thank you for applying."
+msgstr "Gracias por postularse."
+
+msgid "The Assigned Salary Structure {0} for the employee {1} does not have a Salary Component configured for Salary Slip based on Timesheet."
+msgstr "La estructura salarial {0} asignada al empleado {1} no tiene un componente salarial configurado para recibos de nómina basados en registros de horas."
+
+msgid "The Assigned Salary Structure {0} for the employee {1} is not configured for Salary Slip based on Timesheet."
+msgstr "La estructura salarial {0} asignada al empleado {1} no está configurada para recibos de nómina basados en registros de horas."
+
+msgid "The KRAs and rating criteria for a role, with their weightage. See [Appraisal Template](https://docs.frappe.io/hr/appraisal-template)."
+msgstr "Los KRA y criterios de calificación de un puesto, con su ponderación. Vea [Plantilla de evaluación](https://docs.frappe.io/hr/appraisal-template)."
+
+msgid "The amount exceeds the available balance for Employee Advance {0}. Available amount for return: {1}."
+msgstr "El monto supera el saldo disponible del anticipo al empleado {0}. Monto disponible para devolver: {1}."
+
+msgid "The currency of {0} should be same as the company's default currency. Please select another account."
+msgstr "La moneda de {0} debe ser la misma que la moneda por defecto de la compañía. Seleccione otra cuenta."
+
+msgid "The date on which Salary Component with Amount will contribute for Earnings/Deduction in Salary Slip. "
+msgstr "Fecha en la que el componente salarial con su monto se suma a los ingresos o deducciones del recibo de nómina. "
+
+msgid "The day of the month when leaves should be allocated"
+msgstr "Día del mes en que se asignan los permisos"
+
+msgid "The days an employee can take of a leave type in a period. See [Leave Allocation](https://docs.frappe.io/hr/leave-allocation)."
+msgstr "Los días que un empleado puede tomar de un tipo de permiso en un período. Vea [Asignación de permisos](https://docs.frappe.io/hr/leave-allocation)."
+
+msgid "The days between {0} to {1} are not valid holidays."
+msgstr "Los días entre el {0} y el {1} no son días festivos válidos."
+
+msgid "The earnings and deductions that make up a salary, and how each is calculated. See [Salary Structure](https://docs.frappe.io/hr/salary-structure)."
+msgstr "Los ingresos y deducciones que forman un salario y cómo se calcula cada uno. Vea [Estructura salarial](https://docs.frappe.io/hr/salary-structure)."
+
+msgid "The financial year that tax is calculated over. See [Payroll Period](https://docs.frappe.io/hr/payroll-period)."
+msgstr "El año fiscal sobre el que se calcula el impuesto. Vea [Período de nómina](https://docs.frappe.io/hr/payroll-period)."
+
+msgid "The first Approver in the list will be set as the default Approver."
+msgstr "El primer aprobador de la lista será el aprobador por defecto."
+
+msgid "The formal letter that confirms the role and its terms. See [Appointment Letter](https://docs.frappe.io/hr/appointment-letter)."
+msgstr "La carta formal que confirma el puesto y sus condiciones. Vea [Carta de nombramiento](https://docs.frappe.io/hr/appointment-letter)."
+
+msgid "The fraction of Daily Salary per Leave should be between 0 and 1"
+msgstr "La fracción del salario diario por permiso debe estar entre 0 y 1"
+
+msgid "The investments and expenses an employee plans to claim against tax. See [Employee Tax Exemption Declaration](https://docs.frappe.io/hr/employee-tax-exemption-declaration)."
+msgstr "Las inversiones y gastos que un empleado planea deducir del impuesto. Vea [Declaración de exención de impuestos del empleado](https://docs.frappe.io/hr/employee-tax-exemption-declaration)."
+
+msgid "The metrics for this report are calculated based on the {0}. Please set {0} in {1}."
+msgstr "Los indicadores de este reporte se calculan según {0}. Defina {0} en {1}."
+
+msgid "The metrics for this report are calculated based on {0}. Please set {0} in {1}."
+msgstr "Los indicadores de este reporte se calculan según {0}. Defina {0} en {1}."
+
+msgid "The people you manage, with their joining date, department and reporting manager. See [Employee](https://docs.frappe.io/hr/employee)."
+msgstr "Las personas que gestiona, con su fecha de ingreso, departamento y supervisor. Vea [Empleado](https://docs.frappe.io/hr/employee)."
+
+msgid "The review period, and the employees and templates in it. See [Appraisal Cycle](https://docs.frappe.io/hr/appraisal-cycle)."
+msgstr "El período de evaluación, con sus empleados y plantillas. Vea [Ciclo de evaluación](https://docs.frappe.io/hr/appraisal-cycle)."
+
+msgid "The tasks to finish when someone joins, reused for every new hire. See [Employee Onboarding](https://docs.frappe.io/hr/employee-onboarding)."
+msgstr "Las tareas a completar cuando alguien ingresa, reutilizables para cada nuevo empleado. Vea [Incorporación de empleados](https://docs.frappe.io/hr/employee-onboarding)."
+
+msgid "The tax rate for each range of income. See [Income Tax Slab](https://docs.frappe.io/hr/income-tax-slab)."
+msgstr "La tasa del impuesto para cada rango de ingresos. Vea [Tramo del impuesto sobre la renta](https://docs.frappe.io/hr/income-tax-slab)."
+
+msgid "The terms you offer the applicant. Submit it once they accept. See [Job Offer](https://docs.frappe.io/hr/job-offer)."
+msgstr "Las condiciones que le ofrece al candidato. Valídela cuando la acepte. Vea [Oferta de trabajo](https://docs.frappe.io/hr/job-offer)."
+
+msgid "The weekly offs and public holidays your employees get. See [Holiday List](https://docs.frappe.io/hr/holiday-list)."
+msgstr "Los días libres semanales y los feriados de sus empleados. Vea [Lista de festividades](https://docs.frappe.io/hr/holiday-list)."
+
+msgid "There are multiple shifts assigned to the employee for the same period. Please mention the shift"
+msgstr "El empleado tiene varios turnos asignados en el mismo período. Indique el turno"
+
+msgid "There are no arrear differences between existing and new salary structure components."
+msgstr "No hay diferencias retroactivas entre los componentes de la estructura salarial existente y los de la nueva."
+
+msgid "There is no Salary Structure assigned to {0}. First assign a Salary Structure."
+msgstr "{0} no tiene una estructura salarial asignada. Primero asigne una estructura salarial."
+
+msgid "There's no Employee with Salary Structure: {0}. Assign {1} to an Employee to preview Salary Slip"
+msgstr "No hay ningún empleado con la estructura salarial {0}. Asigne {1} a un empleado para ver la vista previa del recibo de nómina"
+
+msgid "These leaves are holidays permitted by the company however, availing it is optional for an Employee."
+msgstr "Son días festivos que la compañía permite, pero que el empleado decide si toma o no."
+
+msgid "This action will prevent making changes to the linked appraisal feedback/goals."
+msgstr "Esta acción impedirá hacer cambios en la retroalimentación y los objetivos vinculados a la evaluación."
+
+msgid "This check-in is outside assigned shift hours and will not be considered for attendance. If a shift is assigned, adjust its time window and Fetch Shift again."
+msgstr "Esta marcación está fuera del horario del turno asignado y no se tomará en cuenta para la asistencia. Si hay un turno asignado, ajuste su ventana de horario y vuelva a usar Traer turno."
+
+msgid "This compensatory leave will be applicable from {0}."
+msgstr "Este permiso compensatorio aplicará desde el {0}."
+
+msgid "This error can be due to invalid formula or condition."
+msgstr "Este error puede deberse a una fórmula o condición no válida."
+
+msgid "This error can be due to invalid syntax."
+msgstr "Este error puede deberse a una sintaxis no válida."
+
+msgid "This error can be due to missing or deleted field."
+msgstr "Este error puede deberse a un campo que falta o que se eliminó."
+
+msgid "This field allows you to set the maximum number of consecutive leaves an Employee can apply for."
+msgstr "Este campo permite definir la cantidad máxima de permisos consecutivos que puede solicitar un empleado."
+
+msgid "This field allows you to set the maximum number of leaves that can be allocated annually for this Leave Type while creating the Leave Policy"
+msgstr "Este campo permite definir la cantidad máxima de permisos que se pueden asignar al año para este tipo de permiso al crear la política de permisos"
+
+msgid "This will overwrite the tax component {0} in the salary slip and tax won't be calculated based on the Income Tax Slabs"
+msgstr "Esto sobrescribirá el componente de impuestos {0} en el recibo de nómina, y el impuesto no se calculará según los tramos del impuesto sobre la renta"
+
+msgid "Time taken to fill the open positions"
+msgstr "Tiempo que tomó cubrir los puestos vacantes"
+
+msgid "Time to Fill"
+msgstr "Tiempo para cubrir"
+
+msgid "Timelines"
+msgstr "Plazos"
+
+msgid "Timesheet Details"
+msgstr "Detalle del registro de horas"
+
+msgid "To allow this, enable {0} under {1}."
+msgstr "Para permitirlo, active {0} en {1}."
+
+msgid "To apply for a Half Day check 'Half Day' and select the Half Day Date"
+msgstr "Para solicitar medio día, marque 'Medio día' y seleccione la fecha del medio día"
+
+msgid "To date cannot be before from date"
+msgstr "La fecha hasta no puede ser anterior a la fecha desde"
+
+msgid "To overwrite the salary component amount for a tax component, please enable {0}"
+msgstr "Para sobrescribir el monto de un componente de impuestos, active {0}"
+
+msgid "To(Year)"
+msgstr "Hasta (año)"
+
+msgid "To(Year) year can not be less than From(year)"
+msgstr "Hasta (año) no puede ser menor que Desde (año)"
+
+msgid "Today is {0}'s birthday 🎉"
+msgstr "Hoy es el cumpleaños de {0} 🎉"
+
+msgid "Today {0} at our Company! 🎉"
+msgstr "¡Hoy {0} en nuestra compañía! 🎉"
+
+msgid "Today {0} completed {1} {2} at our Company! 🎉"
+msgstr "¡Hoy {0} cumplió {1} {2} en nuestra compañía! 🎉"
+
+msgid "Total Absent (This Month)"
+msgstr "Total de ausencias (este mes)"
+
+msgid "Total Accrued"
+msgstr "Total acumulado"
+
+msgid "Total Advance Amount (Company Currency)"
+msgstr "Monto total de anticipos (moneda de la compañía)"
+
+msgid "Total Allocated Leave(s)"
+msgstr "Total de permisos asignados"
+
+msgid "Total Allocated Leaves"
+msgstr "Total de permisos asignados"
+
+msgid "Total Amount cannot be zero"
+msgstr "El monto total no puede ser cero"
+
+msgid "Total Applicants (This month)"
+msgstr "Total de candidatos (este mes)"
+
+msgid "Total Asset Recovery Cost"
+msgstr "Costo total de recuperación de activos"
+
+msgid "Total Claimed Amount (Company Currency)"
+msgstr "Monto total reclamado (moneda de la compañía)"
+
+msgid "Total Cost To Company (CTC)"
+msgstr "Costo total para la empresa (CTC)"
+
+msgid "Total Days Without Pay"
+msgstr "Total de días sin sueldo"
+
+msgid "Total Declaration Submitted"
+msgstr "Total de declaraciones presentadas"
+
+msgid "Total Deduction (Company Currency)"
+msgstr "Total de deducciones (moneda de la compañía)"
+
+msgid "Total Earnings"
+msgstr "Total de ingresos"
+
+msgid "Total Employees"
+msgstr "Total de empleados"
+
+msgid "Total Employer Contribution"
+msgstr "Total de aportes del empleador"
+
+msgid "Total Exchange Gain/Loss"
+msgstr "Total de ganancia o pérdida cambiaria"
+
+msgid "Total Expense Claim (via Expense Claim)"
+msgstr "Total de reembolsos de gastos (mediante reembolso de gastos)"
+
+msgid "Total Expense Claim (via Expense Claims)"
+msgstr "Total de reembolsos de gastos (mediante reembolsos de gastos)"
+
+msgid "Total Goal Score"
+msgstr "Puntuación total de objetivos"
+
+msgid "Total Gross Pay"
+msgstr "Total del salario bruto"
+
+msgid "Total Hours (T)"
+msgstr "Total de horas (T)"
+
+msgid "Total Incentive Given(Last month)"
+msgstr "Total de incentivos otorgados (mes anterior)"
+
+msgid "Total Income Tax"
+msgstr "Total del impuesto sobre la renta"
+
+msgid "Total Interest Amount"
+msgstr "Monto total de intereses"
+
+msgid "Total Leaves ({0})"
+msgstr "Total de permisos ({0})"
+
+msgid "Total Loan Repayment"
+msgstr "Total de pagos del préstamo"
+
+msgid "Total Net Pay"
+msgstr "Total del salario neto"
+
+msgid "Total Non-Billed Hours"
+msgstr "Total de horas no facturadas"
+
+msgid "Total Outgoing Salary(Last month)"
+msgstr "Total de salarios pagados (mes anterior)"
+
+msgid "Total Overtime Duration"
+msgstr "Duración total de las horas extras"
+
+msgid "Total Payable Amount"
+msgstr "Monto total por pagar"
+
+msgid "Total Payment"
+msgstr "Pago total"
+
+msgid "Total Payout"
+msgstr "Total pagado"
+
+msgid "Total Present (This Month)"
+msgstr "Total de presencias (este mes)"
+
+msgid "Total Principal Amount"
+msgstr "Monto total del principal"
+
+msgid "Total Receivable Amount"
+msgstr "Monto total por cobrar"
+
+msgid "Total Resignations"
+msgstr "Total de renuncias"
+
+msgid "Total Salary Structure"
+msgstr "Total de estructuras salariales"
+
+msgid "Total Sanctioned Amount (Company Currency)"
+msgstr "Monto total aprobado (moneda de la compañía)"
+
+msgid "Total Self Score"
+msgstr "Puntuación propia total"
+
+msgid "Total Working Days must be greater than zero. Please review Salary Slip {0}."
+msgstr "El total de días laborables debe ser mayor que cero. Revise el recibo de nómina {0}."
+
+msgid "Total allocated leaves are more than maximum allocation allowed for {0} leave type for employee {1} in the period"
+msgstr "El total de permisos asignados supera el máximo permitido para el tipo de permiso {0} del empleado {1} en el período"
+
+msgid "Total allocated leaves {0} cannot be less than already approved leaves {1} for the period"
+msgstr "El total de permisos asignados {0} no puede ser menor que los permisos ya aprobados {1} en el período"
+
+msgid "Total in words (Company Currency)"
+msgstr "Total en letras (moneda de la compañía)"
+
+msgid "Total leaves allocated cannot exceed annual allocation of {0}."
+msgstr "El total de permisos asignados no puede superar la asignación anual de {0}."
+
+msgid "Total of all employee benefits cannot be greater that Max Benefits Amount {0}"
+msgstr "El total de los beneficios del empleado no puede ser mayor que el monto máximo de beneficios {0}"
+
+msgid "Total salary booked against this component for this employee from the beginning of the year (payroll period or fiscal year) up to the current salary slip's end date."
+msgstr "Salario total registrado en este componente para este empleado desde el inicio del año (período de nómina o año fiscal) hasta la fecha de fin del recibo de nómina actual."
+
+msgid "Total salary booked for this employee from the beginning of the month up to the current salary slip's end date."
+msgstr "Salario total registrado para este empleado desde el inicio del mes hasta la fecha de fin del recibo de nómina actual."
+
+msgid "Total salary booked for this employee from the beginning of the year (payroll period or fiscal year) up to the current salary slip's end date."
+msgstr "Salario total registrado para este empleado desde el inicio del año (período de nómina o año fiscal) hasta la fecha de fin del recibo de nómina actual."
+
+msgid "Total weightage for all {0} must add up to 100. Currently, it is {1}%"
+msgstr "La ponderación total de todos los {0} debe sumar 100. Ahora suma {1}%"
+
+msgid "Total working Days Per Year"
+msgstr "Total de días laborables por año"
+
+msgid "Track attendance and shifts"
+msgstr "Llevar la asistencia y los turnos"
+
+msgid "Track hiring against your plan"
+msgstr "Seguir la contratación frente a su plan"
+
+msgid "Track the joining tasks for a new hire and the exit tasks when someone leaves."
+msgstr "Lleve las tareas de ingreso de un nuevo empleado y las tareas de salida cuando alguien se va."
+
+msgid "Tracks the exit tasks when an employee leaves. Submit it once they are done. See [Employee Separation](https://docs.frappe.io/hr/employee-separation)."
+msgstr "Lleva las tareas de salida cuando un empleado se va. Valídela cuando estén hechas. Vea [Desvinculación de empleados](https://docs.frappe.io/hr/employee-separation)."
+
+msgid "Tracks the joining tasks for one new employee. Submit it once they are done. See [Employee Onboarding](https://docs.frappe.io/hr/employee-onboarding)."
+msgstr "Lleva las tareas de ingreso de un nuevo empleado. Valídela cuando estén hechas. Vea [Incorporación de empleados](https://docs.frappe.io/hr/employee-onboarding)."
+
+msgid "Trainings (This Week)"
+msgstr "Capacitaciones (esta semana)"
+
+msgid "Transactions cannot be created for an Inactive Employee {0}."
+msgstr "No se pueden crear transacciones para el empleado inactivo {0}."
+
+msgid "Unable to load leave allocation details right now."
+msgstr "No se pueden cargar ahora los detalles de la asignación de permisos."
+
+msgid "Unable to retrieve your location"
+msgstr "No se pudo obtener su ubicación"
+
+msgid "Unarchive"
+msgstr "Desarchivar"
+
+msgid "Unclaimed Amount"
+msgstr "Monto no reclamado"
+
+msgid "Unclaimed Amount (Company Currency)"
+msgstr "Monto no reclamado (moneda de la compañía)"
+
+msgid "Under Review"
+msgstr "En revisión"
+
+msgid "Unlinked Attendance record from Employee Checkins: {}"
+msgstr "Se desvinculó el registro de asistencia de las marcaciones del empleado: {}"
+
+msgid "Unlinked logs"
+msgstr "Registros desvinculados"
+
+msgid "Unmarked Check-in Logs Found"
+msgstr "Se encontraron marcaciones sin asistencia marcada"
+
+msgid "Unmarked Employee Header"
+msgstr "Encabezado de empleados sin asistencia marcada"
+
+msgid "Unmarked Employees HTML"
+msgstr "HTML de empleados sin asistencia marcada"
+
+msgid "Unmarked days must be a list of dates."
+msgstr "Los días sin marcar deben ser una lista de fechas."
+
+msgid "Unpaid Accrual"
+msgstr "Acumulado sin pagar"
+
+msgid "Unsettled"
+msgstr "Sin liquidar"
+
+msgid "Unsettled Transactions"
+msgstr "Transacciones sin liquidar"
+
+msgid "Unsubmitted Appraisals"
+msgstr "Evaluaciones sin validar"
+
+msgid "Untracked Hours"
+msgstr "Horas sin registrar"
+
+msgid "Untracked Hours (U)"
+msgstr "Horas sin registrar (U)"
+
+msgid "Upcoming Holidays"
+msgstr "Próximos días festivos"
+
+msgid "Upcoming Holidays Reminder"
+msgstr "Recordatorio de próximos días festivos"
+
+msgid "Upcoming Shifts"
+msgstr "Próximos turnos"
+
+msgid "Update Expense"
+msgstr "Actualizar gasto"
+
+msgid "Update Job Applicant"
+msgstr "Actualizar candidato"
+
+msgid "Update Progress"
+msgstr "Actualizar avance"
+
+msgid "Update Salary Structures"
+msgstr "Actualizar estructuras salariales"
+
+msgid "Update Status"
+msgstr "Actualizar estado"
+
+msgid "Update Tax"
+msgstr "Actualizar impuesto"
+
+msgid "Updated Status for Other Half from {0} to {1} for date {2} in the attendance record {3}"
+msgstr "Se actualizó el estado de la otra mitad de {0} a {1} para la fecha {2} en el registro de asistencia {3}"
+
+msgid "Updated status from {0} to {1} for date {2} in the attendance record {3}"
+msgstr "Se actualizó el estado de {0} a {1} para la fecha {2} en el registro de asistencia {3}"
+
+msgid "Updated the Job Applicant status to {0}"
+msgstr "Se actualizó el estado del candidato a {0}"
+
+msgid "Updated the status of Job Offer {0} for the linked Job Applicant {1} to {2}"
+msgstr "Se actualizó el estado de la oferta de trabajo {0} del candidato vinculado {1} a {2}"
+
+msgid "Updated the status of Job Offer {0} for {1} to {2}"
+msgstr "Se actualizó el estado de la oferta de trabajo {0} de {1} a {2}"
+
+msgid "Updated the status of linked Job Applicant {0} to {1}"
+msgstr "Se actualizó el estado del candidato vinculado {0} a {1}"
+
+msgid "Upload images or documents"
+msgstr "Subir imágenes o documentos"
+
+msgid "Upper Range"
+msgstr "Rango superior"
+
+msgid "Used Leave(s)"
+msgstr "Permisos usados"
+
+msgid "Used Leaves"
+msgstr "Permisos usados"
+
+msgid "User denied location prompt. Please allow access to your location in your browser settings and try again."
+msgstr "Se negó el acceso a la ubicación. Permita el acceso a su ubicación en la configuración del navegador e intente de nuevo."
+
+msgid "Vacancies fulfilled"
+msgstr "Vacantes cubiertas"
+
+msgid "Vehicle Service Item"
+msgstr "Servicio del vehículo"
+
+msgid "View Additional Salary entries"
+msgstr "Ver salarios adicionales"
+
+msgid "View Details"
+msgstr "Ver detalles"
+
+msgid "View Goals"
+msgstr "Ver objetivos"
+
+msgid "View Job Offer"
+msgstr "Ver oferta de trabajo"
+
+msgid "View Leave Balance"
+msgstr "Ver saldo de permisos"
+
+msgid "View Leave History"
+msgstr "Ver historial de permisos"
+
+msgid "View Salary Slips"
+msgstr "Ver recibos de nómina"
+
+msgid "Violet"
+msgstr "Violeta"
+
+msgid "WARNING: Loan Management module has been separated from ERPNext."
+msgstr "ADVERTENCIA: el módulo de gestión de préstamos se separó de ERPNext."
+
+msgid "Warning: Insufficient leave balance for Leave Type {0} in this allocation."
+msgstr "Advertencia: saldo de permisos insuficiente para el tipo de permiso {0} en esta asignación."
+
+msgid "Warning: Insufficient leave balance for Leave Type {0}."
+msgstr "Advertencia: saldo de permisos insuficiente para el tipo de permiso {0}."
+
+msgid "Warning: {0} already has an active Shift Assignment {1} for some/all of these dates."
+msgstr "Advertencia: {0} ya tiene una asignación de turno activa {1} en algunas o todas estas fechas."
+
+msgid "Weekend Multiplier"
+msgstr "Multiplicador de fines de semana"
+
+msgid "Weightage (%)"
+msgstr "Ponderación (%)"
+
+msgid "Welcome and see off employees"
+msgstr "Recibir y despedir a los empleados"
+
+msgid "What do you use for HR today?"
+msgstr "¿Qué usa hoy para RR. HH.?"
+
+msgid "When set to 'Inactive', employees with conflicting active shifts will not be excluded."
+msgstr "Si se pone en 'Inactivo', no se excluyen los empleados con turnos activos que se solapan."
+
+msgid "Whereas allocation for Compensatory Leaves is automatically created or updated on submission of Compensatory Leave Request."
+msgstr "En cambio, la asignación de permisos compensatorios se crea o actualiza automáticamente al validar la solicitud de permiso compensatorio."
+
+msgid "Whether an employee was present, absent or on leave on a day. See [Attendance](https://docs.frappe.io/hr/attendance)."
+msgstr "Si un empleado estuvo presente, ausente o de permiso en un día. Vea [Asistencia](https://docs.frappe.io/hr/attendance)."
+
+msgid "Why is this Candidate Qualified for this Position?"
+msgstr "¿Por qué este candidato está calificado para este puesto?"
+
+msgid "Withheld"
+msgstr "Retenido"
+
+msgid "Work Anniversaries "
+msgstr "Aniversarios laborales "
+
+msgid "Work Anniversary Reminder"
+msgstr "Recordatorio de aniversario laboral"
+
+msgid "Work Experience Calculation Method"
+msgstr "Método de cálculo de la experiencia laboral"
+
+msgid "Work References"
+msgstr "Referencias laborales"
+
+msgid "Working Days and Hours"
+msgstr "Días y horas laborables"
+
+msgid "Write an onboarding checklist"
+msgstr "Escribir una lista de tareas de incorporación"
+
+msgid "Year To Date"
+msgstr "Acumulado del año"
+
+msgid "Year To Date(Company Currency)"
+msgstr "Acumulado del año (moneda de la compañía)"
+
+msgid "Yearly Amount"
+msgstr "Monto anual"
+
+msgid "Yearly Benefit"
+msgstr "Beneficio anual"
+
+msgid "Yes, Proceed"
+msgstr "Sí, continuar"
+
+msgid "You are not allowed to create or modify an Expense Claim for Employee {0}"
+msgstr "No tiene permiso para crear o modificar un reembolso de gastos del empleado {0}"
+
+msgid "You are not permitted to access the CTC report of another employee."
+msgstr "No tiene permiso para ver el reporte de CTC de otro empleado."
+
+msgid "You are not permitted to update another employee's goal."
+msgstr "No tiene permiso para actualizar el objetivo de otro empleado."
+
+msgid "You can not define multiple slabs if you have a slab with no lower and upper limits."
+msgstr "No puede definir varios tramos si tiene un tramo sin límite inferior ni superior."
+
+msgid "You can only plan for upto {0} vacancies and budget {1} for {2} as per staffing plan {3} for parent company {4}."
+msgstr "Solo puede planificar hasta {0} vacantes y un presupuesto de {1} para {2} según el plan de personal {3} de la compañía matriz {4}."
+
+msgid "You can only upload JPG, PNG, PDF, TXT or Microsoft documents."
+msgstr "Solo puede subir documentos JPG, PNG, PDF, TXT o de Microsoft."
+
+msgid "You cannot reverse more than the total LWP days {0}. You have already reversed {1} days for this employee."
+msgstr "No puede revertir más que el total de días LWP, {0}. Ya revirtió {1} días para este empleado."
+
+msgid "You do not have access to Employee {0}"
+msgstr "No tiene acceso al empleado {0}"
+
+msgid "You do not have permission to change the Status of a Shift Request."
+msgstr "No tiene permiso para cambiar el estado de una solicitud de turno."
+
+msgid "You do not have permission to complete this action"
+msgstr "No tiene permiso para completar esta acción"
+
+msgid "You have already applied for this position."
+msgstr "Ya se postuló a este puesto."
+
+msgid "You have no advances"
+msgstr "No tiene anticipos"
+
+msgid "You have no leaves allocated"
+msgstr "No tiene permisos asignados"
+
+msgid "You have no notifications"
+msgstr "No tiene notificaciones"
+
+msgid "You have no requests"
+msgstr "No tiene solicitudes"
+
+msgid "You have no unread notifications"
+msgstr "No tiene notificaciones sin leer"
+
+msgid "You have no upcoming holidays"
+msgstr "No tiene días festivos próximos"
+
+msgid "You have no upcoming shifts"
+msgstr "No tiene turnos próximos"
+
+msgid "You haven't created a {0} for {1} yet."
+msgstr "Todavía no ha creado {0} para {1}."
+
+msgid "You may add additional details, if any, and submit the offer."
+msgstr "Puede agregar más detalles, si los hay, y validar la oferta."
+
+msgid "You must be within {0} meters of your shift location to check in."
+msgstr "Debe estar a menos de {0} metros de la ubicación de su turno para marcar la entrada."
+
+msgid "You were only present for Half Day on {}. Cannot apply for a full day compensatory leave"
+msgstr "El {} solo estuvo presente medio día. No puede solicitar un permiso compensatorio de día completo"
+
+msgid "Your Interview session is rescheduled from {0} {1} - {2} to {3} {4} - {5}"
+msgstr "Su entrevista se reprogramó del {0} {1} - {2} al {3} {4} - {5}"
+
+msgid "Your password has been updated."
+msgstr "Su contraseña se actualizó."
+
+msgid "Your password has expired. Please reset your password to continue"
+msgstr "Su contraseña venció. Restablézcala para continuar"
+
+msgid "action"
+msgstr "acción"
+
+msgid "and then \"Add to Home Screen\""
+msgstr "y luego \"Agregar a pantalla de inicio\""
+
+msgid "based on"
+msgstr "según"
+
+msgid "cancellation"
+msgstr "cancelación"
+
+msgid "create/submit"
+msgstr "crear/validar"
+
+msgid "field is mandatory"
+msgstr "el campo es obligatorio"
+
+msgid "fields are mandatory"
+msgstr "los campos son obligatorios"
+
+msgid "goal"
+msgstr "objetivo"
+
+msgid "goals"
+msgstr "objetivos"
+
+msgid "here"
+msgstr "aquí"
+
+msgid "johndoe@mail.com"
+msgstr "juan.perez@correo.com"
+
+msgid "modify_half_day_status"
+msgstr "modify_half_day_status"
+
+msgid "or for the Employee's Department: {0}"
+msgstr "o para el departamento del empleado: {0}"
+
+msgid "payment days"
+msgstr "días de pago"
+
+msgid "process"
+msgstr "procesar"
+
+msgid "processed"
+msgstr "procesado"
+
+msgid "reason"
+msgstr "razón"
+
+msgid "the selected company"
+msgstr "la compañía seleccionada"
+
+msgid "via Salary Component sync"
+msgstr "mediante la sincronización del componente salarial"
+
+msgid "working days"
+msgstr "días laborables"
+
+msgid "years"
+msgstr "años"
+
+msgid "{0} & {1}"
+msgstr "{0} y {1}"
+
+msgid "{0} & {1} more"
+msgstr "{0} y {1} más"
+
+msgid "{0} : {1}"
+msgstr "{0} : {1}"
+
+msgid "{0} <br> This error can be due to missing or deleted field."
+msgstr "{0} <br> Este error puede deberse a un campo que falta o que se eliminó."
+
+msgid "{0} Appraisal(s) are not submitted yet"
+msgstr "{0} evaluación(es) todavía sin validar"
+
+msgid "{0} Field"
+msgstr "Campo {0}"
+
+msgid "{0} Missing"
+msgstr "Falta {0}"
+
+msgid "{0} Row #{1}: Formula is set but {2} is disabled for the Salary Component {3}."
+msgstr "{0} fila #{1}: hay una fórmula definida, pero {2} está desactivado en el componente salarial {3}."
+
+msgid "{0} Row #{1}: {2} needs to be enabled for the formula to be considered."
+msgstr "{0} fila #{1}: hay que activar {2} para que se tome en cuenta la fórmula."
+
+msgid "{0} Unread"
+msgstr "{0} sin leer"
+
+msgid "{0} already has an active Shift Assignment {1} for some/all of these dates."
+msgstr "{0} ya tiene una asignación de turno activa {1} en algunas o todas estas fechas."
+
+msgid "{0} applicable after {1} calendar days"
+msgstr "{0} aplica después de {1} días calendario"
+
+msgctxt "Leave Type"
+msgid "{0} balance"
+msgstr "Saldo de {0}"
+
+msgid "{0} completed {1} {2}"
+msgstr "{0} cumplió {1} {2}"
+
+msgid "{0} deleted successfully!"
+msgstr "¡{0} eliminado correctamente!"
+
+msgid "{0} failed!"
+msgstr "¡Falló la {0}!"
+
+msgid "{0} has {1} enabled"
+msgstr "{0} tiene {1} activado"
+
+msgid "{0} is an Accrual Component and this will be recorded as a payout in Employee Benefits Ledger"
+msgstr "{0} es un componente de acumulación y esto se registrará como un pago en el libro de beneficios del empleado"
+
+msgid "{0} is an invalid Attendance Status."
+msgstr "{0} no es un estado de asistencia válido."
+
+msgid "{0} is not a holiday."
+msgstr "{0} no es un día festivo."
+
+msgid "{0} is not allowed to submit Interview Feedback for the Interview: {1}"
+msgstr "{0} no tiene permiso para validar la retroalimentación de la entrevista {1}"
+
+msgid "{0} leaves allocated successfully"
+msgstr "{0} permisos asignados correctamente"
+
+msgid "{0} leaves from allocation for {1} leave type have expired and will be processed during the next scheduled job. It is recommended to expire them now before creating new leave policy assignments."
+msgstr "{0} permisos de la asignación del tipo de permiso {1} vencieron y se procesarán en la próxima tarea programada. Se recomienda vencerlos ahora antes de crear nuevas asignaciones de política de permisos."
+
+msgid "{0} leaves were manually allocated by {1} on {2}"
+msgstr "{1} asignó {0} permisos manualmente el {2}"
+
+msgid "{0} of {1} Completed"
+msgstr "{0} de {1} completados"
+
+msgid "{0} recorded outside shift hours. It will not be considered for attendance."
+msgstr "{0} registrada fuera del horario del turno. No se tomará en cuenta para la asistencia."
+
+msgid "{0} successful"
+msgstr "{0} correcta"
+
+msgid "{0} successful!"
+msgstr "¡{0} correcta!"
+
+msgid "{0} successfully!"
+msgstr "¡{0} correctamente!"
+
+msgid "{0} to {1} employee(s)?"
+msgstr "¿{0} a {1} empleado(s)?"
+
+msgid "{0} updated successfully!"
+msgstr "¡{0} actualizado correctamente!"
+
+msgid "{0} vacancies and {1} budget for {2} already planned for subsidiary companies of {3}. You can only plan for upto {4} vacancies and and budget {5} as per staffing plan {6} for parent company {3}."
+msgstr "Ya se planificaron {0} vacantes y un presupuesto de {1} para {2} en las compañías subsidiarias de {3}. Solo puede planificar hasta {4} vacantes y un presupuesto de {5} según el plan de personal {6} de la compañía matriz {3}."
+
+msgid "{0} was assigned {1}"
+msgstr "Se asignó {1} a {0}"
+
+msgid "{0} will be updated for the following Salary Structures: {1}."
+msgstr "Se actualizará {0} en las siguientes estructuras salariales: {1}."
+
+msgid "{0} {1} {2}?"
+msgstr "¿{0} {1} {2}?"
+
+msgid "{0}. Check error log for more details."
+msgstr "{0}. Revise el registro de errores para más detalles."
+
+msgid "{0}d"
+msgstr "{0} d"
+
+msgid "{} {} open for this position."
+msgstr "{} {} abiertas para este puesto."

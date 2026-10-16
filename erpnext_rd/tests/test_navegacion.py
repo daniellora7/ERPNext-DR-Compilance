@@ -10,25 +10,77 @@ from erpnext_rd.nomina_rd import hrms_instalado
 class TestSidebarRDCompliance(unittest.TestCase):
 	def test_primer_enlace_abre_en_el_escritorio(self):
 		"""El ícono del dock abre el primer enlace del sidebar dentro del escritorio (/desk): si fuera
-		una URL externa (p. ej. el Panel en /rd-compliance) el escritorio diría "Página no encontrada"."""
+		una URL externa (p. ej. el Panel en /rd-compliance) el escritorio diría "Página no encontrada".
+		Frappe busca la página de inicio con `module_landing_route`: el primer enlace navegable."""
 		ruta = frappe.get_app_path(
 			"erpnext_rd", "rd_compliance", "sidebar", "rd_compliance", "rd_compliance.json"
 		)
 		with open(ruta, encoding="utf-8") as f:
 			items = json.load(f)["items"]
 		primero = next(i for i in items if i["type"] == "Link")
-		self.assertIn(primero["link_type"], ("DocType", "Workspace"))
 
-		# El Panel abre dentro del escritorio, en la misma ventana: un enlace URL abriría otra pestaña
-		panel = next(i for i in items if i.get("label") == "Panel de cumplimiento")
-		self.assertEqual((panel["link_type"], panel["link_to"]), ("Page", "panel-cumplimiento"))
+		# El módulo abre en el Panel, dentro del escritorio y en la misma ventana (no un enlace URL)
+		self.assertEqual((primero["link_type"], primero["link_to"]), ("Page", "panel-cumplimiento"))
 		self.assertTrue(frappe.db.exists("Page", "panel-cumplimiento"))
+
+	def test_nomina_abre_en_las_planillas(self):
+		"""La Nómina RD abre en las planillas de nómina, donde se corre cada quincena o mes."""
+		ruta = frappe.get_app_path("erpnext_rd", "nomina_rd", "sidebar", "nomina_rd", "nomina_rd.json")
+		with open(ruta, encoding="utf-8") as f:
+			items = json.load(f)["items"]
+		primero = next(i for i in items if i["type"] == "Link")
+		self.assertEqual((primero["link_type"], primero["link_to"]), ("DocType", "Payroll Entry"))
 
 	def test_nomina_fuera_de_rd_compliance(self):
 		"""La Nómina RD tiene su propio sidebar, del lado de Frappe HR, y no una sección en RD Compliance."""
 		items = frappe.get_all("Sidebar Item", filters={"parent": "RD Compliance"}, pluck="label")
 		self.assertNotIn("Nómina RD", items)
 		self.assertNotIn("Configuración Nómina RD", items)
+
+
+class TestDockTraducido(unittest.TestCase):
+	def test_titulos_en_el_idioma_del_usuario(self):
+		"""Frappe v16 no traduce los nombres del dock: la app los traduce al armar la sesión."""
+		from erpnext_rd.boot import traducir_dock
+
+		def bootinfo():
+			return frappe._dict(
+				dock={"erpnext": [{"link_type": "Sidebar", "link_to": "Accounts", "title": "Accounts"}]},
+				app_data=[{"app_name": "erpnext", "dock": [{"link_to": "Selling", "title": "Selling"}]}],
+			)
+
+		idioma = frappe.local.lang
+		try:
+			frappe.local.lang = "es"
+			es = bootinfo()
+			traducir_dock(es)
+			self.assertEqual(es.dock["erpnext"][0]["title"], "Cuentas")
+			self.assertEqual(es.app_data[0]["dock"][0]["title"], "Ventas")
+			# El destino no cambia: es lo que identifica la entrada al guardar "Organizar dock"
+			self.assertEqual(es.dock["erpnext"][0]["link_to"], "Accounts")
+
+			frappe.local.lang = "en"
+			en = bootinfo()
+			traducir_dock(en)
+			self.assertEqual(en.dock["erpnext"][0]["title"], "Accounts")
+		finally:
+			frappe.local.lang = idioma
+
+	@unittest.skipUnless(hrms_instalado(), "requiere Frappe HR")
+	def test_frappe_hr_completo_en_espanol(self):
+		"""Los textos que faltan en el catálogo de Frappe HR vienen en el es.po de la app."""
+		idioma = frappe.local.lang
+		try:
+			frappe.local.lang = "es"
+			for texto, esperado in (
+				("HR Setup", "Configuración de RR. HH."),
+				("Tenure", "Trayectoria"),
+				("Recruitment", "Reclutamiento"),
+				("Salary Slip", "Recibo de nómina"),
+			):
+				self.assertEqual(frappe._(texto), esperado)
+		finally:
+			frappe.local.lang = idioma
 
 
 @unittest.skipUnless(hrms_instalado(), "requiere Frappe HR")

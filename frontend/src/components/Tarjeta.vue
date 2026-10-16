@@ -1,8 +1,8 @@
 <!-- Tarjeta de una declaración o formato: NumberCard de frappe-ui (título, cifra y plazo) dentro de
-     la misma superficie que los widgets numéricos del escritorio v16 (radio 12px, borde outline-gray-1),
+     la misma superficie que los widgets numéricos del escritorio v16 (radio 12px, borde outline-gray-2 para que se distinga en el tema claro),
      con el detalle y el enlace al reporte debajo. -->
 <template>
-	<div class="flex flex-col rounded-6 border border-outline-gray-1 bg-surface-base">
+	<div class="flex flex-col rounded-6 border border-outline-gray-2 bg-surface-base">
 		<NumberCard
 			:card="false"
 			class="px-4 pt-3.5"
