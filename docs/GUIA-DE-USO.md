@@ -4,6 +4,8 @@ Cómo poner a funcionar la localización de República Dominicana en una empresa
 
 La app solo actúa en las empresas con país **Dominican Republic**. Las empresas de otros países del mismo sitio siguen igual.
 
+**Alcance:** hoy la app cubre a la **persona jurídica del régimen ordinario** (comercio, servicios, manufactura). Aún no cubre el impuesto selectivo al consumo (ISC), las operaciones con partes relacionadas (DIOR), las zonas francas, el régimen simplificado (RST), los incentivos de leyes especiales, el impuesto sobre los activos ni a las personas físicas con negocio (IR-1); los sectores regulados (banca, seguros, AFP) quedan fuera. Están planificados en un **perfil tributario** por empresa que activará lo que corresponda a cada una.
+
 ## 1. Empresa
 
 1. En la empresa (*Company*), el país debe ser **Dominican Republic** y el **RNC** debe estar en *Tax ID*, sin guiones. La app lo valida con el dígito verificador y el padrón de la DGII.

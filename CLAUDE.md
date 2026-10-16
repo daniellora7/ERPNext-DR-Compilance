@@ -19,6 +19,7 @@ Frappe **v16.52.0** (`FRAPPE_BRANCH` en `deploy/Containerfile`), ERPNext **v16.5
 - **No modificar Frappe, ERPNext ni HRMS**: todo en `erpnext_rd` (DocTypes, `hooks.py`, `override_doctype_class`, Custom Fields y Property Setters creados por código en `install.py`, patches).
 - Tasas, topes y escalas que cambian por ley: en DocTypes de configuración editables, nunca en el código.
 - Lógica fiscal y de nómina **solo en empresas con país *Dominican Republic*** (`ncf.es_empresa_rd`).
+- Lo que dependa del régimen, el tamaño o un impuesto especial se decide con el **perfil tributario** de la empresa (Fase 8 de `docs/PLAN.md`), nunca suponiendo el régimen ordinario. Normas nuevas: confirmar en el texto oficial antes de implementar.
 - **HRMS es opcional**: lo que toque sus DocTypes se condiciona con `nomina_rd.hrms_instalado()`.
 - **Marketplace**: instalable sin acceso a la máquina (`after_install`/`after_migrate`, patches), funciona sin HRMS y se desinstala limpio (todo Property Setter lleva `module` de la app).
 - **Interfaz**: estándar frappe-ui. Solo tokens CSS (`--ink-*`, `--surface-*`, `--outline-*`; avisos `--ink-amber-8`, errores `--ink-red-6`), nunca hex ni Bootstrap (salvo formatos de impresión). Revisar en claro y oscuro.
