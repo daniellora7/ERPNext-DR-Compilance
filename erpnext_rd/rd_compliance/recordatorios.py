@@ -16,7 +16,7 @@ from frappe import _
 from frappe.utils import add_days, add_months, cint, formatdate, get_url, getdate, today
 
 from erpnext_rd.dgii_fiscal.ncf import PAIS
-from erpnext_rd.dgii_reportes import declaraciones
+from erpnext_rd.dgii_reportes import anticipos, declaraciones
 from erpnext_rd.nomina_rd import feriados, hrms_instalado
 from erpnext_rd.rd_compliance import panel
 
@@ -84,6 +84,8 @@ def obligaciones(company: str, anio: int, mes: int) -> list[dict]:
 			"vence": feriados.dia_habil(declaraciones.vencimiento(anio, mes, declaraciones.DIA_VENCE_IT1)),
 		},
 	]
+	if a := anticipos.anticipo(company, anio, mes):
+		lista.append({"obligacion": _("Anticipo del ISR de {0}").format(periodo), "vence": a.vence})
 	if _con_nomina(company, anio, mes):
 		lista += [
 			{

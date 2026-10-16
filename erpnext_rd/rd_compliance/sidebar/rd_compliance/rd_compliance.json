@@ -193,6 +193,22 @@
    "open_in_new_tab": 0,
    "show_arrow": 0,
    "link_type": "Report",
+   "label": "Anticipos del ISR",
+   "link_to": "Anticipos ISR DGII",
+   "type": "Link"
+  },
+  {
+   "added": 0,
+   "child": 1,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "link_type": "Report",
    "label": "608 (anulados)",
    "link_to": "Formato 608 DGII",
    "type": "Link"
@@ -256,6 +272,22 @@
    "open_in_new_tab": 0,
    "show_arrow": 0,
    "link_type": "DocType",
+   "label": "Bases de anticipos ISR",
+   "link_to": "Base Anticipo ISR",
+   "type": "Link"
+  },
+  {
+   "added": 0,
+   "child": 1,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "link_type": "DocType",
    "label": "Tipos de comprobante",
    "link_to": "Tipo Comprobante Fiscal",
    "type": "Link"
@@ -293,7 +325,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-10-18 10:00:00.000000",
+ "modified": "2026-10-18 11:00:00.000000",
  "modified_by": "Administrator",
  "module": "RD Compliance",
  "name": "RD Compliance",

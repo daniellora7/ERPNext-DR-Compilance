@@ -23,6 +23,29 @@ const erpnext_rd_invoice = {
 	refresh(frm) {
 		erpnext_rd_formato_de_empresa(frm);
 
+		// Compras: volver a consultar el NCF del proveedor en la DGII (ver consulta_ncf.py)
+		if (frm.doctype === "Purchase Invoice" && !frm.is_new() && frm.doc.rd_ncf && frm.doc.docstatus < 2) {
+			frm.add_custom_button(
+				__("Verificar NCF en la DGII"),
+				() =>
+					frappe
+						.call({
+							method: "erpnext_rd.dgii_fiscal.consulta_ncf.verificar_factura",
+							args: { name: frm.doc.name },
+							freeze: true,
+							freeze_message: __("Consultando la DGII..."),
+						})
+						.then(({ message }) => {
+							frm.reload_doc();
+							frappe.show_alert({
+								message: __("NCF en la DGII: {0}", [__(message.estado)]),
+								indicator: message.estado === "Válido" ? "green" : "orange",
+							});
+						}),
+				__("DGII")
+			);
+		}
+
 		// e-CF: emitir (generar, firmar y enviar según el emisor) y ver sus envíos
 		const electronico = (frm.doc.rd_tipo_comprobante || "").startsWith("E") && frm.doc.rd_ncf;
 		if (frm.doctype === "POS Invoice" || frm.doc.docstatus !== 1 || !electronico) return;

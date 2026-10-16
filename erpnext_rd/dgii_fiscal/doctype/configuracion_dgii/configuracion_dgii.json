@@ -13,8 +13,12 @@
   "section_validaciones",
   "validar_contra_padron",
   "exigir_ncf_en_compras",
+  "consultar_ncf_dgii",
+  "bloquear_ncf_invalido",
   "section_catalogo",
   "aplicar_catalogo_cuentas",
+  "section_anticipos",
+  "anticipo_tasa_minima",
   "section_tasa_bcrd",
   "tasa_bcrd_activa",
   "tasa_bcrd_tipo",
@@ -93,6 +97,20 @@
    "label": "Exigir NCF del proveedor en facturas de compra"
   },
   {
+   "default": "1",
+   "fieldname": "consultar_ncf_dgii",
+   "fieldtype": "Check",
+   "label": "Verificar en la DGII el NCF de las facturas de compra",
+   "description": "Al guardar la factura se consulta el NCF en la DGII (consulta pública de NCF) y se avisa si no corresponde al RNC del proveedor o estaba vencido."
+  },
+  {
+   "default": "0",
+   "depends_on": "consultar_ncf_dgii",
+   "fieldname": "bloquear_ncf_invalido",
+   "fieldtype": "Check",
+   "label": "No permitir validar facturas de compra con NCF no válido en la DGII"
+  },
+  {
    "fieldname": "section_catalogo",
    "fieldtype": "Section Break",
    "label": "Catálogo de cuentas"
@@ -134,6 +152,18 @@
    "fieldtype": "Data",
    "label": "Versión del archivo DGII",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_anticipos",
+   "fieldtype": "Section Break",
+   "label": "Anticipos del ISR"
+  },
+  {
+   "default": "1.5",
+   "fieldname": "anticipo_tasa_minima",
+   "fieldtype": "Percent",
+   "label": "Tasa efectiva mínima de los anticipos",
+   "description": "Art. 314 del Código Tributario: si la tasa efectiva de tributación del año declarado no pasa de esta tasa, el anticipo se calcula con ella sobre los ingresos brutos; si la pasa, es la doceava parte del impuesto liquidado."
   },
   {
    "fieldname": "section_tasa_bcrd",
