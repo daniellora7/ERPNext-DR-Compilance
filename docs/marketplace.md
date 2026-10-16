@@ -24,7 +24,7 @@ Todas las tasas y escalas se editan en la configuración. Solo actúa en empresa
 
 **Licencia:** GPL-3.0. **Código:** https://github.com/daniellora7/ERPNext-DR-Compilance
 
-## Capturas (tema claro, 1440 × 900)
+## Capturas (tema oscuro, 1440 × 900)
 
 | Módulo | Archivo |
 |---|---|
