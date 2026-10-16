@@ -1,0 +1,15 @@
+name: Sugerir una mejora
+description: Algo que falta para cumplir con la DGII, la TSS o el Código de Trabajo, o que se puede hacer mejor
+labels: ["mejora"]
+body:
+  - type: textarea
+    id: necesidad
+    attributes:
+      label: Qué necesita
+      description: El caso de uso y, si aplica, la norma (ley, decreto, norma general o instructivo de la DGII o la TSS).
+    validations:
+      required: true
+  - type: textarea
+    id: hoy
+    attributes:
+      label: Cómo lo resuelve hoy
