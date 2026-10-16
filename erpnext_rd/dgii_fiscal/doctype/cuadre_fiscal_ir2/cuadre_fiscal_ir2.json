@@ -1,6 +1,6 @@
 {
  "actions": [],
- "creation": "2026-10-18 13:00:00.000000",
+ "creation": "2026-10-18 14:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -395,7 +395,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-18 13:00:00.000000",
+ "modified": "2026-10-18 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Cuadre Fiscal IR2",
@@ -446,6 +446,7 @@
  "naming_rule": "Expression",
  "is_submittable": 1,
  "title_field": "company",
+ "default_print_format": "Cuadre Fiscal IR-2",
  "track_changes": 1,
  "description": "Papel de trabajo del IR-2: depreciación fiscal (art. 287), ajuste por inflación y cuadre contable-fiscal. No es la declaración."
 }

@@ -76,7 +76,8 @@ class CuadreFiscalIR2(Document):
 			return flt(a.total_asset_cost) - flt(a.opening_accumulated_depreciation) - previa.get(a.name, 0)
 
 		sin_costo_fiscal = []
-		self._traer_edificaciones(anterior, activos, contable, en_libros, sin_costo_fiscal)
+		reparaciones = ir2.reparaciones_al_gasto(self.company, self.desde, self.hasta)
+		self._traer_edificaciones(anterior, activos, contable, en_libros, sin_costo_fiscal, reparaciones)
 		self._traer_cuentas(anterior, activos, contable, en_libros)
 		self._traer_terrenos(anterior, activos, en_libros)
 
@@ -129,7 +130,7 @@ class CuadreFiscalIR2(Document):
 			)
 		self.avisos = "\n".join(avisos)
 
-	def _traer_edificaciones(self, anterior, activos, contable, en_libros, sin_costo_fiscal):
+	def _traer_edificaciones(self, anterior, activos, contable, en_libros, sin_costo_fiscal, reparaciones):
 		previas = {e.asset: e for e in anterior.edificaciones if not e.fecha_retiro} if anterior else {}
 		actuales = {e.asset: e for e in self.edificaciones}
 		self.edificaciones = []
@@ -159,6 +160,7 @@ class CuadreFiscalIR2(Document):
 					fila.update(adicion=actual.adicion, fecha_adicion=actual.fecha_adicion)
 			if a.retirado:
 				fila.update(fecha_retiro=a.retiro, valor_retiro=ir2.valor_retiro(a.name))
+			fila["reparaciones"] = reparaciones.get(a.name) or (actual.reparaciones if actual else 0)
 			self.append("edificaciones", fila)
 
 	def _traer_cuentas(self, anterior, activos, contable, en_libros):
@@ -308,6 +310,13 @@ class CuadreFiscalIR2(Document):
 				-self.diferencia_depreciacion,
 				_("Depreciación fiscal mayor que la contable"),
 			)
+		capitalizadas = flt(sum(flt(e.reparaciones_capitalizadas) for e in self.edificaciones), 2)
+		if capitalizadas:
+			self._ajuste_automatico(
+				ir2.OTROS_POSITIVOS,
+				capitalizadas,
+				_("Reparaciones de edificaciones por encima del límite, capitalizadas"),
+			)
 		if ajuste_de(ir2.INVENTARIO) > 0:
 			self._ajuste_automatico(
 				ir2.AJUSTE_INVENTARIO, ajuste_de(ir2.INVENTARIO), _("Ajuste por inflación del inventario")
@@ -342,6 +351,7 @@ class CuadreFiscalIR2(Document):
 
 	def _calcular_edificaciones(self, ajuste_total: float):
 		tasa = ir2.tasa_depreciacion(ir2.CATEGORIA_1)
+		limite = ir2.tasa("limite_reparaciones_categoria_1")
 		base_reparto = sum(flt(e.costo_fiscal_inicial) for e in self.edificaciones)
 		repartido = 0.0
 		con_costo = [e for e in self.edificaciones if flt(e.costo_fiscal_inicial) > 0]
@@ -362,7 +372,10 @@ class CuadreFiscalIR2(Document):
 				self.desde,
 				self.hasta,
 				tasa,
+				e.reparaciones,
+				limite,
 			)
+			e.reparaciones_capitalizadas = r.reparaciones_capitalizadas
 			e.meses = r.meses
 			e.base_depreciable = r.base
 			e.depreciacion_fiscal = r.depreciacion

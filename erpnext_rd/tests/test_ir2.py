@@ -30,6 +30,16 @@ class TestCalculosIR2(UnitTestCase):
 		self.assertEqual(r.base, 1_050_000 + 30_000)
 		self.assertEqual(r.depreciacion, 54_000)
 
+	def test_reparaciones_de_edificaciones(self):
+		# Hasta el 10% del costo fiscal ajustado (1,050,000) es gasto; el exceso se capitaliza
+		r = ir2.depreciar_edificacion(
+			1_000_000, 50_000, 0, None, None, "2026-01-01", "2026-12-31", 5, 150_000, 10
+		)
+		self.assertEqual(r.reparaciones_capitalizadas, 45_000)
+		self.assertEqual(r.costo_final, 1_050_000 - 52_500 + 45_000)
+		r = ir2.depreciar_edificacion(1_000_000, 0, 0, None, None, "2026-01-01", "2026-12-31", 5, 80_000, 10)
+		self.assertEqual(r.reparaciones_capitalizadas, 0)
+
 	def test_cuentas_de_categorias_2_y_3(self):
 		# Balance 400,000 + ajuste 20,000 + mitad de 100,000 de adiciones - retiros 10,000 = 460,000
 		r = ir2.depreciar_cuenta(400_000, 20_000, 100_000, 10_000, 25)

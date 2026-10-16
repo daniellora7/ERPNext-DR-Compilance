@@ -16,7 +16,7 @@ from frappe import _
 from frappe.utils import add_days, add_months, cint, formatdate, get_url, getdate, today
 
 from erpnext_rd.dgii_fiscal.ncf import PAIS
-from erpnext_rd.dgii_reportes import anticipos, declaraciones
+from erpnext_rd.dgii_reportes import anticipos, declaraciones, ir2
 from erpnext_rd.nomina_rd import feriados, hrms_instalado
 from erpnext_rd.rd_compliance import panel
 
@@ -86,6 +86,15 @@ def obligaciones(company: str, anio: int, mes: int) -> list[dict]:
 	]
 	if a := anticipos.anticipo(company, anio, mes):
 		lista.append({"obligacion": _("Anticipo del ISR de {0}").format(periodo), "vence": a.vence})
+	if cierre := ir2.cierre_fiscal(company, anio, mes):
+		lista.append(
+			{
+				"obligacion": _("IR-2 (ISR de la empresa) del ejercicio cerrado el {0}").format(
+					formatdate(cierre, "dd/MM/yyyy")
+				),
+				"vence": feriados.dia_habil(ir2.fecha_limite(cierre)),
+			}
+		)
 	if _con_nomina(company, anio, mes):
 		lista += [
 			{
@@ -117,9 +126,9 @@ def pendientes(company: str, hoy: date, dias: int) -> list[dict]:
 	"""Obligaciones que vencen en `dias` días o el mismo día, con los días que faltan."""
 	vistos = set()
 	resultado = []
-	# Vencen en el mes siguiente al período: se miran los tres últimos períodos (el IR-13 de diciembre
-	# vence en marzo)
-	for atras in range(1, 4):
+	# Vencen después del período: se miran los cinco últimos (el IR-13 de diciembre vence en marzo y el
+	# IR-2, 120 días después del cierre)
+	for atras in range(1, 6):
 		inicio = add_months(date(hoy.year, hoy.month, 1), -atras)
 		for o in obligaciones(company, inicio.year, inicio.month):
 			faltan = (getdate(o["vence"]) - hoy).days

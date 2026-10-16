@@ -1,6 +1,6 @@
 {
  "actions": [],
- "creation": "2026-10-18 13:00:00.000000",
+ "creation": "2026-10-18 14:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -13,6 +13,8 @@
   "fecha_adicion",
   "fecha_retiro",
   "valor_retiro",
+  "reparaciones",
+  "reparaciones_capitalizadas",
   "column_break_resultado",
   "meses",
   "base_depreciable",
@@ -82,6 +84,21 @@
    "depends_on": "fecha_retiro"
   },
   {
+   "fieldname": "reparaciones",
+   "fieldtype": "Currency",
+   "label": "Reparaciones del año (gasto)",
+   "options": "Company:company:default_currency",
+   "description": "Reparaciones y mantenimiento llevados al gasto. Se toman de las reparaciones de activos no capitalizadas."
+  },
+  {
+   "fieldname": "reparaciones_capitalizadas",
+   "fieldtype": "Currency",
+   "label": "Exceso capitalizado",
+   "options": "Company:company:default_currency",
+   "description": "Lo que pasa del límite del costo fiscal ajustado: no es deducible y se suma al costo fiscal",
+   "read_only": 1
+  },
+  {
    "fieldname": "column_break_resultado",
    "fieldtype": "Column Break"
   },
@@ -128,7 +145,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-18 13:00:00.000000",
+ "modified": "2026-10-18 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Edificacion Fiscal IR2",

@@ -30,7 +30,7 @@ from datetime import date
 
 import frappe
 from frappe import _
-from frappe.utils import add_months, cint, flt, getdate
+from frappe.utils import add_days, add_months, cint, flt, getdate
 
 from erpnext_rd.dgii_fiscal.consulta_ncf import INVALIDOS
 
@@ -58,6 +58,7 @@ EXCESO_DEPRECIACION = "1.2 Exceso en depreciación"
 GASTOS_SIN_COMPROBANTE = "1.13 Gastos sin comprobantes con valor fiscal"
 DEFICIENCIA_DEPRECIACION = "2.1 Deficiencia en depreciación"
 AJUSTE_INVENTARIO = "2.2 Ajustes de inventario (D-2)"
+OTROS_POSITIVOS = "1.17 Otros ajustes positivos"
 CONCEPTOS_POSITIVOS = (
 	"1.1 Impuestos no deducibles",
 	EXCESO_DEPRECIACION,
@@ -75,7 +76,7 @@ CONCEPTOS_POSITIVOS = (
 	"1.14 Impuesto sobre la renta diferido",
 	"1.15 Provisiones no admitidas",
 	"1.16 Pasivo no sustentado",
-	"1.17 Otros ajustes positivos",
+	OTROS_POSITIVOS,
 )
 CONCEPTOS_NEGATIVOS = (
 	DEFICIENCIA_DEPRECIACION,
@@ -84,7 +85,7 @@ CONCEPTOS_NEGATIVOS = (
 	"2.4 Otros ajustes negativos",
 )
 # Los que se recalculan en cada guardado (los demás automáticos solo al traer los datos)
-CONCEPTOS_CALCULADOS = (EXCESO_DEPRECIACION, DEFICIENCIA_DEPRECIACION, AJUSTE_INVENTARIO)
+CONCEPTOS_CALCULADOS = (EXCESO_DEPRECIACION, DEFICIENCIA_DEPRECIACION, AJUSTE_INVENTARIO, OTROS_POSITIVOS)
 
 CAMPOS_TASA = {
 	(CATEGORIA_1, PROPIO): "depreciacion_categoria_1",
@@ -100,6 +101,7 @@ TASAS_POR_DEFECTO = {
 	"depreciacion_arrendamiento_2": 50,
 	"depreciacion_arrendamiento_3": 30,
 	"tasa_isr_juridicas": 27,
+	"limite_reparaciones_categoria_1": 10,
 }
 CUENTAS = (
 	(CATEGORIA_2, PROPIO),
@@ -113,6 +115,24 @@ MULTIPLICADORES = (
 	("2024-12-31", 1.0335, "DDG-AR1-2025-00001"),
 	("2025-12-31", 1.0495, "DDG-AR1-2026-00001"),
 )
+
+
+FORMATO = {
+	"name": "Cuadre Fiscal IR-2",
+	"doc_type": DOCTYPE,
+	"carpeta": "cuadre_ir2",
+	"margen": 10,
+	"bloques": [
+		("Encabezado", "encabezado"),
+		("Ajuste por inflación (D-2)", "inflacion"),
+		("Depreciación fiscal (D y D-1)", "depreciacion"),
+		("Ajustes fiscales (G)", "ajustes"),
+		("Liquidación y firmas", "liquidacion"),
+	],
+}
+
+# El IR-2 se presenta y se paga dentro de los 120 días siguientes al cierre (art. 328 y su reglamento)
+DIAS_PRESENTACION = 120
 
 
 # ---------------------------------------------------------------------- configuración
@@ -137,6 +157,31 @@ def multiplicador(cierre) -> float | None:
 	return flt(valor) if valor else None
 
 
+def cierre_fiscal(company: str, anio: int, mes: int) -> date | None:
+	"""Fecha de cierre del ejercicio de la empresa si cae en el mes (año, mes). Se toma del año fiscal
+	de ERPNext que cubre el mes (el de la empresa o uno para todas); sin año fiscal, el 31/12."""
+	fin_mes = add_days(add_months(date(anio, mes, 1), 1), -1)
+	cierres = frappe.db.sql(
+		"""SELECT fy.year_end_date FROM `tabFiscal Year` fy
+		WHERE fy.disabled = 0 AND %(fecha)s BETWEEN fy.year_start_date AND fy.year_end_date
+			AND (
+				NOT EXISTS (SELECT 1 FROM `tabFiscal Year Company` c WHERE c.parent = fy.name)
+				OR EXISTS (
+					SELECT 1 FROM `tabFiscal Year Company` c WHERE c.parent = fy.name AND c.company = %(company)s
+				)
+			)""",
+		{"fecha": fin_mes, "company": company},
+	)
+	if not cierres:
+		return date(anio, 12, 31) if mes == 12 else None
+	return next((getdate(c) for (c,) in cierres if getdate(c) == fin_mes), None)
+
+
+def fecha_limite(cierre) -> date:
+	"""Último día para presentar el IR-2 (sin correr a día hábil)."""
+	return add_days(getdate(cierre), DIAS_PRESENTACION)
+
+
 # ---------------------------------------------------------------------- cálculos
 
 
@@ -155,20 +200,26 @@ def depreciar_edificacion(
 	desde,
 	hasta,
 	tasa_anual: float,
+	reparaciones: float = 0,
+	limite_reparaciones: float = 0,
 ) -> frappe._dict:
 	"""Categoría 1: el costo que viene del año anterior (con su ajuste) se deprecia por los meses en
-	servicio del año; una adición (compra o mejora) desde el mes en que entra en servicio."""
+	servicio del año; una adición (compra o mejora) desde el mes en que entra en servicio. Las
+	reparaciones son deducibles hasta `limite_reparaciones` % del costo fiscal ajustado; el exceso se
+	capitaliza al cierre (se deprecia desde el año siguiente)."""
 	existente = flt(costo_inicial) + flt(ajuste)
 	fin = getdate(fecha_retiro) if fecha_retiro else getdate(hasta)
 	meses = meses_en_servicio(desde, fin) if existente else 0
 	meses_adicion = meses_en_servicio(max(getdate(fecha_adicion), getdate(desde)), fin) if adicion else 0
 	base = flt(existente * meses / 12 + flt(adicion) * meses_adicion / 12, 2)
 	depreciacion = flt(base * flt(tasa_anual) / 100, 2)
+	capitalizadas = flt(max(flt(reparaciones) - existente * flt(limite_reparaciones) / 100, 0), 2)
 	return frappe._dict(
 		meses=max(meses, meses_adicion),
 		base=base,
 		depreciacion=depreciacion,
-		costo_final=flt(existente + flt(adicion) - depreciacion, 2),
+		reparaciones_capitalizadas=capitalizadas,
+		costo_final=flt(existente + flt(adicion) - depreciacion + capitalizadas, 2),
 	)
 
 
@@ -294,6 +345,18 @@ def depreciacion_contable(company: str, desde, hasta) -> dict[str, float]:
 	return {asset: flt(monto) for asset, monto in filas}
 
 
+def reparaciones_al_gasto(company: str, desde, hasta) -> dict[str, float]:
+	"""Reparaciones de activos terminadas en el rango y llevadas al gasto (no capitalizadas)."""
+	filas = frappe.db.sql(
+		"""SELECT asset, SUM(IFNULL(total_repair_cost, repair_cost)) FROM `tabAsset Repair`
+		WHERE company = %(company)s AND docstatus = 1 AND IFNULL(capitalize_repair_cost, 0) = 0
+			AND DATE(completion_date) BETWEEN %(desde)s AND %(hasta)s
+		GROUP BY asset""",
+		{"company": company, "desde": desde, "hasta": hasta},
+	)
+	return {asset: flt(monto) for asset, monto in filas}
+
+
 def valor_retiro(asset: str) -> float:
 	"""Valor de la transferencia: lo facturado por el activo (0 si se desechó)."""
 	return flt(
@@ -386,6 +449,13 @@ def cuadre_anterior(company: str, ejercicio: int, excluir: str | None = None):
 		limit=1,
 	)
 	return frappe.get_doc(DOCTYPE, nombres[0]) if nombres else None
+
+
+def crear_formato():
+	"""Formato de impresión del cuadre, editable en el constructor (ver erpnext_rd/formatos.py)."""
+	from erpnext_rd import formatos
+
+	formatos.asegurar(FORMATO, formatos.MODULO_FISCAL)
 
 
 # ---------------------------------------------------------------------- botones del formulario

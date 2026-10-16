@@ -1,0 +1,20 @@
+<div class="rd-ir2">
+	{%- if doc.docstatus == 0 %}<div class="rd-estado">BORRADOR</div>{% endif -%}
+	{%- if doc.docstatus == 2 %}<div class="rd-estado">ANULADO</div>{% endif %}
+	<table class="rd-cab">
+		<tr>
+			<td>
+				<div class="rd-empresa">{{ doc.company }}</div>
+				{% set rnc = frappe.db.get_value("Company", doc.company, "tax_id") %}
+				{% if rnc %}<div><b>RNC:</b> {{ rnc }}</div>{% endif %}
+			</td>
+			<td class="rd-der">
+				<div class="rd-titulo">Cuadre fiscal IR-2</div>
+				<div>Ejercicio {{ doc.ejercicio }}: {{ doc.get_formatted("desde") }} al {{ doc.get_formatted("hasta") }}</div>
+				<div class="rd-muted">{{ doc.name }}</div>
+			</td>
+		</tr>
+	</table>
+	<p class="rd-nota">Papel de trabajo para la declaración jurada del ISR de personas jurídicas (IR-2). No sustituye la declaración.</p>
+	{% if doc.avisos %}<div class="rd-avisos">{% for linea in doc.avisos.split("\n") %}<div>{{ linea }}</div>{% endfor %}</div>{% endif %}
+</div>

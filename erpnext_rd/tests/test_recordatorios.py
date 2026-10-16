@@ -51,6 +51,37 @@ class TestRecordatorios(IntegrationTestCase):
 		self.assertEqual([o["faltan"] for o in mismo_dia], [0])
 		self.assertEqual(nada, [])
 
+	def test_ir2_120_dias_despues_del_cierre(self):
+		from erpnext_rd.dgii_reportes import ir2
+
+		# Cierre al 31/12 (año fiscal de ERPNext o, sin él, el calendario): vence el 30/4
+		self.assertIn(
+			("IR-2 (ISR de la empresa) del ejercicio cerrado el 31/12/2026", "2027-04-30"),
+			vencimientos(EMPRESA, 2026, 12).items(),
+		)
+		self.assertFalse([o for o in vencimientos(EMPRESA, 2026, 11) if o.startswith("IR-2")])
+
+		# Año fiscal cerrado al 30 de junio (sin empresas: aplica a todas): vence el 28/10
+		frappe.get_doc(
+			{
+				"doctype": "Fiscal Year",
+				"year": "_Test RD 2030-2031",
+				"year_start_date": "2030-07-01",
+				"year_end_date": "2031-06-30",
+			}
+		).insert()
+		self.assertEqual(str(ir2.cierre_fiscal(EMPRESA, 2031, 6)), "2031-06-30")
+		self.assertIsNone(ir2.cierre_fiscal(EMPRESA, 2030, 12))
+		self.assertEqual(
+			vencimientos(EMPRESA, 2031, 6)["IR-2 (ISR de la empresa) del ejercicio cerrado el 30/06/2031"],
+			"2031-10-28",
+		)
+		with patch.object(recordatorios, "_con_nomina", return_value=False):
+			avisos = recordatorios.pendientes(EMPRESA, date(2031, 10, 25), 3)
+		self.assertIn(
+			"IR-2 (ISR de la empresa) del ejercicio cerrado el 30/06/2031", [o["obligacion"] for o in avisos]
+		)
+
 	def test_nomina_tss_e_ir3(self):
 		with patch.object(recordatorios, "_con_nomina", return_value=True):
 			fechas = vencimientos(EMPRESA, 2026, 9)

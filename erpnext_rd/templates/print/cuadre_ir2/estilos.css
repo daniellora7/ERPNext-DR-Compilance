@@ -1,0 +1,26 @@
+.rd-ir2 { font-family: "Inter", Arial, sans-serif; font-size: 10px; color: #222; }
+.rd-ir2 table { width: 100%; border-collapse: collapse; }
+.rd-ir2 h3 { font-size: 12px; margin: 14px 0 6px; padding-bottom: 3px; border-bottom: 1px solid #999; }
+.rd-ir2 h4 { font-size: 11px; margin: 10px 0 4px; }
+.rd-ir2 .rd-cab td { vertical-align: top; }
+.rd-ir2 .rd-empresa { font-size: 15px; font-weight: 700; }
+.rd-ir2 .rd-titulo { font-size: 15px; font-weight: 700; }
+.rd-ir2 .rd-der { text-align: right; }
+.rd-ir2 .rd-muted { color: #666; }
+.rd-ir2 .rd-nota { color: #555; font-style: italic; margin: 8px 0; }
+.rd-ir2 .rd-avisos { border: 1px solid #e0b252; background: #fff8e6; padding: 6px 8px; margin: 6px 0; }
+.rd-ir2 .rd-estado { text-align: center; font-size: 16px; font-weight: 700; color: #c00; margin: 4px 0; }
+.rd-ir2 .rd-detalle { margin-top: 4px; }
+.rd-ir2 .rd-detalle th { background: #f3f3f3; border-bottom: 1px solid #ccc; padding: 4px 5px; text-align: left; font-size: 9px; text-transform: uppercase; }
+.rd-ir2 .rd-detalle td { border-bottom: 1px solid #eee; padding: 3px 5px; }
+.rd-ir2 .rd-detalle tfoot td { border-top: 1px solid #999; }
+.rd-ir2 .rd-resumen { margin: 6px 0; }
+.rd-ir2 .rd-resumen td { padding: 3px 5px; }
+.rd-ir2 .rd-liquidacion { width: 70%; margin-left: auto; }
+.rd-ir2 .rd-liquidacion td { padding: 3px 5px; border-bottom: 1px solid #eee; }
+.rd-ir2 .rd-liquidacion .rd-sub td { font-weight: 700; }
+.rd-ir2 .rd-liquidacion .rd-total td { font-weight: 700; font-size: 12px; border-top: 2px solid #222; border-bottom: none; }
+.rd-ir2 .num { text-align: right !important; white-space: nowrap; }
+.rd-ir2 .rd-firmas { margin-top: 20mm; }
+.rd-ir2 .rd-firmas td { width: 50%; padding: 0 8mm; }
+.rd-ir2 .rd-linea { border-top: 1px solid #222; text-align: center; padding-top: 3px; }

@@ -29,6 +29,7 @@
   "depreciacion_categoria_1",
   "depreciacion_categoria_2",
   "depreciacion_categoria_3",
+  "limite_reparaciones_categoria_1",
   "column_break_ir2",
   "depreciacion_arrendamiento_2",
   "depreciacion_arrendamiento_3",
@@ -206,6 +207,13 @@
    "default": "15"
   },
   {
+   "fieldname": "limite_reparaciones_categoria_1",
+   "fieldtype": "Percent",
+   "label": "Reparaciones deducibles de la categoría 1",
+   "default": "10",
+   "description": "Porcentaje del costo fiscal ajustado de cada edificación; el exceso se capitaliza"
+  },
+  {
    "fieldname": "column_break_ir2",
    "fieldtype": "Column Break"
   },
@@ -320,7 +328,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-18 13:00:00.000000",
+ "modified": "2026-10-18 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Configuracion DGII",
