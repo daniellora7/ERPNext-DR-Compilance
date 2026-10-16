@@ -95,6 +95,32 @@ class TestNominaRD(IntegrationTestCase):
 		self.assertAlmostEqual(monto(3, 100, 30, False, p), 600)  # ya pasó del límite
 		self.assertAlmostEqual(monto(5, 100, 0, True, p), 1000)  # feriado
 
+	def test_recargo_nocturno(self):
+		"""Art. 204: 15 % más en la parte de las horas extras entre las 9:00 p. m. y las 7:00 a. m."""
+		import datetime
+
+		from erpnext_rd.nomina_rd.horas_extras import horas_nocturnas, monto, nocturnas_de_la_salida
+
+		p = frappe._dict(
+			horas_normales=44,
+			horas_maximo=68,
+			recargo=35,
+			recargo_exceso=100,
+			recargo_feriado=100,
+			recargo_nocturno=15,
+			inicio_nocturna=datetime.time(21),
+			fin_nocturna=datetime.time(7),
+		)
+		# Salida a las 11:00 p. m. con 4 horas extras (7 a 11 p. m.): 2 nocturnas
+		self.assertAlmostEqual(nocturnas_de_la_salida("2026-10-05 23:00:00", 4, p), 2)
+		# Cruza la medianoche: 10 p. m. a 2 a. m., todas nocturnas
+		self.assertAlmostEqual(horas_nocturnas("2026-10-05 22:00:00", "2026-10-06 02:00:00", p), 4)
+		# Madrugada: 5 a 9 a. m., 2 nocturnas
+		self.assertAlmostEqual(horas_nocturnas("2026-10-06 05:00:00", "2026-10-06 09:00:00", p), 2)
+		self.assertEqual(nocturnas_de_la_salida(None, 4, p), 0)
+		self.assertAlmostEqual(monto(4, 100, 0, False, p, nocturnas=2), 4 * 135 + 2 * 15)
+		self.assertAlmostEqual(monto(4, 100, 0, True, p, nocturnas=4), 4 * 200 + 4 * 15)
+
 	def test_configuracion_inicial(self):
 		conf = frappe.get_single("Configuracion Nomina RD")
 		self.assertEqual([len(calculos.escala_isr(conf, a)) for a in (2026, 2027)], [4, 5])

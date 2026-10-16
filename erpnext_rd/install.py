@@ -719,6 +719,9 @@ def inicializar_configuracion():
 		("recargo_horas_extras", 35),
 		("recargo_horas_extras_exceso", 100),
 		("recargo_feriado", 100),
+		("recargo_nocturno", 15),
+		("inicio_jornada_nocturna", "21:00:00"),
+		("fin_jornada_nocturna", "07:00:00"),
 	):
 		if not frappe.db.exists("Singles", {"doctype": "Configuracion Nomina RD", "field": campo}):
 			frappe.db.set_single_value("Configuracion Nomina RD", campo, valor)

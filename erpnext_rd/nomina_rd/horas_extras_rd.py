@@ -8,7 +8,7 @@ from hrms.hr.doctype.overtime_slip.overtime_slip import OvertimeSlip
 
 from erpnext_rd.dgii_fiscal.ncf import es_empresa_rd
 from erpnext_rd.nomina_rd import prestaciones
-from erpnext_rd.nomina_rd.horas_extras import monto, parametros
+from erpnext_rd.nomina_rd.horas_extras import monto, nocturnas_de_la_salida, parametros
 
 
 class OvertimeSlipRD(OvertimeSlip):
@@ -65,4 +65,20 @@ class OvertimeSlipRD(OvertimeSlip):
 		previas = acumuladas.get(semana, 0.0)
 		if not feriado:
 			acumuladas[semana] = previas + flt(overtime_duration)
-		return monto(flt(overtime_duration), applicable_hourly_rate, previas, feriado, parametros())
+		p = parametros()
+		nocturnas = nocturnas_de_la_salida(
+			self._salida(overtime_type, overtime_date, overtime_duration), flt(overtime_duration), p
+		)
+		return monto(flt(overtime_duration), applicable_hourly_rate, previas, feriado, p, nocturnas)
+
+	def _salida(self, overtime_type, overtime_date, overtime_duration):
+		"""Marcación de salida de la asistencia de esa fila de horas extras (para el recargo nocturno)."""
+		for fila in self.overtime_details:
+			if (
+				fila.reference_document
+				and fila.overtime_type == overtime_type
+				and getdate(fila.date) == getdate(overtime_date)
+				and flt(fila.overtime_duration) == flt(overtime_duration)
+			):
+				return frappe.db.get_value("Attendance", fila.reference_document, "out_time")
+		return None

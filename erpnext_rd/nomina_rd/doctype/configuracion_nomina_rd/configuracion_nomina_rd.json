@@ -43,6 +43,9 @@
   "recargo_horas_extras",
   "recargo_horas_extras_exceso",
   "recargo_feriado",
+  "recargo_nocturno",
+  "inicio_jornada_nocturna",
+  "fin_jornada_nocturna",
   "section_vacaciones",
   "asignar_vacaciones",
   "tramos_vacaciones",
@@ -350,11 +353,34 @@
    "label": "Lista de feriados",
    "options": "Holiday List",
    "read_only": 1
+  },
+  {
+   "fieldname": "recargo_nocturno",
+   "fieldtype": "Percent",
+   "label": "Recargo de las horas nocturnas",
+   "default": "15",
+   "reqd": 1,
+   "description": "Art. 204: se suma al de las horas extras en la parte que cae en la jornada nocturna."
+  },
+  {
+   "fieldname": "inicio_jornada_nocturna",
+   "fieldtype": "Time",
+   "label": "La jornada nocturna empieza",
+   "default": "21:00:00",
+   "reqd": 1
+  },
+  {
+   "fieldname": "fin_jornada_nocturna",
+   "fieldtype": "Time",
+   "label": "La jornada nocturna termina",
+   "default": "07:00:00",
+   "reqd": 1,
+   "description": "Art. 149: de las 9:00 p. m. a las 7:00 a. m."
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-16 22:00:00.000000",
+ "modified": "2026-10-18 11:00:00.000000",
  "modified_by": "Administrator",
  "module": "Nomina RD",
  "name": "Configuracion Nomina RD",
