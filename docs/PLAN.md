@@ -40,7 +40,7 @@ Decisión: el usuario quiere probar todo en Docker local antes de configurar Git
 ### Mejoras de cumplimiento (análisis del 2026-10-16)
 Lo que se puede hacer sin depender del usuario, en tres ramas:
 1. ✅ `feature/tasa-recordatorios-cheque`: tasa del dólar del BCRD, recordatorios por correo de vencimientos y formato *Cheque RD*.
-2. Declaraciones del mes: anticipos del ISR, proporcionalidad del ITBIS (art. 349) y aviso de NCF/RNC del proveedor no válido (consulta de la DGII solo si no tiene captcha; si no, solo el padrón).
+2. ✅ `feature/isr-itbis-ncf-proveedor`: anticipos del ISR (art. 314), proporcionalidad del ITBIS (art. 349) y aviso de NCF/RNC del proveedor no válido (la consulta de NCF de la DGII no tiene captcha). Pendiente: tres cuotas de las pequeñas empresas (Ley 30-26, desde 2027) cuando la DGII publique los criterios.
 3. Nómina: dependientes adicionales del SFS y subsidios de la SISALRIL.
 4. Apoyo al IR-2: depreciación fiscal por categoría (art. 287), ajuste por inflación y cuadre contable-fiscal.
 
