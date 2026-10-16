@@ -8,6 +8,7 @@ from erpnext_rd.dgii_fiscal import consulta_ncf
 from erpnext_rd.dgii_fiscal.identificacion import identificacion_valida
 from erpnext_rd.dgii_fiscal.impuestos import montos_impuestos, tipo_desde_cuentas
 from erpnext_rd.dgii_fiscal.validaciones import es_ncf_valido, formatear_ncf, tipo_identificacion
+from erpnext_rd.rd_compliance import perfil
 
 NOTA_CREDITO = {"B": "B04", "E": "E34"}
 NOTA_DEBITO = {"B": "B03", "E": "E33"}
@@ -128,6 +129,11 @@ def _serie_de(codigo: str | None) -> str:
 	return (codigo or "")[:1] or frappe.db.get_single_value("Configuracion DGII", "serie_por_defecto") or "B"
 
 
+def serie_por_defecto(company: str) -> str:
+	"""E si la empresa es emisor electrónico según su perfil tributario; si no, la de Configuracion DGII."""
+	return "E" if perfil.emisor_electronico(company) else _serie_de(None)
+
+
 def es_empresa_rd(company: str | None) -> bool:
 	"""La lógica fiscal DGII solo aplica a empresas con país República Dominicana."""
 	return bool(company) and frappe.get_cached_value("Company", company, "country") == PAIS
@@ -158,7 +164,7 @@ def tipo_por_defecto_venta(doc) -> str:
 	if del_cliente:
 		return del_cliente
 
-	serie = _serie_de(None)
+	serie = serie_por_defecto(doc.company)
 	if tipo_identificacion(doc.tax_id) in ("RNC", "Cédula") and identificacion_valida(doc.tax_id):
 		return f"{serie}{'01' if serie == 'B' else '31'}"
 
@@ -185,6 +191,7 @@ def validar_venta(doc, method=None):
 
 	if not tipo.aplica_ventas:
 		frappe.throw(_("El tipo {0} no se usa en facturas de venta").format(tipo.name))
+	perfil.validar_serie_de_venta(doc, tipo)
 
 	if tipo.requiere_rnc and not identificacion_valida(doc.tax_id):
 		frappe.throw(
