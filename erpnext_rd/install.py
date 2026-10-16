@@ -264,6 +264,16 @@ def campos_personalizados() -> dict:
 				"description": "Últimos 4 dígitos del Registro Nacional Laboral del establecimiento, para las planillas "
 				"DGT-3 / DGT-4 del Ministerio de Trabajo. Un empleado de otro establecimiento lo indica en su ficha.",
 			},
+			{
+				"fieldname": "rd_formato_factura",
+				"fieldtype": "Link",
+				"label": "Formato de impresión de facturas",
+				"options": "Print Format",
+				"insert_after": "rd_localidad_sirla",
+				"link_filters": '[["Print Format","doc_type","=","Sales Invoice"],["Print Format","disabled","=",0]]',
+				"description": "Formato con que se imprimen y envían por correo las facturas de venta de esta empresa. "
+				"Vacío: Factura Fiscal RD en las empresas de República Dominicana y el formato estándar en las demás.",
+			},
 		],
 		"Account": [
 			{
@@ -742,11 +752,12 @@ def agregar_escala_isr(conf, anio: int, escala):
 		)
 
 
-# Formatos que deja el asistente de configuración de ERPNext; se reemplazan por los fiscales.
-# Si el usuario eligió otro formato, se respeta.
+# Formatos que deja ERPNext al instalarse ("Classic" desde v16.5x; antes "Modern with Images"); se
+# reemplazan por los fiscales. Si el usuario eligió otro formato, se respeta. Las empresas de otros
+# países imprimen con el estándar o con el que indiquen (Company.rd_formato_factura, ver boot.py).
 FORMATOS_POR_DEFECTO = {
-	"Sales Invoice": ("Factura Fiscal RD", ("Sales Invoice Modern with Images",)),
-	"POS Invoice": ("Recibo POS RD (POS Invoice)", ("POS Invoice Modern with Images",)),
+	"Sales Invoice": ("Factura Fiscal RD", ("Sales Invoice Classic", "Sales Invoice Modern with Images")),
+	"POS Invoice": ("Recibo POS RD (POS Invoice)", ("POS Invoice Classic", "POS Invoice Modern with Images")),
 }
 
 

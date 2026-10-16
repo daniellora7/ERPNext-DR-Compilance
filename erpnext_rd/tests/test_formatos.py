@@ -55,3 +55,34 @@ class TestFormatosImpresion(IntegrationTestCase):
 		datos(doc)
 		datos(doc)
 		self.assertEqual(llamadas, ["X-1"])
+
+	def test_formato_de_factura_por_empresa(self):
+		"""El formato fiscal es el predeterminado, pero las empresas de otros países usan el estándar o el
+		que indiquen en la empresa."""
+		from erpnext_rd.boot import formatos_por_empresa
+		from erpnext_rd.install import formato_impresion_por_defecto
+
+		formato_impresion_por_defecto()
+		frappe.get_doc(
+			{
+				"doctype": "Company",
+				"company_name": "_Test Formato US",
+				"abbr": "TFUS",
+				"country": "United States",
+				"default_currency": "USD",
+			}
+		).insert()
+		rd = frappe.db.get_value("Company", {"country": "Dominican Republic"})
+
+		bootinfo = frappe._dict()
+		formatos_por_empresa(bootinfo)
+		ventas = bootinfo.rd_formatos["Sales Invoice"]
+		self.assertEqual(ventas["defecto"], "Factura Fiscal RD")
+		self.assertEqual(ventas["empresas"][rd], "Factura Fiscal RD")
+		self.assertEqual(ventas["empresas"]["_Test Formato US"], "Standard")
+
+		frappe.db.set_value("Company", "_Test Formato US", "rd_formato_factura", "Factura Fiscal RD")
+		formatos_por_empresa(bootinfo)
+		self.assertEqual(
+			bootinfo.rd_formatos["Sales Invoice"]["empresas"]["_Test Formato US"], "Factura Fiscal RD"
+		)
