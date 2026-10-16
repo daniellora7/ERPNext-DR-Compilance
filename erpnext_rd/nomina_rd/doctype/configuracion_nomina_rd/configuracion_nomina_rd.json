@@ -1,0 +1,423 @@
+{
+ "actions": [],
+ "creation": "2026-10-13 20:30:00.000000",
+ "doctype": "DocType",
+ "document_type": "Setup",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_general",
+  "calcular_deducciones",
+  "section_tss",
+  "salario_minimo_cotizable",
+  "vigente_desde",
+  "column_break_tss",
+  "tope_afp_salarios",
+  "tope_sfs_salarios",
+  "tope_srl_salarios",
+  "section_tasas",
+  "afp_empleado",
+  "sfs_empleado",
+  "infotep_empleado",
+  "column_break_tasas",
+  "afp_empleador",
+  "sfs_empleador",
+  "srl_empleador",
+  "infotep_empleador",
+  "section_isr",
+  "escala_isr",
+  "section_prestaciones",
+  "dias_salario_mes",
+  "tramos_preaviso",
+  "tramos_cesantia",
+  "section_bonificacion",
+  "bonificacion_porcentaje",
+  "bonificacion_anios",
+  "column_break_bonificacion",
+  "bonificacion_dias_menor",
+  "bonificacion_dias_mayor",
+  "section_horas_extras",
+  "horas_jornada",
+  "horas_semana_normal",
+  "horas_semana_maximo",
+  "column_break_horas_extras",
+  "recargo_horas_extras",
+  "recargo_horas_extras_exceso",
+  "recargo_feriado",
+  "recargo_nocturno",
+  "inicio_jornada_nocturna",
+  "fin_jornada_nocturna",
+  "section_vacaciones",
+  "asignar_vacaciones",
+  "tramos_vacaciones",
+  "section_feriados",
+  "actualizar_feriados",
+  "dia_descanso",
+  "column_break_feriados",
+  "lista_feriados"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_general",
+   "fieldtype": "Section Break",
+   "label": "General"
+  },
+  {
+   "default": "1",
+   "description": "Pone AFP, SFS, ISR y los aportes del empleador en cada recibo de las empresas de RD.",
+   "fieldname": "calcular_deducciones",
+   "fieldtype": "Check",
+   "label": "Calcular TSS e ISR en los recibos de nómina"
+  },
+  {
+   "description": "Tasas y topes de la Ley 87-01. Verifique cada año las resoluciones de la TSS y del CNSS.",
+   "fieldname": "section_tss",
+   "fieldtype": "Section Break",
+   "label": "Seguridad Social (TSS)"
+  },
+  {
+   "default": "23223",
+   "description": "Base para los topes de cotización (salario mínimo nacional fijado por la TSS).",
+   "fieldname": "salario_minimo_cotizable",
+   "fieldtype": "Currency",
+   "label": "Salario mínimo cotizable (mensual)",
+   "reqd": 1
+  },
+  {
+   "default": "2026-02-01",
+   "fieldname": "vigente_desde",
+   "fieldtype": "Date",
+   "label": "Vigente desde"
+  },
+  {
+   "fieldname": "column_break_tss",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "20",
+   "fieldname": "tope_afp_salarios",
+   "fieldtype": "Float",
+   "label": "Tope AFP (salarios mínimos)",
+   "reqd": 1
+  },
+  {
+   "default": "10",
+   "fieldname": "tope_sfs_salarios",
+   "fieldtype": "Float",
+   "label": "Tope SFS (salarios mínimos)",
+   "reqd": 1
+  },
+  {
+   "default": "4",
+   "fieldname": "tope_srl_salarios",
+   "fieldtype": "Float",
+   "label": "Tope SRL (salarios mínimos)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_tasas",
+   "fieldtype": "Section Break",
+   "label": "Tasas"
+  },
+  {
+   "default": "2.87",
+   "fieldname": "afp_empleado",
+   "fieldtype": "Percent",
+   "label": "AFP empleado",
+   "reqd": 1
+  },
+  {
+   "default": "3.04",
+   "fieldname": "sfs_empleado",
+   "fieldtype": "Percent",
+   "label": "SFS empleado",
+   "reqd": 1
+  },
+  {
+   "default": "0.5",
+   "description": "Se descuenta de las bonificaciones (participación en beneficios).",
+   "fieldname": "infotep_empleado",
+   "fieldtype": "Percent",
+   "label": "INFOTEP empleado (sobre bonificaciones)"
+  },
+  {
+   "fieldname": "column_break_tasas",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "7.10",
+   "fieldname": "afp_empleador",
+   "fieldtype": "Percent",
+   "label": "AFP empleador",
+   "reqd": 1
+  },
+  {
+   "default": "7.09",
+   "fieldname": "sfs_empleador",
+   "fieldtype": "Percent",
+   "label": "SFS empleador",
+   "reqd": 1
+  },
+  {
+   "default": "1.10",
+   "description": "Entre 1.10% y 1.30% según la categoría de riesgo de la empresa.",
+   "fieldname": "srl_empleador",
+   "fieldtype": "Percent",
+   "label": "SRL empleador",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "infotep_empleador",
+   "fieldtype": "Percent",
+   "label": "INFOTEP empleador",
+   "reqd": 1
+  },
+  {
+   "description": "Escala anual del art. 296 del Código Tributario. La renta gravable es el salario menos los aportes del empleado a la TSS.",
+   "fieldname": "section_isr",
+   "fieldtype": "Section Break",
+   "label": "Impuesto sobre la Renta (asalariados)"
+  },
+  {
+   "fieldname": "escala_isr",
+   "fieldtype": "Table",
+   "label": "Escalas anuales ISR",
+   "options": "Tramo ISR RD",
+   "reqd": 1,
+   "description": "Una escala por año (art. 296 del Código Tributario). Cada recibo usa la del año más reciente que no pase del año de su período. La Ley 30-26 ajusta la escala cada año por la inflación: agregue aquí la que publique la DGII, con su año."
+  },
+  {
+   "description": "Código de Trabajo: preaviso (art. 76) y auxilio de cesantía (art. 80). Se calculan con el salario promedio del último año (art. 85) dividido entre los días de abajo. Se usan en las reglas de Gratuity de Frappe HR marcadas como prestación RD.",
+   "fieldname": "section_prestaciones",
+   "fieldtype": "Section Break",
+   "label": "Prestaciones laborales"
+  },
+  {
+   "default": "23.83",
+   "fieldname": "dias_salario_mes",
+   "fieldtype": "Float",
+   "label": "Días por mes para el salario diario",
+   "reqd": 1,
+   "description": "Salario diario = salario promedio mensual / este valor (23.83 por resolución del Ministerio de Trabajo)"
+  },
+  {
+   "fieldname": "tramos_preaviso",
+   "fieldtype": "Table",
+   "label": "Preaviso (art. 76)",
+   "options": "Tramo Prestacion RD"
+  },
+  {
+   "fieldname": "tramos_cesantia",
+   "fieldtype": "Table",
+   "label": "Auxilio de cesantía (art. 80)",
+   "options": "Tramo Prestacion RD"
+  },
+  {
+   "fieldname": "section_bonificacion",
+   "fieldtype": "Section Break",
+   "label": "Bonificación (art. 223)",
+   "description": "Participación de los trabajadores en los beneficios: un porcentaje de la utilidad neta anual, con un tope por trabajador en días de salario ordinario según su antigüedad. Se calcula en el documento Bonificación RD."
+  },
+  {
+   "fieldname": "bonificacion_porcentaje",
+   "fieldtype": "Percent",
+   "label": "Porcentaje de la utilidad neta",
+   "default": "10",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bonificacion_anios",
+   "fieldtype": "Int",
+   "label": "Años de antigüedad para el tope mayor",
+   "default": "3",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_bonificacion",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "bonificacion_dias_menor",
+   "fieldtype": "Float",
+   "label": "Tope en días (menos de esa antigüedad)",
+   "default": "45",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bonificacion_dias_mayor",
+   "fieldtype": "Float",
+   "label": "Tope en días (esa antigüedad o más)",
+   "default": "60",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_horas_extras",
+   "fieldtype": "Section Break",
+   "label": "Horas extras (arts. 203-205)",
+   "description": "Se aplican en los tipos de horas extras de Frappe HR marcados como RD. Valor de la hora = salario ordinario mensual / días por mes / horas de la jornada."
+  },
+  {
+   "fieldname": "horas_jornada",
+   "fieldtype": "Float",
+   "label": "Horas de la jornada diaria",
+   "default": "8",
+   "reqd": 1
+  },
+  {
+   "fieldname": "horas_semana_normal",
+   "fieldtype": "Float",
+   "label": "Jornada semanal (horas)",
+   "default": "44",
+   "reqd": 1
+  },
+  {
+   "fieldname": "horas_semana_maximo",
+   "fieldtype": "Float",
+   "label": "Horas semanales con el primer recargo",
+   "default": "68",
+   "reqd": 1,
+   "description": "Las horas extras que pasen de este total semanal llevan el recargo mayor."
+  },
+  {
+   "fieldname": "column_break_horas_extras",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "recargo_horas_extras",
+   "fieldtype": "Percent",
+   "label": "Recargo de las horas extras",
+   "default": "35",
+   "reqd": 1
+  },
+  {
+   "fieldname": "recargo_horas_extras_exceso",
+   "fieldtype": "Percent",
+   "label": "Recargo sobre el límite semanal",
+   "default": "100",
+   "reqd": 1
+  },
+  {
+   "fieldname": "recargo_feriado",
+   "fieldtype": "Percent",
+   "label": "Recargo en feriados y día de descanso",
+   "default": "100",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_vacaciones",
+   "fieldtype": "Section Break",
+   "label": "Vacaciones",
+   "description": "Código de Trabajo: 14 días laborables por año cumplido, 18 desde los cinco años (art. 177), y la proporción del año incompleto al salir (art. 180). Se usan en el tipo de permiso Vacaciones RD de Frappe HR; al terminar el contrato se pagan con Leave Encashment (art. 182) usando el salario diario de las prestaciones."
+  },
+  {
+   "fieldname": "asignar_vacaciones",
+   "fieldtype": "Check",
+   "label": "Asignar vacaciones en cada aniversario",
+   "default": "0",
+   "description": "Cada día crea la asignación (Leave Allocation) del período de vacaciones a los empleados activos de empresas RD que cumplen un año más de servicio."
+  },
+  {
+   "fieldname": "tramos_vacaciones",
+   "fieldtype": "Table",
+   "label": "Días de vacaciones (arts. 177 y 180)",
+   "options": "Tramo Prestacion RD",
+   "description": "Hasta 12 meses: proporción del año incompleto. Desde 12 meses: días de cada año cumplido."
+  },
+  {
+   "description": "Lista de feriados de ERPNext con los feriados de República Dominicana (Ley 139-97, con sus traslados). Se crea sola, se extiende cada año y queda como lista por defecto de las empresas RD que no tengan otra.",
+   "fieldname": "section_feriados",
+   "fieldtype": "Section Break",
+   "label": "Feriados"
+  },
+  {
+   "default": "1",
+   "fieldname": "actualizar_feriados",
+   "fieldtype": "Check",
+   "label": "Mantener la lista de feriados RD"
+  },
+  {
+   "default": "Sunday",
+   "fieldname": "dia_descanso",
+   "fieldtype": "Select",
+   "label": "Día de descanso semanal",
+   "options": "\nSunday\nMonday\nTuesday\nWednesday\nThursday\nFriday\nSaturday",
+   "description": "Se marca como día libre en la lista. Vacío = no agregar días de descanso"
+  },
+  {
+   "fieldname": "column_break_feriados",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lista_feriados",
+   "fieldtype": "Link",
+   "label": "Lista de feriados",
+   "options": "Holiday List",
+   "read_only": 1
+  },
+  {
+   "fieldname": "recargo_nocturno",
+   "fieldtype": "Percent",
+   "label": "Recargo de las horas nocturnas",
+   "default": "15",
+   "reqd": 1,
+   "description": "Art. 204: se suma al de las horas extras en la parte que cae en la jornada nocturna."
+  },
+  {
+   "fieldname": "inicio_jornada_nocturna",
+   "fieldtype": "Time",
+   "label": "La jornada nocturna empieza",
+   "default": "21:00:00",
+   "reqd": 1
+  },
+  {
+   "fieldname": "fin_jornada_nocturna",
+   "fieldtype": "Time",
+   "label": "La jornada nocturna termina",
+   "default": "07:00:00",
+   "reqd": 1,
+   "description": "Art. 149: de las 9:00 p. m. a las 7:00 a. m."
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-10-18 11:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Nomina RD",
+ "name": "Configuracion Nomina RD",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "HR Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "HR User"
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

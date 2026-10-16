@@ -1,0 +1,160 @@
+{
+ "actions": [],
+ "autoname": "format:SEC-{tipo_comprobante}-{#####}",
+ "creation": "2026-10-12 18:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "tipo_comprobante",
+  "serie",
+  "habilitada",
+  "column_break_rango",
+  "desde",
+  "hasta",
+  "fecha_vencimiento",
+  "section_estado",
+  "siguiente",
+  "disponibles",
+  "column_break_estado",
+  "ultimo_ncf",
+  "autorizacion"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Empresa",
+   "options": "Company",
+   "remember_last_selected_value": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "tipo_comprobante",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Tipo de comprobante",
+   "options": "Tipo Comprobante Fiscal",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "tipo_comprobante.serie",
+   "fieldname": "serie",
+   "fieldtype": "Data",
+   "label": "Serie",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "habilitada",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Habilitada"
+  },
+  {
+   "fieldname": "column_break_rango",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Primer secuencial autorizado por la DGII",
+   "fieldname": "desde",
+   "fieldtype": "Long Int",
+   "label": "Desde (secuencial)",
+   "reqd": 1
+  },
+  {
+   "description": "Último secuencial autorizado por la DGII",
+   "fieldname": "hasta",
+   "fieldtype": "Long Int",
+   "label": "Hasta (secuencial)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "fecha_vencimiento",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Fecha de vencimiento"
+  },
+  {
+   "fieldname": "section_estado",
+   "fieldtype": "Section Break",
+   "label": "Estado"
+  },
+  {
+   "description": "Se asigna automáticamente. Cambiar solo para corregir.",
+   "fieldname": "siguiente",
+   "fieldtype": "Long Int",
+   "label": "Siguiente secuencial"
+  },
+  {
+   "fieldname": "disponibles",
+   "fieldtype": "Long Int",
+   "in_list_view": 1,
+   "label": "Disponibles",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_estado",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ultimo_ncf",
+   "fieldtype": "Data",
+   "label": "Último NCF emitido",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "autorizacion",
+   "fieldtype": "Data",
+   "label": "No. de autorización / solicitud DGII"
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-12 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "DGII Fiscal",
+ "name": "Secuencia NCF",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User"
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "tipo_comprobante"
+}

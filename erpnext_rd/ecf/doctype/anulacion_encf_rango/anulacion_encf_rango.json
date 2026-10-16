@@ -1,0 +1,80 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "links": [],
+ "modified": "2026-10-18 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "ECF",
+ "owner": "Administrator",
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "name": "Anulacion ENCF Rango",
+ "istable": 1,
+ "editable_grid": 1,
+ "permissions": [],
+ "fields": [
+  {
+   "fieldname": "secuencia",
+   "fieldtype": "Link",
+   "options": "Secuencia NCF",
+   "label": "Secuencia",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "tipo_comprobante",
+   "fieldtype": "Data",
+   "label": "Tipo",
+   "read_only": 1,
+   "in_list_view": 1,
+   "fetch_from": "secuencia.tipo_comprobante"
+  },
+  {
+   "fieldname": "desde",
+   "fieldtype": "Long Int",
+   "label": "Desde (secuencial)",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "hasta",
+   "fieldtype": "Long Int",
+   "label": "Hasta (secuencial)",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "encf_desde",
+   "fieldtype": "Data",
+   "label": "e-NCF desde",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "encf_hasta",
+   "fieldtype": "Data",
+   "label": "e-NCF hasta",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cantidad",
+   "fieldtype": "Int",
+   "label": "Cantidad",
+   "read_only": 1
+  }
+ ],
+ "field_order": [
+  "secuencia",
+  "tipo_comprobante",
+  "desde",
+  "hasta",
+  "encf_desde",
+  "encf_hasta",
+  "cantidad"
+ ]
+}

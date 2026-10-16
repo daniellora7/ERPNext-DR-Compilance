@@ -4,3 +4,10 @@ __pycache__/
 node_modules/
 .vscode/
 .idea/
+.ruff_cache/
+*.egg-info
+*.swp
+.DS_Store
+# Salida del build del frontend (la genera `bench build` / `yarn build`)
+erpnext_rd/public/frontend/
+erpnext_rd/www/rd-compliance.html

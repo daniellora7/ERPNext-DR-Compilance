@@ -1,101 +1,61 @@
 # CLAUDE.md
 
-Guía para trabajar en este repositorio. El usuario se comunica en español: responder en español.
+El usuario escribe en español: responder en español.
 
-## Qué es
+**ERPNext RD**: ERPNext + Frappe HR + app propia `erpnext_rd` con la localización de República Dominicana (NCF, e-CF, reportes DGII, padrón RNC, nómina RD). Docker local; después Dokploy y Marketplace de Frappe Cloud.
 
-**ERPNext RD**: ERPNext + Frappe HR (HRMS) + app propia `erpnext_rd` con la localización de República Dominicana (NCF, e-CF directo con la DGII, reportes 606/607/608/609, padrón RNC y nómina RD). Se corre en Docker local y después se despliega en Dokploy.
-
-Plan completo, fases y estado: `docs/PLAN.md` (mantenerlo actualizado al avanzar cada fase).
+Documentos (leer el que haga falta, no todo):
+- `docs/PLAN.md`: fases, estado y pendientes. Actualizarlo al avanzar.
+- `docs/NOTAS-TECNICAS.md`: cómo está implementado cada módulo (NCF, reportes, padrón, panel, nómina, TSS, IR-3/IR-13, etc.). Actualizarlo al cambiar un módulo.
+- `docs/lineamientos-diseno-frappe.md`: lineamientos de diseño de Frappe y lista de revisión de la interfaz.
 
 ## Versiones fijadas
 
-| Componente | Versión | Dónde se fija |
-|---|---|---|
-| Frappe | v16.51.1 | `FRAPPE_BRANCH` en `deploy/Containerfile` |
-| ERPNext | v16.50.0 | `deploy/apps.json` |
-| HRMS | v16.50.0 | `deploy/apps.json` |
-| MariaDB | 11.8 | `deploy/compose.yaml` |
-| Python (en imagen) | 3.14 | imagen `frappe/build:version-16` |
+Frappe **v16.52.0** (`FRAPPE_BRANCH` en `deploy/Containerfile`), ERPNext **v16.51.1** y HRMS **v16.51.0** (`deploy/apps.json`), MariaDB 11.8, Python 3.14.
 
-## Reglas de arquitectura
+## Reglas
 
-- **Una sola instancia = un solo sitio Frappe = una sola base de datos MariaDB.** ERPNext, HRMS y `erpnext_rd` se instalan en el mismo sitio. Varias empresas = varias *Company* en ese sitio. No crear sitios ni bases de datos adicionales.
-- **MariaDB, no PostgreSQL** (es la base oficial y probada de ERPNext/HRMS).
-- **No hacer fork ni modificar** el código de Frappe, ERPNext o HRMS. Toda personalización va en `apps/erpnext_rd` mediante DocTypes propios, `hooks.py` (`doc_events`, `scheduler_events`, `override_*`), Custom Fields y Property Setters exportados como fixtures, y patches.
-- Tasas y topes que cambian por ley (TSS, ISR, INFOTEP, etc.) van en DocTypes de configuración editables, nunca hardcodeados.
-- Solo copiar código de terceros con licencia compatible (GPL-3, LGPL-3 o MIT). Repos sin licencia solo sirven de referencia. La app es GPL-3.0.
+- **Un sitio Frappe, una base MariaDB** (no PostgreSQL). Varias empresas = varias *Company*.
+- **No modificar Frappe, ERPNext ni HRMS**: todo en `erpnext_rd` (DocTypes, `hooks.py`, `override_doctype_class`, Custom Fields y Property Setters creados por código en `install.py`, patches).
+- Tasas, topes y escalas que cambian por ley: en DocTypes de configuración editables, nunca en el código.
+- Lógica fiscal y de nómina **solo en empresas con país *Dominican Republic*** (`ncf.es_empresa_rd`).
+- **HRMS es opcional**: lo que toque sus DocTypes se condiciona con `nomina_rd.hrms_instalado()`.
+- **Marketplace**: instalable sin acceso a la máquina (`after_install`/`after_migrate`, patches), funciona sin HRMS y se desinstala limpio (todo Property Setter lleva `module` de la app).
+- **Interfaz**: estándar frappe-ui. Solo tokens CSS (`--ink-*`, `--surface-*`, `--outline-*`; avisos `--ink-amber-8`, errores `--ink-red-6`), nunca hex ni Bootstrap (salvo formatos de impresión). Revisar en claro y oscuro.
+- **Formatos imprimibles: siempre editables en el constructor de formatos de Frappe** (Print Format no estándar del constructor, bloques HTML/Jinja; ver `erpnext_rd/formatos.py`). Nunca formatos estándar ni `{% include %}` a plantillas de la app.
+- Nómina RD va del lado de Frappe HR (sidebar `nomina_rd`); lo fiscal, en el sidebar único de RD Compliance.
+- Código de terceros solo con licencia GPL-3, LGPL-3 o MIT. La app es GPL-3.0.
 
-## Estructura
+## Entorno local
 
-```
-apps/erpnext_rd/               App Frappe propia
-  erpnext_rd/
-    hooks.py                   Hooks de la app (required_apps = erpnext, hrms)
-    modules.txt                Módulos: ERPNext RD, DGII Fiscal, ECF, DGII Reportes, Padron RNC, Nomina RD
-    dgii_fiscal/               NCF, tipos de comprobante, campos fiscales
-    ecf/                       e-CF: XML, firma, envío/consulta DGII, recepción
-    dgii_reportes/             606, 607, 608, 609, apoyo IT-1 / IR-17
-    padron_rnc/                Padrón RNC/Cédula y validaciones
-    nomina_rd/                 TSS, ISR, INFOTEP, regalía, IR-3, archivo SUIR
-    fixtures/                  Custom Fields / Property Setters exportados
-    patches.txt, patches/      Migraciones de datos
-    tests/                     Tests de la app
-deploy/
-  apps.json                    Apps oficiales y sus tags
-  Containerfile                Imagen (basada en frappe_docker layered, MIT)
-  compose.yaml                 Stack completo
-  .env.example                 Variables (copiar a deploy/.env, que NO se versiona)
-  resources/                   entrypoint y start.sh de frappe_docker
-```
-
-## Comandos
-
-Todos desde la raíz del repo. Atajo: `C="docker compose -f deploy/compose.yaml --env-file deploy/.env"`.
+- URL http://localhost:8090, sitio `erp.localhost`. **El 8080 es de otro proyecto (`plastidel-dev-api`): no tocarlo.**
+- Contraseñas en `deploy/.env` (no se versiona): **no repetirlas en el chat**.
+- El sitio tiene la empresa real del usuario (**Dynamics Plastics**): no crear documentos de prueba sin permiso. Respaldar (`bench backup --with-files`) antes de actualizar versiones.
+- `down -v` borra los volúmenes con los datos: **nunca sin confirmación**.
 
 ```bash
-# Construir imagen (tarda ~15 min la primera vez)
-docker build -f deploy/Containerfile -t erpnext-rd:local .
-
-# Levantar / detener
-docker compose -f deploy/compose.yaml --env-file deploy/.env up -d
-docker compose -f deploy/compose.yaml --env-file deploy/.env down
-
-# Aplicar cambios de erpnext_rd: rebuild + up (create-site corre migrate si el sitio existe)
-docker compose -f deploy/compose.yaml --env-file deploy/.env up -d --build
-
-# Bench dentro del contenedor
-docker exec deploy-backend-1 bench --site erp.localhost list-apps
+# Stack de desarrollo (monta erpnext_rd/ del repo)
+docker compose -f deploy/compose.yaml -f deploy/compose.dev.yaml --env-file deploy/.env up -d
+# Cambios Python: reiniciar; DocTypes/campos: migrate
+docker restart deploy-backend-1 deploy-queue-short-1 deploy-queue-long-1 deploy-scheduler-1
 docker exec deploy-backend-1 bench --site erp.localhost migrate
-docker exec deploy-backend-1 bench --site erp.localhost console
-docker exec deploy-backend-1 bench --site erp.localhost mariadb
-
-# Tests de la app
-docker exec deploy-backend-1 bench --site erp.localhost set-config allow_tests true
+# Tests y lint
 docker exec deploy-backend-1 bench --site erp.localhost run-tests --app erpnext_rd
-
-# Logs
-docker logs -f deploy-backend-1
-docker logs deploy-create-site-1
+MSYS_NO_PATHCONV=1 docker run --rm -v "$PWD:/w" -w /w ghcr.io/astral-sh/ruff:0.12.12 check erpnext_rd
+# Imagen (~15 min)
+docker build -f deploy/Containerfile -t erpnext-rd:local .
+# Panel (frontend/) sin Node local
+MSYS_NO_PATHCONV=1 docker run --rm -u root --entrypoint bash -v "$PWD:/work" -v erpnext-rd-frontend-nm:/work/frontend/node_modules -w /work/frontend erpnext-rd:local -c "yarn install --frozen-lockfile && yarn build"
 ```
 
-- URL local: http://localhost:8090 (el 8080 lo usa otro proyecto del usuario, `plastidel-dev-api`; no tocarlo).
-- Sitio: `erp.localhost`. Usuario `Administrator`; la contraseña es `ADMIN_PASSWORD` en `deploy/.env`. No repetir contraseñas en el chat.
-- Los volúmenes Docker (`deploy_sites`, `deploy_db-data`) guardan los datos; `down -v` los borra. No usarlo sin confirmación del usuario.
+## Estilo
 
-## Notas técnicas
+- Python: tabs, comillas dobles, ruff (line-length 110). Repo en LF (`.gitattributes`).
+- Nombres de reportes sin tilde (la carpeta se arma con el nombre); el título con tilde va en `locale/es.po` (`bench compile-po-to-mo --app erpnext_rd --locale es`).
+- Editar archivos con Edit/Write o scripts en el scratchpad con `python -X utf8`: los heredocs de bash rompen `\n` y tildes.
 
-- El código de `erpnext_rd` se copia dentro de la imagen; cualquier cambio requiere rebuild. Si el desarrollo se vuelve lento, montar `apps/erpnext_rd` como volumen en un override de desarrollo.
-- Al crear DocTypes desde la UI hay que tener `developer_mode` activo en el sitio para que se exporten a JSON en la app. Como la app vive dentro del contenedor, los archivos generados deben copiarse de vuelta al repo (`docker cp`) o, preferiblemente, crearse directamente en el repo.
-- En el Containerfile, `sites/apps.txt` no termina en salto de línea: al agregar apps usar `printf '\n<app>\n'` y limpiar líneas vacías.
-- El repo fuerza finales de línea LF (`.gitattributes`); los scripts `.sh` deben quedar en LF o fallan en el contenedor.
-- Estilo Python de la app: tabs, comillas dobles, ruff con line-length 110 (ver `apps/erpnext_rd/pyproject.toml`).
+## Control de versiones
 
-## Control de versiones (obligatorio)
-
-- **Todo cambio se versiona en git.** Al terminar cada unidad de trabajo coherente (feature, fix, cambio de config), hacer commit sin esperar a que el usuario lo pida.
-- Mensajes en español con prefijo convencional: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`. Ejemplo: `feat(dgii_fiscal): secuencias NCF con bloqueo por fila`.
-- Ramas: `main` = estable/producción, `develop` = integración, `feature/<nombre>` para trabajo nuevo. Fusionar a `main` solo con el visto bueno del usuario.
-- Tags `vX.Y.Z` al cerrar cada fase.
-- Nunca versionar `deploy/.env`, certificados `.p12`, contraseñas ni tokens.
-- Aún no hay remoto en GitHub: no crear remotos ni hacer push hasta que el usuario lo pida.
+- Commit local de cada unidad de trabajo, sin esperar a que lo pidan. Mensajes en español con prefijo (`feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`).
+- **Push, PR y merge solo cuando el usuario lo pida.** Ramas: `main` (producción), `develop` (integración), `feature/<nombre>`.
+- Nunca versionar `deploy/.env`, certificados `.p12`, contraseñas ni tokens (el repo es público: https://github.com/daniellora7/ERPNext-DR-Compilance).

@@ -1,0 +1,97 @@
+{
+ "actions": [],
+ "autoname": "field:nombre",
+ "creation": "2026-10-15 19:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "description": "Administradoras de Fondos de Pensiones (AFP) y de Riesgos de Salud (ARS) del Sistema Dominicano de Seguridad Social (Ley 87-01). Se elige una de cada en la ficha del empleado.",
+ "field_order": [
+  "nombre",
+  "tipo",
+  "column_break_tipo",
+  "codigo_tss",
+  "deshabilitada"
+ ],
+ "fields": [
+  {
+   "fieldname": "nombre",
+   "fieldtype": "Data",
+   "label": "Nombre",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "tipo",
+   "fieldtype": "Select",
+   "label": "Tipo",
+   "options": "AFP\nARS",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "column_break_tipo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "codigo_tss",
+   "fieldtype": "Data",
+   "label": "Código en la TSS",
+   "in_list_view": 1,
+   "description": "Opcional: el código de la entidad en el SUIR"
+  },
+  {
+   "fieldname": "deshabilitada",
+   "fieldtype": "Check",
+   "label": "Deshabilitada",
+   "default": "0"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-15 19:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Nomina RD",
+ "name": "Entidad Seguridad Social RD",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "HR Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "HR User"
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "tipo",
+ "show_title_field_in_link": 0,
+ "sort_field": "nombre",
+ "sort_order": "ASC",
+ "states": [],
+ "title_field": "nombre"
+}

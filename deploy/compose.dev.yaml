@@ -1,0 +1,21 @@
+# Override de desarrollo: monta el paquete erpnext_rd (raíz del repo) dentro de los contenedores,
+# así los cambios se ven sin reconstruir la imagen.
+#   docker compose -f deploy/compose.yaml -f deploy/compose.dev.yaml --env-file deploy/.env up -d
+# Cambios en Python: docker compose ... restart backend queue-short queue-long scheduler
+# Cambios en DocTypes/campos: bench --site erp.localhost migrate
+
+x-app-mount: &app-mount
+  volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - logs:/home/frappe/frappe-bench/logs
+    - ../erpnext_rd:/home/frappe/frappe-bench/apps/erpnext_rd/erpnext_rd
+
+services:
+  configurator: *app-mount
+  create-site: *app-mount
+  backend: *app-mount
+  frontend: *app-mount
+  websocket: *app-mount
+  queue-short: *app-mount
+  queue-long: *app-mount
+  scheduler: *app-mount

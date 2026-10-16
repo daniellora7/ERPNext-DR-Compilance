@@ -1,0 +1,28 @@
+{%- set f = rd_datos_fiscales(doc) -%}
+{%- set m = doc.currency -%}
+<div class="rd-factura">
+	<table class="rd-items">
+		<thead>
+			<tr>
+				<th>Cant.</th>
+				<th>Descripción</th>
+				<th class="num">Precio</th>
+				<th class="num">Descuento</th>
+				<th class="num">ITBIS</th>
+				<th class="num">Valor</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for l in f.lineas %}
+			<tr>
+				<td>{{ "%g"|format(l.cantidad) }} {{ l.unidad or "" }}</td>
+				<td>{{ l.descripcion }}</td>
+				<td class="num">{{ frappe.utils.fmt_money(l.precio, currency=m) }}</td>
+				<td class="num">{{ frappe.utils.fmt_money(l.descuento, currency=m) if l.descuento else "" }}</td>
+				<td class="num">{{ frappe.utils.fmt_money(l.itbis, currency=m) if l.itbis else "E" }}</td>
+				<td class="num">{{ frappe.utils.fmt_money(l.total, currency=m) }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>

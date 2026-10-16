@@ -1,0 +1,29 @@
+{
+ "content": null,
+ "creation": "2026-10-14 20:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-10-14 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "RD Compliance",
+ "name": "panel-cumplimiento",
+ "owner": "Administrator",
+ "page_name": "panel-cumplimiento",
+ "roles": [
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Accounts User"
+  },
+  {
+   "role": "System Manager"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Panel de cumplimiento"
+}

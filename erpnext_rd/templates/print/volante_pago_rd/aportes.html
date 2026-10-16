@@ -1,0 +1,16 @@
+{%- set v = rd_datos_volante(doc) -%}
+<div class="rd-volante">
+	{% if v.aportes %}
+	<div class="rd-aportes">
+		<table class="rd-detalle">
+			<thead><tr><th>Aportes del empleador (no se descuentan)</th><th class="num">Monto</th></tr></thead>
+			<tbody>
+				{% for f in v.aportes %}
+				<tr><td>{{ _(f.concepto) }}</td><td class="num">{{ frappe.format_value(f.monto, {"fieldtype": "Currency"}, currency=doc.currency) }}</td></tr>
+				{% endfor %}
+				<tr class="rd-subtotal"><td>Total aportes</td><td class="num">{{ frappe.format_value(v.total_aportes, {"fieldtype": "Currency"}, currency=doc.currency) }}</td></tr>
+			</tbody>
+		</table>
+	</div>
+	{% endif %}
+</div>

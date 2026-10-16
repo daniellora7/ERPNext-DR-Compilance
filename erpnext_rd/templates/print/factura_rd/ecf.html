@@ -1,0 +1,19 @@
+{%- set f = rd_datos_fiscales(doc) -%}
+{%- set m = doc.currency -%}
+<div class="rd-factura">
+	{% if f.es_electronico %}
+	<table class="rd-ecf">
+		<tr>
+			<td style="width: 125px">{% if f.qr %}<img src="{{ f.qr }}" alt="QR e-CF">{% endif %}</td>
+			<td>
+				{% if f.codigo_seguridad %}
+				<div><b>Código de seguridad:</b> {{ f.codigo_seguridad }}</div>
+				<div><b>Fecha de firma digital:</b> {{ f.fecha_firma }}</div>
+				{% elif doc.docstatus == 1 %}
+				<div class="rd-muted">Comprobante electrónico pendiente de firma y envío a la DGII.</div>
+				{% endif %}
+			</td>
+		</tr>
+	</table>
+	{% endif %}
+</div>

@@ -1,0 +1,70 @@
+{
+ "actions": [],
+ "creation": "2026-10-13 20:30:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "anio",
+  "desde",
+  "hasta",
+  "tasa",
+  "cuota_fija"
+ ],
+ "fields": [
+  {
+   "columns": 2,
+   "fieldname": "anio",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Desde el año",
+   "reqd": 1,
+   "non_negative": 1,
+   "description": "Año desde el que rige la escala de esta fila"
+  },
+  {
+   "columns": 2,
+   "fieldname": "desde",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Desde (renta anual)",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "description": "Vacío = sin límite",
+   "fieldname": "hasta",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Hasta (renta anual)"
+  },
+  {
+   "columns": 2,
+   "fieldname": "tasa",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Tasa sobre el excedente",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "default": "0",
+   "fieldname": "cuota_fija",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Cuota fija"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-16 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Nomina RD",
+ "name": "Tramo ISR RD",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,162 @@
+{
+ "actions": [],
+ "creation": "2026-10-12 18:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_general",
+  "serie_por_defecto",
+  "ambiente_ecf",
+  "section_alertas",
+  "porcentaje_alerta",
+  "dias_alerta_vencimiento",
+  "section_validaciones",
+  "validar_contra_padron",
+  "exigir_ncf_en_compras",
+  "section_catalogo",
+  "aplicar_catalogo_cuentas",
+  "section_padron",
+  "padron_ultima_sincronizacion",
+  "padron_registros",
+  "padron_ultima_verificacion",
+  "padron_version_dgii"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_general",
+   "fieldtype": "Section Break",
+   "label": "General"
+  },
+  {
+   "default": "B",
+   "description": "B = NCF tradicional. Cambiar a E al estar autorizado como emisor electrónico.",
+   "fieldname": "serie_por_defecto",
+   "fieldtype": "Select",
+   "label": "Serie por defecto en ventas",
+   "options": "B\nE"
+  },
+  {
+   "default": "TesteCF",
+   "description": "TesteCF = pruebas, CerteCF = certificación, eCF = producción. Define la URL del QR y del envío.",
+   "fieldname": "ambiente_ecf",
+   "fieldtype": "Select",
+   "label": "Ambiente e-CF DGII",
+   "options": "TesteCF\nCerteCF\neCF"
+  },
+  {
+   "fieldname": "section_alertas",
+   "fieldtype": "Section Break",
+   "label": "Alertas de secuencias"
+  },
+  {
+   "default": "80",
+   "description": "Muestra un aviso al emitir cuando la secuencia supera este porcentaje de uso",
+   "fieldname": "porcentaje_alerta",
+   "fieldtype": "Percent",
+   "label": "Avisar al consumir (%)"
+  },
+  {
+   "default": "30",
+   "fieldname": "dias_alerta_vencimiento",
+   "fieldtype": "Int",
+   "label": "Avisar días antes del vencimiento"
+  },
+  {
+   "fieldname": "section_validaciones",
+   "fieldtype": "Section Break",
+   "label": "Validaciones"
+  },
+  {
+   "default": "1",
+   "fieldname": "validar_contra_padron",
+   "fieldtype": "Check",
+   "label": "Aceptar RNC con dígito verificador inválido si existe en el padrón DGII"
+  },
+  {
+   "default": "1",
+   "fieldname": "exigir_ncf_en_compras",
+   "fieldtype": "Check",
+   "label": "Exigir NCF del proveedor en facturas de compra"
+  },
+  {
+   "fieldname": "section_catalogo",
+   "fieldtype": "Section Break",
+   "label": "Catálogo de cuentas"
+  },
+  {
+   "default": "1",
+   "description": "Se aplica al instalar o migrar la app y al crear una empresa con país República Dominicana, solo si la empresa no tiene movimientos. Las empresas de otros países conservan su catálogo.",
+   "fieldname": "aplicar_catalogo_cuentas",
+   "fieldtype": "Check",
+   "label": "Aplicar el catálogo de cuentas DGII a las empresas de República Dominicana"
+  },
+  {
+   "fieldname": "section_padron",
+   "fieldtype": "Section Break",
+   "label": "Padrón RNC"
+  },
+  {
+   "fieldname": "padron_ultima_sincronizacion",
+   "fieldtype": "Datetime",
+   "label": "Última sincronización",
+   "read_only": 1
+  },
+  {
+   "fieldname": "padron_registros",
+   "fieldtype": "Int",
+   "label": "Registros en el padrón",
+   "read_only": 1
+  },
+  {
+   "description": "La tarea diaria de las 2:00 a. m. revisa si la DGII publicó un padrón nuevo; si no, no descarga nada.",
+   "fieldname": "padron_ultima_verificacion",
+   "fieldtype": "Datetime",
+   "label": "Última verificación",
+   "read_only": 1
+  },
+  {
+   "description": "Fecha de publicación (Last-Modified) del archivo de la DGII importado.",
+   "fieldname": "padron_version_dgii",
+   "fieldtype": "Data",
+   "label": "Versión del archivo DGII",
+   "read_only": 1
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-10-14 21:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "DGII Fiscal",
+ "name": "Configuracion DGII",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

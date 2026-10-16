@@ -1,0 +1,136 @@
+{
+ "actions": [],
+ "creation": "2026-10-17 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "links": [],
+ "modified": "2026-10-17 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "ECF",
+ "owner": "Administrator",
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "name": "Emisor ECF",
+ "autoname": "field:company",
+ "naming_rule": "By fieldname",
+ "description": "Emisor electrónico de una empresa: certificado digital (.p12) para firmar los e-CF y si se envían a la DGII. El ambiente (pruebas, certificación o producción) está en la Configuración DGII.",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts User",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1
+  }
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Empresa",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "habilitado",
+   "fieldtype": "Check",
+   "label": "Enviar los e-CF a la DGII",
+   "in_list_view": 1,
+   "description": "Sin marcar, los e-CF se generan y se firman pero no se envían (útil para revisar antes de la certificación)."
+  },
+  {
+   "fieldname": "envio_automatico",
+   "fieldtype": "Check",
+   "label": "Emitir al aprobar la factura",
+   "depends_on": "habilitado",
+   "description": "Genera, firma y envía el e-CF en segundo plano al aprobar una factura con comprobante electrónico."
+  },
+  {
+   "fieldname": "monto_rfce",
+   "fieldtype": "Currency",
+   "label": "Monto para el resumen de consumo",
+   "default": "250000",
+   "description": "Las facturas de consumo (E32) menores a este monto se envían como resumen (RFCE)."
+  },
+  {
+   "fieldname": "section_certificado",
+   "fieldtype": "Section Break",
+   "label": "Certificado digital"
+  },
+  {
+   "fieldname": "certificado",
+   "fieldtype": "Attach",
+   "label": "Certificado (.p12)",
+   "description": "Emitido por una entidad certificadora autorizada por el INDOTEL a nombre del RNC de la empresa. Se guarda como archivo privado."
+  },
+  {
+   "fieldname": "clave_certificado",
+   "fieldtype": "Password",
+   "label": "Contraseña del certificado"
+  },
+  {
+   "fieldname": "column_break_certificado",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "titular",
+   "fieldtype": "Data",
+   "label": "Titular",
+   "read_only": 1
+  },
+  {
+   "fieldname": "vigente_desde",
+   "fieldtype": "Date",
+   "label": "Vigente desde",
+   "read_only": 1
+  },
+  {
+   "fieldname": "vigente_hasta",
+   "fieldtype": "Date",
+   "label": "Vigente hasta",
+   "read_only": 1,
+   "in_list_view": 1
+  }
+ ],
+ "field_order": [
+  "company",
+  "habilitado",
+  "envio_automatico",
+  "monto_rfce",
+  "section_certificado",
+  "certificado",
+  "clave_certificado",
+  "column_break_certificado",
+  "titular",
+  "vigente_desde",
+  "vigente_hasta"
+ ]
+}

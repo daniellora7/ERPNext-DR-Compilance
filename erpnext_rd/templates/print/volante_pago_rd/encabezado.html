@@ -1,0 +1,19 @@
+{%- set v = rd_datos_volante(doc) -%}
+<div class="rd-volante">
+	{%- if doc.docstatus == 0 %}<div class="rd-estado">BORRADOR</div>{% endif -%}
+	{%- if doc.docstatus == 2 %}<div class="rd-estado">ANULADO</div>{% endif %}
+	<table class="rd-cab">
+		<tr>
+			<td style="width: 55%">
+				<div class="rd-empresa">{{ v.empresa }}</div>
+				{% if v.rnc %}<div><b>RNC:</b> {{ v.rnc }}</div>{% endif %}
+			</td>
+			<td>
+				<div class="rd-titulo">Volante de pago</div>
+				<div class="rd-der">Período: {{ v.periodo }}</div>
+				<div class="rd-der">Fecha de pago: {{ v.fecha }}</div>
+				<div class="rd-der rd-muted">Recibo: {{ doc.name }}</div>
+			</td>
+		</tr>
+	</table>
+</div>

@@ -1,0 +1,11 @@
+@import "frappe-ui/style.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Apariencia del escritorio «Ancho completo» (localStorage.container_fullwidth): el panel usa todo el
+   ancho, como los formularios y listas de Frappe. Lo marca main.js en <html data-ancho="completo">. */
+html[data-ancho="completo"] .contenido-panel {
+	max-width: none;
+}

@@ -1,0 +1,93 @@
+<!-- Íconos de ERPNext RD (RD Compliance y Nómina RD). Como en ERPNext v16.51+: los "soft" van en el dock
+     y los de dos tonos en el encabezado de los sidebars.
+     Íconos de dos tonos:
+     Sigue el estilo de los íconos de módulo de ERPNext (erpnext/public/icons/module-icons.svg):
+     cuadrícula de 24 x 24, tono oscuro (--duotone-dark) y tono claro (--duotone-light), y una
+     animación que solo corre mientras el dock pasa --icon-motion al tener el mouse encima. -->
+
+<svg id="erpnext-rd-module-symbols" aria-hidden="true" style="display: none;" class="icon" xmlns="http://www.w3.org/2000/svg">
+	<style>
+		/* RD Compliance: el sello de cumplimiento se estampa sobre el comprobante. */
+		.rd-compliance-sello {
+			transform-box: fill-box;
+			transform-origin: center;
+			animation: rd-compliance-estampar 1.6s ease-out infinite;
+			animation-play-state: var(--icon-motion, paused);
+		}
+		@keyframes rd-compliance-estampar {
+			0%, 100% { transform: scale(1); }
+			20% { transform: scale(1.18) translate(0.3px, -0.3px); }
+			35% { transform: scale(0.95); }
+			50% { transform: scale(1); }
+		}
+		@media (prefers-reduced-motion: reduce) {
+			.rd-compliance-sello { animation: none; }
+		}
+
+		/* Íconos "soft" del dock (estilo de Frappe v16.52+): trazo de 1.5 en el color del contenedor,
+		   cuerpo con tinte suave y acento a media opacidad. Frappe pinta .soft-icon/.soft-body/... en
+		   common/icons.scss; las clases rd-soft-* repiten esas reglas (mismos valores y variables) para
+		   que los íconos se vean igual en versiones de Frappe que aún no las traen. */
+		.rd-soft-icon {
+			fill: none;
+			stroke: currentColor;
+			stroke-width: var(--soft-stroke, 1.5);
+			stroke-linecap: round;
+			stroke-linejoin: round;
+		}
+		.rd-soft-body,
+		.rd-soft-layer {
+			fill: currentColor;
+			fill-opacity: var(--soft-tint, 0.1);
+		}
+		.rd-soft-layer,
+		.rd-soft-accent {
+			stroke: none;
+		}
+		.rd-soft-accent {
+			fill: currentColor;
+			fill-opacity: var(--soft-accent, 0.5);
+		}
+		.rd-soft-accent-line {
+			stroke-opacity: var(--soft-accent, 0.5);
+		}
+	</style>
+
+	<!-- RD Compliance (dock): comprobante fiscal con el escudo de cumplimiento -->
+	<symbol viewBox="0 0 24 24" id="icon-rd-compliance-soft" class="soft-icon rd-soft-icon">
+		<path d="M7 2.5h8a2 2 0 0 1 2 2v5.1l-4.5 1.65v9.85l-.5.4-1.75-1.25-1.75 1.25-1.75-1.25L5 21.5v-17a2 2 0 0 1 2-2Z" class="soft-layer rd-soft-layer"/>
+		<path d="M17 9.25V4.5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v17l1.75-1.25 1.75 1.25 1.75-1.25L12 21.5"/>
+		<path d="M8.5 7h5M8.5 10.5h3M8.5 14h2"/>
+		<path d="M17.75 11.25 21.5 12.6V16c0 2.75-1.75 4.6-3.75 5.5-2-.9-3.75-2.75-3.75-5.5v-3.4Z" class="soft-body rd-soft-body"/>
+		<path d="m16 16.4 1.25 1.25 2.25-2.4" class="soft-accent-line rd-soft-accent-line"/>
+	</symbol>
+
+	<!-- Nómina RD (dock de Frappe HR): ficha del empleado con el mismo escudo -->
+	<symbol viewBox="0 0 24 24" id="icon-nomina-rd-soft" class="soft-icon rd-soft-icon">
+		<path d="M4.5 4.5h9a2 2 0 0 1 2 2v3.25L12 11.05v7.45H4.5a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2Z" class="soft-layer rd-soft-layer"/>
+		<path d="M15.5 9.25V6.5a2 2 0 0 0-2-2h-9a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2H12"/>
+		<circle cx="7.25" cy="9.5" r="1.75" class="soft-accent rd-soft-accent"/>
+		<path d="M4.75 15.25a2.5 2.5 0 0 1 5 0"/>
+		<path d="M11.5 8.5h1.5"/>
+		<path d="M17.75 11.25 21.5 12.6V16c0 2.75-1.75 4.6-3.75 5.5-2-.9-3.75-2.75-3.75-5.5v-3.4Z" class="soft-body rd-soft-body"/>
+		<path d="m16 16.4 1.25 1.25 2.25-2.4" class="soft-accent-line rd-soft-accent-line"/>
+	</symbol>
+
+	<!-- RD Compliance: comprobante fiscal con escudo de cumplimiento DGII -->
+	<symbol viewBox="0 0 24 24" id="icon-rd-compliance-duotone" stroke="none" style="overflow: visible">
+		<path fill-rule="evenodd" d="M6.4 2.5H15.6Q17 2.5 17 3.9V10.3L12.2 12.1V19.9L12 19.4L10.6 20.8L9.2 19.4L7.8 20.8L6.4 19.4L5 20.8V3.9Q5 2.5 6.4 2.5ZM7.9 6.65H14.1A0.75 0.75 0 0 0 14.1 5.15H7.9A0.75 0.75 0 0 0 7.9 6.65ZM7.9 9.85H12.6A0.75 0.75 0 0 0 12.6 8.35H7.9A0.75 0.75 0 0 0 7.9 9.85ZM7.9 13.05H10.4A0.75 0.75 0 0 0 10.4 11.55H7.9A0.75 0.75 0 0 0 7.9 13.05Z" style="fill: var(--duotone-dark, light-dark(var(--ink-gray-5), var(--ink-gray-6)))" />
+		<g class="rd-compliance-sello">
+			<path d="M17.6 11.2L22.2 12.9V16.6Q22.2 20.4 17.6 22.6Q13 20.4 13 16.6V12.9Z" style="fill: var(--duotone-light, var(--ink-gray-3))" />
+			<path d="M15.2 16.8L16.2 15.8L17.1 16.7L19.2 14.6L20.2 15.6L17.1 18.7Z" style="fill: var(--duotone-dark, light-dark(var(--ink-gray-5), var(--ink-gray-6)))" />
+		</g>
+	</symbol>
+
+	<!-- Nómina RD (en el dock de Frappe HR): ficha del empleado con el mismo escudo de cumplimiento -->
+	<symbol viewBox="0 0 24 24" id="icon-nomina-rd-duotone" stroke="none" style="overflow: visible">
+		<path fill-rule="evenodd" d="M4 4.5H15.5Q17 4.5 17 6V10.3L12.2 12.1V18.5H4Q2.5 18.5 2.5 17V6Q2.5 4.5 4 4.5ZM8.7 9.3A1.7 1.7 0 1 0 5.3 9.3A1.7 1.7 0 1 0 8.7 9.3ZM4.6 15Q4.6 11.9 7 11.9Q9.4 11.9 9.4 15ZM11 8.15H14.3A0.75 0.75 0 0 0 14.3 6.65H11A0.75 0.75 0 0 0 11 8.15ZM11 11.15H12.6A0.75 0.75 0 0 0 12.6 9.65H11A0.75 0.75 0 0 0 11 11.15Z" style="fill: var(--duotone-dark, light-dark(var(--ink-gray-5), var(--ink-gray-6)))" />
+		<g class="rd-compliance-sello">
+			<path d="M17.6 11.2L22.2 12.9V16.6Q22.2 20.4 17.6 22.6Q13 20.4 13 16.6V12.9Z" style="fill: var(--duotone-light, var(--ink-gray-3))" />
+			<path d="M15.2 16.8L16.2 15.8L17.1 16.7L19.2 14.6L20.2 15.6L17.1 18.7Z" style="fill: var(--duotone-dark, light-dark(var(--ink-gray-5), var(--ink-gray-6)))" />
+		</g>
+	</symbol>
+</svg>

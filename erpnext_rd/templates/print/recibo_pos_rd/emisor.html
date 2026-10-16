@@ -1,0 +1,9 @@
+{%- set f = rd_datos_fiscales(doc) -%}
+{%- set m = doc.currency -%}
+<div class="rd-pos">
+	<div class="c b" style="font-size: 13px">{{ f.emisor.nombre }}</div>
+	<div class="c">RNC: {{ f.emisor.rnc or "" }}</div>
+	{% if f.emisor.direccion %}<div class="c">{{ f.emisor.direccion }}</div>{% endif %}
+	{% if f.emisor.telefono %}<div class="c">Tel.: {{ f.emisor.telefono }}</div>{% endif %}
+	<hr>
+</div>
