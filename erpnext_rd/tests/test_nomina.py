@@ -785,3 +785,102 @@ class TestReciboNominaRD(IntegrationTestCase):
 					"encashment_date": "2026-09-30",
 				}
 			).insert()
+
+	def test_dependientes_adicionales_del_sfs(self):
+		"""Per cápita + Fonamat por cada dependiente afiliado en el mes; no cambia el ISR."""
+		self._aislar()
+		empleado = frappe.get_doc("Employee", self.empleado.name)
+		empleado.append(
+			"rd_dependientes_adicionales", {"nombre": "Madre", "parentesco": "Madre", "desde": "2026-01-01"}
+		)
+		empleado.append(
+			"rd_dependientes_adicionales",
+			{"nombre": "Suegro", "parentesco": "Suegro", "desde": "2026-01-01", "hasta": "2026-08-31"},
+		)
+		empleado.save()
+
+		recibo = self._recibo()
+		deducciones = {f.abbr: f.amount for f in recibo.deductions}
+		self.assertEqual(deducciones["SFS_DA"], 1938.18 + 32.24)
+		self.assertEqual(deducciones["ISR"], 9900.94)
+		self.assertAlmostEqual(recibo.net_pay, 90_000 - 2296 - 2432 - 9900.94 - 1970.42, places=2)
+
+	def test_subsidios_sisalril_con_la_nomina(self):
+		self._aislar()
+		frappe.get_doc(
+			{
+				"doctype": "Salary Slip",
+				"employee": self.empleado.name,
+				"start_date": "2026-08-01",
+				"posting_date": "2026-08-31",
+				"payroll_frequency": "Monthly",
+			}
+		).insert().submit()
+
+		# 10 días de licencia: los 3 primeros no se subsidian; 60% del promedio (solo agosto: 80,000)
+		enfermedad = frappe.get_doc(
+			{
+				"doctype": "Subsidio SISALRIL",
+				"employee": self.empleado.name,
+				"tipo": "Enfermedad común",
+				"desde": "2026-09-10",
+				"hasta": "2026-09-19",
+			}
+		).insert()
+		self.assertEqual((enfermedad.salario_base, enfermedad.meses_cotizados), (80_000, 1))
+		self.assertEqual((enfermedad.dias_subsidio, enfermedad.porcentaje), (7, 60))
+		self.assertEqual(enfermedad.monto_estimado, 11_200)
+
+		maternidad = frappe.get_doc(
+			{
+				"doctype": "Subsidio SISALRIL",
+				"employee": self.empleado.name,
+				"tipo": "Maternidad",
+				"desde": "2026-09-01",
+				"hasta": "2026-12-08",
+			}
+		).insert()
+		self.assertEqual(maternidad.monto_estimado, 240_000)
+
+
+class TestSubsidiosSISALRIL(IntegrationTestCase):
+	def conf(self):
+		return frappe._dict(
+			salario_minimo_cotizable=23_223,
+			subsidio_enfermedad_ambulatorio=60,
+			subsidio_enfermedad_hospitalario=40,
+			subsidio_dias_espera=3,
+			subsidio_dias_maximo=182,
+			subsidio_maternidad_meses=3,
+			lactancia_un_salario=33,
+			lactancia_dos_salarios=12,
+			lactancia_tres_salarios=6,
+		)
+
+	def test_enfermedad_hospitalaria_con_tope(self):
+		from erpnext_rd.nomina_rd import subsidios
+
+		r = subsidios.calcular(
+			subsidios.ENFERMEDAD, "2026-01-01", "2026-12-31", 30_000, subsidios.HOSPITALARIA, self.conf()
+		)
+		self.assertEqual((r.dias, r.porcentaje), (179, 40))
+		self.assertEqual(r.monto, round(30_000 / 30 * 179 * 0.40, 2))
+		corta = subsidios.calcular(
+			subsidios.ENFERMEDAD, "2026-01-01", "2026-01-03", 30_000, None, self.conf()
+		)
+		self.assertEqual(corta.monto, 0)
+
+	def test_lactancia_por_tramos(self):
+		from erpnext_rd.nomina_rd import subsidios
+
+		tramos = {
+			20_000: 33,
+			40_000: 12,
+			60_000: 6,
+			80_000: 0,
+		}
+		for salario, porcentaje in tramos.items():
+			r = subsidios.calcular(subsidios.LACTANCIA, "2026-03-15", None, salario, conf=self.conf())
+			self.assertEqual(r.porcentaje, porcentaje)
+			self.assertEqual(r.monto, round(salario * porcentaje / 100, 2) * 12)
+		self.assertEqual(str(r.hasta), "2027-03-14")

@@ -664,6 +664,23 @@ def campos_personalizados() -> dict:
 				"length": 3,
 				"description": "Solo para extranjeros.",
 			},
+			{
+				"fieldname": "rd_section_dependientes",
+				"fieldtype": "Section Break",
+				"label": "Dependientes adicionales del SFS",
+				"insert_after": "rd_nacionalidad_sirla",
+				"collapsible": 1,
+				"collapsible_depends_on": "rd_dependientes_adicionales",
+				"description": "Padres, suegros e hijos mayores de 21 años que el trabajador afilió a su seguro de "
+				"salud en la TSS. El per cápita de cada uno se descuenta en la nómina.",
+			},
+			{
+				"fieldname": "rd_dependientes_adicionales",
+				"fieldtype": "Table",
+				"label": "Dependientes adicionales",
+				"options": "Dependiente Adicional SFS",
+				"insert_after": "rd_section_dependientes",
+			},
 		],
 		"Mode of Payment": [
 			{
@@ -788,6 +805,17 @@ def inicializar_configuracion():
 		("recargo_nocturno", 15),
 		("inicio_jornada_nocturna", "21:00:00"),
 		("fin_jornada_nocturna", "07:00:00"),
+		("sfs_per_capita_adicional", 1938.18),
+		("fonamat_per_capita", 32.24),
+		("subsidio_enfermedad_ambulatorio", 60),
+		("subsidio_enfermedad_hospitalario", 40),
+		("subsidio_dias_espera", 3),
+		("subsidio_dias_maximo", 182),
+		("subsidio_meses_promedio", 6),
+		("subsidio_maternidad_meses", 3),
+		("lactancia_un_salario", 33),
+		("lactancia_dos_salarios", 12),
+		("lactancia_tres_salarios", 6),
 	):
 		if not frappe.db.exists("Singles", {"doctype": "Configuracion Nomina RD", "field": campo}):
 			frappe.db.set_single_value("Configuracion Nomina RD", campo, valor)

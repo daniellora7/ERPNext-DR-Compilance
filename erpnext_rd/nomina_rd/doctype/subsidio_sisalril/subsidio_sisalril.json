@@ -1,0 +1,253 @@
+{
+ "actions": [],
+ "autoname": "format:SUB-{YYYY}-{#####}",
+ "creation": "2026-10-18 12:00:00.000000",
+ "description": "Licencias por enfermedad común, maternidad y lactancia registradas en la SISALRIL, con el subsidio estimado y su reembolso.",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "employee",
+  "employee_name",
+  "company",
+  "column_break_empleado",
+  "tipo",
+  "atencion",
+  "desde",
+  "hasta",
+  "numero_solicitud",
+  "section_calculo",
+  "salario_base",
+  "meses_cotizados",
+  "column_break_calculo",
+  "dias_subsidio",
+  "porcentaje",
+  "monto_mensual",
+  "monto_estimado",
+  "section_reembolso",
+  "estado",
+  "fecha_registro",
+  "column_break_reembolso",
+  "monto_recibido",
+  "fecha_recibido",
+  "notas"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "label": "Empleado",
+   "options": "Employee",
+   "reqd": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Nombre",
+   "fetch_from": "employee.employee_name",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Empresa",
+   "options": "Company",
+   "fetch_from": "employee.company",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "column_break_empleado",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tipo",
+   "fieldtype": "Select",
+   "label": "Tipo",
+   "options": "Enfermedad común\nMaternidad\nLactancia",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "atencion",
+   "fieldtype": "Select",
+   "label": "Atención",
+   "options": "Ambulatoria\nHospitalaria",
+   "default": "Ambulatoria",
+   "depends_on": "eval:doc.tipo=='Enfermedad común'"
+  },
+  {
+   "fieldname": "desde",
+   "fieldtype": "Date",
+   "label": "Desde",
+   "reqd": 1,
+   "in_list_view": 1,
+   "description": "Inicio de la licencia médica o de maternidad. En lactancia, la fecha de nacimiento."
+  },
+  {
+   "fieldname": "hasta",
+   "fieldtype": "Date",
+   "label": "Hasta",
+   "mandatory_depends_on": "eval:doc.tipo!='Lactancia'",
+   "description": "En lactancia se calcula: doce meses."
+  },
+  {
+   "fieldname": "numero_solicitud",
+   "fieldtype": "Data",
+   "label": "Número de solicitud SISALRIL"
+  },
+  {
+   "fieldname": "section_calculo",
+   "fieldtype": "Section Break",
+   "label": "Cálculo estimado"
+  },
+  {
+   "fieldname": "salario_base",
+   "fieldtype": "Currency",
+   "label": "Salario cotizable base",
+   "options": "Company:company:default_currency",
+   "description": "Enfermedad: promedio de los últimos seis meses. Maternidad y lactancia: el del mes anterior. Vacío: se toma de los recibos de nómina."
+  },
+  {
+   "fieldname": "meses_cotizados",
+   "fieldtype": "Int",
+   "label": "Meses con recibos de nómina",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_calculo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "dias_subsidio",
+   "fieldtype": "Int",
+   "label": "Días subsidiados",
+   "read_only": 1,
+   "depends_on": "eval:doc.tipo=='Enfermedad común'"
+  },
+  {
+   "fieldname": "porcentaje",
+   "fieldtype": "Percent",
+   "label": "Porcentaje",
+   "read_only": 1
+  },
+  {
+   "fieldname": "monto_mensual",
+   "fieldtype": "Currency",
+   "label": "Monto mensual",
+   "options": "Company:company:default_currency",
+   "read_only": 1,
+   "depends_on": "eval:doc.tipo!='Enfermedad común'"
+  },
+  {
+   "fieldname": "monto_estimado",
+   "fieldtype": "Currency",
+   "label": "Subsidio estimado",
+   "options": "Company:company:default_currency",
+   "read_only": 1,
+   "bold": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "section_reembolso",
+   "fieldtype": "Section Break",
+   "label": "Seguimiento"
+  },
+  {
+   "fieldname": "estado",
+   "fieldtype": "Select",
+   "label": "Estado",
+   "options": "Por registrar\nRegistrado en la SISALRIL\nReembolsado al empleador\nPagado a la trabajadora\nRechazado",
+   "default": "Por registrar",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "fecha_registro",
+   "fieldtype": "Date",
+   "label": "Registrado el"
+  },
+  {
+   "fieldname": "column_break_reembolso",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "monto_recibido",
+   "fieldtype": "Currency",
+   "label": "Monto recibido de la SISALRIL",
+   "options": "Company:company:default_currency",
+   "depends_on": "eval:doc.tipo!='Lactancia'"
+  },
+  {
+   "fieldname": "fecha_recibido",
+   "fieldtype": "Date",
+   "label": "Recibido el",
+   "depends_on": "eval:doc.tipo!='Lactancia'"
+  },
+  {
+   "fieldname": "notas",
+   "fieldtype": "Small Text",
+   "label": "Notas"
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-18 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Nomina RD",
+ "name": "Subsidio SISALRIL",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "report": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "role": "HR Manager",
+   "read": 1,
+   "report": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "role": "HR User",
+   "read": 1,
+   "report": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "report": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "employee_name,tipo",
+ "sort_field": "desde",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "employee_name",
+ "track_changes": 1,
+ "show_title_field_in_link": 1
+}

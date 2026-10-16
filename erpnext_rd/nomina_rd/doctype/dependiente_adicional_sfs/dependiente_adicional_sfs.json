@@ -1,0 +1,69 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 12:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "istable": 1,
+ "field_order": [
+  "nombre",
+  "parentesco",
+  "documento",
+  "column_break_1",
+  "desde",
+  "hasta"
+ ],
+ "fields": [
+  {
+   "fieldname": "nombre",
+   "fieldtype": "Data",
+   "label": "Nombre",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "parentesco",
+   "fieldtype": "Select",
+   "label": "Parentesco",
+   "options": "Padre\nMadre\nSuegro\nSuegra\nHijo o hija\nOtro",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "documento",
+   "fieldtype": "Data",
+   "label": "Cédula o NSS",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "desde",
+   "fieldtype": "Date",
+   "label": "Desde",
+   "reqd": 1,
+   "in_list_view": 1,
+   "description": "Primer mes en que se descuenta el per cápita."
+  },
+  {
+   "fieldname": "hasta",
+   "fieldtype": "Date",
+   "label": "Hasta",
+   "in_list_view": 1,
+   "description": "Vacío: sigue afiliado."
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-18 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Nomina RD",
+ "name": "Dependiente Adicional SFS",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
