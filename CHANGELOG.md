@@ -2,6 +2,13 @@
 
 Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `version-16` sigue a Frappe v16; cada versión lleva un tag `vX.Y.Z` desde `main`, que publica la imagen en GHCR.
 
+## Sin publicar
+
+### Fiscal (RD Compliance)
+- Tasa del dólar del Banco Central registrada cada día como tipo de cambio USD → DOP (compra, venta o compra en ventas y venta en compras).
+- Recordatorios por correo de los vencimientos: IR-17, 606-609, IT-1 y, con nómina, TSS, IR-3, regalía e IR-13; los lunes, las secuencias NCF en alerta. Apagados por defecto.
+- Formato *Cheque RD* del *Payment Entry*, con comprobante de pago, editable en el constructor y con las posiciones del cheque ajustables por banco.
+
 ## v0.3.0 (primera versión)
 
 Para Frappe v16.52, ERPNext v16.51 y Frappe HR v16.51 (opcional).

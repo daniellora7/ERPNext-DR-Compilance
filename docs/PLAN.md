@@ -37,6 +37,15 @@ Decisión: el usuario quiere probar todo en Docker local antes de configurar Git
 9. **Publicar `v0.3.0`** (cuando el usuario lo pida): fusionar `develop` en `main`, crear la rama `version-16` y el tag `v0.3.0` desde `main` (el tag publica la imagen en GHCR), y registrar la app en el Marketplace con `docs/marketplace.md`.
 8. **Al subir de versión Frappe HR:** si su `hrms/locale/es.po` ya trae el español completo (en Crowdin quedó al 100 % y aprobado en octubre de 2026; falta que el bot lo sincronice al repo y salga en una versión), borrar de `erpnext_rd/locale/es.po` el bloque «Frappe HR: textos que faltan en su catálogo oficial». Si se queda, tapa las traducciones oficiales (la app se carga después) y mezcla términos (p. ej. *Arrear*: «atrasos» oficial, «retroactivo» nuestro). Ajustar `test_frappe_hr_completo_en_espanol` en `tests/test_navegacion.py` a las traducciones oficiales. La traducción de los nombres del dock (`boot.py`) se mantiene hasta que Frappe los pase por `__()`. El bloque anterior, «Frappe HR: correcciones de su catálogo oficial» (90 traducciones erradas: *Shift Type* «Tipo de Cambio», *Slab* «Losa», *Leave* «vacaciones»…), se mantiene: revisar entrada por entrada si el catálogo oficial ya las corrigió y borrar solo esas.
 
+### Mejoras de cumplimiento (análisis del 2026-10-16)
+Lo que se puede hacer sin depender del usuario, en tres ramas:
+1. ✅ `feature/tasa-recordatorios-cheque`: tasa del dólar del BCRD, recordatorios por correo de vencimientos y formato *Cheque RD*.
+2. Declaraciones del mes: anticipos del ISR, proporcionalidad del ITBIS (art. 349) y aviso de NCF/RNC del proveedor no válido (consulta de la DGII solo si no tiene captcha; si no, solo el padrón).
+3. Nómina: dependientes adicionales del SFS y subsidios de la SISALRIL.
+4. Apoyo al IR-2: depreciación fiscal por categoría (art. 287), ajuste por inflación y cuadre contable-fiscal.
+
+Dependen del usuario: e-CF en producción, pre-validar TXT con datos reales, extractos de los bancos (ejemplos), cuadre de la factura TSS (ejemplo), ISC y DIOR (solo si aplican).
+
 ## Estructura del repo (GitHub, público: `daniellora7/ERPNext-DR-Compilance`)
 ```
 ERPNext-DR-Compilance/          # la raíz del repo ES la app (así la instala bench get-app / Frappe Cloud)

@@ -1,0 +1,47 @@
+/* Posición de los campos del cheque. Cada banco los ubica distinto: ajuste estas medidas
+   (desde el borde superior izquierdo de la hoja) e imprima una prueba en papel normal. */
+.rd-cheque {
+	--rd-cheque-alto: 89mm;
+	--rd-cheque-fecha-arriba: 14mm;
+	--rd-cheque-fecha-izquierda: 160mm;
+	--rd-cheque-beneficiario-arriba: 30mm;
+	--rd-cheque-beneficiario-izquierda: 32mm;
+	--rd-cheque-monto-arriba: 30mm;
+	--rd-cheque-monto-izquierda: 160mm;
+	--rd-cheque-letras-arriba: 40mm;
+	--rd-cheque-letras-izquierda: 20mm;
+	position: relative;
+	height: var(--rd-cheque-alto);
+	font-family: "Courier New", Courier, monospace;
+	font-size: 12px;
+	color: #000;
+}
+.rd-cheque > div { position: absolute; white-space: nowrap; }
+.rd-cheque .rd-ch-fecha { top: var(--rd-cheque-fecha-arriba); left: var(--rd-cheque-fecha-izquierda); }
+.rd-cheque .rd-ch-beneficiario { top: var(--rd-cheque-beneficiario-arriba); left: var(--rd-cheque-beneficiario-izquierda); }
+.rd-cheque .rd-ch-monto { top: var(--rd-cheque-monto-arriba); left: var(--rd-cheque-monto-izquierda); font-weight: 700; }
+.rd-cheque .rd-ch-letras { top: var(--rd-cheque-letras-arriba); left: var(--rd-cheque-letras-izquierda); }
+
+/* El «DRAFT» de Frappe correría las posiciones del cheque; el talón ya dice BORRADOR */
+[document-status] { display: none !important; }
+
+/* Talón: comprobante de pago */
+.rd-talon { font-family: "Inter", Arial, sans-serif; font-size: 11px; color: #222; padding: 0 12mm; }
+.rd-talon table { width: 100%; border-collapse: collapse; }
+.rd-talon .rd-cab { border-top: 1px dashed #999; padding-top: 6mm; margin-top: 2mm; }
+.rd-talon .rd-cab td { vertical-align: top; padding-top: 6mm; }
+.rd-talon .rd-empresa { font-size: 15px; font-weight: 700; }
+.rd-talon .rd-titulo { font-size: 14px; font-weight: 700; text-align: right; }
+.rd-talon .rd-der { text-align: right; }
+.rd-talon .rd-muted { color: #666; }
+.rd-talon .rd-caja { border: 1px solid #ccc; margin-top: 10px; }
+.rd-talon .rd-caja td { padding: 4px 8px; vertical-align: top; }
+.rd-talon .rd-detalle { margin-top: 10px; }
+.rd-talon .rd-detalle th { background: #f3f3f3; border-bottom: 1px solid #ccc; padding: 5px 6px; text-align: left; font-size: 10px; text-transform: uppercase; }
+.rd-talon .rd-detalle td { border-bottom: 1px solid #eee; padding: 4px 6px; }
+.rd-talon .num { text-align: right !important; white-space: nowrap; }
+.rd-talon .rd-firmas { margin-top: 18mm; }
+.rd-talon .rd-recibido { margin-top: 14mm; }
+.rd-talon .rd-firmas td, .rd-talon .rd-recibido td { width: 33%; padding: 0 4mm; }
+.rd-talon .rd-linea { border-top: 1px solid #222; text-align: center; padding-top: 3px; }
+.rd-talon .rd-estado { text-align: center; font-size: 16px; font-weight: 700; color: #c00; margin: 4px 0; }

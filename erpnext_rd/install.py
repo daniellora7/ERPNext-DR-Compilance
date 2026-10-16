@@ -8,7 +8,7 @@ import frappe
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
 from erpnext_rd import formatos
-from erpnext_rd.dgii_fiscal import catalogo_cuentas
+from erpnext_rd.dgii_fiscal import catalogo_cuentas, cheque
 from erpnext_rd.dgii_fiscal import catalogos as cat
 from erpnext_rd.dgii_fiscal.catalogos import (
 	CONCEPTOS_FISCALES,
@@ -712,6 +712,16 @@ def inicializar_configuracion():
 	"""Guarda las configuraciones una vez para que sus valores por defecto queden en la base."""
 	if not frappe.db.exists("Singles", {"doctype": "Configuracion DGII"}):
 		frappe.get_single("Configuracion DGII").save(ignore_permissions=True)
+	# Quedó vacío en los sitios donde la configuración se guardó antes de agregar el campo
+	if not frappe.db.get_single_value("Configuracion DGII", "ambiente_ecf"):
+		frappe.db.set_single_value("Configuracion DGII", "ambiente_ecf", "TesteCF")
+	for campo, valor in (
+		("tasa_bcrd_activa", 1),
+		("tasa_bcrd_tipo", "Compra"),
+		("recordatorios_dias", 3),
+	):
+		if not frappe.db.exists("Singles", {"doctype": "Configuracion DGII", "field": campo}):
+			frappe.db.set_single_value("Configuracion DGII", campo, valor)
 
 	# Campos agregados después de guardar la configuración: quedan con su valor por defecto
 	for campo, valor in (
@@ -1025,6 +1035,7 @@ def lista_padron_sin_filtro_reciente():
 def setup():
 	crear_campos_personalizados()
 	formatos.asegurar_fiscales()
+	cheque.crear_formato()
 	formato_impresion_por_defecto()
 	crear_tipos_comprobante()
 	inicializar_formas_pago()

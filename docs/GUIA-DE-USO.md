@@ -9,6 +9,7 @@ La app solo actúa en las empresas con país **Dominican Republic**. Las empresa
 1. En la empresa (*Company*), el país debe ser **Dominican Republic** y el **RNC** debe estar en *Tax ID*, sin guiones. La app lo valida con el dígito verificador y el padrón de la DGII.
 2. Si la empresa no tiene movimientos, la app aplica el **catálogo de cuentas DGII** (NIIF PYMES), con las plantillas de ITBIS y de retenciones. Se controla en *RD Compliance → Configuración DGII*.
 3. El **padrón RNC** se descarga solo al instalar la app y después cada día a las 2:00 a. m., si la DGII publicó uno nuevo. Al escribir un RNC o una cédula en un cliente o un proveedor, la razón social se completa sola.
+4. La **tasa del dólar** del Banco Central se registra sola cada día laborable como tipo de cambio USD → DOP, y ERPNext la usa en las facturas, los pagos y la revaluación. Por defecto es la tasa de compra; en *Configuración DGII* se puede cambiar a la de venta, o usar compra en las ventas y venta en las compras. Un tipo de cambio puesto a mano para una fecha no se cambia.
 
 ## 2. Comprobantes fiscales (NCF)
 
@@ -20,6 +21,8 @@ La app solo actúa en las empresas con país **Dominican Republic**. Las empresa
 
 Los formatos de impresión **Factura Fiscal RD** y **Recibo POS RD** (80 mm) se pueden editar en el constructor de formatos de Frappe.
 
+Para los pagos con cheque está el formato **Cheque RD** del *Payment Entry* (Entrada de pago): arriba el cheque con la fecha, el beneficiario y el monto en números y en letras; abajo el comprobante de pago con las facturas pagadas, las retenciones, el asiento y las firmas. Escriba el número de cheque en *Nº de referencia* y su fecha en *Fecha de referencia*. Cada banco ubica los campos en otro lugar: ajuste las medidas al inicio del CSS del formato (constructor de formatos → CSS) e imprima una prueba en papel normal, puesta sobre un cheque, antes de usar los cheques reales. Se imprime sin membrete.
+
 ## 3. Declaraciones DGII
 
 En *RD Compliance → Declaraciones DGII*:
@@ -28,6 +31,8 @@ En *RD Compliance → Declaraciones DGII*:
 - **IT-1** e **IR-17**: resúmenes con los mismos registros, para llenar los formularios en la Oficina Virtual.
 
 El **Panel de cumplimiento** muestra en una pantalla los plazos y los montos del mes.
+
+Para recibir los vencimientos por correo, active *Enviar recordatorios de vencimientos* en *Configuración DGII*. Cada mañana llega un correo por empresa con lo que vence en los próximos días (3 por defecto) o ese mismo día: IR-17, 606-609, IT-1 y, si hay nómina, el pago de la TSS, el IR-3, la regalía y el IR-13. Los lunes incluye las secuencias NCF por agotarse o por vencer. Hace falta una cuenta de correo saliente en Frappe. El botón *Vista previa de recordatorios* muestra lo que se enviaría hoy.
 
 ## 4. Facturación electrónica (e-CF)
 
