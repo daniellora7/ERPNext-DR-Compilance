@@ -42,7 +42,7 @@ Lo que se puede hacer sin depender del usuario, en tres ramas:
 1. ✅ `feature/tasa-recordatorios-cheque`: tasa del dólar del BCRD, recordatorios por correo de vencimientos y formato *Cheque RD*.
 2. ✅ `feature/isr-itbis-ncf-proveedor`: anticipos del ISR (art. 314), proporcionalidad del ITBIS (art. 349) y aviso de NCF/RNC del proveedor no válido (la consulta de NCF de la DGII no tiene captcha). Pendiente: tres cuotas de las pequeñas empresas (Ley 30-26, desde 2027) cuando la DGII publique los criterios.
 3. ✅ `feature/sfs-dependientes-subsidios`: dependientes adicionales del SFS (per cápita + Fonamat en el recibo) y registro de subsidios de la SISALRIL (enfermedad común, maternidad, lactancia) con monto estimado y reembolso.
-4. Apoyo al IR-2: depreciación fiscal por categoría (art. 287), ajuste por inflación y cuadre contable-fiscal.
+4. ✅ `feature/ir2-apoyo`: *Cuadre Fiscal IR2* con ajuste por inflación (D-2, multiplicadores de la DGII por cierre), depreciación fiscal por categoría (art. 287, anexos D y D-1) frente a la contable, ajustes del anexo G y liquidación. Pendiente: recordatorio del IR-2 (120 días después del cierre), reparaciones por encima del límite y activos de la Ley 392-07.
 
 Dependen del usuario: e-CF en producción, pre-validar TXT con datos reales, extractos de los bancos (ejemplos), cuadre de la factura TSS (ejemplo), ISC y DIOR (solo si aplican).
 
