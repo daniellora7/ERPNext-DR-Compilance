@@ -71,8 +71,8 @@
    "fieldname": "tamano",
    "fieldtype": "Select",
    "label": "Tamaño de la empresa",
-   "options": "\nMicro\nPequeña\nMediana\nGrande",
-   "description": "Clasificación de la Ley 30-26 (mipymes)"
+   "options": "\nMicro (hasta 10 empleados)\nPequeña (11 a 50 empleados)\nMediana (51 a 150 empleados)\nGrande (más de 150 empleados)",
+   "description": "Ley 488-08 de mipymes, modificada por la Ley 187-17: se clasifica por cantidad de trabajadores y por ventas brutas anuales, que el MICM actualiza cada año por inflación. Si no coinciden, consulte la clasificación del MICM."
   },
   {
    "fieldname": "column_break_cierre",
@@ -174,8 +174,9 @@
    "fieldname": "sector_regulado",
    "fieldtype": "Select",
    "label": "Sector regulado",
-   "options": "\nBanca\nSeguros\nPensiones (AFP)\nOtro sector regulado",
-   "description": "Estos sectores reportan además a su superintendencia: la app no cubre esos reportes"
+   "options": "No aplica\nBanca\nSeguros\nPensiones (AFP)\nOtro sector regulado",
+   "description": "Estos sectores reportan además a su superintendencia: la app no cubre esos reportes",
+   "default": "No aplica"
   },
   {
    "fieldname": "section_incentivos",
@@ -215,7 +216,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-18 16:00:00.000000",
+ "modified": "2026-10-18 17:30:00.000000",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Perfil Tributario RD",

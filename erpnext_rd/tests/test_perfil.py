@@ -51,11 +51,13 @@ class TestPerfilTributario(IntegrationTestCase):
 		self.assertGreater(estado["faltan"], 0)
 
 	def test_asistente_y_requisitos(self):
-		perfil.guardar(EMPRESA, {"tamano": "Pequeña", "cierre_fiscal": "31 de diciembre", "ignorado": 1})
+		perfil.guardar(EMPRESA, {"tamano": perfil.PEQUENA, "cierre_fiscal": "31 de diciembre", "ignorado": 1})
 		self.assertTrue(perfil.perfil(EMPRESA).existe)
 		r = estados(EMPRESA)
 		self.assertEqual(r["Perfil tributario completo"], perfil.CUMPLIDO)
 		self.assertEqual(r["RNC de la empresa"], perfil.CUMPLIDO)
+		self.assertEqual(perfil.perfil(EMPRESA).sector_regulado, perfil.SIN_SECTOR_REGULADO)
+		self.assertFalse([x for x in r if x.startswith("Reportes del sector regulado")])
 
 		# Sin secuencias: faltan las de venta; con la de B01 ya no se pide
 		detalle = {x["requisito"]: x["detalle"] for x in perfil.evaluar(EMPRESA)}
@@ -83,7 +85,7 @@ class TestPerfilTributario(IntegrationTestCase):
 	def test_emisor_electronico_vende_con_serie_e(self):
 		from erpnext_rd.dgii_fiscal import ncf
 
-		perfil.guardar(EMPRESA, {"tamano": "Grande", "ecf_estado": perfil.ECF_EMISOR, "exportador": 1})
+		perfil.guardar(EMPRESA, {"tamano": perfil.GRANDE, "ecf_estado": perfil.ECF_EMISOR, "exportador": 1})
 		self.assertEqual(ncf.serie_por_defecto(EMPRESA), "E")
 		self.assertEqual(perfil.tipos_de_venta(EMPRESA), ["E31", "E32", "E34", "E46"])
 		self.assertEqual(estados(EMPRESA)["Emisor e-CF con certificado vigente"], perfil.FALTA)
@@ -99,7 +101,7 @@ class TestPerfilTributario(IntegrationTestCase):
 		perfil.guardar(
 			EMPRESA,
 			{
-				"tamano": "Mediana",
+				"tamano": perfil.MEDIANA,
 				"regimen": perfil.RST,
 				"isc_alcohol": 1,
 				"partes_relacionadas": 1,
@@ -131,7 +133,7 @@ class TestPerfilTributario(IntegrationTestCase):
 	def test_cierre_del_perfil_sin_anio_fiscal(self):
 		from erpnext_rd.dgii_reportes import ir2
 
-		perfil.guardar(EMPRESA, {"tamano": "Micro", "cierre_fiscal": "30 de junio"})
+		perfil.guardar(EMPRESA, {"tamano": perfil.MICRO, "cierre_fiscal": "30 de junio"})
 		# 2040: ningún año fiscal de ERPNext lo cubre, manda el cierre del perfil
 		self.assertEqual(ir2.cierre_fiscal(EMPRESA, 2040, 6), date(2040, 6, 30))
 		self.assertIsNone(ir2.cierre_fiscal(EMPRESA, 2040, 12))

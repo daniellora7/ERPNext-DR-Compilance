@@ -156,7 +156,7 @@ Objetivo: que la app sirva a cualquier empresa de RD, no solo a la persona jurí
 - **DocType *Perfil Tributario RD*** (uno por empresa de RD):
   - Tipo de contribuyente: persona jurídica o persona física con negocio.
   - Régimen: ordinario o simplificado (RST).
-  - Tamaño (clasificación de la Ley 30-26: micro, pequeña, mediana, grande) y segmento de la DGII si lo asignó.
+  - Tamaño según la Ley 488-08 de mipymes, modificada por la Ley 187-17 (micro hasta 10 trabajadores, pequeña de 11 a 50, mediana de 51 a 150, grande más de 150; también por ventas brutas anuales, indexadas cada año por el MICM) y segmento de la DGII si lo asignó.
   - Cierre fiscal (31/3, 30/6, 30/9 o 31/12): crea o revisa el año fiscal de ERPNext.
   - Regímenes especiales e incentivos (tabla): zona franca (Ley 8-90), turismo (Ley 158-01), Proindustria (Ley 392-07), energías renovables (Ley 57-07), cine (Ley 108-10), desarrollo fronterizo (Ley 28-01) u otro; con resolución o certificado, vigencia y qué exenciones otorga (ISR, ITBIS, otros).
   - Actividades con tratamiento especial: ISC (alcohol, tabaco, combustibles, telecomunicaciones, seguros), propina legal, operaciones con partes relacionadas (precios de transferencia / DIOR), exportación, agente de retención designado.

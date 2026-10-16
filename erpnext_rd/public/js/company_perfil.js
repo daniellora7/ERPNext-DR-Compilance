@@ -59,10 +59,19 @@ function erpnext_rd_asistente_perfil(company) {
 				},
 				{
 					fieldname: "tamano",
-					label: __("Tamaño de la empresa (Ley 30-26)"),
+					label: __("Tamaño de la empresa"),
 					fieldtype: "Select",
-					options: ["", "Micro", "Pequeña", "Mediana", "Grande"],
+					options: [
+						"",
+						"Micro (hasta 10 empleados)",
+						"Pequeña (11 a 50 empleados)",
+						"Mediana (51 a 150 empleados)",
+						"Grande (más de 150 empleados)",
+					],
 					reqd: 1,
+					description: __(
+						"Por cantidad de trabajadores y ventas brutas anuales (Ley 488-08 de mipymes). Si no coinciden, consulte la clasificación del MICM."
+					),
 				},
 				{
 					fieldname: "cierre_fiscal",
@@ -76,7 +85,16 @@ function erpnext_rd_asistente_perfil(company) {
 		},
 		{
 			titulo: __("Actividades con tratamiento especial"),
+			actividades: true,
 			campos: [
+				{
+					fieldname: "ninguna_actividad",
+					label: __("No aplica: la empresa no realiza ninguna de estas actividades"),
+					fieldtype: "Check",
+					onchange: () => {
+						if (dialogo.get_value("ninguna_actividad")) ACTIVIDADES.forEach((a) => dialogo.set_value(a, 0));
+					},
+				},
 				{ fieldname: "isc_alcohol", label: __("Produce o importa bebidas alcohólicas (ISC)"), fieldtype: "Check" },
 				{ fieldname: "isc_tabaco", label: __("Produce o importa productos del tabaco (ISC)"), fieldtype: "Check" },
 				{ fieldname: "isc_combustibles", label: __("Vende o importa combustibles (ISC)"), fieldtype: "Check" },
@@ -90,7 +108,9 @@ function erpnext_rd_asistente_perfil(company) {
 					fieldname: "sector_regulado",
 					label: __("Sector regulado"),
 					fieldtype: "Select",
-					options: ["", "Banca", "Seguros", "Pensiones (AFP)", "Otro sector regulado"],
+					options: ["No aplica", "Banca", "Seguros", "Pensiones (AFP)", "Otro sector regulado"],
+					default: "No aplica",
+					reqd: 1,
 				},
 			],
 		},
@@ -117,12 +137,37 @@ function erpnext_rd_asistente_perfil(company) {
 		},
 	];
 
+	const ACTIVIDADES = [
+		"isc_alcohol",
+		"isc_tabaco",
+		"isc_combustibles",
+		"isc_telecomunicaciones",
+		"isc_seguros",
+		"propina_legal",
+		"partes_relacionadas",
+		"exportador",
+		"agente_retencion",
+	];
+	pasos[1].campos
+		.filter((c) => ACTIVIDADES.includes(c.fieldname))
+		.forEach((c) => {
+			c.onchange = () => {
+				if (dialogo.get_value(c.fieldname)) dialogo.set_value("ninguna_actividad", 0);
+			};
+		});
+
 	let paso = 0;
 	const dialogo = new frappe.ui.Dialog({
 		title: __("Perfil tributario de {0}", [company]),
 		fields: pasos.flatMap((p) => p.campos),
 		size: "large",
 	});
+	// Borde visible de las listas y campos también en el tema oscuro (solo tokens)
+	dialogo.$wrapper.addClass("rd-perfil-asistente");
+	frappe.dom.set_style(
+		`.rd-perfil-asistente .form-control:not(:focus) { box-shadow: inset 0 0 0 1px var(--outline-gray-3); }`,
+		"rd-perfil-asistente"
+	);
 
 	const mostrar = () => {
 		pasos.forEach((p, i) => p.campos.forEach((c) => dialogo.get_field(c.fieldname).$wrapper.toggle(i === paso)));
@@ -135,6 +180,10 @@ function erpnext_rd_asistente_perfil(company) {
 		const faltan = pasos[paso].campos.filter((c) => c.reqd && !dialogo.get_value(c.fieldname));
 		if (faltan.length) {
 			frappe.msgprint(__("Complete: {0}", [faltan.map((c) => c.label).join(", ")]));
+			return;
+		}
+		if (pasos[paso].actividades && !dialogo.get_value("ninguna_actividad") && !ACTIVIDADES.some((a) => dialogo.get_value(a))) {
+			frappe.msgprint(__("Marque las actividades que realiza la empresa o «No aplica»."));
 			return;
 		}
 		if (paso < pasos.length - 1) {

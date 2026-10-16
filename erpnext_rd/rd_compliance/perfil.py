@@ -33,6 +33,13 @@ CIERRES = {
 	"30 de septiembre": (9, 30),
 }
 CIERRE_POR_DEFECTO = "31 de diciembre"
+# Ley 488-08 (mipymes), modificada por la Ley 187-17: trabajadores y ventas brutas anuales
+MICRO = "Micro (hasta 10 empleados)"
+PEQUENA = "Pequeña (11 a 50 empleados)"
+MEDIANA = "Mediana (51 a 150 empleados)"
+GRANDE = "Grande (más de 150 empleados)"
+TAMANOS = (MICRO, PEQUENA, MEDIANA, GRANDE)
+SIN_SECTOR_REGULADO = "No aplica"
 ECF_NO_OBLIGADA = "No obligada aún"
 ECF_CERTIFICACION = "En certificación"
 ECF_EMISOR = "Emisor electrónico"
@@ -63,7 +70,7 @@ def perfil(company: str) -> frappe._dict:
 		cierre_fiscal=CIERRE_POR_DEFECTO,
 		ecf_estado=ECF_NO_OBLIGADA,
 		ecf_obligada_desde=None,
-		sector_regulado=None,
+		sector_regulado=SIN_SECTOR_REGULADO,
 		incentivos=[],
 		existe=False,
 		**{c: 0 for c in ACTIVIDADES},
@@ -430,7 +437,7 @@ def pendientes(company: str, p) -> list[dict]:
 		for condicion, nombre, fase in PENDIENTES
 		if condicion(p)
 	]
-	if p.sector_regulado:
+	if p.sector_regulado and p.sector_regulado != SIN_SECTOR_REGULADO:
 		filas.append(
 			{
 				"requisito": _("Reportes del sector regulado ({0})").format(_(p.sector_regulado)),
