@@ -88,6 +88,11 @@ class TestPuntaAPunta(IntegrationTestCase):
 	@classmethod
 	def setUpClass(cls):
 		super().setUpClass()
+		cls.preparar()
+
+	@classmethod
+	def preparar(cls):
+		"""Registra el mes (también sirve para armar un sitio de demostración)."""
 		frappe.db.set_single_value("Configuracion DGII", "aplicar_catalogo_cuentas", 1)
 		frappe.get_doc(
 			{
