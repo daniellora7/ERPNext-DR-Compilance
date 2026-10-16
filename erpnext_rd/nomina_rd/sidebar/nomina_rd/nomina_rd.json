@@ -11,32 +11,32 @@
    "child": 0,
    "collapsible": 1,
    "hidden": 0,
-   "icon": "wallet",
-   "indent": 0,
-   "is_default_module": 0,
-   "keep_closed": 0,
-   "open_in_new_tab": 0,
-   "show_arrow": 0,
-   "label": "Recibos de nómina",
-   "link_type": "DocType",
-   "type": "Link",
-   "link_to": "Salary Slip"
-  },
-  {
-   "added": 0,
-   "child": 0,
-   "collapsible": 1,
-   "hidden": 0,
    "icon": "banknote-arrow-up",
    "indent": 0,
    "is_default_module": 0,
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "Planillas de nómina",
    "link_type": "DocType",
-   "type": "Link",
-   "link_to": "Payroll Entry"
+   "label": "Planillas de nómina",
+   "link_to": "Payroll Entry",
+   "type": "Link"
+  },
+  {
+   "added": 0,
+   "child": 0,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "wallet",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "link_type": "DocType",
+   "label": "Recibos de nómina",
+   "link_to": "Salary Slip",
+   "type": "Link"
   },
   {
    "added": 0,
@@ -49,105 +49,10 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
+   "link_type": "DocType",
    "label": "Empleados",
-   "link_type": "DocType",
-   "type": "Link",
-   "link_to": "Employee"
-  },
-  {
-   "added": 0,
-   "child": 0,
-   "collapsible": 1,
-   "hidden": 0,
-   "icon": "hand-coins",
-   "indent": 1,
-   "is_default_module": 0,
-   "keep_closed": 0,
-   "open_in_new_tab": 0,
-   "show_arrow": 0,
-   "label": "Prestaciones laborales",
-   "link_type": "DocType",
-   "type": "Section Break"
-  },
-  {
-   "added": 0,
-   "child": 1,
-   "collapsible": 1,
-   "hidden": 0,
-   "icon": "",
-   "indent": 0,
-   "is_default_module": 0,
-   "keep_closed": 0,
-   "open_in_new_tab": 0,
-   "show_arrow": 0,
-   "label": "Liquidación final",
-   "link_type": "DocType",
-   "type": "Link",
-   "link_to": "Full and Final Statement"
-  },
-  {
-   "added": 0,
-   "child": 1,
-   "collapsible": 1,
-   "hidden": 0,
-   "icon": "",
-   "indent": 0,
-   "is_default_module": 0,
-   "keep_closed": 0,
-   "open_in_new_tab": 0,
-   "show_arrow": 0,
-   "label": "Preaviso, cesantía y regalía al salir",
-   "link_type": "DocType",
-   "type": "Link",
-   "link_to": "Gratuity"
-  },
-  {
-   "added": 0,
-   "child": 1,
-   "collapsible": 1,
-   "hidden": 0,
-   "icon": "",
-   "indent": 0,
-   "is_default_module": 0,
-   "keep_closed": 0,
-   "open_in_new_tab": 0,
-   "show_arrow": 0,
-   "label": "Regalía pascual (diciembre)",
-   "link_type": "Report",
-   "type": "Link",
-   "link_to": "Regalia Pascual"
-  },
-  {
-   "added": 0,
-   "child": 1,
-   "collapsible": 1,
-   "hidden": 0,
-   "icon": "",
-   "indent": 0,
-   "is_default_module": 0,
-   "keep_closed": 0,
-   "open_in_new_tab": 0,
-   "show_arrow": 0,
-   "label": "Bonificación anual",
-   "link_type": "DocType",
-   "type": "Link",
-   "link_to": "Bonificacion RD"
-  },
-  {
-   "added": 0,
-   "child": 1,
-   "collapsible": 1,
-   "hidden": 0,
-   "icon": "",
-   "indent": 0,
-   "is_default_module": 0,
-   "keep_closed": 0,
-   "open_in_new_tab": 0,
-   "show_arrow": 0,
-   "label": "Reglas de prestaciones",
-   "link_type": "DocType",
-   "type": "Link",
-   "link_to": "Gratuity Rule"
+   "link_to": "Employee",
+   "type": "Link"
   },
   {
    "added": 0,
@@ -160,8 +65,8 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "Vacaciones",
    "link_type": "DocType",
+   "label": "Vacaciones",
    "type": "Section Break"
   },
   {
@@ -175,10 +80,10 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
+   "link_type": "DocType",
    "label": "Solicitudes de vacaciones",
-   "link_type": "DocType",
-   "type": "Link",
-   "link_to": "Leave Application"
+   "link_to": "Leave Application",
+   "type": "Link"
   },
   {
    "added": 0,
@@ -191,10 +96,10 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
+   "link_type": "DocType",
    "label": "Asignaciones de vacaciones",
-   "link_type": "DocType",
-   "type": "Link",
-   "link_to": "Leave Allocation"
+   "link_to": "Leave Allocation",
+   "type": "Link"
   },
   {
    "added": 0,
@@ -207,10 +112,10 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "Pago de vacaciones",
    "link_type": "DocType",
-   "type": "Link",
-   "link_to": "Leave Encashment"
+   "label": "Pago de vacaciones",
+   "link_to": "Leave Encashment",
+   "type": "Link"
   },
   {
    "added": 0,
@@ -223,8 +128,8 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "TSS",
    "link_type": "DocType",
+   "label": "TSS",
    "type": "Section Break"
   },
   {
@@ -238,10 +143,10 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "Autodeterminación (AM)",
    "link_type": "Report",
-   "type": "Link",
-   "link_to": "Autodeterminacion TSS"
+   "label": "Autodeterminación (AM)",
+   "link_to": "Autodeterminacion TSS",
+   "type": "Link"
   },
   {
    "added": 0,
@@ -254,10 +159,10 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "Novedades del mes (NV)",
    "link_type": "Report",
-   "type": "Link",
-   "link_to": "Novedades TSS"
+   "label": "Novedades del mes (NV)",
+   "link_to": "Novedades TSS",
+   "type": "Link"
   },
   {
    "added": 0,
@@ -270,8 +175,8 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "DGII",
    "link_type": "DocType",
+   "label": "DGII",
    "type": "Section Break"
   },
   {
@@ -285,10 +190,10 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "IR-3 (retenciones del mes)",
    "link_type": "Report",
-   "type": "Link",
-   "link_to": "Resumen IR-3"
+   "label": "IR-3 (retenciones del mes)",
+   "link_to": "Resumen IR-3",
+   "type": "Link"
   },
   {
    "added": 0,
@@ -301,10 +206,89 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "IR-13 (resumen anual)",
    "link_type": "Report",
-   "type": "Link",
-   "link_to": "Resumen IR-13"
+   "label": "IR-13 (resumen anual)",
+   "link_to": "Resumen IR-13",
+   "type": "Link"
+  },
+  {
+   "added": 0,
+   "child": 0,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "hand-coins",
+   "indent": 1,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "link_type": "DocType",
+   "label": "Prestaciones laborales",
+   "type": "Section Break"
+  },
+  {
+   "added": 0,
+   "child": 1,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "link_type": "DocType",
+   "label": "Liquidación final",
+   "link_to": "Full and Final Statement",
+   "type": "Link"
+  },
+  {
+   "added": 0,
+   "child": 1,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "link_type": "DocType",
+   "label": "Preaviso, cesantía y regalía al salir",
+   "link_to": "Gratuity",
+   "type": "Link"
+  },
+  {
+   "added": 0,
+   "child": 1,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "link_type": "Report",
+   "label": "Regalía pascual (diciembre)",
+   "link_to": "Regalia Pascual",
+   "type": "Link"
+  },
+  {
+   "added": 0,
+   "child": 1,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "link_type": "DocType",
+   "label": "Bonificación anual",
+   "link_to": "Bonificacion RD",
+   "type": "Link"
   },
   {
    "added": 0,
@@ -317,8 +301,8 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
+   "link_type": "DocType",
    "label": "Ministerio de Trabajo",
-   "link_type": "DocType",
    "type": "Section Break"
   },
   {
@@ -332,41 +316,10 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "Planillas DGT-3 y DGT-4",
    "link_type": "Report",
-   "type": "Link",
-   "link_to": "Planillas SIRLA"
-  },
-  {
-   "added": 0,
-   "child": 0,
-   "collapsible": 1,
-   "hidden": 0,
-   "icon": "calendar-days",
-   "indent": 1,
-   "is_default_module": 0,
-   "keep_closed": 0,
-   "open_in_new_tab": 0,
-   "show_arrow": 0,
-   "label": "Feriados",
-   "link_type": "DocType",
-   "type": "Section Break"
-  },
-  {
-   "added": 0,
-   "child": 1,
-   "collapsible": 1,
-   "hidden": 0,
-   "icon": "",
-   "indent": 0,
-   "is_default_module": 0,
-   "keep_closed": 0,
-   "open_in_new_tab": 0,
-   "show_arrow": 0,
-   "label": "Lista de feriados",
-   "link_type": "DocType",
-   "type": "Link",
-   "link_to": "Holiday List"
+   "label": "Planillas DGT-3 y DGT-4",
+   "link_to": "Planillas SIRLA",
+   "type": "Link"
   },
   {
    "added": 0,
@@ -379,8 +332,8 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "Configuración",
    "link_type": "DocType",
+   "label": "Configuración",
    "type": "Section Break"
   },
   {
@@ -394,10 +347,10 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
+   "link_type": "DocType",
    "label": "Configuración de nómina RD",
-   "link_type": "DocType",
-   "type": "Link",
-   "link_to": "Configuracion Nomina RD"
+   "link_to": "Configuracion Nomina RD",
+   "type": "Link"
   },
   {
    "added": 0,
@@ -410,10 +363,26 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
+   "link_type": "DocType",
+   "label": "Lista de feriados",
+   "link_to": "Holiday List",
+   "type": "Link"
+  },
+  {
+   "added": 0,
+   "child": 1,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "link_type": "DocType",
    "label": "AFP y ARS",
-   "link_type": "DocType",
-   "type": "Link",
-   "link_to": "Entidad Seguridad Social RD"
+   "link_to": "Entidad Seguridad Social RD",
+   "type": "Link"
   },
   {
    "added": 0,
@@ -426,10 +395,10 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
+   "link_type": "DocType",
    "label": "Componentes salariales",
-   "link_type": "DocType",
-   "type": "Link",
-   "link_to": "Salary Component"
+   "link_to": "Salary Component",
+   "type": "Link"
   },
   {
    "added": 0,
@@ -442,13 +411,29 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "Estructuras salariales",
    "link_type": "DocType",
-   "type": "Link",
-   "link_to": "Salary Structure"
+   "label": "Estructuras salariales",
+   "link_to": "Salary Structure",
+   "type": "Link"
+  },
+  {
+   "added": 0,
+   "child": 1,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "link_type": "DocType",
+   "label": "Reglas de prestaciones",
+   "link_to": "Gratuity Rule",
+   "type": "Link"
   }
  ],
- "modified": "2026-10-17 10:00:00.000000",
+ "modified": "2026-10-17 15:00:00.000000",
  "modified_by": "Administrator",
  "module": "Nomina RD",
  "name": "Nomina RD",
