@@ -29,6 +29,12 @@ msgstr "Bonificación RD - Empleado"
 msgid "Configuracion DGII"
 msgstr "Configuración DGII"
 
+msgid "Cuadre Fiscal IR2"
+msgstr "Cuadre fiscal IR-2"
+
+msgid "Multiplicador Inflacion DGII"
+msgstr "Multiplicador de inflación DGII"
+
 msgid "Configuracion Nomina RD"
 msgstr "Configuración de nómina RD"
 

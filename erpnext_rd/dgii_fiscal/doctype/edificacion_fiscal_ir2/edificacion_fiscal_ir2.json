@@ -1,0 +1,143 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 13:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "asset",
+  "asset_name",
+  "costo_fiscal_inicial",
+  "ajuste_fiscal",
+  "column_break_adicion",
+  "adicion",
+  "fecha_adicion",
+  "fecha_retiro",
+  "valor_retiro",
+  "column_break_resultado",
+  "meses",
+  "base_depreciable",
+  "depreciacion_fiscal",
+  "costo_fiscal_final",
+  "depreciacion_contable"
+ ],
+ "fields": [
+  {
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "label": "Activo",
+   "options": "Asset",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "label": "Nombre",
+   "fetch_from": "asset.asset_name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "costo_fiscal_inicial",
+   "fieldtype": "Currency",
+   "label": "Costo fiscal inicial",
+   "options": "Company:company:default_currency",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "ajuste_fiscal",
+   "fieldtype": "Currency",
+   "label": "Ajuste por inflación",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_adicion",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "adicion",
+   "fieldtype": "Currency",
+   "label": "Adición o mejora del año",
+   "options": "Company:company:default_currency",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "fecha_adicion",
+   "fieldtype": "Date",
+   "label": "En servicio desde",
+   "mandatory_depends_on": "eval:doc.adicion"
+  },
+  {
+   "fieldname": "fecha_retiro",
+   "fieldtype": "Date",
+   "label": "Retirado el"
+  },
+  {
+   "fieldname": "valor_retiro",
+   "fieldtype": "Currency",
+   "label": "Valor de la transferencia",
+   "options": "Company:company:default_currency",
+   "depends_on": "fecha_retiro"
+  },
+  {
+   "fieldname": "column_break_resultado",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "meses",
+   "fieldtype": "Int",
+   "label": "Meses en servicio",
+   "read_only": 1
+  },
+  {
+   "fieldname": "base_depreciable",
+   "fieldtype": "Currency",
+   "label": "Base depreciable",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "depreciacion_fiscal",
+   "fieldtype": "Currency",
+   "label": "Depreciación fiscal",
+   "options": "Company:company:default_currency",
+   "in_list_view": 1,
+   "columns": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "costo_fiscal_final",
+   "fieldtype": "Currency",
+   "label": "Costo fiscal final",
+   "options": "Company:company:default_currency",
+   "in_list_view": 1,
+   "columns": 2,
+   "description": "Si se retiró, es su costo fiscal al retiro y no pasa al año siguiente",
+   "read_only": 1
+  },
+  {
+   "fieldname": "depreciacion_contable",
+   "fieldtype": "Currency",
+   "label": "Depreciación contable",
+   "options": "Company:company:default_currency",
+   "in_list_view": 1,
+   "columns": 1,
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-18 13:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "DGII Fiscal",
+ "name": "Edificacion Fiscal IR2",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1
+}

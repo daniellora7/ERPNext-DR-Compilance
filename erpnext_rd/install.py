@@ -23,6 +23,8 @@ from erpnext_rd.dgii_fiscal.catalogos import (
 	TIPOS_SERVICIO_EXTERIOR,
 )
 from erpnext_rd.dgii_fiscal.consulta_ncf import ESTADOS as ESTADOS_NCF_DGII
+from erpnext_rd.dgii_reportes import ir2
+from erpnext_rd.dgii_reportes.ir2 import CATEGORIAS as CATEGORIAS_FISCALES
 from erpnext_rd.nomina_rd import hrms_instalado, salario, volante
 from erpnext_rd.nomina_rd.salario import CONCEPTOS as CONCEPTOS_NOMINA
 
@@ -701,6 +703,26 @@ def campos_personalizados() -> dict:
 				"description": "Vacío = automático: los artículos de inventario y los activos fijos son bienes",
 			},
 		],
+		"Asset Category": [
+			{
+				"fieldname": "rd_categoria_fiscal",
+				"fieldtype": "Select",
+				"label": "Categoría fiscal (art. 287)",
+				"options": _opciones(CATEGORIAS_FISCALES),
+				"insert_after": "non_depreciable_category",
+				"description": "1: edificaciones. 2: vehículos livianos, equipo y muebles de oficina, "
+				"computadoras. 3: lo demás. Vacío: categoría 3 (o terreno si no se deprecia).",
+			},
+		],
+		"Asset": [
+			{
+				"fieldname": "rd_dado_en_arrendamiento",
+				"fieldtype": "Check",
+				"label": "Dado en arrendamiento (art. 287, V)",
+				"insert_after": "asset_category",
+				"description": "Las categorías 2 y 3 dadas en arrendamiento se deprecian al 50% y 30% en el IR-2",
+			},
+		],
 		"Sales Invoice": campos_venta("has_subcontracted"),
 		"POS Invoice": campos_venta("return_against"),
 		"POS Profile": [
@@ -782,6 +804,7 @@ def inicializar_configuracion():
 		("recordatorios_dias", 3),
 		("consultar_ncf_dgii", 1),
 		("anticipo_tasa_minima", 1.5),
+		*ir2.TASAS_POR_DEFECTO.items(),
 	):
 		if not frappe.db.exists("Singles", {"doctype": "Configuracion DGII", "field": campo}):
 			frappe.db.set_single_value("Configuracion DGII", campo, valor)
@@ -819,6 +842,15 @@ def inicializar_configuracion():
 	):
 		if not frappe.db.exists("Singles", {"doctype": "Configuracion Nomina RD", "field": campo}):
 			frappe.db.set_single_value("Configuracion Nomina RD", campo, valor)
+
+	dgii = frappe.get_single("Configuracion DGII")
+	if not dgii.multiplicadores_inflacion:
+		for cierre, valor, resolucion in ir2.MULTIPLICADORES:
+			dgii.append(
+				"multiplicadores_inflacion",
+				{"cierre": cierre, "multiplicador": valor, "resolucion": resolucion},
+			)
+		dgii.save(ignore_permissions=True)
 
 	conf = frappe.get_single("Configuracion Nomina RD")
 	if not conf.escala_isr:

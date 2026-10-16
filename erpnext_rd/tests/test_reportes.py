@@ -756,3 +756,138 @@ class TestReportesDGII(IntegrationTestCase):
 			self.addCleanup(frappe.db.set_single_value, "Configuracion DGII", "bloquear_ncf_invalido", 0)
 			with self.assertRaisesRegex(frappe.ValidationError, "B0100000902"):
 				pi.submit()
+
+	# ------------------------------------------------------------------ Cuadre fiscal del IR-2
+
+	def _activo(self, nombre: str, categoria: str, costo: float, compra: str, depreciacion: float = 0):
+		item = f"_Test Activo {nombre}"
+		_crear(
+			{
+				"doctype": "Item",
+				"item_code": item,
+				"item_name": item,
+				"item_group": frappe.db.get_value("Item Group", {"is_group": 0}),
+				"stock_uom": frappe.db.get_value("UOM", {"enabled": 1}) or "Nos",
+				"is_stock_item": 0,
+				"is_fixed_asset": 1,
+				"asset_category": categoria,
+			}
+		)
+		activo = frappe.get_doc(
+			{
+				"doctype": "Asset",
+				"company": EMPRESA,
+				"item_code": item,
+				"asset_name": nombre,
+				"asset_type": "Existing Asset",
+				"location": self.ubicacion,
+				"purchase_date": compra,
+				"available_for_use_date": compra,
+				"net_purchase_amount": costo,
+				"purchase_amount": costo,
+				"opening_accumulated_depreciation": depreciacion,
+				"calculate_depreciation": 0,
+			}
+		).insert()
+		activo.submit()
+		return activo
+
+	def test_cuadre_fiscal_ir2(self):
+		from erpnext_rd.dgii_reportes import ir2
+
+		def cuenta_tipo(tipo):
+			return frappe.db.get_value("Account", {"company": EMPRESA, "account_type": tipo, "is_group": 0})
+
+		cuentas = [
+			{
+				"company_name": EMPRESA,
+				"fixed_asset_account": cuenta_tipo("Fixed Asset"),
+				"accumulated_depreciation_account": cuenta_tipo("Accumulated Depreciation"),
+				"depreciation_expense_account": cuenta_tipo("Depreciation"),
+			}
+		]
+		for nombre, categoria, no_depreciable in (
+			("_Test Edificios RD", ir2.CATEGORIA_1, 0),
+			("_Test Equipos Oficina RD", ir2.CATEGORIA_2, 0),
+			("_Test Maquinaria RD", ir2.CATEGORIA_3, 0),
+			("_Test Terrenos RD", None, 1),
+		):
+			_crear(
+				{
+					"doctype": "Asset Category",
+					"name": nombre,
+					"asset_category_name": nombre,
+					"rd_categoria_fiscal": categoria,
+					"non_depreciable_category": no_depreciable,
+					"accounts": cuentas,
+				}
+			)
+		self.ubicacion = "_Test Ubicacion RD"
+		_crear({"doctype": "Location", "name": self.ubicacion, "location_name": self.ubicacion})
+
+		self._activo("Edificio", "_Test Edificios RD", 3_000_000, "2020-01-01", 600_000)
+		self._activo("Maquina", "_Test Maquinaria RD", 500_000, "2024-03-01", 100_000)
+		self._activo("Terreno", "_Test Terrenos RD", 1_000_000, "2019-05-01")
+		self._activo("Computadora", "_Test Equipos Oficina RD", 100_000, "2026-03-10")
+
+		# 2025, primer año: balances con el valor en libros; multiplicador 1.0495 de la DGII
+		c25 = frappe.get_doc({"doctype": ir2.DOCTYPE, "company": EMPRESA, "ejercicio": 2025}).insert()
+		self.assertEqual(
+			(str(c25.desde), str(c25.hasta), c25.multiplicador), ("2025-01-01", "2025-12-31", 1.0495)
+		)
+		self.assertIn("valor en libros", c25.avisos)
+		self.assertEqual([e.costo_fiscal_inicial for e in c25.edificaciones], [2_400_000])
+		saldos = {(c.categoria, c.uso): c.balance_inicial for c in c25.cuentas}
+		self.assertEqual(saldos, {(ir2.CATEGORIA_2, ir2.PROPIO): 0, (ir2.CATEGORIA_3, ir2.PROPIO): 400_000})
+		self.assertEqual(c25.terrenos_costo_inicial, 1_000_000)
+
+		# Patrimonio fiscal de 10 millones: la base son los 3.8 millones de activos no monetarios
+		c25.patrimonio_fiscal = 10_000_000
+		c25.beneficio_contable = 1_000_000
+		c25.append("ajustes", {"concepto": "1.1 Impuestos no deducibles", "monto": 50_000})
+		c25.save()
+		self.assertEqual((c25.base_ajuste, c25.ajuste_fiscal), (3_800_000, 188_100))
+		edificio = c25.edificaciones[0]
+		self.assertEqual((edificio.ajuste_fiscal, edificio.depreciacion_fiscal), (118_800, 125_940))
+		self.assertEqual(edificio.costo_fiscal_final, 2_392_860)
+		maquinaria = next(c for c in c25.cuentas if c.categoria == ir2.CATEGORIA_3)
+		self.assertEqual((maquinaria.ajuste_fiscal, maquinaria.depreciacion_fiscal), (19_800, 62_970))
+		self.assertEqual(maquinaria.costo_fiscal_final, 356_830)
+		self.assertEqual((c25.terrenos_ajuste, c25.terrenos_costo_final), (49_500, 1_049_500))
+		self.assertEqual((c25.depreciacion_fiscal, c25.depreciacion_contable), (188_910, 0))
+		deficiencia = [a for a in c25.ajustes if a.concepto == ir2.DEFICIENCIA_DEPRECIACION]
+		self.assertEqual(
+			[(a.tipo, a.monto, a.origen) for a in deficiencia], [(ir2.NEGATIVO, 188_910, ir2.AUTOMATICO)]
+		)
+		self.assertEqual((c25.total_positivos, c25.total_negativos), (50_000, 188_910))
+		self.assertEqual((c25.renta_neta_imponible, c25.tasa_isr), (861_090, 27))
+		self.assertEqual(c25.impuesto_liquidado, 232_494.3)
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc({"doctype": ir2.DOCTYPE, "company": EMPRESA, "ejercicio": 2025}).insert()
+
+		# 2026: parte de los saldos finales de 2025; la computadora entra mitad este año
+		c26 = frappe.get_doc({"doctype": ir2.DOCTYPE, "company": EMPRESA, "ejercicio": 2026}).insert()
+		self.assertEqual(c26.cuadre_anterior, c25.name)
+		self.assertIn("multiplicador", c26.avisos)  # la DGII aún no publica el de 2026
+		self.assertEqual(c26.ajuste_fiscal, 0)
+		self.assertEqual(c26.edificaciones[0].depreciacion_fiscal, 119_643)
+		equipos = next(c for c in c26.cuentas if c.categoria == ir2.CATEGORIA_2)
+		self.assertEqual(
+			(
+				equipos.adiciones,
+				equipos.base_depreciable,
+				equipos.depreciacion_fiscal,
+				equipos.costo_fiscal_final,
+			),
+			(100_000, 50_000, 12_500, 87_500),
+		)
+		maquinaria = next(c for c in c26.cuentas if c.categoria == ir2.CATEGORIA_3)
+		self.assertEqual((maquinaria.balance_inicial, maquinaria.depreciacion_fiscal), (356_830, 53_524.5))
+		self.assertEqual(c26.terrenos_costo_inicial, 1_049_500)
+		renta = c26.beneficio_contable + c26.total_positivos - c26.total_negativos
+		self.assertEqual(c26.renta_antes_perdidas, round(renta, 2))
+
+		# Base de los anticipos del año siguiente con el resultado del cuadre
+		base = ir2.crear_base_anticipos(c26.name)
+		self.assertEqual(frappe.db.get_value("Base Anticipo ISR", base, "ejercicio"), 2026)
+		self.assertEqual(ir2.crear_base_anticipos(c26.name), base)
