@@ -26,7 +26,10 @@ AFP_EMPLEADOR = "AFP empleador"
 SFS_EMPLEADOR = "SFS empleador"
 SRL = "SRL empleador"
 INFOTEP = "INFOTEP empleador"
-CONCEPTOS = [AFP, SFS, ISR, AFP_EMPLEADOR, SFS_EMPLEADOR, SRL, INFOTEP]
+INFOTEP_EMPLEADO = "INFOTEP empleado"
+# Devengo: la bonificación (participación en los beneficios, art. 223) es la base del INFOTEP del empleado
+BONIFICACION = "Bonificación (art. 223)"
+CONCEPTOS = [AFP, SFS, ISR, AFP_EMPLEADOR, SFS_EMPLEADOR, SRL, INFOTEP, INFOTEP_EMPLEADO, BONIFICACION]
 
 DEDUCCIONES = {AFP: "afp", SFS: "sfs"}
 APORTES_EMPLEADOR = {
@@ -45,6 +48,10 @@ COMPONENTES = [
 	("SFS - Aporte Empleador", "SFS_ER", "Employer Contribution", SFS_EMPLEADOR, 0, "6108", "210402"),
 	("SRL - Riesgos Laborales", "SRL", "Employer Contribution", SRL, 0, "6108", "210402"),
 	("INFOTEP - Aporte Empleador", "INFOTEP", "Employer Contribution", INFOTEP, 0, "6109", "210403"),
+	# Ley 116-80: el empleado aporta el 0.5 % de las bonificaciones (no es exento del ISR)
+	("INFOTEP - Aporte Empleado", "INFOTEP_EE", "Deduction", INFOTEP_EMPLEADO, 0, "210403", None),
+	# Gravada para el ISR y fuera del salario cotizable de la TSS (art. 192)
+	("Bonificación", "BONIF", "Earning", BONIFICACION, 0, "6104", None),
 ]
 
 # Meses que cubre un recibo según la frecuencia de nómina
@@ -72,10 +79,12 @@ def aplica(slip) -> bool:
 
 
 def bases(slip) -> frappe._dict:
-	cotizable = gravable = exento = 0.0
+	cotizable = gravable = exento = bonificacion = 0.0
 	for fila in slip.get("earnings") or []:
 		if cint(fila.get("statistical_component")) or cint(fila.get("do_not_include_in_total")):
 			continue
+		if _concepto(fila.salary_component) == BONIFICACION:
+			bonificacion += flt(fila.amount)
 		if cint(frappe.get_cached_value("Salary Component", fila.salary_component, "rd_cotiza_tss")):
 			cotizable += flt(fila.amount)
 		if cint(fila.get("is_tax_applicable")):
@@ -83,7 +92,9 @@ def bases(slip) -> frappe._dict:
 	for fila in slip.get("deductions") or []:
 		if cint(fila.get("exempted_from_income_tax")) and _concepto(fila.salary_component) not in DEDUCCIONES:
 			exento += flt(fila.amount)
-	return frappe._dict(cotizable=cotizable, gravable=gravable, otras_exenciones=exento)
+	return frappe._dict(
+		cotizable=cotizable, gravable=gravable, otras_exenciones=exento, bonificacion=bonificacion
+	)
 
 
 def calcular(slip, conf=None) -> frappe._dict:
@@ -101,6 +112,7 @@ def calcular(slip, conf=None) -> frappe._dict:
 	montos = frappe._dict({concepto: flt(tss[clave] * meses, 2) for concepto, clave in DEDUCCIONES.items()})
 	montos.update({concepto: flt(tss[clave] * meses, 2) for concepto, clave in APORTES_EMPLEADOR.items()})
 	montos[ISR] = flt(isr * meses, 2)
+	montos[INFOTEP_EMPLEADO] = flt(b.bonificacion * flt(conf.infotep_empleado) / 100, 2)
 	return montos
 
 
@@ -128,7 +140,7 @@ def aplicar(slip):
 	if not aplica(slip):
 		return
 	montos = calcular(slip)
-	for concepto in (AFP, SFS, ISR):
+	for concepto in (AFP, SFS, ISR, INFOTEP_EMPLEADO):
 		_poner(slip, "deductions", concepto, montos[concepto])
 	if slip.meta.has_field("employer_contributions"):
 		for concepto in APORTES_EMPLEADOR:
@@ -182,6 +194,15 @@ def crear_componentes():
 					"description": "Calculado por ERPNext RD según la Configuración Nómina RD",
 				}
 			)
+			if tipo == "Earning":
+				# Devengo de ley: gravado para el ISR, fuera del salario cotizable de la TSS
+				doc.update(
+					{
+						"is_tax_applicable": 1,
+						"rd_cotiza_tss": 0,
+						"description": "Bonificación de ley (art. 223), pagada con el documento Bonificación RD",
+					}
+				)
 		for company in empresas:
 			if any(a.company == company for a in doc.accounts):
 				continue

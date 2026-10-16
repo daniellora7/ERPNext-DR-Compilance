@@ -1,0 +1,31 @@
+{%- set v = rd_datos_volante(doc) -%}
+<div class="rd-volante">
+	<table class="rd-columnas">
+		<tr>
+			<td>
+				<table class="rd-detalle">
+					<thead><tr><th>Ingresos</th><th class="num">Monto</th></tr></thead>
+					<tbody>
+						{% for f in v.ingresos %}
+						<tr><td>{{ _(f.concepto) }}</td><td class="num">{{ frappe.format_value(f.monto, {"fieldtype": "Currency"}, currency=doc.currency) }}</td></tr>
+						{% endfor %}
+						<tr class="rd-subtotal"><td>Total ingresos</td><td class="num">{{ doc.get_formatted("gross_pay") }}</td></tr>
+					</tbody>
+				</table>
+			</td>
+			<td>
+				<table class="rd-detalle">
+					<thead><tr><th>Descuentos</th><th class="num">Monto</th></tr></thead>
+					<tbody>
+						{% for f in v.descuentos %}
+						<tr><td>{{ _(f.concepto) }}</td><td class="num">{{ frappe.format_value(f.monto, {"fieldtype": "Currency"}, currency=doc.currency) }}</td></tr>
+						{% else %}
+						<tr><td class="rd-muted" colspan="2">Sin descuentos</td></tr>
+						{% endfor %}
+						<tr class="rd-subtotal"><td>Total descuentos</td><td class="num">{{ doc.get_formatted("total_deduction") }}</td></tr>
+					</tbody>
+				</table>
+			</td>
+		</tr>
+	</table>
+</div>

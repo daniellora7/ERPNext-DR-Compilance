@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+	<!-- Logo de ERPNext RD: el comprobante fiscal con el escudo de cumplimiento del ícono del dock -->
+	<rect width="64" height="64" rx="14" fill="#0b4f9c"/>
+	<g transform="translate(8 8)" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+		<g transform="scale(2)">
+			<path d="M7 2.5h8a2 2 0 0 1 2 2v5.1l-4.5 1.65v9.85l-.5.4-1.75-1.25-1.75 1.25-1.75-1.25L5 21.5v-17a2 2 0 0 1 2-2Z" fill="#ffffff" fill-opacity="0.18" stroke="none"/>
+			<path d="M17 9.25V4.5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v17l1.75-1.25 1.75 1.25 1.75-1.25L12 21.5" stroke-width="0.8"/>
+			<path d="M8.5 7h5M8.5 10.5h3M8.5 14h2" stroke-width="0.8"/>
+			<path d="M17.75 11.25 21.5 12.6V16c0 2.75-1.75 4.6-3.75 5.5-2-.9-3.75-2.75-3.75-5.5v-3.4Z" fill="#ffffff" fill-opacity="0.18" stroke-width="0.8"/>
+			<path d="m16 16.4 1.25 1.25 2.25-2.4" stroke-width="0.8"/>
+		</g>
+	</g>
+</svg>

@@ -1,0 +1,13 @@
+{%- set f = rd_datos_fiscales(doc) -%}
+{%- set m = doc.currency -%}
+<div class="rd-pos">
+	<table>
+		<tr><td>Subtotal</td><td class="r">{{ frappe.utils.fmt_money(f.subtotal, currency=m) }}</td></tr>
+		{% if f.descuento %}<tr><td>Descuento</td><td class="r">-{{ frappe.utils.fmt_money(f.descuento, currency=m) }}</td></tr>{% endif %}
+		<tr><td>ITBIS</td><td class="r">{{ frappe.utils.fmt_money(f.itbis, currency=m) }}</td></tr>
+		<tr class="total"><td>TOTAL</td><td class="r">{{ frappe.utils.fmt_money(f.total, currency=m) }}</td></tr>
+		{% for p in f.pagos %}<tr><td>{{ p.mode_of_payment }}</td><td class="r">{{ frappe.utils.fmt_money(p.amount, currency=m) }}</td></tr>{% endfor %}
+		{% if f.cambio %}<tr><td>Cambio</td><td class="r">{{ frappe.utils.fmt_money(f.cambio, currency=m) }}</td></tr>{% endif %}
+	</table>
+	{% if f.exento %}<div>E = Exento de ITBIS</div>{% endif %}
+</div>

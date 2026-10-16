@@ -11,6 +11,7 @@ import frappe
 from frappe.utils import cint, flt, format_datetime, formatdate, get_datetime, getdate
 
 from erpnext_rd.dgii_fiscal.validaciones import tipo_identificacion
+from erpnext_rd.formatos import por_documento
 
 # e-CF de consumo (E32) por debajo de este monto usan el resumen RFCE y la consulta "FC"
 UMBRAL_CONSUMO_RFCE = 250_000
@@ -90,6 +91,7 @@ def _empresa(doc) -> frappe._dict:
 	)
 
 
+@por_documento
 def rd_datos_fiscales(doc) -> frappe._dict:
 	tipo = (
 		frappe.get_cached_doc("Tipo Comprobante Fiscal", doc.rd_tipo_comprobante)

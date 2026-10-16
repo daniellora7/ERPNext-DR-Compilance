@@ -1,0 +1,18 @@
+{%- set f = rd_datos_fiscales(doc) -%}
+{%- set m = doc.currency -%}
+<div class="rd-pos">
+	{%- if doc.docstatus == 0 %}<div class="c b">*** BORRADOR — SIN VALOR FISCAL ***</div>{% endif -%}
+	{%- if doc.docstatus == 2 %}<div class="c b">*** ANULADA ***</div>{% endif %}
+	<div class="c b">{{ f.titulo }}</div>
+	{% if f.ncf %}<div class="c b">{{ "e-NCF" if f.es_electronico else "NCF" }}: {{ f.ncf }}</div>{% endif %}
+	{% if f.ncf_vencimiento %}<div class="c">Válido hasta: {{ f.ncf_vencimiento }}</div>{% endif %}
+	{% if f.ncf_modificado %}<div class="c">NCF modificado: {{ f.ncf_modificado }}</div>{% endif %}
+	<div>Fecha: {{ f.fecha }} {{ f.hora }}</div>
+	<div>Factura: {{ doc.name }}</div>
+	{% if doc.owner %}<div>Cajero: {{ frappe.db.get_value("User", doc.owner, "full_name") or doc.owner }}</div>{% endif %}
+	{% if f.comprador.identificacion %}
+	<div>Cliente: {{ f.comprador.nombre }}</div>
+	<div>{{ f.comprador.tipo_identificacion }}: {{ f.comprador.identificacion }}</div>
+	{% endif %}
+	<hr>
+</div>

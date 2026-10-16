@@ -1,0 +1,12 @@
+{%- set f = rd_datos_fiscales(doc) -%}
+{%- set m = doc.currency -%}
+<div class="rd-pos">
+	{% if f.es_electronico %}
+	<hr>
+	{% if f.qr %}<div class="c"><img class="qr" src="{{ f.qr }}" alt="QR e-CF"></div>{% endif %}
+	{% if f.codigo_seguridad %}
+	<div class="c">Código de seguridad: {{ f.codigo_seguridad }}</div>
+	<div class="c">Fecha de firma: {{ f.fecha_firma }}</div>
+	{% endif %}
+	{% endif %}
+</div>

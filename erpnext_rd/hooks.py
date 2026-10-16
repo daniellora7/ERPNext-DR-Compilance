@@ -6,6 +6,7 @@ app_description = (
 )
 app_email = "daniellorap.ing@gmail.com"
 app_license = "gpl-3.0"
+app_logo_url = "/assets/erpnext_rd/images/erpnext_rd_logo.svg"
 
 # Apps
 # ------------------
@@ -79,6 +80,7 @@ regional_overrides = {
 override_doctype_class = {
 	"Gratuity": "erpnext_rd.nomina_rd.gratuity_rd.GratuityRD",
 	"Leave Encashment": "erpnext_rd.nomina_rd.leave_encashment_rd.LeaveEncashmentRD",
+	"Overtime Slip": "erpnext_rd.nomina_rd.horas_extras_rd.OvertimeSlipRD",
 }
 
 doc_events = {
@@ -101,6 +103,7 @@ doc_events = {
 	"Sales Invoice": {
 		"validate": "erpnext_rd.dgii_fiscal.ncf.validar_venta",
 		"before_submit": "erpnext_rd.dgii_fiscal.ncf.asignar_ncf_venta",
+		"on_submit": "erpnext_rd.ecf.emision.al_aprobar",
 		"before_cancel": "erpnext_rd.dgii_fiscal.ncf.antes_de_cancelar_venta",
 	},
 	"POS Invoice": {
@@ -111,6 +114,7 @@ doc_events = {
 	"Purchase Invoice": {
 		"validate": "erpnext_rd.dgii_fiscal.ncf.validar_compra",
 		"before_submit": "erpnext_rd.dgii_fiscal.ncf.antes_de_validar_compra",
+		"on_submit": "erpnext_rd.ecf.emision.al_aprobar",
 		"before_cancel": "erpnext_rd.dgii_fiscal.ncf.antes_de_cancelar_compra",
 	},
 }
@@ -119,7 +123,10 @@ doc_events = {
 # -----------------------------
 
 jinja = {
-	"methods": ["erpnext_rd.dgii_fiscal.impresion.rd_datos_fiscales"],
+	"methods": [
+		"erpnext_rd.dgii_fiscal.impresion.rd_datos_fiscales",
+		"erpnext_rd.nomina_rd.volante.rd_datos_volante",
+	],
 }
 
 # Scheduled Tasks
@@ -130,6 +137,8 @@ jinja = {
 scheduler_events = {
 	"cron": {
 		"0 2 * * *": ["erpnext_rd.padron_rnc.padron.encolar"],
+		# Resultado de los e-CF enviados a la DGII que siguen en proceso
+		"*/15 * * * *": ["erpnext_rd.ecf.emision.consultar_pendientes"],
 	},
 	# Extiende la lista "Feriados RD" al año siguiente (idempotente)
 	"monthly": ["erpnext_rd.nomina_rd.feriados.asegurar_lista_feriados"],

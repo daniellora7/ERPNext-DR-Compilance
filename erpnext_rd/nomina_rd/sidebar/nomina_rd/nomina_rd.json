@@ -96,7 +96,7 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "Preaviso, cesantía y regalía",
+   "label": "Preaviso, cesantía y regalía al salir",
    "link_type": "DocType",
    "type": "Link",
    "link_to": "Gratuity"
@@ -116,6 +116,22 @@
    "link_type": "Report",
    "type": "Link",
    "link_to": "Regalia Pascual"
+  },
+  {
+   "added": 0,
+   "child": 1,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "label": "Bonificación anual",
+   "link_type": "DocType",
+   "type": "Link",
+   "link_to": "Bonificacion RD"
   },
   {
    "added": 0,
@@ -201,13 +217,13 @@
    "child": 0,
    "collapsible": 1,
    "hidden": 0,
-   "icon": "landmark",
+   "icon": "heart-pulse",
    "indent": 1,
    "is_default_module": 0,
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "TSS y DGII",
+   "label": "TSS",
    "link_type": "DocType",
    "type": "Section Break"
   },
@@ -222,7 +238,7 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "Archivo de autodeterminación TSS",
+   "label": "Autodeterminación (AM)",
    "link_type": "Report",
    "type": "Link",
    "link_to": "Autodeterminacion TSS"
@@ -238,10 +254,25 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "Novedades TSS (ingresos, salidas, licencias)",
+   "label": "Novedades del mes (NV)",
    "link_type": "Report",
    "type": "Link",
    "link_to": "Novedades TSS"
+  },
+  {
+   "added": 0,
+   "child": 0,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "landmark",
+   "indent": 1,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "label": "DGII",
+   "link_type": "DocType",
+   "type": "Section Break"
   },
   {
    "added": 0,
@@ -254,7 +285,7 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "Resumen IR-3 (retenciones ISR)",
+   "label": "IR-3 (retenciones del mes)",
    "link_type": "Report",
    "type": "Link",
    "link_to": "Resumen IR-3"
@@ -270,10 +301,41 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "Resumen IR-13 (anual)",
+   "label": "IR-13 (resumen anual)",
    "link_type": "Report",
    "type": "Link",
    "link_to": "Resumen IR-13"
+  },
+  {
+   "added": 0,
+   "child": 0,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "briefcase",
+   "indent": 1,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "label": "Ministerio de Trabajo",
+   "link_type": "DocType",
+   "type": "Section Break"
+  },
+  {
+   "added": 0,
+   "child": 1,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "label": "Planillas DGT-3 y DGT-4",
+   "link_type": "Report",
+   "type": "Link",
+   "link_to": "Planillas SIRLA"
   },
   {
    "added": 0,
@@ -317,7 +379,7 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "Configuración RD",
+   "label": "Configuración",
    "link_type": "DocType",
    "type": "Section Break"
   },
@@ -332,7 +394,7 @@
    "keep_closed": 0,
    "open_in_new_tab": 0,
    "show_arrow": 0,
-   "label": "Configuración Nómina RD",
+   "label": "Configuración de nómina RD",
    "link_type": "DocType",
    "type": "Link",
    "link_to": "Configuracion Nomina RD"
@@ -386,7 +448,7 @@
    "link_to": "Salary Structure"
   }
  ],
- "modified": "2026-10-16 15:00:00.000000",
+ "modified": "2026-10-17 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Nomina RD",
  "name": "Nomina RD",

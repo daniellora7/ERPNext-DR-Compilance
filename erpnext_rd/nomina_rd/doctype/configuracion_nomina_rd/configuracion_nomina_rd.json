@@ -29,6 +29,20 @@
   "dias_salario_mes",
   "tramos_preaviso",
   "tramos_cesantia",
+  "section_bonificacion",
+  "bonificacion_porcentaje",
+  "bonificacion_anios",
+  "column_break_bonificacion",
+  "bonificacion_dias_menor",
+  "bonificacion_dias_mayor",
+  "section_horas_extras",
+  "horas_jornada",
+  "horas_semana_normal",
+  "horas_semana_maximo",
+  "column_break_horas_extras",
+  "recargo_horas_extras",
+  "recargo_horas_extras_exceso",
+  "recargo_feriado",
   "section_vacaciones",
   "asignar_vacaciones",
   "tramos_vacaciones",
@@ -196,6 +210,97 @@
    "options": "Tramo Prestacion RD"
   },
   {
+   "fieldname": "section_bonificacion",
+   "fieldtype": "Section Break",
+   "label": "Bonificación (art. 223)",
+   "description": "Participación de los trabajadores en los beneficios: un porcentaje de la utilidad neta anual, con un tope por trabajador en días de salario ordinario según su antigüedad. Se calcula en el documento Bonificación RD."
+  },
+  {
+   "fieldname": "bonificacion_porcentaje",
+   "fieldtype": "Percent",
+   "label": "Porcentaje de la utilidad neta",
+   "default": "10",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bonificacion_anios",
+   "fieldtype": "Int",
+   "label": "Años de antigüedad para el tope mayor",
+   "default": "3",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_bonificacion",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "bonificacion_dias_menor",
+   "fieldtype": "Float",
+   "label": "Tope en días (menos de esa antigüedad)",
+   "default": "45",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bonificacion_dias_mayor",
+   "fieldtype": "Float",
+   "label": "Tope en días (esa antigüedad o más)",
+   "default": "60",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_horas_extras",
+   "fieldtype": "Section Break",
+   "label": "Horas extras (arts. 203-205)",
+   "description": "Se aplican en los tipos de horas extras de Frappe HR marcados como RD. Valor de la hora = salario ordinario mensual / días por mes / horas de la jornada."
+  },
+  {
+   "fieldname": "horas_jornada",
+   "fieldtype": "Float",
+   "label": "Horas de la jornada diaria",
+   "default": "8",
+   "reqd": 1
+  },
+  {
+   "fieldname": "horas_semana_normal",
+   "fieldtype": "Float",
+   "label": "Jornada semanal (horas)",
+   "default": "44",
+   "reqd": 1
+  },
+  {
+   "fieldname": "horas_semana_maximo",
+   "fieldtype": "Float",
+   "label": "Horas semanales con el primer recargo",
+   "default": "68",
+   "reqd": 1,
+   "description": "Las horas extras que pasen de este total semanal llevan el recargo mayor."
+  },
+  {
+   "fieldname": "column_break_horas_extras",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "recargo_horas_extras",
+   "fieldtype": "Percent",
+   "label": "Recargo de las horas extras",
+   "default": "35",
+   "reqd": 1
+  },
+  {
+   "fieldname": "recargo_horas_extras_exceso",
+   "fieldtype": "Percent",
+   "label": "Recargo sobre el límite semanal",
+   "default": "100",
+   "reqd": 1
+  },
+  {
+   "fieldname": "recargo_feriado",
+   "fieldtype": "Percent",
+   "label": "Recargo en feriados y día de descanso",
+   "default": "100",
+   "reqd": 1
+  },
+  {
    "fieldname": "section_vacaciones",
    "fieldtype": "Section Break",
    "label": "Vacaciones",
@@ -249,7 +354,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-16 10:00:00.000000",
+ "modified": "2026-10-16 22:00:00.000000",
  "modified_by": "Administrator",
  "module": "Nomina RD",
  "name": "Configuracion Nomina RD",

@@ -1,0 +1,190 @@
+{
+ "actions": [],
+ "creation": "2026-10-17 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "links": [],
+ "modified": "2026-10-17 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "ECF",
+ "owner": "Administrator",
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "name": "Envio ECF",
+ "autoname": "ENV-ECF-.#####",
+ "naming_rule": "Expression (old style)",
+ "title_field": "encf",
+ "show_title_field_in_link": 1,
+ "track_changes": 1,
+ "description": "Registro de cada e-CF firmado y de su envío a la DGII.",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts User",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1
+  }
+ ],
+ "fields": [
+  {
+   "fieldname": "encf",
+   "fieldtype": "Data",
+   "label": "e-NCF",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "tipo_ecf",
+   "fieldtype": "Data",
+   "label": "Tipo",
+   "read_only": 1
+  },
+  {
+   "fieldname": "estado",
+   "fieldtype": "Select",
+   "label": "Estado",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "options": "Firmado\nEn proceso\nAceptado\nAceptado condicional\nRechazado\nError"
+  },
+  {
+   "fieldname": "es_rfce",
+   "fieldtype": "Check",
+   "label": "Enviado como resumen (RFCE)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Empresa",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "tipo_documento",
+   "fieldtype": "Link",
+   "options": "DocType",
+   "label": "Tipo de documento",
+   "read_only": 1
+  },
+  {
+   "fieldname": "documento",
+   "fieldtype": "Dynamic Link",
+   "options": "tipo_documento",
+   "label": "Factura",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "ambiente",
+   "fieldtype": "Data",
+   "label": "Ambiente",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_firma",
+   "fieldtype": "Section Break",
+   "label": "Firma y DGII"
+  },
+  {
+   "fieldname": "codigo_seguridad",
+   "fieldtype": "Data",
+   "label": "Código de seguridad",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fecha_firma",
+   "fieldtype": "Datetime",
+   "label": "Fecha de firma",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "track_id",
+   "fieldtype": "Data",
+   "label": "TrackId",
+   "read_only": 1
+  },
+  {
+   "fieldname": "xml",
+   "fieldtype": "Attach",
+   "label": "XML firmado",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_respuesta",
+   "fieldtype": "Section Break",
+   "label": "Respuesta"
+  },
+  {
+   "fieldname": "mensajes",
+   "fieldtype": "Small Text",
+   "label": "Mensajes",
+   "read_only": 1
+  },
+  {
+   "fieldname": "respuesta",
+   "fieldtype": "Code",
+   "options": "JSON",
+   "label": "Respuesta de la DGII",
+   "read_only": 1
+  }
+ ],
+ "field_order": [
+  "encf",
+  "tipo_ecf",
+  "estado",
+  "es_rfce",
+  "column_break_1",
+  "company",
+  "tipo_documento",
+  "documento",
+  "ambiente",
+  "section_firma",
+  "codigo_seguridad",
+  "fecha_firma",
+  "column_break_2",
+  "track_id",
+  "xml",
+  "section_respuesta",
+  "mensajes",
+  "respuesta"
+ ]
+}

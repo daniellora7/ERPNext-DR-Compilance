@@ -1,0 +1,139 @@
+{
+ "actions": [],
+ "creation": "2026-10-16 20:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-16 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Nomina RD",
+ "name": "Bonificacion RD Empleado",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "fields": [
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "options": "Employee",
+   "label": "Empleado",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Nombre",
+   "fetch_from": "employee.employee_name",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "meses",
+   "fieldtype": "Int",
+   "label": "Meses en el ejercicio",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "anios_servicio",
+   "fieldtype": "Float",
+   "label": "Años de servicio",
+   "read_only": 1,
+   "precision": "1"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "salario_mensual",
+   "fieldtype": "Currency",
+   "label": "Salario ordinario mensual",
+   "read_only": 1
+  },
+  {
+   "fieldname": "salario_diario",
+   "fieldtype": "Currency",
+   "label": "Salario diario",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "dias",
+   "fieldtype": "Float",
+   "label": "Días de tope",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "tope",
+   "fieldtype": "Currency",
+   "label": "Tope",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 1,
+   "description": "Salario diario x días de tope x meses en el ejercicio / 12"
+  },
+  {
+   "fieldname": "monto",
+   "fieldtype": "Currency",
+   "label": "Bonificación",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "section_pago",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "tipo_pago",
+   "fieldtype": "Link",
+   "options": "DocType",
+   "label": "Tipo de documento de pago",
+   "hidden": 1,
+   "default": "Additional Salary"
+  },
+  {
+   "fieldname": "additional_salary",
+   "fieldtype": "Dynamic Link",
+   "options": "tipo_pago",
+   "label": "Pago en nómina",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "observacion",
+   "fieldtype": "Small Text",
+   "label": "Observación",
+   "read_only": 1
+  }
+ ],
+ "field_order": [
+  "employee",
+  "employee_name",
+  "meses",
+  "anios_servicio",
+  "column_break_1",
+  "salario_mensual",
+  "salario_diario",
+  "dias",
+  "tope",
+  "monto",
+  "section_pago",
+  "tipo_pago",
+  "additional_salary",
+  "observacion"
+ ]
+}

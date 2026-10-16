@@ -7,6 +7,7 @@ configura solo, sin pasos en la consola, para que la app se pueda instalar desde
 import frappe
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
+from erpnext_rd import formatos
 from erpnext_rd.dgii_fiscal import catalogo_cuentas
 from erpnext_rd.dgii_fiscal import catalogos as cat
 from erpnext_rd.dgii_fiscal.catalogos import (
@@ -21,16 +22,26 @@ from erpnext_rd.dgii_fiscal.catalogos import (
 	TIPOS_RETENCION_ISR,
 	TIPOS_SERVICIO_EXTERIOR,
 )
-from erpnext_rd.nomina_rd import hrms_instalado, salario
+from erpnext_rd.nomina_rd import hrms_instalado, salario, volante
 from erpnext_rd.nomina_rd.salario import CONCEPTOS as CONCEPTOS_NOMINA
 
 MODULO = "DGII Fiscal"
 
 # DocTypes de Frappe HR que reciben campos de la app (solo si hrms está instalado)
-DOCTYPES_HRMS = ("Salary Component", "Gratuity Rule", "Gratuity", "Leave Type", "Leave Encashment")
+DOCTYPES_HRMS = (
+	"Salary Component",
+	"Gratuity Rule",
+	"Gratuity",
+	"Leave Type",
+	"Leave Encashment",
+	"Overtime Type",
+)
 # Sidebar de la Nómina RD (nomina_rd/sidebar): vive en el dock de Frappe HR, no en RD Compliance
 SIDEBAR_NOMINA = "Nomina RD"
 FILA_DOCK_NOMINA = {"link_type": "Sidebar", "link_to": SIDEBAR_NOMINA}
+# Ícono "soft" del dock (estilo de Frappe v16.52+); el de dos tonos queda para el encabezado del sidebar
+ICONO_DOCK_NOMINA = "nomina-rd-soft"
+ICONOS_DOCK_NOMINA_ANTERIORES = ("nomina-rd-duotone",)
 
 
 def _opciones(lista):
@@ -243,6 +254,16 @@ def campos_personalizados() -> dict:
 				"depends_on": "eval:doc.country == 'Dominican Republic'",
 				"description": "Lo marca ERPNext RD al crear el catálogo de cuentas conforme a la DGII",
 			},
+			{
+				"fieldname": "rd_localidad_sirla",
+				"fieldtype": "Data",
+				"label": "Localidad SIRLA (RNL)",
+				"insert_after": "rd_catalogo_dgii",
+				"length": 6,
+				"depends_on": "eval:doc.country == 'Dominican Republic'",
+				"description": "Últimos 4 dígitos del Registro Nacional Laboral del establecimiento, para las planillas "
+				"DGT-3 / DGT-4 del Ministerio de Trabajo. Un empleado de otro establecimiento lo indica en su ficha.",
+			},
 		],
 		"Account": [
 			{
@@ -397,6 +418,16 @@ def campos_personalizados() -> dict:
 				"del mes en que empiezan.",
 			},
 		],
+		"Overtime Type": [
+			{
+				"fieldname": "rd_horas_extras",
+				"fieldtype": "Check",
+				"label": "Horas extras RD (Código de Trabajo)",
+				"insert_after": "overtime_salary_component",
+				"description": "Valor de la hora con el salario ordinario / 23.83 / 8; recargo del 35 % hasta 68 horas "
+				"semanales y del 100 % después, y del 100 % en feriados (Configuración Nómina RD). Solo en empresas RD.",
+			},
+		],
 		"Leave Encashment": [
 			{
 				"fieldname": "rd_dias_proporcionales",
@@ -519,6 +550,66 @@ def campos_personalizados() -> dict:
 				"0008 - Trabajador con salario sectorizado",
 				"description": "Vacío: Normal, o «No laboró mes completo» el mes en que entra o sale.",
 			},
+			{
+				"fieldname": "rd_section_sirla",
+				"fieldtype": "Section Break",
+				"label": "Ministerio de Trabajo (SIRLA)",
+				"insert_after": "rd_tipo_ingreso_tss",
+				"collapsible": 1,
+				"description": "Códigos de los catálogos del SIRLA para las planillas DGT-3 y DGT-4. El cargo es la "
+				"designación del empleado.",
+			},
+			{
+				"fieldname": "rd_ocupacion_sirla",
+				"fieldtype": "Data",
+				"label": "Código de ocupación",
+				"insert_after": "rd_section_sirla",
+				"length": 6,
+			},
+			{
+				"fieldname": "rd_turno_sirla",
+				"fieldtype": "Data",
+				"label": "Código del turno",
+				"insert_after": "rd_ocupacion_sirla",
+				"length": 6,
+				"description": "De la lista de turnos de la empresa en el SIRLA.",
+			},
+			{
+				"fieldname": "rd_localidad_sirla",
+				"fieldtype": "Data",
+				"label": "Localidad (RNL)",
+				"insert_after": "rd_turno_sirla",
+				"length": 6,
+				"description": "Vacío: la de la empresa.",
+			},
+			{
+				"fieldname": "rd_column_sirla",
+				"fieldtype": "Column Break",
+				"insert_after": "rd_localidad_sirla",
+			},
+			{
+				"fieldname": "rd_nivel_educativo_sirla",
+				"fieldtype": "Data",
+				"label": "Código de nivel educativo",
+				"insert_after": "rd_column_sirla",
+				"length": 5,
+			},
+			{
+				"fieldname": "rd_discapacidad_sirla",
+				"fieldtype": "Data",
+				"label": "Códigos de discapacidad",
+				"insert_after": "rd_nivel_educativo_sirla",
+				"length": 50,
+				"description": "Separados por comas, según el catálogo del SIRLA.",
+			},
+			{
+				"fieldname": "rd_nacionalidad_sirla",
+				"fieldtype": "Data",
+				"label": "Código de nacionalidad",
+				"insert_after": "rd_discapacidad_sirla",
+				"length": 3,
+				"description": "Solo para extranjeros.",
+			},
 		],
 		"Mode of Payment": [
 			{
@@ -560,6 +651,9 @@ def crear_campos_personalizados():
 	if not hrms_instalado():
 		for doctype in DOCTYPES_HRMS:
 			campos.pop(doctype, None)
+	# DocTypes que solo traen las versiones recientes de Frappe HR (p. ej. Overtime Type)
+	for doctype in [d for d in campos if not frappe.db.exists("DocType", d)]:
+		campos.pop(doctype)
 	for lista in campos.values():
 		for campo in lista:
 			campo["module"] = MODULO
@@ -615,6 +709,16 @@ def inicializar_configuracion():
 		("dias_salario_mes", 23.83),
 		("actualizar_feriados", 1),
 		("dia_descanso", "Sunday"),
+		("bonificacion_porcentaje", 10),
+		("bonificacion_anios", 3),
+		("bonificacion_dias_menor", 45),
+		("bonificacion_dias_mayor", 60),
+		("horas_jornada", 8),
+		("horas_semana_normal", 44),
+		("horas_semana_maximo", 68),
+		("recargo_horas_extras", 35),
+		("recargo_horas_extras_exceso", 100),
+		("recargo_feriado", 100),
 	):
 		if not frappe.db.exists("Singles", {"doctype": "Configuracion Nomina RD", "field": campo}):
 			frappe.db.set_single_value("Configuracion Nomina RD", campo, valor)
@@ -721,13 +825,18 @@ def dock_nomina():
 		capas.append(sitio)
 
 	for capa in capas:
-		if any(_es_fila_nomina(fila) for fila in capa.items):
+		existente = next((fila for fila in capa.items if _es_fila_nomina(fila)), None)
+		if existente:
+			# Sitios que ya tenían la entrada con el ícono anterior; uno elegido por el usuario se respeta
+			if existente.icon in ICONOS_DOCK_NOMINA_ANTERIORES:
+				existente.icon = ICONO_DOCK_NOMINA
+				capa.save(ignore_permissions=True)
 			continue
 		# La capa del sitio trae la entrada (con ícono y título); la de un usuario solo la nombra,
 		# porque una capa guardada es el dock completo y lo que no nombra no aparece.
 		if capa is sitio:
 			capa.append(
-				"items", {**FILA_DOCK_NOMINA, "icon": "nomina-rd-duotone", "title": "Nómina RD", "added": 1}
+				"items", {**FILA_DOCK_NOMINA, "icon": ICONO_DOCK_NOMINA, "title": "Nómina RD", "added": 1}
 			)
 		else:
 			capa.append("items", {**FILA_DOCK_NOMINA, "added": 0})
@@ -787,13 +896,15 @@ def prestaciones_y_feriados():
 	if prestaciones.inicializar_tramos(conf):
 		conf.save(ignore_permissions=True)
 	if hrms_instalado():
-		from erpnext_rd.nomina_rd import regalia, vacaciones
+		from erpnext_rd.nomina_rd import horas_extras, regalia, vacaciones
 
 		reglas_gratuity_sin_tramos()
 		periodo_opcional_en_vacaciones_rd()
 		prestaciones.crear_reglas()
 		vacaciones.crear_componente_y_tipo()
 		regalia.crear_componente()
+		horas_extras.crear_componente_y_tipo()
+		volante.crear_formato()
 	feriados.asegurar_lista_feriados()
 
 
@@ -899,6 +1010,7 @@ def lista_padron_sin_filtro_reciente():
 
 def setup():
 	crear_campos_personalizados()
+	formatos.asegurar_fiscales()
 	formato_impresion_por_defecto()
 	crear_tipos_comprobante()
 	inicializar_formas_pago()
@@ -939,6 +1051,7 @@ def al_desinstalar_app(app_name: str):
 		frappe.delete_doc("Custom Field", nombre, force=True, ignore_permissions=True)
 	frappe.db.delete("Property Setter", {"doc_type": ("in", DOCTYPES_HRMS), "module": MODULO})
 	quitar_dock_nomina()
+	volante.quitar_formato()
 	# Frappe llama este hook después del último commit de la desinstalación
 	frappe.db.commit()  # nosemgrep
 	frappe.clear_cache()
@@ -952,6 +1065,7 @@ def before_uninstall():
 	frappe.db.delete(
 		"Property Setter", {"property": "default_print_format", "value": ("in", _formatos_fiscales())}
 	)
+	volante.quitar_formato()
 	for job in frappe.get_all(
 		"Scheduled Job Type", filters={"method": ("like", "erpnext_rd.%")}, pluck="name"
 	):

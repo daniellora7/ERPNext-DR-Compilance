@@ -69,6 +69,32 @@ class TestNominaRD(IntegrationTestCase):
 		self.assertEqual(calculos.regalia_pascual(12 * 30_000), 30_000)
 		self.assertEqual(calculos.regalia_pascual(7 * 30_000), 17_500)  # entró a mitad de año
 
+	def test_reparto_de_bonificacion(self):
+		"""Art. 223: si el 10 % no alcanza para los topes, se reparte en proporción a ellos; si sobra,
+		cada uno recibe su tope."""
+		from erpnext_rd.nomina_rd import bonificacion
+
+		filas = [{"tope": 60_000}, {"tope": 40_000}]
+		self.assertEqual(bonificacion.repartir(filas, 80_000), (100_000, 0.8))
+		self.assertEqual([f["monto"] for f in filas], [48_000, 32_000])
+		bonificacion.repartir(filas, 500_000)
+		self.assertEqual([f["monto"] for f in filas], [60_000, 40_000])
+		bonificacion.repartir(filas, -10_000)  # sin utilidad, no hay bonificación
+		self.assertEqual([f["monto"] for f in filas], [0, 0])
+
+	def test_recargos_de_horas_extras(self):
+		"""Art. 203: 35 % hasta 68 horas semanales (24 extras sobre la jornada de 44) y 100 % después;
+		feriados y descanso semanal, 100 %."""
+		from erpnext_rd.nomina_rd.horas_extras import monto
+
+		p = frappe._dict(
+			horas_normales=44, horas_maximo=68, recargo=35, recargo_exceso=100, recargo_feriado=100
+		)
+		self.assertAlmostEqual(monto(10, 100, 0, False, p), 1350)
+		self.assertAlmostEqual(monto(10, 100, 20, False, p), 4 * 135 + 6 * 200)  # pasa del límite
+		self.assertAlmostEqual(monto(3, 100, 30, False, p), 600)  # ya pasó del límite
+		self.assertAlmostEqual(monto(5, 100, 0, True, p), 1000)  # feriado
+
 	def test_configuracion_inicial(self):
 		conf = frappe.get_single("Configuracion Nomina RD")
 		self.assertEqual([len(calculos.escala_isr(conf, a)) for a in (2026, 2027)], [4, 5])
@@ -485,6 +511,182 @@ class TestReciboNominaRD(IntegrationTestCase):
 		self.assertEqual(nombre, "NV_101000001_102026.txt")
 		self.assertEqual(lineas[0], "ENV  101000001102026")
 		self.assertEqual((len(lineas), lineas[1][4:14]), (3, "SA20102026"))
+
+	def test_bonificacion(self):
+		"""Utilidad 1,000,000 -> 100,000 a repartir. Ingreso 2025-01-01: al cierre de 2026 tiene 2 años
+		(tope de 45 días) y trabajó los 12 meses; salario diario 80,000 / 23.83 = 3,357.11 -> tope
+		151,069.95. El fondo no alcanza: recibe los 100,000. En el recibo, INFOTEP del empleado 0.5 % y
+		en el archivo de la TSS va como otra remuneración (no cotiza)."""
+		from erpnext_rd.nomina_rd import salario, tss
+
+		self._aislar()
+		frappe.db.set_value("Employee", self.empleado.name, "relieving_date", None)
+		ejercicio = (
+			frappe.db.get_value(
+				"Fiscal Year", {"year_start_date": "2026-01-01", "year_end_date": "2026-12-31"}
+			)
+			or frappe.get_doc(
+				{
+					"doctype": "Fiscal Year",
+					"year": "2026 RD",
+					"year_start_date": "2026-01-01",
+					"year_end_date": "2026-12-31",
+				}
+			)
+			.insert()
+			.name
+		)
+
+		bono = frappe.get_doc(
+			{
+				"doctype": "Bonificacion RD",
+				"company": EMPRESA,
+				"ejercicio": ejercicio,
+				"utilidad_neta": 1_000_000,
+				"fecha_pago": "2026-12-20",
+			}
+		)
+		bono.desde, bono.hasta = "2026-01-01", "2026-12-31"
+		bono.calcular()
+		fila = next(f for f in bono.empleados if f.employee == self.empleado.name)
+		self.assertEqual(
+			(fila.meses, fila.dias, fila.salario_diario, fila.tope), (12, 45, 3357.11, 151_069.95)
+		)
+		self.assertEqual((bono.porcentaje, bono.fondo, str(bono.fecha_limite)), (10, 100_000, "2027-04-30"))
+		self.assertAlmostEqual(fila.monto, 100_000, delta=0.01)
+		bono.insert()
+		bono.submit()
+		pago = frappe.db.get_value("Bonificacion RD Empleado", fila.name, "additional_salary")
+		self.assertEqual(frappe.db.get_value("Additional Salary", pago, "docstatus"), 1)
+
+		recibo = (
+			frappe.get_doc(
+				{
+					"doctype": "Salary Slip",
+					"employee": self.empleado.name,
+					"start_date": "2026-12-01",
+					"payroll_frequency": "Monthly",
+				}
+			)
+			.insert()
+			.submit()
+		)
+		deducciones = {f.abbr: f.amount for f in recibo.deductions}
+		self.assertAlmostEqual(deducciones["INFOTEP_EE"], 500, delta=0.01)
+		f = next(f for f in tss.obtener(EMPRESA, 2026, 12) if f["employee"] == self.empleado.name)
+		self.assertEqual(f["salario_ss"], 80_000)
+		self.assertAlmostEqual(f["otras_remuneraciones"], 110_000, delta=0.01)
+		self.assertEqual(salario.calcular(recibo)[salario.AFP], deducciones["AFP"])
+
+		recibo.cancel()  # el recibo que la pagó se cancela primero
+		bono.cancel()
+		self.assertEqual(frappe.db.get_value("Additional Salary", pago, "docstatus"), 2)
+
+	@unittest.skipUnless(frappe.db.exists("DocType", "Overtime Type"), "Frappe HR sin horas extras")
+	def test_horas_extras(self):
+		"""Tipo "Horas extras RD": hora = 80,000 / 23.83 / 8; 20 h el lunes (35 %) y 10 h el martes de la
+		misma semana (4 h al 35 % y 6 h al 100 %, pasó de 68 horas); 5 h en un feriado, 100 %."""
+		from erpnext_rd.nomina_rd import horas_extras
+		from erpnext_rd.nomina_rd.horas_extras_rd import OvertimeSlipRD
+
+		self._aislar()
+		frappe.db.set_value("Employee", self.empleado.name, "relieving_date", None)
+		horas_extras.crear_componente_y_tipo()
+		self.assertTrue(frappe.db.get_value("Overtime Type", horas_extras.TIPO, "rd_horas_extras"))
+		hoja = frappe.new_doc("Overtime Slip")
+		self.assertIsInstance(hoja, OvertimeSlipRD)
+		hoja.update(
+			{
+				"employee": self.empleado.name,
+				"company": EMPRESA,
+				"start_date": "2026-10-01",
+				"end_date": "2026-10-31",
+			}
+		)
+		hoja.overtime_types = hoja._bulk_load_overtime_types({horas_extras.TIPO})
+		hora = hoja._calculate_component_based_hourly_rate(horas_extras.TIPO, 9)
+		self.assertAlmostEqual(hora, 80_000 / 23.83 / 8, places=6)
+
+		feriados = {"2026-10-12": frappe._dict(weekly_off=0)}
+		lunes = hoja.calculate_overtime_amount(horas_extras.TIPO, hora, 20, "2026-10-05", feriados)
+		martes = hoja.calculate_overtime_amount(horas_extras.TIPO, hora, 10, "2026-10-06", feriados)
+		feriado = hoja.calculate_overtime_amount(horas_extras.TIPO, hora, 5, "2026-10-12", feriados)
+		self.assertAlmostEqual(lunes, 20 * hora * 1.35, places=4)
+		self.assertAlmostEqual(martes, hora * (4 * 1.35 + 6 * 2), places=4)
+		self.assertAlmostEqual(feriado, 5 * hora * 2, places=4)
+
+	def test_volante_de_pago(self):
+		"""El formato Volante de pago RD imprime el documento con guiones, AFP / ISR y el neto."""
+		from erpnext_rd.nomina_rd import volante
+		from erpnext_rd.tests.test_empleado import cedula_valida
+
+		self._aislar()
+		cedula = cedula_valida("0010000007")
+		frappe.db.set_value(
+			"Employee",
+			self.empleado.name,
+			{"rd_cedula": cedula, "rd_nss": "12345678", "relieving_date": None},
+		)
+		volante.crear_formato()
+		recibo = frappe.get_doc(
+			{
+				"doctype": "Salary Slip",
+				"employee": self.empleado.name,
+				"start_date": "2026-07-01",
+				"payroll_frequency": "Monthly",
+			}
+		).insert()
+		recibo.submit()
+		html = frappe.get_print("Salary Slip", recibo.name, print_format=volante.FORMATO, no_letterhead=1)
+		self.assertIn("Volante de pago", html)
+		self.assertIn(f"{cedula[:3]}-{cedula[3:10]}-{cedula[10:]}", html)
+		self.assertIn("12345678", html)
+		self.assertIn("AFP - Fondo de Pensiones", html)
+		self.assertIn("ISR - Retención Asalariados", html)
+		self.assertIn("Neto a pagar", html)
+		self.assertIn("Aportes del empleador", html)
+
+	def test_planillas_sirla(self):
+		"""DGT-3: el trabajador activo como ingreso (NI); DGT-4: el cambio de salario del mes (NC)."""
+		from erpnext_rd.nomina_rd import sirla
+		from erpnext_rd.tests.test_empleado import cedula_valida
+
+		self._aislar()
+		frappe.db.set_value(
+			"Employee",
+			self.empleado.name,
+			{"rd_cedula": cedula_valida("0010000008"), "relieving_date": None, "rd_ocupacion_sirla": "2411"},
+		)
+		frappe.db.set_value("Company", EMPRESA, {"tax_id": "101000001", "rd_localidad_sirla": "0001"})
+		f = next(f for f in sirla.obtener(EMPRESA, 2026, 1) if f["employee"] == self.empleado.name)
+		self.assertEqual(
+			(f["novedad"], f["salario"], f["localidad"], f["_en_txt"]), ("NI", 80_000, "0001", 1)
+		)
+		self.assertIn("turno", f["_avisos"])
+
+		nombre, contenido = sirla.generar_txt(EMPRESA, 2026, 1)
+		lineas = contenido.split("\r\n")[:-1]
+		self.assertEqual(nombre, "DGT3_101000001_012026.txt")
+		self.assertEqual(lineas[0], "ET300101000001012026")
+		self.assertEqual(lineas[-1], "S" + str(len(lineas)).zfill(6))
+
+		frappe.get_doc(
+			{
+				"doctype": "Salary Structure Assignment",
+				"employee": self.empleado.name,
+				"salary_structure": "_Test Estructura RD",
+				"company": EMPRESA,
+				"currency": "DOP",
+				"from_date": "2026-10-05",
+				"base": 90_000,
+			}
+		).submit()
+		cambio = next(
+			f for f in sirla.obtener(EMPRESA, 2026, 10, sirla.DGT4) if f["employee"] == self.empleado.name
+		)
+		self.assertEqual(
+			(cambio["novedad"], str(cambio["fecha_cambio"]), cambio["salario"]), ("NC", "2026-10-05", 90_000)
+		)
 
 	def _aislar(self):
 		# Las pruebas de la clase comparten datos: las que crean documentos deshacen lo suyo

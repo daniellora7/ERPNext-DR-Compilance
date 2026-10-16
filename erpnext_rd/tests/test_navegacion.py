@@ -52,7 +52,7 @@ class TestDockNominaRD(unittest.TestCase):
 		return frappe.get_all(
 			"Dock Item",
 			filters={"parenttype": "Dock", "link_type": "Sidebar", "link_to": install.SIDEBAR_NOMINA},
-			fields=["parent", "added", "icon", "title"],
+			fields=["name", "parent", "added", "icon", "title"],
 		)
 
 	def test_sidebar_en_el_dock_de_frappe_hr(self):
@@ -65,7 +65,12 @@ class TestDockNominaRD(unittest.TestCase):
 		self.assertEqual(len(sitio), 1)
 		filas = [f for f in self.filas_nomina() if f.parent == sitio[0]]
 		self.assertEqual(len(filas), 1, "dos pasadas no duplican la entrada")
-		self.assertEqual((filas[0].added, filas[0].icon), (1, "nomina-rd-duotone"))
+		self.assertEqual((filas[0].added, filas[0].icon), (1, install.ICONO_DOCK_NOMINA))
+
+		# Un sitio con la entrada del ícono anterior pasa al nuevo
+		frappe.db.set_value("Dock Item", filas[0].name, "icon", "nomina-rd-duotone")
+		install.dock_nomina()
+		self.assertEqual(frappe.db.get_value("Dock Item", filas[0].name, "icon"), install.ICONO_DOCK_NOMINA)
 
 		from frappe.desk.doctype.dock.dock import resolve_app_dock
 

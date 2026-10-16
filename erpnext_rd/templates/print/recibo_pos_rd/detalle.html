@@ -1,0 +1,14 @@
+{%- set f = rd_datos_fiscales(doc) -%}
+{%- set m = doc.currency -%}
+<div class="rd-pos">
+	<table>
+		{% for l in f.lineas %}
+		<tr><td colspan="2">{{ l.descripcion }}</td></tr>
+		<tr>
+			<td>{{ "%g"|format(l.cantidad) }} x {{ frappe.utils.fmt_money(l.precio, currency=m) }}{% if not l.itbis %} E{% endif %}</td>
+			<td class="r">{{ frappe.utils.fmt_money(l.total, currency=m) }}</td>
+		</tr>
+		{% endfor %}
+	</table>
+	<hr>
+</div>

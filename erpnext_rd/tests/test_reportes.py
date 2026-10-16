@@ -59,7 +59,7 @@ class TestReportesDGII(IntegrationTestCase):
 			}
 		).insert()
 
-		for tipo in ("B01", "B02", "B04", "B17"):
+		for tipo in ("B01", "B02", "B04", "B17", "E31", "E41"):
 			frappe.get_doc(
 				{
 					"doctype": "Secuencia NCF",
@@ -117,6 +117,121 @@ class TestReportesDGII(IntegrationTestCase):
 		cls.anulada.rd_tipo_anulacion = "04 - Corrección de la información"
 		cls.anulada.cancel()
 		cls.exterior = cls._compra_exterior()
+
+	# ------------------------------------------------------------------ e-CF
+
+	def test_ecf_de_facturas_reales(self):
+		"""El e-CF de una venta E31 y de una compra E41 reales se arma, se firma y cumple el XSD oficial."""
+		from erpnext_rd.ecf import datos as d
+		from erpnext_rd.ecf import esquemas, firma
+		from erpnext_rd.tests.test_ecf import certificado_de_prueba
+
+		frappe.get_doc(
+			{
+				"doctype": "Address",
+				"address_title": EMPRESA,
+				"address_line1": "Av. Winston Churchill 1",
+				"city": "Santo Domingo",
+				"country": "Dominican Republic",
+				"is_your_company_address": 1,
+				"links": [{"link_doctype": "Company", "link_name": EMPRESA}],
+			}
+		).insert()
+		llave, cert = firma.cargar_certificado(certificado_de_prueba(), "prueba")
+
+		si = frappe.get_doc(
+			{
+				"doctype": "Sales Invoice",
+				"company": EMPRESA,
+				"customer": "_Test Cliente RD",
+				"set_posting_time": 1,
+				"posting_date": "2026-10-05",
+				"due_date": "2026-11-04",
+				"rd_tipo_comprobante": "E31",
+				"items": [{"item_code": "_Test Servicio DGII", "qty": 2, "rate": 1250}],
+			}
+		)
+		con_impuestos(si, "Sales Taxes and Charges Template", "ITBIS 18%")
+		si.insert()
+		si.submit()
+		datos_venta = d.datos_ecf(si)
+		firmado = firma.firmar(esquemas.construir(31, datos_venta), llave, cert)
+		self.assertEqual(esquemas.errores(31, firmado), [])
+		totales = datos_venta["Encabezado"]["Totales"]
+		self.assertEqual(
+			(totales["MontoGravadoI1"], totales["TotalITBIS1"], totales["MontoTotal"]),
+			("2500.00", "450.00", "2950.00"),
+		)
+		self.assertEqual(datos_venta["Encabezado"]["IdDoc"]["TipoPago"], d.CREDITO)
+		linea = datos_venta["DetallesItems"]["Item"][0]
+		self.assertEqual((linea["IndicadorFacturacion"], linea["IndicadorBienoServicio"]), (1, 2))
+		self.assertEqual(datos_venta["Encabezado"]["Emisor"]["DireccionEmisor"], "Av. Winston Churchill 1")
+
+		# Emisión completa con el emisor configurado y la DGII simulada
+		from unittest.mock import patch
+
+		from erpnext_rd.ecf import emision
+		from erpnext_rd.tests.test_ecf import SesionDGII
+
+		archivo = frappe.get_doc(
+			{
+				"doctype": "File",
+				"file_name": "certificado.p12",
+				"content": certificado_de_prueba(),
+				"is_private": 1,
+			}
+		).insert()
+		frappe.get_doc(
+			{
+				"doctype": "Emisor ECF",
+				"company": EMPRESA,
+				"habilitado": 1,
+				"certificado": archivo.file_url,
+				"clave_certificado": "prueba",
+			}
+		).insert()
+		self.assertEqual(frappe.db.get_value("Emisor ECF", EMPRESA, "titular"), "EMPRESA DE PRUEBA SRL")
+		frappe.cache.delete_value(f"erpnext_rd:ecf_token:TesteCF:{RNC_EMPRESA}")
+		with patch("erpnext_rd.ecf.cliente.requests.Session", SesionDGII):
+			nombre = emision.emitir("Sales Invoice", si.name)
+			envio = frappe.get_doc("Envio ECF", nombre)
+			self.assertEqual((envio.estado, envio.track_id, envio.encf), ("En proceso", "T-1", si.rd_ncf))
+			self.assertEqual(frappe.db.get_value("File", {"file_url": envio.xml}, "is_private"), 1)
+			self.assertEqual(
+				frappe.db.get_value("Sales Invoice", si.name, "rd_codigo_seguridad"), envio.codigo_seguridad
+			)
+			emision.consultar_pendientes()
+			self.assertEqual(frappe.db.get_value("Envio ECF", nombre, "estado"), "Aceptado")
+
+		pi = frappe.get_doc(
+			{
+				"doctype": "Purchase Invoice",
+				"company": EMPRESA,
+				"supplier": "_Test Proveedor RD",
+				"set_posting_time": 1,
+				"posting_date": "2026-10-06",
+				"rd_tipo_comprobante": "E41",
+				"items": [
+					{
+						"item_code": "_Test Servicio DGII",
+						"qty": 1,
+						"rate": 1000,
+						"expense_account": cuenta("6201"),
+					}
+				],
+			}
+		)
+		con_impuestos(
+			pi,
+			"Purchase Taxes and Charges Template",
+			"Servicios de Persona Jurídica - Retención 30% del ITBIS",
+		)
+		pi.insert()
+		pi.submit()
+		datos_compra = d.datos_ecf(pi)
+		firmado = firma.firmar(esquemas.construir(41, datos_compra), llave, cert)
+		self.assertEqual(esquemas.errores(41, firmado), [])
+		self.assertEqual(datos_compra["Encabezado"]["Totales"]["TotalITBISRetenido"], "54.00")
 
 	# ------------------------------------------------------------------ datos
 

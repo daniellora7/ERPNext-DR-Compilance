@@ -8,13 +8,13 @@
   {
    "added": 0,
    "hidden": 0,
-   "icon": "rd-compliance-duotone",
+   "icon": "rd-compliance-soft",
    "link_to": "RD Compliance",
    "link_type": "Sidebar",
    "title": "RD Compliance"
   }
  ],
- "modified": "2026-10-13 14:00:00.000000",
+ "modified": "2026-10-16 18:00:00.000000",
  "modified_by": "Administrator",
  "mount_on": "erpnext",
  "name": "erpnext_rd",

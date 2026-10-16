@@ -19,3 +19,36 @@ msgstr "Regalía pascual"
 
 msgid "Leave Encashment"
 msgstr "Pago de permisos no disfrutados"
+
+msgid "Bonificacion RD"
+msgstr "Bonificación RD"
+
+msgid "Bonificacion RD Empleado"
+msgstr "Bonificación RD - Empleado"
+
+msgid "Configuracion DGII"
+msgstr "Configuración DGII"
+
+msgid "Configuracion Nomina RD"
+msgstr "Configuración de nómina RD"
+
+msgid "Tipo Comprobante Fiscal"
+msgstr "Tipo de comprobante fiscal"
+
+msgid "Entidad Seguridad Social RD"
+msgstr "Entidad de la seguridad social"
+
+msgid "Tramo ISR RD"
+msgstr "Tramo del ISR"
+
+msgid "Tramo Prestacion RD"
+msgstr "Tramo de prestación"
+
+msgid "Padron RNC"
+msgstr "Padrón RNC"
+
+msgid "Emisor ECF"
+msgstr "Emisor e-CF"
+
+msgid "Envio ECF"
+msgstr "Envío e-CF"
