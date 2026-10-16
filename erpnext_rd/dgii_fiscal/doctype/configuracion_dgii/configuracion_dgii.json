@@ -24,6 +24,11 @@
   "tasa_bcrd_venta",
   "tasa_bcrd_ultima_verificacion",
   "tasa_bcrd_version",
+  "section_recordatorios",
+  "recordatorios_activos",
+  "recordatorios_dias",
+  "column_recordatorios",
+  "recordatorios_destinatarios",
   "section_padron",
   "padron_ultima_sincronizacion",
   "padron_registros",
@@ -186,6 +191,37 @@
    "hidden": 1,
    "label": "Versión del archivo BCRD",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_recordatorios",
+   "fieldtype": "Section Break",
+   "label": "Recordatorios por correo"
+  },
+  {
+   "default": "0",
+   "fieldname": "recordatorios_activos",
+   "fieldtype": "Check",
+   "label": "Enviar recordatorios de vencimientos",
+   "description": "Cada mañana, un correo por empresa con las declaraciones y pagos que vencen (IR-17, 606-609, IT-1 y, con nómina, TSS, IR-3, regalía e IR-13) y, los lunes, las secuencias NCF por agotarse o vencer. Requiere una cuenta de correo saliente configurada."
+  },
+  {
+   "default": "3",
+   "depends_on": "recordatorios_activos",
+   "fieldname": "recordatorios_dias",
+   "fieldtype": "Int",
+   "label": "Avisar días antes del vencimiento",
+   "description": "También se avisa el mismo día del vencimiento."
+  },
+  {
+   "fieldname": "column_recordatorios",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "recordatorios_activos",
+   "fieldname": "recordatorios_destinatarios",
+   "fieldtype": "Small Text",
+   "label": "Destinatarios",
+   "description": "Un correo por línea o separados por comas. Vacío: los usuarios con el rol Accounts Manager."
   }
  ],
  "issingle": 1,

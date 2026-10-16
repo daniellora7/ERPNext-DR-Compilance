@@ -153,6 +153,8 @@ scheduler_events = {
 		"0 2 * * *": ["erpnext_rd.padron_rnc.padron.encolar"],
 		# Tasa del dólar del Banco Central (publica la del día al final de la tarde)
 		"0 7,19 * * *": ["erpnext_rd.dgii_fiscal.tasa_bcrd.tarea_programada"],
+		# Recordatorios de vencimientos por correo (si están activados en Configuracion DGII)
+		"30 7 * * *": ["erpnext_rd.rd_compliance.recordatorios.enviar_recordatorios"],
 		# Resultado de los e-CF enviados a la DGII que siguen en proceso
 		# y reenvío de los que quedaron en contingencia; entrega de los aceptados a sus compradores
 		"*/15 * * * *": [

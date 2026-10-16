@@ -30,6 +30,8 @@ En *RD Compliance → Declaraciones DGII*:
 
 El **Panel de cumplimiento** muestra en una pantalla los plazos y los montos del mes.
 
+Para recibir los vencimientos por correo, active *Enviar recordatorios de vencimientos* en *Configuración DGII*. Cada mañana llega un correo por empresa con lo que vence en los próximos días (3 por defecto) o ese mismo día: IR-17, 606-609, IT-1 y, si hay nómina, el pago de la TSS, el IR-3, la regalía y el IR-13. Los lunes incluye las secuencias NCF por agotarse o por vencer. Hace falta una cuenta de correo saliente en Frappe. El botón *Vista previa de recordatorios* muestra lo que se enviaría hoy.
+
 ## 4. Facturación electrónica (e-CF)
 
 ### Emisor

@@ -9,6 +9,11 @@ frappe.ui.form.on("Configuracion DGII", {
 			);
 		});
 		boton_tasa_dolar(frm);
+		frm.add_custom_button(__("Vista previa de recordatorios"), () => {
+			frappe.call("erpnext_rd.rd_compliance.recordatorios.vista_previa").then(({ message }) =>
+				frappe.msgprint({ title: __("Recordatorios de hoy"), message, wide: true })
+			);
+		});
 	},
 });
 
