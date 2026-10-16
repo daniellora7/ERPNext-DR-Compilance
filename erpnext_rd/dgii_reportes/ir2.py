@@ -393,19 +393,11 @@ def inventario_contable(company: str, fecha) -> float:
 
 
 def resultado_contable(company: str, desde, hasta) -> frappe._dict:
-	"""Ingresos y beneficio del ejercicio, sin el asiento de cierre del período."""
-	ingresos, gastos = frappe.db.sql(
-		"""SELECT
-			SUM(IF(acc.root_type = 'Income', g.credit - g.debit, 0)),
-			SUM(IF(acc.root_type = 'Expense', g.debit - g.credit, 0))
-		FROM `tabGL Entry` g JOIN `tabAccount` acc ON acc.name = g.account
-		WHERE g.company = %(company)s AND g.is_cancelled = 0
-			AND g.posting_date BETWEEN %(desde)s AND %(hasta)s
-			AND g.voucher_type != 'Period Closing Voucher'
-			AND acc.root_type IN ('Income', 'Expense')""",
-		{"company": company, "desde": desde, "hasta": hasta},
-	)[0]
-	return frappe._dict(ingresos=flt(ingresos, 2), beneficio=flt(flt(ingresos) - flt(gastos), 2))
+	"""Ingresos (casilla 4) y beneficio antes del ISR (casilla 14) del anexo B-1."""
+	from erpnext_rd.dgii_reportes import estados_ir2
+
+	r = estados_ir2.calcular(company, desde, hasta)
+	return frappe._dict(ingresos=r.totales_b1["4"], beneficio=r.totales_b1["14"])
 
 
 def gastos_con_ncf_invalido(company: str, desde, hasta) -> float:

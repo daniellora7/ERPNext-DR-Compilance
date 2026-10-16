@@ -23,7 +23,7 @@ from erpnext_rd.dgii_fiscal.catalogos import (
 	TIPOS_SERVICIO_EXTERIOR,
 )
 from erpnext_rd.dgii_fiscal.consulta_ncf import ESTADOS as ESTADOS_NCF_DGII
-from erpnext_rd.dgii_reportes import ir2
+from erpnext_rd.dgii_reportes import estados_ir2, ir2
 from erpnext_rd.dgii_reportes.ir2 import CATEGORIAS as CATEGORIAS_FISCALES
 from erpnext_rd.nomina_rd import hrms_instalado, salario, volante
 from erpnext_rd.nomina_rd.salario import CONCEPTOS as CONCEPTOS_NOMINA
@@ -339,6 +339,14 @@ def campos_personalizados() -> dict:
 				"insert_after": "rd_tipo_bienes_servicios",
 				"depends_on": "eval:doc.root_type == 'Income'",
 				"description": "Se sugiere en las facturas de venta que usan esta cuenta de ingreso",
+			},
+			{
+				"fieldname": "rd_casilla_ir2",
+				"fieldtype": "Select",
+				"label": "Casilla del IR-2 (anexos A-1 / B-1)",
+				"options": _opciones(estados_ir2.opciones()),
+				"insert_after": "rd_tipo_ingreso",
+				"description": "Vacío: la de la cuenta padre o, si ninguna la tiene, según el tipo de cuenta",
 			},
 		],
 		"Customer": [
@@ -1143,6 +1151,7 @@ def setup():
 	formatos.asegurar_fiscales()
 	cheque.crear_formato()
 	ir2.crear_formato()
+	estados_ir2.asignar_casillas()
 	formato_impresion_por_defecto()
 	crear_tipos_comprobante()
 	inicializar_formas_pago()

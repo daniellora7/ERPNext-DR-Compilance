@@ -94,3 +94,20 @@ class TestCalculosIR2(UnitTestCase):
 		opciones = campos["concepto"]["options"].split("\n")
 		self.assertEqual(opciones, [*ir2.CONCEPTOS_POSITIVOS, *ir2.CONCEPTOS_NEGATIVOS])
 		self.assertTrue(set(ir2.CONCEPTOS_CALCULADOS) <= set(opciones))
+
+	def test_casillas_del_catalogo_dgii(self):
+		from erpnext_rd.dgii_fiscal.catalogo_cuentas import CUENTAS
+		from erpnext_rd.dgii_reportes import estados_ir2
+
+		opciones = estados_ir2.opciones()
+		self.assertEqual(len(opciones), len(set(opciones)))
+		numeros = {c[0] for c in CUENTAS}
+		self.assertTrue(set(estados_ir2.CASILLAS_CATALOGO) <= numeros)
+		self.assertTrue(set(estados_ir2.CASILLAS_CATALOGO.values()) <= set(opciones))
+		# Toda cuenta hoja del catálogo tiene casilla propia o de un grupo que la contiene
+		grupos = {n[:i] for n in numeros for i in range(1, len(n))} & numeros
+		for numero in numeros - grupos:
+			prefijos = [numero[:i] for i in range(len(numero), 0, -1)]
+			self.assertTrue(any(p in estados_ir2.CASILLAS_CATALOGO for p in prefijos), numero)
+		self.assertEqual(estados_ir2.codigo(estados_ir2.casilla("B-1", "6.1")), ("B-1", "6.1"))
+		self.assertIsNone(estados_ir2.codigo(estados_ir2.EXCLUIDO))
