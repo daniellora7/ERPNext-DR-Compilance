@@ -4,6 +4,8 @@ Localización de **República Dominicana** para ERPNext v16 y Frappe HR, libre y
 
 ## Del lado de ERPNext: cumplimiento fiscal (dock de ERPNext → *RD Compliance*)
 
+![RD Compliance: panel de cumplimiento con los plazos de la DGII, las secuencias NCF y el menú del módulo](docs/capturas/rd-compliance.png)
+
 - **DGII Fiscal**: tipos de comprobante (B01–B17, E31–E47), secuencias NCF sin duplicados, NCF en ventas, compras y POS, validación de RNC y Cédula, catálogo de cuentas DGII (NIIF PYMES) con plantillas de ITBIS y retenciones, formatos de impresión fiscales.
 - **DGII Reportes**: formatos 606, 607, 608 y 609 con descarga del TXT oficial, y resúmenes de apoyo para el IT-1 y el IR-17.
 - **Padrón RNC**: padrón de contribuyentes de la DGII (cada día a las 2:00 a. m. revisa si la DGII publicó uno nuevo y solo entonces lo descarga) y autocompletado de la razón social.
@@ -12,6 +14,8 @@ Localización de **República Dominicana** para ERPNext v16 y Frappe HR, libre y
 - **e-CF** (facturación electrónica directa con la DGII): XML de los diez tipos (E31 a E47) y del resumen de consumo (RFCE) según los esquemas oficiales, firma digital con el certificado .p12 de la empresa, envío y consulta del resultado. Falta la certificación ante la DGII con un certificado real.
 
 ## Del lado de Frappe HR: Nómina RD (dock de Frappe HR → *Nómina RD*)
+
+![Nómina RD: configuración de la nómina con las tasas de la TSS y el menú del módulo](docs/capturas/nomina-rd.png)
 
 Opcional: se activa sola si Frappe HR está instalado (antes o después) y se retira si se desinstala.
 

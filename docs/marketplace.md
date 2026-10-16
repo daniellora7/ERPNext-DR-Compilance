@@ -24,20 +24,24 @@ Todas las tasas y escalas se editan en la configuración. Solo actúa en empresa
 
 **Licencia:** GPL-3.0. **Código:** https://github.com/daniellora7/ERPNext-DR-Compilance
 
-## Capturas (tomar en claro, a 1440 × 900)
+## Capturas (tema claro, 1440 × 900)
 
-1. Panel de cumplimiento.
-2. Factura fiscal impresa con NCF.
-3. Formato 606 con sus observaciones.
-4. Envío e-CF aceptado.
-5. Recibo de nómina con AFP, SFS e ISR.
-6. Archivo de autodeterminación TSS.
+| Módulo | Archivo |
+|---|---|
+| RD Compliance: panel de cumplimiento | `docs/capturas/rd-compliance.png` |
+| Nómina RD: configuración de la nómina | `docs/capturas/nomina-rd.png` |
+
+![RD Compliance](capturas/rd-compliance.png)
+
+![Nómina RD](capturas/nomina-rd.png)
+
+Opcionales para más adelante: factura fiscal impresa, formato 606, envío e-CF aceptado, recibo de nómina y archivo de la TSS.
 
 ## Pendiente
 
 - [ ] Rama `version-16` (Frappe Cloud instala por rama).
 - [ ] CI público en verde (los workflows ya están escritos) y versiones con tag.
-- [ ] Capturas con datos de ejemplo (no de la empresa real).
+- [x] Capturas de los dos módulos (`docs/capturas/`).
 - [ ] Enlace de soporte (correo o issues de GitHub) y página de documentación de uso.
 - [x] Logo: `erpnext_rd/public/images/erpnext_rd_logo.svg` (`app_logo_url`).
 - [x] Instala sin acceso a la máquina, funciona sin Frappe HR y se desinstala limpio.
