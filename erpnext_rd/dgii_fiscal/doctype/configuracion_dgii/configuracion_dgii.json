@@ -170,14 +170,16 @@
    "fieldtype": "Float",
    "label": "Compra",
    "precision": "4",
-   "read_only": 1
+   "read_only": 1,
+   "depends_on": "tasa_bcrd_ultima_fecha"
   },
   {
    "fieldname": "tasa_bcrd_venta",
    "fieldtype": "Float",
    "label": "Venta",
    "precision": "4",
-   "read_only": 1
+   "read_only": 1,
+   "depends_on": "tasa_bcrd_ultima_fecha"
   },
   {
    "fieldname": "tasa_bcrd_ultima_verificacion",
