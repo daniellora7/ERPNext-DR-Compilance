@@ -22,6 +22,9 @@ from erpnext_rd.dgii_fiscal.catalogos import (
 	TIPOS_RETENCION_ISR,
 	TIPOS_SERVICIO_EXTERIOR,
 )
+from erpnext_rd.dgii_fiscal.consulta_ncf import ESTADOS as ESTADOS_NCF_DGII
+from erpnext_rd.dgii_reportes import ir2
+from erpnext_rd.dgii_reportes.ir2 import CATEGORIAS as CATEGORIAS_FISCALES
 from erpnext_rd.nomina_rd import hrms_instalado, salario, volante
 from erpnext_rd.nomina_rd.salario import CONCEPTOS as CONCEPTOS_NOMINA
 
@@ -72,6 +75,13 @@ def campos_personalizados() -> dict:
 		"fieldtype": "Select",
 		"label": "Tipo de bienes y servicios (606)",
 		"options": _opciones(TIPOS_BIENES_SERVICIOS),
+	}
+	proporcionalidad = {
+		"fieldname": "rd_itbis_proporcionalidad",
+		"fieldtype": "Check",
+		"label": "ITBIS sujeto a proporcionalidad (art. 349)",
+		"description": "Gasto común a ventas gravadas y exentas (alquiler, teléfono, publicidad, asesorías): "
+		"su ITBIS solo se adelanta en la proporción de las ventas gravadas del mes (IT-1, Anexo A).",
 	}
 
 	def seccion_factura(insert_after):
@@ -240,6 +250,37 @@ def campos_personalizados() -> dict:
 			"allow_on_submit": 1,
 			"depends_on": "eval:['B17','E47'].includes(doc.rd_tipo_comprobante)",
 		},
+		{
+			**proporcionalidad,
+			"insert_after": "rd_detalle_servicio_exterior",
+			"fetch_from": "supplier.rd_itbis_proporcionalidad",
+			"allow_on_submit": 1,
+			"depends_on": "eval:!['B17','E47'].includes(doc.rd_tipo_comprobante)",
+		},
+		{
+			"fieldname": "rd_ncf_estado_dgii",
+			"fieldtype": "Select",
+			"label": "NCF en la DGII",
+			"options": "\n" + "\n".join(ESTADOS_NCF_DGII),
+			"insert_after": "rd_secuencia_ncf",
+			"read_only": 1,
+			"no_copy": 1,
+			"allow_on_submit": 1,
+			"print_hide": 1,
+			"depends_on": "rd_ncf_estado_dgii",
+			"description": "Resultado de la consulta de NCF de la DGII al guardar la factura",
+		},
+		{
+			"fieldname": "rd_ncf_vigencia_dgii",
+			"fieldtype": "Date",
+			"label": "NCF válido hasta (DGII)",
+			"insert_after": "rd_ncf_estado_dgii",
+			"read_only": 1,
+			"no_copy": 1,
+			"allow_on_submit": 1,
+			"print_hide": 1,
+			"depends_on": "rd_ncf_vigencia_dgii",
+		},
 	]
 
 	return {
@@ -318,6 +359,11 @@ def campos_personalizados() -> dict:
 				"label": "Parte relacionada (609)",
 				"insert_after": "rd_tipo_bienes_servicios",
 				"description": "Art. 281 del Código Tributario. Solo aplica a proveedores del exterior.",
+			},
+			{
+				**proporcionalidad,
+				"label": "ITBIS sujeto a proporcionalidad por defecto (art. 349)",
+				"insert_after": "rd_parte_relacionada",
 			},
 		],
 		"Salary Component": [
@@ -620,6 +666,23 @@ def campos_personalizados() -> dict:
 				"length": 3,
 				"description": "Solo para extranjeros.",
 			},
+			{
+				"fieldname": "rd_section_dependientes",
+				"fieldtype": "Section Break",
+				"label": "Dependientes adicionales del SFS",
+				"insert_after": "rd_nacionalidad_sirla",
+				"collapsible": 1,
+				"collapsible_depends_on": "rd_dependientes_adicionales",
+				"description": "Padres, suegros e hijos mayores de 21 años que el trabajador afilió a su seguro de "
+				"salud en la TSS. El per cápita de cada uno se descuenta en la nómina.",
+			},
+			{
+				"fieldname": "rd_dependientes_adicionales",
+				"fieldtype": "Table",
+				"label": "Dependientes adicionales",
+				"options": "Dependiente Adicional SFS",
+				"insert_after": "rd_section_dependientes",
+			},
 		],
 		"Mode of Payment": [
 			{
@@ -638,6 +701,26 @@ def campos_personalizados() -> dict:
 				"options": "\nBien\nServicio",
 				"insert_after": "is_stock_item",
 				"description": "Vacío = automático: los artículos de inventario y los activos fijos son bienes",
+			},
+		],
+		"Asset Category": [
+			{
+				"fieldname": "rd_categoria_fiscal",
+				"fieldtype": "Select",
+				"label": "Categoría fiscal (art. 287)",
+				"options": _opciones(CATEGORIAS_FISCALES),
+				"insert_after": "non_depreciable_category",
+				"description": "1: edificaciones. 2: vehículos livianos, equipo y muebles de oficina, "
+				"computadoras. 3: lo demás. Vacío: categoría 3 (o terreno si no se deprecia).",
+			},
+		],
+		"Asset": [
+			{
+				"fieldname": "rd_dado_en_arrendamiento",
+				"fieldtype": "Check",
+				"label": "Dado en arrendamiento (art. 287, V)",
+				"insert_after": "asset_category",
+				"description": "Las categorías 2 y 3 dadas en arrendamiento se deprecian al 50% y 30% en el IR-2",
 			},
 		],
 		"Sales Invoice": campos_venta("has_subcontracted"),
@@ -719,6 +802,9 @@ def inicializar_configuracion():
 		("tasa_bcrd_activa", 1),
 		("tasa_bcrd_tipo", "Compra"),
 		("recordatorios_dias", 3),
+		("consultar_ncf_dgii", 1),
+		("anticipo_tasa_minima", 1.5),
+		*ir2.TASAS_POR_DEFECTO.items(),
 	):
 		if not frappe.db.exists("Singles", {"doctype": "Configuracion DGII", "field": campo}):
 			frappe.db.set_single_value("Configuracion DGII", campo, valor)
@@ -742,9 +828,29 @@ def inicializar_configuracion():
 		("recargo_nocturno", 15),
 		("inicio_jornada_nocturna", "21:00:00"),
 		("fin_jornada_nocturna", "07:00:00"),
+		("sfs_per_capita_adicional", 1938.18),
+		("fonamat_per_capita", 32.24),
+		("subsidio_enfermedad_ambulatorio", 60),
+		("subsidio_enfermedad_hospitalario", 40),
+		("subsidio_dias_espera", 3),
+		("subsidio_dias_maximo", 182),
+		("subsidio_meses_promedio", 6),
+		("subsidio_maternidad_meses", 3),
+		("lactancia_un_salario", 33),
+		("lactancia_dos_salarios", 12),
+		("lactancia_tres_salarios", 6),
 	):
 		if not frappe.db.exists("Singles", {"doctype": "Configuracion Nomina RD", "field": campo}):
 			frappe.db.set_single_value("Configuracion Nomina RD", campo, valor)
+
+	dgii = frappe.get_single("Configuracion DGII")
+	if not dgii.multiplicadores_inflacion:
+		for cierre, valor, resolucion in ir2.MULTIPLICADORES:
+			dgii.append(
+				"multiplicadores_inflacion",
+				{"cierre": cierre, "multiplicador": valor, "resolucion": resolucion},
+			)
+		dgii.save(ignore_permissions=True)
 
 	conf = frappe.get_single("Configuracion Nomina RD")
 	if not conf.escala_isr:

@@ -593,3 +593,301 @@ class TestReportesDGII(IntegrationTestCase):
 		self.assertIn(EMPRESA, [e.name for e in panel.contexto()["empresas"]])
 		with self.assertRaises(frappe.ValidationError):
 			panel.resumen("Empresa inexistente", *SEPTIEMBRE)
+
+	# ------------------------------------------------------------------ Proporcionalidad del ITBIS
+
+	def test_proporcionalidad_itbis(self):
+		"""Noviembre: 6,000 gravado y 4,000 exento (coeficiente 60%); el ITBIS de un gasto común (180)
+		se adelanta solo en un 60%."""
+		self.assertEqual(declaraciones.resumen_it1(EMPRESA, 2026, 11).itbis_no_admitido, 0)
+		self._venta("_Test Cliente RD", 6000, "2026-11-05")
+		exenta = frappe.get_doc(
+			{
+				"doctype": "Sales Invoice",
+				"company": EMPRESA,
+				"customer": "_Test Cliente RD",
+				"set_posting_time": 1,
+				"posting_date": "2026-11-06",
+				"due_date": "2026-11-06",
+				"items": [{"item_code": "_Test Servicio DGII", "qty": 1, "rate": 4000}],
+			}
+		).insert()
+		exenta.submit()
+
+		frappe.db.set_value("Supplier", "_Test Proveedor RD", "rd_itbis_proporcionalidad", 1)
+		self.addCleanup(frappe.db.set_value, "Supplier", "_Test Proveedor RD", "rd_itbis_proporcionalidad", 0)
+		pi = frappe.get_doc(
+			{
+				"doctype": "Purchase Invoice",
+				"company": EMPRESA,
+				"supplier": "_Test Proveedor RD",
+				"set_posting_time": 1,
+				"posting_date": "2026-11-10",
+				"bill_date": "2026-11-10",
+				"rd_ncf": "B0100000789",
+				"items": [
+					{
+						"item_code": "_Test Servicio DGII",
+						"qty": 1,
+						"rate": 1000,
+						"expense_account": cuenta("6201"),
+					}
+				],
+			}
+		)
+		con_impuestos(pi, "Purchase Taxes and Charges Template", "ITBIS 18% Compras")
+		pi.insert()
+		self.assertEqual(pi.rd_itbis_proporcionalidad, 1)  # viene del proveedor
+		pi.submit()
+
+		fila = next(f for f in formatos.obtener("606", EMPRESA, 2026, 11) if f["_documento"] == pi.name)
+		self.assertEqual(fila["itbis_proporcionalidad"], 180)
+		self.assertEqual(fila["itbis_adelantar"], 180)  # la DGII lo calcula como facturado - costo
+
+		r = declaraciones.resumen_it1(EMPRESA, 2026, 11)
+		self.assertAlmostEqual(r.coeficiente, 0.6)
+		self.assertAlmostEqual(r.itbis_proporcionalidad, 180)
+		self.assertAlmostEqual(r.itbis_no_admitido, 72)
+		self.assertAlmostEqual(r.itbis_deducible, 108)
+		self.assertAlmostEqual(r.diferencia, 1080 - 108)
+		conceptos = [f["concepto"] for f in declaraciones.filas_it1(r)]
+		self.assertIn("ITBIS no admitido por proporcionalidad", conceptos)
+
+	def test_coeficiente_exportaciones_y_exentas_por_destino(self):
+		r = frappe._dict(
+			total_operaciones=1000, gravadas={18.0: 400}, exportaciones_bienes=200, exentas_destino=100
+		)
+		self.assertAlmostEqual(declaraciones.coeficiente_proporcionalidad(r), 0.7)
+		r.total_operaciones = 0
+		self.assertEqual(declaraciones.coeficiente_proporcionalidad(r), 1)
+
+	# ------------------------------------------------------------------ Anticipos del ISR
+
+	def test_anticipos_isr(self):
+		from erpnext_rd.dgii_reportes import anticipos
+		from erpnext_rd.rd_compliance import recordatorios
+
+		# TET 2%: doceava parte del impuesto; TET 1%: 1.5% de los ingresos en 12 cuotas
+		self.assertEqual(anticipos.calcular(1_200_000, 24_000, 1.5).cuota, 2000)
+		self.assertEqual(anticipos.calcular(1_200_000, 12_000, 1.5).cuota, 1500)
+		self.assertEqual(anticipos.calcular(0, 0, 1.5).cuota, 0)
+
+		base = frappe.get_doc(
+			{
+				"doctype": "Base Anticipo ISR",
+				"company": EMPRESA,
+				"ejercicio": 2025,
+				"ingresos_brutos": 1_200_000,
+				"impuesto_liquidado": 24_000,
+			}
+		).insert()
+		self.assertEqual(str(base.aplica_desde), "2026-05-01")
+		self.assertAlmostEqual(base.tasa_efectiva, 2)
+		self.assertEqual(base.cuota_mensual, 2000)
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc(
+				{"doctype": "Base Anticipo ISR", "company": EMPRESA, "ejercicio": 2025, "ingresos_brutos": 1}
+			).insert()
+
+		# Marzo vence el 15/4, antes de que rija la base: sin anticipo. Septiembre vence el 15/10.
+		self.assertIsNone(anticipos.anticipo(EMPRESA, 2026, 3))
+		septiembre = anticipos.anticipo(EMPRESA, 2026, 9)
+		self.assertEqual((septiembre.cuota, str(septiembre.vence)), (2000, "2026-10-15"))
+		self.assertIn(
+			"Anticipo del ISR de septiembre 2026",
+			[o["obligacion"] for o in recordatorios.obligaciones(EMPRESA, 2026, 9)],
+		)
+		filas = anticipos.reporte({"company": EMPRESA, "anio": 2026})[1]
+		self.assertEqual(sum(f["cuota"] for f in filas), 2000 * 9)  # abril a diciembre
+
+		base.regimen = anticipos.EXENTO
+		base.save()
+		self.assertIsNone(anticipos.anticipo(EMPRESA, 2026, 9))
+
+	# ------------------------------------------------------------------ NCF del proveedor en la DGII
+
+	def test_verificacion_ncf_proveedor(self):
+		from unittest.mock import patch
+
+		from erpnext_rd.dgii_fiscal import consulta_ncf
+
+		def compra(ncf):
+			return frappe.get_doc(
+				{
+					"doctype": "Purchase Invoice",
+					"company": EMPRESA,
+					"supplier": "_Test Proveedor RD",
+					"set_posting_time": 1,
+					"posting_date": "2026-11-12",
+					"bill_date": "2026-11-12",
+					"rd_ncf": ncf,
+					"items": [
+						{
+							"item_code": "_Test Servicio DGII",
+							"qty": 1,
+							"rate": 100,
+							"expense_account": cuenta("6201"),
+						}
+					],
+				}
+			)
+
+		vencido = frappe._dict(estado=consulta_ncf.VENCIDO, vigencia=getdate("2026-12-31"))
+		no_corresponde = frappe._dict(estado=consulta_ncf.NO_CORRESPONDE, vigencia=None)
+		with (
+			patch.object(consulta_ncf, "_consulta_activa", return_value=True),
+			patch.object(consulta_ncf, "consultar", return_value=vencido) as consultar,
+		):
+			pi = compra("B0100000901").insert()
+			# Vencido hoy, pero el comprobante es de antes de su vencimiento: válido
+			self.assertEqual(pi.rd_ncf_estado_dgii, consulta_ncf.VALIDO)
+			self.assertEqual(consultar.call_args.args[:2], ("101003723", "B0100000901"))
+			pi.save()  # sin cambios en el NCF no se vuelve a consultar
+			self.assertEqual(consultar.call_count, 1)
+
+			consultar.return_value = no_corresponde
+			pi.rd_ncf = "B0100000902"
+			pi.save()
+			self.assertEqual(pi.rd_ncf_estado_dgii, consulta_ncf.NO_CORRESPONDE)
+			fila = datos._fila_606(pi, getdate("2026-11-01"), getdate("2026-11-30"))
+			self.assertIn("NCF no válido en la DGII", fila["_avisos"])
+
+			frappe.db.set_single_value("Configuracion DGII", "bloquear_ncf_invalido", 1)
+			self.addCleanup(frappe.db.set_single_value, "Configuracion DGII", "bloquear_ncf_invalido", 0)
+			with self.assertRaisesRegex(frappe.ValidationError, "B0100000902"):
+				pi.submit()
+
+	# ------------------------------------------------------------------ Cuadre fiscal del IR-2
+
+	def _activo(self, nombre: str, categoria: str, costo: float, compra: str, depreciacion: float = 0):
+		item = f"_Test Activo {nombre}"
+		_crear(
+			{
+				"doctype": "Item",
+				"item_code": item,
+				"item_name": item,
+				"item_group": frappe.db.get_value("Item Group", {"is_group": 0}),
+				"stock_uom": frappe.db.get_value("UOM", {"enabled": 1}) or "Nos",
+				"is_stock_item": 0,
+				"is_fixed_asset": 1,
+				"asset_category": categoria,
+			}
+		)
+		activo = frappe.get_doc(
+			{
+				"doctype": "Asset",
+				"company": EMPRESA,
+				"item_code": item,
+				"asset_name": nombre,
+				"asset_type": "Existing Asset",
+				"location": self.ubicacion,
+				"purchase_date": compra,
+				"available_for_use_date": compra,
+				"net_purchase_amount": costo,
+				"purchase_amount": costo,
+				"opening_accumulated_depreciation": depreciacion,
+				"calculate_depreciation": 0,
+			}
+		).insert()
+		activo.submit()
+		return activo
+
+	def test_cuadre_fiscal_ir2(self):
+		from erpnext_rd.dgii_reportes import ir2
+
+		def cuenta_tipo(tipo):
+			return frappe.db.get_value("Account", {"company": EMPRESA, "account_type": tipo, "is_group": 0})
+
+		cuentas = [
+			{
+				"company_name": EMPRESA,
+				"fixed_asset_account": cuenta_tipo("Fixed Asset"),
+				"accumulated_depreciation_account": cuenta_tipo("Accumulated Depreciation"),
+				"depreciation_expense_account": cuenta_tipo("Depreciation"),
+			}
+		]
+		for nombre, categoria, no_depreciable in (
+			("_Test Edificios RD", ir2.CATEGORIA_1, 0),
+			("_Test Equipos Oficina RD", ir2.CATEGORIA_2, 0),
+			("_Test Maquinaria RD", ir2.CATEGORIA_3, 0),
+			("_Test Terrenos RD", None, 1),
+		):
+			_crear(
+				{
+					"doctype": "Asset Category",
+					"name": nombre,
+					"asset_category_name": nombre,
+					"rd_categoria_fiscal": categoria,
+					"non_depreciable_category": no_depreciable,
+					"accounts": cuentas,
+				}
+			)
+		self.ubicacion = "_Test Ubicacion RD"
+		_crear({"doctype": "Location", "name": self.ubicacion, "location_name": self.ubicacion})
+
+		self._activo("Edificio", "_Test Edificios RD", 3_000_000, "2020-01-01", 600_000)
+		self._activo("Maquina", "_Test Maquinaria RD", 500_000, "2024-03-01", 100_000)
+		self._activo("Terreno", "_Test Terrenos RD", 1_000_000, "2019-05-01")
+		self._activo("Computadora", "_Test Equipos Oficina RD", 100_000, "2026-03-10")
+
+		# 2025, primer año: balances con el valor en libros; multiplicador 1.0495 de la DGII
+		c25 = frappe.get_doc({"doctype": ir2.DOCTYPE, "company": EMPRESA, "ejercicio": 2025}).insert()
+		self.assertEqual(
+			(str(c25.desde), str(c25.hasta), c25.multiplicador), ("2025-01-01", "2025-12-31", 1.0495)
+		)
+		self.assertIn("valor en libros", c25.avisos)
+		self.assertEqual([e.costo_fiscal_inicial for e in c25.edificaciones], [2_400_000])
+		saldos = {(c.categoria, c.uso): c.balance_inicial for c in c25.cuentas}
+		self.assertEqual(saldos, {(ir2.CATEGORIA_2, ir2.PROPIO): 0, (ir2.CATEGORIA_3, ir2.PROPIO): 400_000})
+		self.assertEqual(c25.terrenos_costo_inicial, 1_000_000)
+
+		# Patrimonio fiscal de 10 millones: la base son los 3.8 millones de activos no monetarios
+		c25.patrimonio_fiscal = 10_000_000
+		c25.beneficio_contable = 1_000_000
+		c25.append("ajustes", {"concepto": "1.1 Impuestos no deducibles", "monto": 50_000})
+		c25.save()
+		self.assertEqual((c25.base_ajuste, c25.ajuste_fiscal), (3_800_000, 188_100))
+		edificio = c25.edificaciones[0]
+		self.assertEqual((edificio.ajuste_fiscal, edificio.depreciacion_fiscal), (118_800, 125_940))
+		self.assertEqual(edificio.costo_fiscal_final, 2_392_860)
+		maquinaria = next(c for c in c25.cuentas if c.categoria == ir2.CATEGORIA_3)
+		self.assertEqual((maquinaria.ajuste_fiscal, maquinaria.depreciacion_fiscal), (19_800, 62_970))
+		self.assertEqual(maquinaria.costo_fiscal_final, 356_830)
+		self.assertEqual((c25.terrenos_ajuste, c25.terrenos_costo_final), (49_500, 1_049_500))
+		self.assertEqual((c25.depreciacion_fiscal, c25.depreciacion_contable), (188_910, 0))
+		deficiencia = [a for a in c25.ajustes if a.concepto == ir2.DEFICIENCIA_DEPRECIACION]
+		self.assertEqual(
+			[(a.tipo, a.monto, a.origen) for a in deficiencia], [(ir2.NEGATIVO, 188_910, ir2.AUTOMATICO)]
+		)
+		self.assertEqual((c25.total_positivos, c25.total_negativos), (50_000, 188_910))
+		self.assertEqual((c25.renta_neta_imponible, c25.tasa_isr), (861_090, 27))
+		self.assertEqual(c25.impuesto_liquidado, 232_494.3)
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc({"doctype": ir2.DOCTYPE, "company": EMPRESA, "ejercicio": 2025}).insert()
+
+		# 2026: parte de los saldos finales de 2025; la computadora entra mitad este año
+		c26 = frappe.get_doc({"doctype": ir2.DOCTYPE, "company": EMPRESA, "ejercicio": 2026}).insert()
+		self.assertEqual(c26.cuadre_anterior, c25.name)
+		self.assertIn("multiplicador", c26.avisos)  # la DGII aún no publica el de 2026
+		self.assertEqual(c26.ajuste_fiscal, 0)
+		self.assertEqual(c26.edificaciones[0].depreciacion_fiscal, 119_643)
+		equipos = next(c for c in c26.cuentas if c.categoria == ir2.CATEGORIA_2)
+		self.assertEqual(
+			(
+				equipos.adiciones,
+				equipos.base_depreciable,
+				equipos.depreciacion_fiscal,
+				equipos.costo_fiscal_final,
+			),
+			(100_000, 50_000, 12_500, 87_500),
+		)
+		maquinaria = next(c for c in c26.cuentas if c.categoria == ir2.CATEGORIA_3)
+		self.assertEqual((maquinaria.balance_inicial, maquinaria.depreciacion_fiscal), (356_830, 53_524.5))
+		self.assertEqual(c26.terrenos_costo_inicial, 1_049_500)
+		renta = c26.beneficio_contable + c26.total_positivos - c26.total_negativos
+		self.assertEqual(c26.renta_antes_perdidas, round(renta, 2))
+
+		# Base de los anticipos del año siguiente con el resultado del cuadre
+		base = ir2.crear_base_anticipos(c26.name)
+		self.assertEqual(frappe.db.get_value("Base Anticipo ISR", base, "ejercicio"), 2026)
+		self.assertEqual(ir2.crear_base_anticipos(c26.name), base)

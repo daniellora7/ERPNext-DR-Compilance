@@ -23,6 +23,21 @@
   "sfs_empleador",
   "srl_empleador",
   "infotep_empleador",
+  "section_dependientes",
+  "sfs_per_capita_adicional",
+  "column_break_dependientes",
+  "fonamat_per_capita",
+  "section_subsidios",
+  "subsidio_enfermedad_ambulatorio",
+  "subsidio_enfermedad_hospitalario",
+  "subsidio_dias_espera",
+  "subsidio_dias_maximo",
+  "subsidio_meses_promedio",
+  "column_break_subsidios",
+  "subsidio_maternidad_meses",
+  "lactancia_un_salario",
+  "lactancia_dos_salarios",
+  "lactancia_tres_salarios",
   "section_isr",
   "escala_isr",
   "section_prestaciones",
@@ -171,6 +186,96 @@
    "fieldtype": "Percent",
    "label": "INFOTEP empleador",
    "reqd": 1
+  },
+  {
+   "fieldname": "section_dependientes",
+   "fieldtype": "Section Break",
+   "label": "Dependientes adicionales del SFS",
+   "description": "Padres, suegros e hijos mayores de 21 años afiliados por el trabajador. La TSS cobra un per cápita mensual por cada uno, que se descuenta del salario."
+  },
+  {
+   "fieldname": "sfs_per_capita_adicional",
+   "fieldtype": "Currency",
+   "label": "Per cápita por dependiente adicional",
+   "default": "1938.18",
+   "description": "Fijado por el CNSS (Res. 645-16: RD$1,938.18 desde el período de octubre 2026)."
+  },
+  {
+   "fieldname": "column_break_dependientes",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "fonamat_per_capita",
+   "fieldtype": "Currency",
+   "label": "Fonamat por dependiente",
+   "default": "32.24",
+   "description": "Fondo Nacional de Atención Médica por Accidentes de Tránsito, cobrado junto al per cápita."
+  },
+  {
+   "fieldname": "section_subsidios",
+   "fieldtype": "Section Break",
+   "label": "Subsidios de la SISALRIL",
+   "description": "Enfermedad común (Res. CNSS 560-04), maternidad y lactancia (Reglamento de Subsidios por Maternidad y Lactancia)."
+  },
+  {
+   "fieldname": "subsidio_enfermedad_ambulatorio",
+   "fieldtype": "Percent",
+   "label": "Enfermedad común: ambulatoria",
+   "default": "60"
+  },
+  {
+   "fieldname": "subsidio_enfermedad_hospitalario",
+   "fieldtype": "Percent",
+   "label": "Enfermedad común: hospitalaria",
+   "default": "40"
+  },
+  {
+   "fieldname": "subsidio_dias_espera",
+   "fieldtype": "Int",
+   "label": "Días sin subsidio al inicio",
+   "default": "3",
+   "description": "El subsidio por enfermedad se paga desde el día siguiente."
+  },
+  {
+   "fieldname": "subsidio_dias_maximo",
+   "fieldtype": "Int",
+   "label": "Días máximos de subsidio por enfermedad",
+   "default": "182"
+  },
+  {
+   "fieldname": "subsidio_meses_promedio",
+   "fieldtype": "Int",
+   "label": "Meses del salario promedio (enfermedad)",
+   "default": "6"
+  },
+  {
+   "fieldname": "column_break_subsidios",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "subsidio_maternidad_meses",
+   "fieldtype": "Float",
+   "label": "Maternidad: meses de salario cotizable",
+   "default": "3",
+   "description": "Base reguladora (salario cotizable del mes anterior) por este número, en tres pagos mensuales."
+  },
+  {
+   "fieldname": "lactancia_un_salario",
+   "fieldtype": "Percent",
+   "label": "Lactancia: hasta 1 salario mínimo",
+   "default": "33"
+  },
+  {
+   "fieldname": "lactancia_dos_salarios",
+   "fieldtype": "Percent",
+   "label": "Lactancia: hasta 2 salarios mínimos",
+   "default": "12"
+  },
+  {
+   "fieldname": "lactancia_tres_salarios",
+   "fieldtype": "Percent",
+   "label": "Lactancia: hasta 3 salarios mínimos",
+   "default": "6"
   },
   {
    "description": "Escala anual del art. 296 del Código Tributario. La renta gravable es el salario menos los aportes del empleado a la TSS.",
@@ -380,7 +485,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-18 11:00:00.000000",
+ "modified": "2026-10-18 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Nomina RD",
  "name": "Configuracion Nomina RD",

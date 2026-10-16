@@ -4,6 +4,7 @@ import frappe
 from frappe import _
 from frappe.utils import add_days, cint, flt, getdate, nowdate
 
+from erpnext_rd.dgii_fiscal import consulta_ncf
 from erpnext_rd.dgii_fiscal.identificacion import identificacion_valida
 from erpnext_rd.dgii_fiscal.impuestos import montos_impuestos, tipo_desde_cuentas
 from erpnext_rd.dgii_fiscal.validaciones import es_ncf_valido, formatear_ncf, tipo_identificacion
@@ -287,6 +288,8 @@ def validar_compra(doc, method=None):
 			title=_("Falta RNC del proveedor"),
 		)
 
+	consulta_ncf.al_validar_compra(doc, tipo)
+
 
 def antes_de_validar_compra(doc, method=None):
 	"""doc_events: Purchase Invoice -> before_submit."""
@@ -317,6 +320,7 @@ def antes_de_validar_compra(doc, method=None):
 
 	if not doc.rd_ncf and frappe.db.get_single_value("Configuracion DGII", "exigir_ncf_en_compras"):
 		frappe.throw(_("Indique el NCF del comprobante del proveedor"), title=_("Falta NCF"))
+	consulta_ncf.antes_de_validar_compra(doc)
 
 
 def antes_de_cancelar_compra(doc, method=None):

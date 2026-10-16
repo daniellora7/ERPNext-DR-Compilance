@@ -13,6 +13,7 @@ from frappe import _
 from frappe.utils import cint, flt, getdate
 
 from erpnext_rd.dgii_fiscal import catalogos as cat
+from erpnext_rd.dgii_fiscal import consulta_ncf
 from erpnext_rd.dgii_fiscal.impuestos import concepto_de_cuenta, montos_impuestos
 from erpnext_rd.dgii_fiscal.ncf import PAGOS_EXTERIOR, es_proveedor_exterior
 from erpnext_rd.dgii_fiscal.validaciones import es_ncf_valido, limpiar_identificacion, tipo_identificacion
@@ -278,6 +279,9 @@ def _fila_606(doc, desde, hasta, solo_retenciones=False) -> dict | None:
 	avisos = [
 		_("RNC / Cédula del proveedor inválido") if tipo_id not in ("1", "2") else "",
 		_("NCF inválido") if not es_ncf_valido(doc.rd_ncf) else "",
+		_("NCF no válido en la DGII: {0}").format(_(doc.rd_ncf_estado_dgii))
+		if doc.get("rd_ncf_estado_dgii") in consulta_ncf.INVALIDOS
+		else "",
 		_("Falta tipo de bienes y servicios") if not doc.rd_tipo_bienes_servicios else "",
 		_("Falta tipo de retención ISR") if retenido_isr and not doc.rd_tipo_retencion_isr else "",
 		_("Retención pendiente de pago: se informará en el mes en que se pague") if pendiente else "",
@@ -297,7 +301,11 @@ def _fila_606(doc, desde, hasta, solo_retenciones=False) -> dict | None:
 		"total_monto_facturado": servicios + bienes,
 		"itbis_facturado": impuestos.itbis,
 		"itbis_retenido": retenido_itbis,
-		"itbis_proporcionalidad": 0.0,
+		# Art. 349: el ITBIS adelantable de un gasto común a ventas gravadas y exentas; el IT-1 (Anexo A)
+		# lo multiplica por el porcentaje no admitido. El 606 lo deja también en "por adelantar".
+		"itbis_proporcionalidad": impuestos.itbis - impuestos.itbis_costo
+		if cint(doc.get("rd_itbis_proporcionalidad"))
+		else 0.0,
 		"itbis_costo": impuestos.itbis_costo,
 		"itbis_adelantar": impuestos.itbis - impuestos.itbis_costo,
 		"itbis_percibido": None,

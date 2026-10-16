@@ -1,0 +1,146 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 13:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "categoria",
+  "uso",
+  "balance_inicial",
+  "ajuste_fiscal",
+  "adiciones",
+  "adiciones_imponibles",
+  "retiros",
+  "column_break_resultado",
+  "base_depreciable",
+  "tasa",
+  "depreciacion_fiscal",
+  "adicion_no_depreciada",
+  "costo_fiscal_final",
+  "depreciacion_contable"
+ ],
+ "fields": [
+  {
+   "fieldname": "categoria",
+   "fieldtype": "Select",
+   "label": "Categoría",
+   "options": "Categoría 2\nCategoría 3",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "uso",
+   "fieldtype": "Select",
+   "label": "Uso",
+   "options": "Uso propio\nDado en arrendamiento",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "balance_inicial",
+   "fieldtype": "Currency",
+   "label": "Balance inicial",
+   "options": "Company:company:default_currency",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "ajuste_fiscal",
+   "fieldtype": "Currency",
+   "label": "Ajuste por inflación",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "adiciones",
+   "fieldtype": "Currency",
+   "label": "Adiciones del año",
+   "options": "Company:company:default_currency",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "adiciones_imponibles",
+   "fieldtype": "Currency",
+   "label": "Adiciones imponibles (50%)",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "retiros",
+   "fieldtype": "Currency",
+   "label": "Retiros",
+   "options": "Company:company:default_currency",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "column_break_resultado",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "base_depreciable",
+   "fieldtype": "Currency",
+   "label": "Base ajustada",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tasa",
+   "fieldtype": "Percent",
+   "label": "Tasa",
+   "read_only": 1
+  },
+  {
+   "fieldname": "depreciacion_fiscal",
+   "fieldtype": "Currency",
+   "label": "Depreciación fiscal",
+   "options": "Company:company:default_currency",
+   "in_list_view": 1,
+   "columns": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "adicion_no_depreciada",
+   "fieldtype": "Currency",
+   "label": "Adición no depreciada (50%)",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "costo_fiscal_final",
+   "fieldtype": "Currency",
+   "label": "Costo fiscal final",
+   "options": "Company:company:default_currency",
+   "in_list_view": 1,
+   "columns": 2,
+   "read_only": 1
+  },
+  {
+   "fieldname": "depreciacion_contable",
+   "fieldtype": "Currency",
+   "label": "Depreciación contable",
+   "options": "Company:company:default_currency",
+   "in_list_view": 1,
+   "columns": 1,
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-18 13:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "DGII Fiscal",
+ "name": "Cuenta Depreciacion IR2",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1
+}

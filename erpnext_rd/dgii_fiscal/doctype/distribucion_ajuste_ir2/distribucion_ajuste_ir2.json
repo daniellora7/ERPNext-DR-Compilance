@@ -1,0 +1,61 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 13:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "concepto",
+  "valor_fiscal",
+  "porcentaje",
+  "ajuste"
+ ],
+ "fields": [
+  {
+   "fieldname": "concepto",
+   "fieldtype": "Data",
+   "label": "Activo no monetario",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 4
+  },
+  {
+   "fieldname": "valor_fiscal",
+   "fieldtype": "Currency",
+   "label": "Valor fiscal al inicio",
+   "options": "Company:company:default_currency",
+   "in_list_view": 1,
+   "columns": 2,
+   "description": "Inventario y otros activos se pueden corregir; las categorías vienen de sus tablas"
+  },
+  {
+   "fieldname": "porcentaje",
+   "fieldtype": "Percent",
+   "label": "Peso",
+   "in_list_view": 1,
+   "columns": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "ajuste",
+   "fieldtype": "Currency",
+   "label": "Ajuste",
+   "options": "Company:company:default_currency",
+   "in_list_view": 1,
+   "columns": 2,
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-18 13:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "DGII Fiscal",
+ "name": "Distribucion Ajuste IR2",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1
+}

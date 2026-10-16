@@ -1,0 +1,71 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 13:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "tipo",
+  "concepto",
+  "monto",
+  "detalle",
+  "origen"
+ ],
+ "fields": [
+  {
+   "fieldname": "tipo",
+   "fieldtype": "Select",
+   "label": "Tipo",
+   "options": "Positivo\nNegativo",
+   "in_list_view": 1,
+   "columns": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "concepto",
+   "fieldtype": "Select",
+   "label": "Concepto (anexo G)",
+   "options": "1.1 Impuestos no deducibles\n1.2 Exceso en depreciación\n1.3 Ajustes por fiscalización de ejercicios anteriores\n1.4 Exceso provisión cuentas incobrables\n1.5 Exceso donaciones a instituciones de bien público\n1.6 Pérdida de capital no compensable\n1.7 Diferencia cambiaria\n1.8 Ajustes positivos por reembolsos\n1.9 Ajustes de precios de transferencia\n1.10 Gastos de intereses no deducibles\n1.11 Otros gastos no admitidos (art. 288)\n1.12 Ajustes de inventarios\n1.13 Gastos sin comprobantes con valor fiscal\n1.14 Impuesto sobre la renta diferido\n1.15 Provisiones no admitidas\n1.16 Pasivo no sustentado\n1.17 Otros ajustes positivos\n2.1 Deficiencia en depreciación\n2.2 Ajustes de inventario (D-2)\n2.3 Diferencia cambiaria\n2.4 Otros ajustes negativos",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 4
+  },
+  {
+   "fieldname": "monto",
+   "fieldtype": "Currency",
+   "label": "Monto",
+   "options": "Company:company:default_currency",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "detalle",
+   "fieldtype": "Data",
+   "label": "Detalle",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "origen",
+   "fieldtype": "Select",
+   "label": "Origen",
+   "options": "Manual\nAutomático",
+   "default": "Manual",
+   "columns": 1,
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-18 13:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "DGII Fiscal",
+ "name": "Ajuste Fiscal IR2",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1
+}

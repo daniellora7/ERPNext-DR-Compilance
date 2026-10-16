@@ -13,8 +13,26 @@
   "section_validaciones",
   "validar_contra_padron",
   "exigir_ncf_en_compras",
+  "consultar_ncf_dgii",
+  "bloquear_ncf_invalido",
   "section_catalogo",
   "aplicar_catalogo_cuentas",
+  "section_padron",
+  "padron_ultima_sincronizacion",
+  "padron_registros",
+  "padron_ultima_verificacion",
+  "padron_version_dgii",
+  "section_anticipos",
+  "anticipo_tasa_minima",
+  "section_ir2",
+  "tasa_isr_juridicas",
+  "depreciacion_categoria_1",
+  "depreciacion_categoria_2",
+  "depreciacion_categoria_3",
+  "column_break_ir2",
+  "depreciacion_arrendamiento_2",
+  "depreciacion_arrendamiento_3",
+  "multiplicadores_inflacion",
   "section_tasa_bcrd",
   "tasa_bcrd_activa",
   "tasa_bcrd_tipo",
@@ -28,12 +46,7 @@
   "recordatorios_activos",
   "recordatorios_dias",
   "column_recordatorios",
-  "recordatorios_destinatarios",
-  "section_padron",
-  "padron_ultima_sincronizacion",
-  "padron_registros",
-  "padron_ultima_verificacion",
-  "padron_version_dgii"
+  "recordatorios_destinatarios"
  ],
  "fields": [
   {
@@ -93,6 +106,20 @@
    "label": "Exigir NCF del proveedor en facturas de compra"
   },
   {
+   "default": "1",
+   "fieldname": "consultar_ncf_dgii",
+   "fieldtype": "Check",
+   "label": "Verificar en la DGII el NCF de las facturas de compra",
+   "description": "Al guardar la factura se consulta el NCF en la DGII (consulta pública de NCF) y se avisa si no corresponde al RNC del proveedor o estaba vencido."
+  },
+  {
+   "default": "0",
+   "depends_on": "consultar_ncf_dgii",
+   "fieldname": "bloquear_ncf_invalido",
+   "fieldtype": "Check",
+   "label": "No permitir validar facturas de compra con NCF no válido en la DGII"
+  },
+  {
    "fieldname": "section_catalogo",
    "fieldtype": "Section Break",
    "label": "Catálogo de cuentas"
@@ -134,6 +161,71 @@
    "fieldtype": "Data",
    "label": "Versión del archivo DGII",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_anticipos",
+   "fieldtype": "Section Break",
+   "label": "Anticipos del ISR"
+  },
+  {
+   "default": "1.5",
+   "fieldname": "anticipo_tasa_minima",
+   "fieldtype": "Percent",
+   "label": "Tasa efectiva mínima de los anticipos",
+   "description": "Art. 314 del Código Tributario: si la tasa efectiva de tributación del año declarado no pasa de esta tasa, el anticipo se calcula con ella sobre los ingresos brutos; si la pasa, es la doceava parte del impuesto liquidado."
+  },
+  {
+   "fieldname": "section_ir2",
+   "fieldtype": "Section Break",
+   "label": "Declaración jurada IR-2",
+   "collapsible": 1,
+   "description": "Tasas del art. 287 (depreciación) y art. 297 (ISR) y multiplicadores del ajuste por inflación que publica la DGII para cada cierre."
+  },
+  {
+   "fieldname": "tasa_isr_juridicas",
+   "fieldtype": "Percent",
+   "label": "Tasa del ISR de personas jurídicas",
+   "default": "27"
+  },
+  {
+   "fieldname": "depreciacion_categoria_1",
+   "fieldtype": "Percent",
+   "label": "Depreciación categoría 1 (edificaciones)",
+   "default": "5"
+  },
+  {
+   "fieldname": "depreciacion_categoria_2",
+   "fieldtype": "Percent",
+   "label": "Depreciación categoría 2 (vehículos livianos, equipo de oficina, computadoras)",
+   "default": "25"
+  },
+  {
+   "fieldname": "depreciacion_categoria_3",
+   "fieldtype": "Percent",
+   "label": "Depreciación categoría 3 (otros bienes)",
+   "default": "15"
+  },
+  {
+   "fieldname": "column_break_ir2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "depreciacion_arrendamiento_2",
+   "fieldtype": "Percent",
+   "label": "Categoría 2 dada en arrendamiento",
+   "default": "50"
+  },
+  {
+   "fieldname": "depreciacion_arrendamiento_3",
+   "fieldtype": "Percent",
+   "label": "Categoría 3 dada en arrendamiento",
+   "default": "30"
+  },
+  {
+   "fieldname": "multiplicadores_inflacion",
+   "fieldtype": "Table",
+   "label": "Multiplicadores del ajuste por inflación",
+   "options": "Multiplicador Inflacion DGII"
   },
   {
    "fieldname": "section_tasa_bcrd",
@@ -228,7 +320,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-16 20:00:00.000000",
+ "modified": "2026-10-18 13:00:00.000000",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Configuracion DGII",

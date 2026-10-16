@@ -1,0 +1,451 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 13:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "ejercicio",
+  "column_break_periodo",
+  "desde",
+  "hasta",
+  "column_break_estado",
+  "cuadre_anterior",
+  "avisos",
+  "section_inflacion",
+  "multiplicador",
+  "patrimonio_fiscal",
+  "column_break_inflacion",
+  "activos_no_monetarios",
+  "base_ajuste",
+  "ajuste_fiscal",
+  "column_break_terrenos",
+  "terrenos_costo_inicial",
+  "terrenos_adiciones",
+  "terrenos_retiros",
+  "terrenos_ajuste",
+  "terrenos_costo_final",
+  "distribucion",
+  "section_categoria_1",
+  "edificaciones",
+  "section_categorias",
+  "cuentas",
+  "section_depreciacion",
+  "depreciacion_fiscal",
+  "column_break_depreciacion",
+  "depreciacion_contable",
+  "column_break_diferencia",
+  "diferencia_depreciacion",
+  "section_ajustes",
+  "ajustes",
+  "total_positivos",
+  "column_break_ajustes",
+  "total_negativos",
+  "section_liquidacion",
+  "beneficio_contable",
+  "ingresos_brutos",
+  "renta_antes_perdidas",
+  "perdidas_compensables",
+  "renta_neta_imponible",
+  "tasa_isr",
+  "impuesto_liquidado",
+  "column_break_liquidacion",
+  "anticipos_pagados",
+  "retenciones_estado",
+  "otros_creditos",
+  "saldo_favor_anterior",
+  "diferencia_pagar",
+  "saldo_favor",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Empresa",
+   "options": "Company",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "ejercicio",
+   "fieldtype": "Int",
+   "label": "Ejercicio",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "non_negative": 1
+  },
+  {
+   "fieldname": "column_break_periodo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "desde",
+   "fieldtype": "Date",
+   "label": "Desde",
+   "description": "Inicio del ejercicio fiscal"
+  },
+  {
+   "fieldname": "hasta",
+   "fieldtype": "Date",
+   "label": "Hasta (cierre)"
+  },
+  {
+   "fieldname": "column_break_estado",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cuadre_anterior",
+   "fieldtype": "Link",
+   "label": "Cuadre del año anterior",
+   "options": "Cuadre Fiscal IR2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "avisos",
+   "fieldtype": "Small Text",
+   "label": "Avisos",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_inflacion",
+   "fieldtype": "Section Break",
+   "label": "Ajuste por inflación (anexo D-2)",
+   "collapsible": 1,
+   "description": "Base: el menor entre el patrimonio fiscal y los activos no monetarios al inicio del ejercicio. Ajuste: base x (multiplicador - 1), repartido entre los activos no monetarios."
+  },
+  {
+   "fieldname": "multiplicador",
+   "fieldtype": "Float",
+   "label": "Multiplicador de la DGII",
+   "precision": "4",
+   "description": "De la tabla de multiplicadores de Configuración DGII para la fecha de cierre"
+  },
+  {
+   "fieldname": "patrimonio_fiscal",
+   "fieldtype": "Currency",
+   "label": "Patrimonio fiscal al inicio",
+   "options": "Company:company:default_currency",
+   "description": "Se propone activos menos pasivos en libros; corríjalo con las partidas no admitidas (casillas 1 a 32 del D-2)"
+  },
+  {
+   "fieldname": "column_break_inflacion",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "activos_no_monetarios",
+   "fieldtype": "Currency",
+   "label": "Activos no monetarios",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "base_ajuste",
+   "fieldtype": "Currency",
+   "label": "Base del ajuste",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ajuste_fiscal",
+   "fieldtype": "Currency",
+   "label": "Ajuste fiscal patrimonial",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_terrenos",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "terrenos_costo_inicial",
+   "fieldtype": "Currency",
+   "label": "Costo fiscal de los terrenos",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "terrenos_adiciones",
+   "fieldtype": "Currency",
+   "label": "Terrenos comprados en el año",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "terrenos_retiros",
+   "fieldtype": "Currency",
+   "label": "Costo fiscal de los terrenos vendidos",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "terrenos_ajuste",
+   "fieldtype": "Currency",
+   "label": "Ajuste de los terrenos",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "terrenos_costo_final",
+   "fieldtype": "Currency",
+   "label": "Costo fiscal final de los terrenos",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "distribucion",
+   "fieldtype": "Table",
+   "label": "Distribución del ajuste",
+   "options": "Distribucion Ajuste IR2"
+  },
+  {
+   "fieldname": "section_categoria_1",
+   "fieldtype": "Section Break",
+   "label": "Edificaciones, categoría 1 (anexo D-1)",
+   "collapsible": 1,
+   "description": "Cuenta separada por edificación. Lo que entra o se retira en el año se deprecia por los meses en servicio."
+  },
+  {
+   "fieldname": "edificaciones",
+   "fieldtype": "Table",
+   "label": "Edificaciones",
+   "options": "Edificacion Fiscal IR2"
+  },
+  {
+   "fieldname": "section_categorias",
+   "fieldtype": "Section Break",
+   "label": "Categorías 2 y 3 (anexo D)",
+   "collapsible": 1,
+   "description": "Una cuenta por categoría. La mitad de las adiciones entra este año y la otra mitad el siguiente; los retiros salen por el valor de la transferencia."
+  },
+  {
+   "fieldname": "cuentas",
+   "fieldtype": "Table",
+   "label": "Cuentas de activos",
+   "options": "Cuenta Depreciacion IR2"
+  },
+  {
+   "fieldname": "section_depreciacion",
+   "fieldtype": "Section Break",
+   "label": "Depreciación fiscal y contable"
+  },
+  {
+   "fieldname": "depreciacion_fiscal",
+   "fieldtype": "Currency",
+   "label": "Depreciación fiscal",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_depreciacion",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "depreciacion_contable",
+   "fieldtype": "Currency",
+   "label": "Depreciación contable",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_diferencia",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "diferencia_depreciacion",
+   "fieldtype": "Currency",
+   "label": "Contable menos fiscal",
+   "options": "Company:company:default_currency",
+   "description": "Positiva: exceso (ajuste positivo). Negativa: deficiencia (ajuste negativo).",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_ajustes",
+   "fieldtype": "Section Break",
+   "label": "Ajustes fiscales (anexo G)",
+   "description": "Los automáticos se recalculan; agregue los demás (gastos no deducibles, provisiones, etc.)."
+  },
+  {
+   "fieldname": "ajustes",
+   "fieldtype": "Table",
+   "label": "Ajustes",
+   "options": "Ajuste Fiscal IR2"
+  },
+  {
+   "fieldname": "total_positivos",
+   "fieldtype": "Currency",
+   "label": "Ajustes positivos",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ajustes",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_negativos",
+   "fieldtype": "Currency",
+   "label": "Ajustes negativos",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_liquidacion",
+   "fieldtype": "Section Break",
+   "label": "Liquidación estimada"
+  },
+  {
+   "fieldname": "beneficio_contable",
+   "fieldtype": "Currency",
+   "label": "Beneficio (pérdida) contable",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "ingresos_brutos",
+   "fieldtype": "Currency",
+   "label": "Ingresos brutos",
+   "options": "Company:company:default_currency",
+   "description": "Para la base de los anticipos del año siguiente"
+  },
+  {
+   "fieldname": "renta_antes_perdidas",
+   "fieldtype": "Currency",
+   "label": "Renta neta antes de pérdidas",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "perdidas_compensables",
+   "fieldtype": "Currency",
+   "label": "Pérdidas de años anteriores que se compensan",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "renta_neta_imponible",
+   "fieldtype": "Currency",
+   "label": "Renta neta imponible",
+   "options": "Company:company:default_currency",
+   "bold": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "tasa_isr",
+   "fieldtype": "Percent",
+   "label": "Tasa del ISR"
+  },
+  {
+   "fieldname": "impuesto_liquidado",
+   "fieldtype": "Currency",
+   "label": "Impuesto liquidado",
+   "options": "Company:company:default_currency",
+   "bold": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_liquidacion",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "anticipos_pagados",
+   "fieldtype": "Currency",
+   "label": "Anticipos del ejercicio",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "retenciones_estado",
+   "fieldtype": "Currency",
+   "label": "Retenciones de entidades del Estado",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "otros_creditos",
+   "fieldtype": "Currency",
+   "label": "Otros créditos y compensaciones",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "saldo_favor_anterior",
+   "fieldtype": "Currency",
+   "label": "Saldo a favor del ejercicio anterior",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "diferencia_pagar",
+   "fieldtype": "Currency",
+   "label": "Diferencia a pagar",
+   "options": "Company:company:default_currency",
+   "bold": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "saldo_favor",
+   "fieldtype": "Currency",
+   "label": "Saldo a favor",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "Cuadre Fiscal IR2",
+   "no_copy": 1,
+   "print_hide": 1,
+   "search_index": 1,
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-18 13:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "DGII Fiscal",
+ "name": "Cuadre Fiscal IR2",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts User",
+   "read": 1,
+   "report": 1,
+   "print": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "ejercicio",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "format:IR2-{ejercicio}-{###}",
+ "naming_rule": "Expression",
+ "is_submittable": 1,
+ "title_field": "company",
+ "track_changes": 1,
+ "description": "Papel de trabajo del IR-2: depreciación fiscal (art. 287), ajuste por inflación y cuadre contable-fiscal. No es la declaración."
+}

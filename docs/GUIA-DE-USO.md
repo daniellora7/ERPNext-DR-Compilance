@@ -16,6 +16,7 @@ La app solo actúa en las empresas con país **Dominican Republic**. Las empresa
 1. En *RD Compliance → Secuencias NCF*, registre cada rango que autorizó la DGII: empresa, tipo (B01, B02…, E31…), desde, hasta y vencimiento.
 2. En la factura de venta, elija el **tipo de comprobante**. Hay un tipo por defecto: el que tenga el cliente o, si no, crédito fiscal si tiene RNC o cédula válidos y consumo si no los tiene. El NCF se asigna al aprobar la factura, sin duplicados aunque se aprueben dos a la vez.
 3. En las compras, escriba el NCF del proveedor; la app revisa el formato y que no esté repetido. Los gastos menores (B13), las compras a informales (B11) y los pagos al exterior (B17) llevan NCF de la empresa.
+   Al guardar la factura, la app consulta el NCF en la DGII y avisa si no corresponde al RNC del proveedor o si estaba vencido en la fecha del comprobante; el resultado queda en *NCF en la DGII*. También avisa si el proveedor aparece suspendido, dado de baja o en cese temporal en el padrón. Si la DGII no responde, la factura queda *Sin verificar* y se puede volver a consultar con *DGII → Verificar NCF en la DGII*. En *Configuración DGII* se puede impedir validar facturas con un NCF no válido.
 4. Para anular una factura con NCF, indique antes el *tipo de anulación* del 608.
 5. El panel avisa cuando una secuencia está por agotarse o por vencer.
 
@@ -29,10 +30,19 @@ En *RD Compliance → Declaraciones DGII*:
 
 - **606, 607, 608 y 609**: se elige la empresa y el mes, se revisa la columna de observaciones y se descarga el TXT con el nombre que pide la DGII. Antes de enviarlo, conviene pasarlo por la herramienta de pre-validación de la DGII.
 - **IT-1** e **IR-17**: resúmenes con los mismos registros, para llenar los formularios en la Oficina Virtual.
+- **Anticipos del ISR**: cada año, después de presentar el IR-2, registre en *Bases de anticipos ISR* los ingresos brutos y el impuesto liquidado. La app calcula la cuota mensual (art. 314: la doceava parte del impuesto, o el 1.5% de los ingresos si la tasa efectiva no pasa de 1.5%) y el reporte muestra el anticipo de cada mes con su vencimiento (día 15 del mes siguiente). Una empresa exenta se registra con régimen *Exento*.
+- **Cuadre fiscal IR-2**: papel de trabajo para la declaración anual (no la reemplaza). Primero indique en cada *Categoría de activo* su categoría fiscal del art. 287 (1 edificaciones, 2 vehículos livianos, equipo y muebles de oficina y computadoras, 3 lo demás; sin indicar se toma la 3, o terreno si no se deprecia) y marque *Dado en arrendamiento* en los activos alquilados a terceros. Al crear el cuadre de un año, la app toma los activos, la depreciación contable, el resultado del año y los anticipos, y calcula:
+  - el **ajuste por inflación** (anexo D-2) con el multiplicador de la DGII para la fecha de cierre (tabla en *Configuración DGII*; agregue el de cada año cuando la DGII lo publique) sobre el menor entre el patrimonio fiscal y los activos no monetarios;
+  - la **depreciación fiscal**: edificaciones una por una al 5% (anexo D-1) y las categorías 2 y 3 en una cuenta cada una al 25% y 15%, con la mitad de las compras del año (anexo D);
+  - el **cuadre contable-fiscal** (anexo G): la diferencia con la depreciación contable, el ajuste del inventario y las compras con NCF no válido entran solas; agregue los demás ajustes (impuestos no deducibles, provisiones, etc.). Con las pérdidas a compensar, los anticipos y los créditos da la renta neta imponible, el impuesto (27%) y la diferencia a pagar.
+
+  El primer año los balances iniciales se proponen con el valor en libros: reemplácelos por el costo fiscal del IR-2 anterior. Los años siguientes parten del cuadre del año anterior. Valide el cuadre cuando presente el IR-2, y con *Crear base de anticipos* registre la base de los anticipos del año siguiente.
+
+**Proporcionalidad del ITBIS (art. 349).** Si la empresa vende con ITBIS y también exento, el ITBIS de los gastos comunes a ambas ventas (alquiler, teléfono, publicidad, asesorías) solo se adelanta en la proporción de las ventas gravadas. Marque *ITBIS sujeto a proporcionalidad* en esos proveedores (o en cada factura de compra): va en esa columna del 606, y el resumen del IT-1 calcula el porcentaje no admitido y lo resta del ITBIS deducible. Las exportaciones de bienes y las ventas a zonas francas (B14) cuentan como gravadas.
 
 El **Panel de cumplimiento** muestra en una pantalla los plazos y los montos del mes.
 
-Para recibir los vencimientos por correo, active *Enviar recordatorios de vencimientos* en *Configuración DGII*. Cada mañana llega un correo por empresa con lo que vence en los próximos días (3 por defecto) o ese mismo día: IR-17, 606-609, IT-1 y, si hay nómina, el pago de la TSS, el IR-3, la regalía y el IR-13. Los lunes incluye las secuencias NCF por agotarse o por vencer. Hace falta una cuenta de correo saliente en Frappe. El botón *Vista previa de recordatorios* muestra lo que se enviaría hoy.
+Para recibir los vencimientos por correo, active *Enviar recordatorios de vencimientos* en *Configuración DGII*. Cada mañana llega un correo por empresa con lo que vence en los próximos días (3 por defecto) o ese mismo día: IR-17, 606-609, IT-1, el anticipo del ISR y, si hay nómina, el pago de la TSS, el IR-3, la regalía y el IR-13. Los lunes incluye las secuencias NCF por agotarse o por vencer. Hace falta una cuenta de correo saliente en Frappe. El botón *Vista previa de recordatorios* muestra lo que se enviaría hoy.
 
 ## 4. Facturación electrónica (e-CF)
 
@@ -79,6 +89,8 @@ En *RD Compliance → Anulación de e-NCF*, agregue los rangos (la app propone d
    - En diciembre, genere la regalía pascual. Al año, la bonificación y el IR-13.
 5. **Prestaciones al salir:** el *Gratuity* de Frappe HR usa las reglas "Preaviso RD", "Cesantía RD" y "Regalía RD". Las vacaciones pendientes se pagan con *Leave Encashment*.
 6. **Horas extras:** use el tipo "Horas extras RD" de Frappe HR. Los recargos de ley se aplican solos: 35 %, 100 % sobre 68 horas semanales y en feriados, y 15 % más en la parte nocturna.
+7. **Dependientes adicionales del SFS:** si el trabajador afilió a sus padres, suegros o hijos mayores de 21 años en la TSS, regístrelos en su ficha (*Dependientes adicionales del SFS*) con la fecha desde. Cada recibo descuenta el per cápita más el Fonamat de cada uno (RD$1,970.42 al mes desde octubre 2026; el monto se cambia en la configuración).
+8. **Subsidios de la SISALRIL:** registre cada licencia médica, de maternidad o lactancia en *Nómina RD → Subsidios de la SISALRIL*. La app toma el salario de los recibos de nómina y estima el subsidio: enfermedad común desde el 4.º día (60 % ambulatoria, 40 % hospitalaria, hasta 182 días), maternidad (tres meses de salario cotizable) y lactancia (33 %, 12 % o 6 % del salario por doce meses, hasta tres salarios mínimos). El monto definitivo lo calcula la SISALRIL; anote el estado y lo que se reciba para controlar los reembolsos.
 
 ## Soporte
 
