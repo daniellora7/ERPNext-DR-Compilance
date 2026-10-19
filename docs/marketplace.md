@@ -14,11 +14,11 @@ ERPNext RD adapta ERPNext y Frappe HR a la República Dominicana sin modificar s
 
 - **Comprobantes fiscales:** secuencias NCF sin duplicados en ventas, compras y POS; validación de RNC y cédula con el padrón de la DGII; catálogo de cuentas DGII.
 - **Facturación electrónica (e-CF):** XML de los diez tipos y del resumen de consumo según los esquemas oficiales, firma digital con el certificado de la empresa, envío a la DGII con contingencia y entrega al comprador; recepción de e-CF de proveedores con acuse y aprobación comercial; anulación de rangos y set de pruebas para la certificación.
-- **Declaraciones DGII:** formatos 606, 607, 608 y 609 con su archivo TXT, y resúmenes del IT-1 e IR-17.
-- **Nómina RD (con Frappe HR):** AFP, SFS, ISR e INFOTEP; prestaciones, vacaciones, regalía y bonificación; archivos de la TSS (AM, NV, RT), IR-3, IR-13 y planillas del Ministerio de Trabajo.
+- **Declaraciones DGII:** formatos 606, 607, 608 y 609 con su archivo TXT, y resúmenes del IT-1 e IR-17; anticipos del ISR y cuadre fiscal del IR-2 con depreciación fiscal, ajuste por inflación y anexos A-1 y B-1.
+- **Nómina RD (con Frappe HR):** AFP, SFS (con dependientes adicionales), ISR e INFOTEP; prestaciones, vacaciones, regalía y bonificación; subsidios de la SISALRIL; archivos de la TSS (AM, NV, RT), IR-3, IR-13 y planillas del Ministerio de Trabajo.
 - **Panel de cumplimiento:** plazos y montos del mes en una pantalla.
 
-Todas las tasas y escalas se editan en la configuración. Solo actúa en empresas con país República Dominicana, así que convive con empresas de otros países. Frappe HR es opcional.
+Cubre a las personas jurídicas del régimen ordinario; los regímenes e impuestos especiales están en desarrollo. Todas las tasas y escalas se editan en la configuración. Solo actúa en empresas con país República Dominicana, así que convive con empresas de otros países. Frappe HR es opcional.
 
 **Categorías:** Localization, Accounting, HR & Payroll.
 
