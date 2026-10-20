@@ -101,6 +101,8 @@ Ramas: `main` (producción), `develop` (staging), ramas `feature/*` con PR. Vers
 4. Backups: `bench backup --with-files` vía cron de Dokploy/scheduler + volumen MariaDB; documentar restauración.
 5. Flujo de actualización: nuevo tag → imagen → cambiar `ERPNEXT_IMAGE_TAG` → redeploy → `bench --site all migrate` (servicio one-shot `migrate` en compose).
 
+**Decisión (2026-10-20): Dokploy con la imagen Docker, no [Pilot](https://github.com/frappe/pilot).** Pilot es el gestor de benches que Frappe está construyendo: instala el bench directo en el sistema (`uv`, Node, `systemd`/`supervisor`), configura nginx en el servidor y saca los certificados de Let's Encrypt. Choca con Traefik de Dokploy por los puertos 80/443 y dentro de un contenedor pierde casi todo lo que ofrece; además no tiene ninguna versión publicada. El servidor del usuario va a alojar más servicios que Frappe, así que se sigue con Dokploy y la imagen `erpnext-rd` (frappe_docker), detrás de Traefik. Pilot solo tendría sentido en un servidor dedicado a Frappe; revisarlo cuando tenga una versión estable. Lo que sí se adopta de Pilot es la compatibilidad: la app debe instalarse con su `get-app` para el Marketplace (Fase 7, `docs/marketplace.md`).
+
 ## Fase 2 — Base fiscal DGII (módulo `dgii_fiscal` + `padron_rnc`)
 - Custom fields (vía fixtures) en Company, Customer, Supplier: tipo de identificación (RNC/Cédula/Pasaporte), RNC.
 - DocType **Tipo Comprobante Fiscal** (B01, B02, B04, B11, B13, B14, B15, B16, B17 y E31, E32, E33, E34, E41, E43, E44, E45, E46, E47).
