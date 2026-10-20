@@ -19,6 +19,8 @@ Localización de **República Dominicana** para ERPNext v16 y Frappe HR, libre y
 
 ![Factura Fiscal RD de crédito fiscal (B01), editable en el constructor de formatos de Frappe](docs/capturas/factura-fiscal-rd.png)
 
+![Perfil tributario de la empresa con sus requisitos: cumplidos, pendientes y lo que la app aún no cubre](docs/capturas/perfil-tributario.png)
+
 ## Del lado de Frappe HR: Nómina RD (dock de Frappe HR → *Nómina RD*)
 
 ![Nómina RD: autodeterminación de la TSS del mes con el menú del módulo](docs/capturas/nomina-rd.png)

@@ -220,7 +220,7 @@ Cubre a las personas jurídicas del régimen ordinario; los regímenes e impuest
 
 ### Capturas (tema oscuro, 1440 × 900)
 
-Tomadas en un sitio de demostración con empresas y datos ficticios: un mes registrado con la prueba de punta a punta (`erpnext_rd/tests/test_punta_a_punta.py`).
+Tomadas en un sitio de demostración con empresas y datos ficticios: un mes registrado con la prueba de punta a punta (`erpnext_rd/tests/test_punta_a_punta.py`). Actualizadas el 2026-10-20.
 
 | Captura | Archivo |
 |---|---|
@@ -228,6 +228,7 @@ Tomadas en un sitio de demostración con empresas y datos ficticios: un mes regi
 | Factura Fiscal RD (crédito fiscal B01) | `docs/capturas/factura-fiscal-rd.png` |
 | Nómina RD: autodeterminación de la TSS | `docs/capturas/nomina-rd.png` |
 | Volante de pago RD | `docs/capturas/volante-pago-rd.png` |
+| Perfil tributario de la empresa con sus requisitos | `docs/capturas/perfil-tributario.png` |
 
 ![RD Compliance](capturas/rd-compliance.png)
 
@@ -236,6 +237,8 @@ Tomadas en un sitio de demostración con empresas y datos ficticios: un mes regi
 ![Nómina RD](capturas/nomina-rd.png)
 
 ![Volante de pago RD](capturas/volante-pago-rd.png)
+
+![Perfil tributario](capturas/perfil-tributario.png)
 
 Opcionales para más adelante: formato 606 y envío e-CF aceptado (con el certificado real).
 
