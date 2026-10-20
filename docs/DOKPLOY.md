@@ -2,6 +2,8 @@
 
 Esta guía publica ERPNext, Frappe HR y `erpnext_rd` con `deploy/compose.yaml`. Es el mismo compose que se usa en local y en el CI. El sitio queda con HTTPS en su dominio y con respaldo diario (ver [RESPALDOS.md](RESPALDOS.md)).
 
+Todo corre en contenedores detrás del Traefik de Dokploy, así que el mismo servidor puede alojar otros servicios. [Pilot](https://github.com/frappe/pilot), el gestor de benches de Frappe, instala el bench directo en el sistema con su propio nginx y no convive con Traefik; por eso no se usa aquí (decisión en `docs/PLAN.md`, Fase 1).
+
 ## Requisitos
 
 - Un servidor con Dokploy instalado. Lo mínimo son 4 GB de RAM y 2 vCPU; con 8 GB va mejor, sobre todo al importar el padrón RNC.

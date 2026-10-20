@@ -101,6 +101,8 @@ Ramas: `main` (producción), `develop` (staging), ramas `feature/*` con PR. Vers
 4. Backups: `bench backup --with-files` vía cron de Dokploy/scheduler + volumen MariaDB; documentar restauración.
 5. Flujo de actualización: nuevo tag → imagen → cambiar `ERPNEXT_IMAGE_TAG` → redeploy → `bench --site all migrate` (servicio one-shot `migrate` en compose).
 
+**Decisión (2026-10-20): Dokploy con la imagen Docker, no [Pilot](https://github.com/frappe/pilot).** Pilot es el gestor de benches que Frappe está construyendo: instala el bench directo en el sistema (`uv`, Node, `systemd`/`supervisor`), configura nginx en el servidor y saca los certificados de Let's Encrypt. Choca con Traefik de Dokploy por los puertos 80/443 y dentro de un contenedor pierde casi todo lo que ofrece; además no tiene ninguna versión publicada. El servidor del usuario va a alojar más servicios que Frappe, así que se sigue con Dokploy y la imagen `erpnext-rd` (frappe_docker), detrás de Traefik. Pilot solo tendría sentido en un servidor dedicado a Frappe; revisarlo cuando tenga una versión estable. Lo que sí se adopta de Pilot es la compatibilidad: la app debe instalarse con su `get-app` para el Marketplace (Fase 7, `docs/marketplace.md`).
+
 ## Fase 2 — Base fiscal DGII (módulo `dgii_fiscal` + `padron_rnc`)
 - Custom fields (vía fixtures) en Company, Customer, Supplier: tipo de identificación (RNC/Cédula/Pasaporte), RNC.
 - DocType **Tipo Comprobante Fiscal** (B01, B02, B04, B11, B13, B14, B15, B16, B17 y E31, E32, E33, E34, E41, E43, E44, E45, E46, E47).
@@ -203,12 +205,19 @@ Objetivo: que la app sirva a cualquier empresa de RD, no solo a la persona jurí
 
 Orden sugerido: 8.1 (base) → 8.2 → 8.3 → 8.4 → 8.5 → 8.6 → 8.7 → 8.8. Cada una en su rama `feature/*`, con PR contra `develop`, tests y documentación.
 
-## Fase 7 — Publicación en el Marketplace de Frappe Cloud (más adelante)
-Objetivo: que la app se instale desde Frappe Cloud como las demás localizaciones (p. ej. México e-Invoice). Repo público: https://github.com/daniellora7/ERPNext-DR-Compilance (GPL-3.0).
+## Fase 7 — Publicación en el Marketplace de Frappe (más adelante)
+Objetivo: que la app se instale desde el **Marketplace de Frappe** (registro [`frappe/marketplace`](https://github.com/frappe/marketplace), que usan `bench get-app` de Pilot y su panel) y desde Frappe Cloud, como las demás localizaciones (México, Ecuador, Alemania, Kenia). Repo público: https://github.com/daniellora7/ERPNext-DR-Compilance (GPL-3.0). Guía completa en `docs/marketplace.md`.
+
+Lo que exige el nuevo registro (analizado el 2026-10-20) y falta hacer:
+- [ ] **`pyproject.toml`**: `[tool.bench.frappe-dependencies]` con `frappe` y `erpnext` (`>=16.0.0,<17.0.0`); sin ella Pilot rechaza la app. `[tool.bench.assets]` con el Panel (`frontend/` → `erpnext_rd/public/frontend`, `erpnext_rd/www/rd-compliance.html`). Frappe HR no se declara (es opcional).
+- [ ] **Assets precompilados**: workflow `assets.yml` con `frappe/pilot/.github/workflows/app-assets.yml` en `version-16` y `develop` (contra Frappe `version-16`). El validador exige el archivo del commit publicado.
+- [ ] **Semgrep del registro sin bloqueantes**: hoy 16 hallazgos Major (SQL con f-string/`.format()`, excepciones en `_().format()`, commits manuales sin `nosemgrep` válido y un falso positivo en `Anulacion ENCF`) y 21 avisos. Detalle y corrección en `docs/marketplace.md`; agregar el escaneo al CI.
+- [ ] **Versiones**: rama `version-16` (ya existe) como canal `stable`, `develop` como `nightly`; subir `__version__` en cada publicación (el validador lo compara con lo publicado).
+- [ ] **Publicación**: entrada en `apps.json` (`category: "Compliance"`) y `apps/erpnext_rd.json`; después, workflow `publish-marketplace.yml` (reutiliza `frappe/marketplace/.github/workflows/publish-release.yml`) con el secreto `MARKETPLACE_PR_TOKEN` del usuario.
 
 Requisitos a cumplir (tenerlos en cuenta desde ya en todo lo nuevo):
 - ✅ **App en la raíz del repo** (2026-10-14): `pyproject.toml` y el paquete `erpnext_rd/` están en la raíz, como los espera `bench get-app`; `deploy/` y `docs/` quedan como carpetas extra.
-- **Rama por versión de Frappe**: `version-16` (y luego `version-17`), compatible con la versión que ofrezca Frappe Cloud. Se crea desde `main` al publicar `v0.3.0` (`CHANGELOG.md`).
+- **Rama por versión de Frappe**: `version-16` (y luego `version-17`). Ya existe en GitHub (igual a `main`); es la rama `stable` del registro.
 - ✅ **Sin acceso a la máquina** (se cumple hoy; mantenerlo): nada de pasos manuales, scripts de shell ni `docker exec`. Todo se configura en `after_install`/`after_migrate`, patches y DocTypes de configuración. Dependencias solo de pip en `pyproject.toml` (y apt en `[deploy.dependencies.apt]` si hiciera falta).
 - ✅ **Instalación y desinstalación limpias** (2026-10-14): sitio nuevo, sitio con datos (multiempresa, multipaís con `es_empresa_rd`) y reinstalación probados. `before_uninstall` quita formato por defecto, tareas programadas y Dock; Frappe borra lo que tiene módulo.
 - ✅ **HRMS opcional** (2026-10-14): `required_apps = ["frappe/erpnext"]`. Sin HRMS la app instala y pasa los tests (los de recibos de nómina se omiten); si HRMS se instala después, la Nómina RD se activa sola (campos, componentes, menú) y se retira si se desinstala. El CI (`deploy/ci/run-tests.sh`) corre los tests también en un sitio sin HRMS.
