@@ -19,6 +19,8 @@ from erpnext_rd.dgii_reportes import datos
 from erpnext_rd.dgii_reportes.formatos import obtener
 
 TIPOS_EXPORTACION = ("B16", "E46")
+# Ventas exentas por destino (zonas francas y otros regímenes especiales): dan derecho a deducir el ITBIS
+TIPOS_EXENTOS_DESTINO = ("B14", "E44")
 DIA_VENCE_IT1 = 20
 DIA_VENCE_IR17 = 10
 
@@ -59,6 +61,25 @@ def bases_por_tasa(doc) -> dict:
 	return bases
 
 
+def _monto_bienes(doc, monto: float) -> float:
+	"""Parte de una exportación que son bienes (los servicios exportados no dan derecho a deducir)."""
+	neto = sum(abs(flt(i.base_net_amount)) for i in doc.items)
+	bienes = sum(abs(flt(i.base_net_amount)) for i in doc.items if datos._es_bien(i.item_code))
+	return monto * bienes / neto if neto else 0.0
+
+
+def coeficiente_proporcionalidad(r: frappe._dict) -> float:
+	"""Art. 349 e instructivo de la DGII: operaciones con derecho a deducir / total de operaciones.
+
+	(Casillas 8 + 2 + 4 del IT-1) / casilla 1: gravadas, exportaciones de bienes y exentas por
+	destino. Sin operaciones en el mes no hay nada que proporcionar (1).
+	"""
+	if r.total_operaciones <= 0:
+		return 1.0
+	derecho = sum(r.gravadas.values()) + r.exportaciones_bienes + r.exentas_destino
+	return min(max(derecho / r.total_operaciones, 0.0), 1.0)
+
+
 def resumen_it1(
 	company: str, anio, mes, saldo_favor_anterior=0, retenciones_tarjetas=0, filas_606=None, filas_607=None
 ) -> frappe._dict:
@@ -73,6 +94,8 @@ def resumen_it1(
 		ventas_brutas=0.0,
 		notas_credito=0.0,
 		exportaciones=0.0,
+		exportaciones_bienes=0.0,
+		exentas_destino=0.0,
 		gravadas={},
 		exentas=0.0,
 		itbis_facturado=0.0,
@@ -94,6 +117,7 @@ def resumen_it1(
 		itbis_compras=0.0,
 		itbis_costo=0.0,
 		itbis_deducible=0.0,
+		itbis_proporcionalidad=0.0,
 		itbis_retenido_por_terceros=0.0,
 		itbis_retenido_a_terceros=0.0,
 		saldo_favor_anterior=flt(saldo_favor_anterior),
@@ -115,15 +139,21 @@ def resumen_it1(
 
 		if f["_tipo_comprobante"] in TIPOS_EXPORTACION:
 			r.exportaciones += signo * monto
+			r.exportaciones_bienes += signo * _monto_bienes(doc, monto)
 			continue
 		bases = bases_por_tasa(doc)
 		for tasa, base in bases.items():
 			r.gravadas[tasa] = r.gravadas.get(tasa, 0.0) + signo * base
-		r.exentas += signo * max(monto - sum(bases.values()), 0.0)
+		exenta = signo * max(monto - sum(bases.values()), 0.0)
+		r.exentas += exenta
+		if f["_tipo_comprobante"] in TIPOS_EXENTOS_DESTINO:
+			r.exentas_destino += exenta
 		r.itbis_retenido_por_terceros += flt(f["itbis_retenido_terceros"])
 
 	for f in reinformadas:
 		r.itbis_retenido_por_terceros += flt(f["itbis_retenido_terceros"])
+
+	r.total_operaciones = r.ventas_brutas - r.notas_credito
 
 	for f in compras:
 		r.itbis_retenido_a_terceros += flt(f["itbis_retenido"])
@@ -135,9 +165,12 @@ def resumen_it1(
 		r.itbis_compras += signo * flt(f["itbis_facturado"])
 		r.itbis_costo += signo * flt(f["itbis_costo"])
 		r.itbis_deducible += signo * flt(f["itbis_adelantar"])
+		r.itbis_proporcionalidad += signo * flt(f["itbis_proporcionalidad"])
 
+	r.coeficiente = coeficiente_proporcionalidad(r)
+	r.itbis_no_admitido = max(r.itbis_proporcionalidad, 0.0) * (1 - r.coeficiente)
+	r.itbis_deducible -= r.itbis_no_admitido
 	r.itbis_neto_ventas = r.itbis_facturado - r.itbis_notas_credito
-	r.total_operaciones = r.ventas_brutas - r.notas_credito
 	r.diferencia = r.itbis_neto_ventas - r.itbis_deducible
 	r.creditos = r.itbis_retenido_por_terceros + r.retenciones_tarjetas + r.saldo_favor_anterior
 	resultado = r.diferencia - r.creditos
@@ -186,6 +219,19 @@ def filas_it1(r: frappe._dict) -> list[dict]:
 	linea(_("ITBIS de notas de crédito emitidas"), -r.itbis_notas_credito)
 	linea(_("ITBIS pagado en compras locales"), r.itbis_compras, _("Total del 606"))
 	linea(_("ITBIS llevado al costo (no deducible)"), -r.itbis_costo)
+	if r.itbis_proporcionalidad:
+		linea(
+			_("ITBIS sujeto a proporcionalidad"),
+			r.itbis_proporcionalidad,
+			_("Anexo A, casilla 29: compras marcadas como gasto común en el 606"),
+		)
+		linea(
+			_("ITBIS no admitido por proporcionalidad"),
+			-r.itbis_no_admitido,
+			_("Casilla 24. Porcentaje no admitido (casilla 32): {0}%").format(
+				f"{(1 - r.coeficiente) * 100:.2f}"
+			),
+		)
 	linea(_("ITBIS pagado deducible (por adelantar)"), r.itbis_deducible)
 	linea(_("Diferencia: ITBIS de ventas - ITBIS deducible"), r.diferencia)
 	linea(

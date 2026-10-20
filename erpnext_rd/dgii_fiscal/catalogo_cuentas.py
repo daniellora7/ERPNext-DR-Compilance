@@ -16,6 +16,7 @@ from frappe import _
 from frappe.utils import cint
 
 from erpnext_rd.dgii_fiscal import catalogos as cat
+from erpnext_rd.dgii_reportes import estados_ir2
 from erpnext_rd.nomina_rd import hrms_instalado
 
 PAIS = "Dominican Republic"
@@ -535,6 +536,7 @@ def aplicar_catalogo_dgii(company: str) -> bool:
 
 	cuentas = _cuentas_por_numero(company)
 	_marcar_datos_dgii(cuentas)
+	estados_ir2.asignar_casillas(company)
 	_asignar_cuentas_por_defecto(company, cuentas)
 	_crear_plantillas_impuestos(company, cuentas)
 

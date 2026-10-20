@@ -1,0 +1,63 @@
+{%- set c = rd_datos_cheque(doc) -%}
+<div class="rd-talon">
+	{%- if doc.docstatus == 0 %}<div class="rd-estado">BORRADOR</div>{% endif -%}
+	{%- if doc.docstatus == 2 %}<div class="rd-estado">ANULADO</div>{% endif %}
+	<table class="rd-cab">
+		<tr>
+			<td style="width: 55%">
+				<div class="rd-empresa">{{ c.empresa }}</div>
+				{% if c.rnc %}<div><b>RNC:</b> {{ c.rnc }}</div>{% endif %}
+			</td>
+			<td>
+				<div class="rd-titulo">Comprobante de pago</div>
+				{% if c.numero %}<div class="rd-der">Cheque n.º {{ c.numero }}</div>{% endif %}
+				<div class="rd-der">Fecha: {{ c.fecha }}</div>
+				<div class="rd-der rd-muted">{{ doc.name }}</div>
+			</td>
+		</tr>
+	</table>
+	<table class="rd-caja">
+		<tr>
+			<td style="width: 55%"><b>Beneficiario:</b> {{ c.beneficiario }}</td>
+			<td>{% if c.documento %}<b>RNC / Cédula:</b> {{ c.documento }}{% endif %}</td>
+		</tr>
+		<tr>
+			<td><b>Monto:</b> {{ c.simbolo }} {{ c.monto }}</td>
+			<td>{% if c.banco or c.cuenta_banco %}<b>Banco:</b> {{ c.banco }} {{ c.cuenta_banco }}{% endif %}</td>
+		</tr>
+		<tr><td colspan="2"><b>Son:</b> {{ c.letras }}</td></tr>
+		{% if c.concepto %}<tr><td colspan="2"><b>Concepto:</b> {{ c.concepto }}</td></tr>{% endif %}
+	</table>
+	{% if c.facturas %}
+	<table class="rd-detalle">
+		<thead><tr><th>Documento pagado</th><th>NCF</th><th class="num">Monto</th></tr></thead>
+		<tbody>
+			{% for f in c.facturas %}
+			<tr><td>{{ f.documento }}</td><td>{{ f.ncf }}</td><td class="num">{{ c.cifra(f.monto) }}</td></tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	{% endif %}
+	{% if c.retenciones %}
+	<table class="rd-detalle">
+		<thead><tr><th>Retenciones y deducciones</th><th class="num">Monto</th></tr></thead>
+		<tbody>
+			{% for r in c.retenciones %}
+			<tr><td>{{ r.cuenta }}</td><td class="num">{{ c.cifra(r.monto) }}</td></tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	{% endif %}
+	<table class="rd-detalle">
+		<thead><tr><th>Distribución contable</th><th class="num">Débito</th><th class="num">Crédito</th></tr></thead>
+		<tbody>
+			{% for d in c.distribucion %}
+			<tr>
+				<td>{{ d.cuenta }}</td>
+				<td class="num">{{ c.cifra(d.debito) }}</td>
+				<td class="num">{{ c.cifra(d.credito) }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>

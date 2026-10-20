@@ -1,0 +1,40 @@
+<div class="rd-ir2">
+	<h3>Depreciación fiscal (art. 287)</h3>
+	{% if doc.edificaciones %}
+	<h4>Categoría 1, edificaciones (anexo D-1)</h4>
+	<table class="rd-detalle">
+		<thead><tr><th>Edificación</th><th class="num">Costo fiscal inicial</th><th class="num">Ajuste</th><th class="num">Adición</th>
+			<th class="num">Meses</th><th class="num">Base</th><th class="num">Depreciación</th><th class="num">Exceso reparaciones</th><th class="num">Costo final</th></tr></thead>
+		<tbody>
+			{% for e in doc.edificaciones %}
+			<tr><td>{{ e.asset_name or e.asset }}{% if e.fecha_retiro %} <i>(retirada {{ e.get_formatted("fecha_retiro", doc) }})</i>{% endif %}</td>
+				<td class="num">{{ e.get_formatted("costo_fiscal_inicial", doc) }}</td><td class="num">{{ e.get_formatted("ajuste_fiscal", doc) }}</td>
+				<td class="num">{{ e.get_formatted("adicion", doc) }}</td><td class="num">{{ e.meses }}</td>
+				<td class="num">{{ e.get_formatted("base_depreciable", doc) }}</td><td class="num">{{ e.get_formatted("depreciacion_fiscal", doc) }}</td>
+				<td class="num">{{ e.get_formatted("reparaciones_capitalizadas", doc) }}</td><td class="num">{{ e.get_formatted("costo_fiscal_final", doc) }}</td></tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	{% endif %}
+	{% if doc.cuentas %}
+	<h4>Categorías 2 y 3 (anexo D)</h4>
+	<table class="rd-detalle">
+		<thead><tr><th>Cuenta</th><th class="num">Balance inicial</th><th class="num">Ajuste</th><th class="num">Adiciones (50%)</th>
+			<th class="num">Retiros</th><th class="num">Base</th><th class="num">Tasa</th><th class="num">Depreciación</th><th class="num">Costo final</th></tr></thead>
+		<tbody>
+			{% for c in doc.cuentas %}
+			<tr><td>{{ c.categoria }}, {{ (c.uso or "") | lower }}</td>
+				<td class="num">{{ c.get_formatted("balance_inicial", doc) }}</td><td class="num">{{ c.get_formatted("ajuste_fiscal", doc) }}</td>
+				<td class="num">{{ c.get_formatted("adiciones_imponibles", doc) }}</td><td class="num">{{ c.get_formatted("retiros", doc) }}</td>
+				<td class="num">{{ c.get_formatted("base_depreciable", doc) }}</td><td class="num">{{ c.get_formatted("tasa", doc) }}</td>
+				<td class="num">{{ c.get_formatted("depreciacion_fiscal", doc) }}</td><td class="num">{{ c.get_formatted("costo_fiscal_final", doc) }}</td></tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	{% endif %}
+	<table class="rd-resumen">
+		<tr><td>Depreciación fiscal</td><td class="num">{{ doc.get_formatted("depreciacion_fiscal") }}</td>
+			<td>Depreciación contable</td><td class="num">{{ doc.get_formatted("depreciacion_contable") }}</td>
+			<td>Contable menos fiscal</td><td class="num">{{ doc.get_formatted("diferencia_depreciacion") }}</td></tr>
+	</table>
+</div>

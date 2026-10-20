@@ -12,7 +12,7 @@ Proyecto en `D:\Code Projects 2\ERPNext`. Git 2.56 y Docker 29.8 instalados.
 
 **Principio clave:** no hacer fork de ERPNext/Frappe. Toda la personalización vive en una app propia (`erpnext_rd`) instalada sobre ERPNext/HRMS oficiales. Así puedes actualizar a 16.51, 16.52… sin conflictos de merge.
 
-## Estado actual (actualizado 2026-10-16)
+## Estado actual (actualizado 2026-10-18)
 
 | Fase | Estado |
 |---|---|
@@ -22,6 +22,8 @@ Proyecto en `D:\Code Projects 2\ERPNext`. Git 2.56 y Docker 29.8 instalados.
 | 3 — Reportes DGII | 🟡 Script Reports *Formato 606/607/608/609 DGII* con descarga del TXT oficial (`DGII_F_<formato>_<RNC>_<AAAAMM>.TXT`), columnas según los instructivos vigentes de la DGII, retenciones informadas en el mes de pago, facturas de consumo < RD$250,000 fuera del TXT con su resumen para la OFV, columna de observaciones. Toda la lógica fiscal (NCF, validación RNC, reportes) aplica solo a empresas con país República Dominicana. Reportes de apoyo *Resumen IT-1 DGII* (ingresos gravados por tasa, exentos, exportaciones, formas de cobro, liquidación del ITBIS con saldo a favor, retenciones por terceros y Norma 08-04, ITBIS retenido a terceros, vencimiento día 20) y *Resumen IR-17 DGII* (ISR retenido a terceros por tipo de retención y pagos al exterior, en el mes de pago, vencimiento día 10), calculados con los mismos registros del 606/607/609. 45 tests. **Pendiente:** pre-validar los TXT con la herramienta de la DGII usando datos reales. |
 | UI — Módulo RD Compliance | ✅ Un solo ícono **RD Compliance** en el dock de Frappe v16 (ícono duotono propio con animación) y un sidebar con secciones desplegables: *DGII Fiscal* (Secuencia NCF, Tipo Comprobante Fiscal, Configuración DGII), *DGII Reportes* (606–609) y *Padrón RNC* (Contribuyentes DGII). Los módulos internos se muestran dentro de RD Compliance (`code_only_modules`). e-CF y Nómina RD se agregarán como secciones nuevas de este mismo menú. **Estándar visual frappe-ui** (2026-10-14): el HTML propio de los reportes usa los tokens de color del escritorio v16 (modo oscuro incluido). **Panel RD Compliance** (2026-10-14, piloto): pantalla en `/rd-compliance` hecha con frappe-ui 1.0.2 (`frontend/`) con plazos y montos del 606–609, IT-1 e IR-17 del mes, secuencias NCF por agotarse/vencer/agotadas, registros con observaciones y estado del padrón; se abre dentro del escritorio (página `panel-cumplimiento` del sidebar) en la misma ventana. Base técnica para el monitor de e-CF y el portal de empleados. |
 | 4 — e-CF | 🟡 Todo lo que no requiere certificado real: XSD oficiales, XML guiado por el XSD (E31-E47, RFCE), firma XMLDSig verificada con xmlsec1, cliente de los servicios DGII (semilla/token, recepción, RFCE, consultas, anulación, aprobación comercial, directorio), *Emisor ECF* por empresa y registro *Envio ECF*. Contingencia con reenvío automático, entrega al comprador con su acuse, servicios públicos del receptor (`/fe/...`) con *ECF Recibido*, acuse (ARECF) y aprobación comercial (ACECF), anulación de rangos (*Anulacion ENCF*, ANECF) y *Set Pruebas ECF* para CerteCF (2026-10-16). **Pendiente (usuario):** certificado .p12 y alta como emisor; pruebas en TesteCF, set de CerteCF y registrar la URL del receptor en la DGII. |
+| Cumplimiento (2026-10-16 al 18) | ✅ Tasa del dólar del BCRD, recordatorios por correo, formato *Cheque RD*, anticipos del ISR, proporcionalidad del ITBIS, NCF del proveedor en la DGII, dependientes adicionales del SFS, subsidios de la SISALRIL, cuadre fiscal del IR-2 (D, D-1, D-2, G, liquidación, formato impreso, recordatorio) y anexos A-1 y B-1. Fusionado en `develop` (PR #10 a #16). Cubre a la **persona jurídica del régimen ordinario**; los demás regímenes e impuestos especiales van en la Fase 8. |
+| 8 — Perfil tributario | 🟡 8.1 hecha (`feature/perfil-tributario`): perfil por empresa, asistente, requisitos con su estado, serie E para emisores e IR-2 solo para el régimen ordinario. Siguen 8.2 a 8.9. |
 | 5 — Nómina RD | 🟡 Base lista: *Configuración Nómina RD* (tasas y topes TSS 2026, salario mínimo cotizable RD$23,223, escalas anuales ISR 2026 y 2027 por año, todo editable), cálculos de AFP/SFS/SRL/INFOTEP con topes, ISR de asalariados (renta anualizada menos TSS) y regalía pascual. En el recibo de Frappe HR se calculan solos (hook `apply_regional_deductions` + `validate`) los componentes *AFP*, *SFS*, *ISR* y los aportes del empleador, con cuentas del catálogo DGII. Devengos marcan *Cotiza a la TSS*; el ISR usa *Is Tax Applicable* de HR. Nóminas quincenales/semanales prorratean el equivalente mensual. Hechos además: datos RD del empleado, prestaciones (preaviso, cesantía, regalía proporcional), vacaciones, feriados, regalía de diciembre, escalas ISR por año (2027 de la Ley 30-26), archivo de autodeterminación TSS (AM), resúmenes IR-3 e IR-13. Archivo de novedades TSS (NV) y rectificativa IR-3 (RT). Horas extras con recargo nocturno (art. 204). **Pendiente (usuario):** validar los TXT con el validador de la TSS y una nómina real. |
 
 Decisión: el usuario quiere probar todo en Docker local antes de configurar GitHub y Dokploy.
@@ -36,6 +38,33 @@ Decisión: el usuario quiere probar todo en Docker local antes de configurar Git
 7. ~~Logo de la app~~ y ~~formato de impresión por empresa para las que no son de RD~~ (hechos, 2026-10-16).
 9. **Publicar `v0.3.0`** (cuando el usuario lo pida): fusionar `develop` en `main`, crear la rama `version-16` y el tag `v0.3.0` desde `main` (el tag publica la imagen en GHCR), y registrar la app en el Marketplace con `docs/marketplace.md`.
 8. **Al subir de versión Frappe HR:** si su `hrms/locale/es.po` ya trae el español completo (en Crowdin quedó al 100 % y aprobado en octubre de 2026; falta que el bot lo sincronice al repo y salga en una versión), borrar de `erpnext_rd/locale/es.po` el bloque «Frappe HR: textos que faltan en su catálogo oficial». Si se queda, tapa las traducciones oficiales (la app se carga después) y mezcla términos (p. ej. *Arrear*: «atrasos» oficial, «retroactivo» nuestro). Ajustar `test_frappe_hr_completo_en_espanol` en `tests/test_navegacion.py` a las traducciones oficiales. La traducción de los nombres del dock (`boot.py`) se mantiene hasta que Frappe los pase por `__()`. El bloque anterior, «Frappe HR: correcciones de su catálogo oficial» (90 traducciones erradas: *Shift Type* «Tipo de Cambio», *Slab* «Losa», *Leave* «vacaciones»…), se mantiene: revisar entrada por entrada si el catálogo oficial ya las corrigió y borrar solo esas.
+
+### Mejoras de cumplimiento (análisis del 2026-10-16) ✅
+Lo que se podía hacer sin depender del usuario (fusionado en `develop`, PR #10 a #16):
+1. ✅ `feature/tasa-recordatorios-cheque`: tasa del dólar del BCRD, recordatorios por correo de vencimientos y formato *Cheque RD*.
+2. ✅ `feature/isr-itbis-ncf-proveedor`: anticipos del ISR (art. 314), proporcionalidad del ITBIS (art. 349) y aviso de NCF/RNC del proveedor no válido (la consulta de NCF de la DGII no tiene captcha). Pendiente: tres cuotas de las pequeñas empresas (Ley 30-26, desde 2027) cuando la DGII publique los criterios.
+3. ✅ `feature/sfs-dependientes-subsidios`: dependientes adicionales del SFS (per cápita + Fonamat en el recibo) y registro de subsidios de la SISALRIL (enfermedad común, maternidad, lactancia) con monto estimado y reembolso.
+4. ✅ `feature/ir2-apoyo`: *Cuadre Fiscal IR2* con ajuste por inflación (D-2, multiplicadores de la DGII por cierre), depreciación fiscal por categoría (art. 287, anexos D y D-1) frente a la contable, ajustes del anexo G y liquidación. `feature/ir2-recordatorio-formato`: recordatorio del IR-2, reparaciones de edificaciones por encima del 10% y formato imprimible del cuadre. `feature/ir2-anexos-a1-b1`: anexos A-1 y B-1 por casilla desde el catálogo de cuentas. Pendiente: activos de la Ley 392-07 (solo si aplica).
+
+Dependen del usuario: e-CF en producción, pre-validar TXT con datos reales, extractos de los bancos (ejemplos) y cuadre de la factura TSS (ejemplo); ver «Puesta en producción». Los regímenes e impuestos especiales (ISC, DIOR, zonas francas, RST…) pasan a la Fase 8.
+
+### Puesta en producción: lista de verificación
+Lo que falta para usar la app con una empresa real. Cada prueba se hace con datos reales de la empresa y se da por buena solo con el resultado indicado.
+
+| Prueba | Qué hace falta del usuario | Se da por buena cuando |
+|---|---|---|
+| Empresa y catálogo | RNC, cierre fiscal y, cuando exista, el perfil tributario (Fase 8) | El RNC valida, el catálogo DGII está aplicado y el año fiscal de ERPNext coincide con el cierre |
+| Secuencias NCF | Rangos autorizados por la DGII (Oficina Virtual) | Cada tipo que se usa tiene secuencia vigente y el panel no avisa |
+| Un mes completo | Facturas reales de venta, compra, notas de crédito, anulaciones, retenciones y pagos al exterior | El 606, 607, 608 y 609 cuadran con el mayor y no tienen observaciones |
+| TXT de la DGII | Pre-validador de la DGII | Los cuatro TXT pasan el pre-validador sin errores |
+| IT-1 e IR-17 | Borrador de la declaración en la Oficina Virtual | Los resúmenes coinciden casilla por casilla con lo que la OFV precarga o con lo que declara el contador |
+| e-CF | Certificado .p12, alta como emisor electrónico | Set de TesteCF aceptado, set de CerteCF aprobado, URL del receptor registrada y primer e-CF real aceptado |
+| Nómina y TSS | Una nómina real y la factura de la TSS del mes | El archivo AM (y NV si hubo novedades) carga en el SUIR Plus y la factura de la TSS coincide con la autodeterminación |
+| IR-3 e IR-13 | Declaración del mes y del año | Coinciden con el resumen de la app |
+| SIRLA | Usuario del SIRLA | DGT-3 y DGT-4 cargan sin errores |
+| IR-2 | Contador, multiplicador del cierre confirmado (2025: 1.0495), categoría fiscal en las categorías de activo | El contador revisa el cuadre y las casillas de los anexos A-1 y B-1 de un cierre real |
+| Usuarios y permisos | Lista de usuarios y sus funciones | Cada usuario ve solo lo que le toca (roles de ERPNext, Frappe HR y Accounts) |
+| Servidor | Servidor Dokploy y dominio | Sitio con HTTPS, respaldo diario funcionando y una restauración probada en el servidor (`docs/RESPALDOS.md`) |
 
 ## Estructura del repo (GitHub, público: `daniellora7/ERPNext-DR-Compilance`)
 ```
@@ -71,6 +100,8 @@ Ramas: `main` (producción), `develop` (staging), ramas `feature/*` con PR. Vers
 3. En Dokploy: proyecto → servicio **Docker Compose** desde el repo GitHub, ruta `deploy/compose.yaml`, variables (`ERPNEXT_IMAGE_TAG`, `DB_ROOT_PASSWORD`, `SITE_NAME`, `ADMIN_PASSWORD`), dominio en el servicio `frontend` puerto 8080 con HTTPS (Traefik de Dokploy).
 4. Backups: `bench backup --with-files` vía cron de Dokploy/scheduler + volumen MariaDB; documentar restauración.
 5. Flujo de actualización: nuevo tag → imagen → cambiar `ERPNEXT_IMAGE_TAG` → redeploy → `bench --site all migrate` (servicio one-shot `migrate` en compose).
+
+**Decisión (2026-10-20): Dokploy con la imagen Docker, no [Pilot](https://github.com/frappe/pilot).** Pilot es el gestor de benches que Frappe está construyendo: instala el bench directo en el sistema (`uv`, Node, `systemd`/`supervisor`), configura nginx en el servidor y saca los certificados de Let's Encrypt. Choca con Traefik de Dokploy por los puertos 80/443 y dentro de un contenedor pierde casi todo lo que ofrece; además no tiene ninguna versión publicada. El servidor del usuario va a alojar más servicios que Frappe, así que se sigue con Dokploy y la imagen `erpnext-rd` (frappe_docker), detrás de Traefik. Pilot solo tendría sentido en un servidor dedicado a Frappe; revisarlo cuando tenga una versión estable. Lo que sí se adopta de Pilot es la compatibilidad: la app debe instalarse con su `get-app` para el Marketplace (Fase 7, `docs/marketplace.md`).
 
 ## Fase 2 — Base fiscal DGII (módulo `dgii_fiscal` + `padron_rnc`)
 - Custom fields (vía fixtures) en Company, Customer, Supplier: tipo de identificación (RNC/Cédula/Pasaporte), RNC.
@@ -118,12 +149,75 @@ Script reports + exportación TXT en el formato oficial:
 ## Fase 6 — Funcionalidades futuras
 Cada nueva funcionalidad = nuevo módulo en `erpnext_rd` (o nueva app si es independiente), en rama `feature/*`, con PR, CI verde y tag de versión.
 
-## Fase 7 — Publicación en el Marketplace de Frappe Cloud (más adelante)
-Objetivo: que la app se instale desde Frappe Cloud como las demás localizaciones (p. ej. México e-Invoice). Repo público: https://github.com/daniellora7/ERPNext-DR-Compilance (GPL-3.0).
+## Fase 8 — Perfil tributario por empresa: regímenes e impuestos especiales
+Objetivo: que la app sirva a cualquier empresa de RD, no solo a la persona jurídica del régimen ordinario. Cada empresa declara en un **perfil tributario** bajo qué régimen opera, qué impuestos especiales le aplican y qué incentivos tiene; la app activa solo lo que corresponde, pide la configuración que hace falta y no deja operar sin ella cuando es obligatoria.
+
+**Regla de trabajo:** cada rama empieza por leer el texto oficial vigente (Código Tributario y sus reglamentos, Ley 30-26 y sus normas de aplicación, leyes de cada régimen, normas e instructivos de la DGII). Lo que solo aparece en fuentes secundarias no se implementa hasta confirmarlo; las tasas, montos y plazos van en configuración editable, como en el resto de la app.
+
+### 8.1 Perfil tributario (base, primera rama) ✅
+- **DocType *Perfil Tributario RD*** (uno por empresa de RD):
+  - Tipo de contribuyente: persona jurídica o persona física con negocio.
+  - Régimen: ordinario o simplificado (RST).
+  - Tamaño según la Ley 488-08 de mipymes, modificada por la Ley 187-17 (micro hasta 10 trabajadores, pequeña de 11 a 50, mediana de 51 a 150, grande más de 150; también por ventas brutas anuales, indexadas cada año por el MICM) y segmento de la DGII si lo asignó.
+  - Cierre fiscal (31/3, 30/6, 30/9 o 31/12): crea o revisa el año fiscal de ERPNext.
+  - Regímenes especiales e incentivos (tabla): zona franca (Ley 8-90), turismo (Ley 158-01), Proindustria (Ley 392-07), energías renovables (Ley 57-07), cine (Ley 108-10), desarrollo fronterizo (Ley 28-01) u otro; con resolución o certificado, vigencia y qué exenciones otorga (ISR, ITBIS, otros).
+  - Actividades con tratamiento especial: ISC (alcohol, tabaco, combustibles, telecomunicaciones, seguros), propina legal, operaciones con partes relacionadas (precios de transferencia / DIOR), exportación, agente de retención designado.
+  - Sector regulado (banca, seguros, AFP): fuera del alcance; el perfil lo marca y avisa.
+  - Facturación electrónica: fecha desde la que está obligada y estado (no obligada, en certificación, emisor).
+- **Asistente:** al crear o abrir una empresa de RD sin perfil, un aviso lleva a un asistente por pasos (diálogo frappe-ui) que lo completa.
+- **Requisitos de la empresa:** pantalla con la lista que sale del perfil, cada requisito con su estado (cumplido / falta) y un enlace para resolverlo. Ejemplos: secuencia NCF vigente para cada tipo que usa; año fiscal según el cierre; tasas del ISC y artículos clasificados si vende productos con ISC; B14/E44 para clientes de zona franca; emisor e-CF si está obligada.
+- **Exigencia:** lo obligatorio bloquea al validar el documento afectado (p. ej. vender un artículo con ISC sin su tasa); lo que no aplica se oculta (p. ej. el cuadre del IR-2 para una persona física, los anticipos para una microempresa).
+- **Obligaciones según el perfil:** el panel de cumplimiento y los recordatorios por correo toman del perfil qué declaraciones tiene la empresa y sus plazos.
+- **Arquitectura:** `rd_compliance/perfil.py` con un registro de reglas (condición sobre el perfil → requisito → verificación → enlace) y de obligaciones. Cada módulo especial agrega sus reglas; crecer es sumar reglas, no tocar el núcleo. Sin perfil, la empresa se trata como persona jurídica del régimen ordinario (lo de hoy), así nada se rompe en los sitios existentes.
+
+### 8.2 Impuesto selectivo al consumo (ISC)
+- Clasificación ISC en el artículo (alcohol: grados y volumen; tabaco; combustibles; servicios de telecomunicaciones y seguros).
+- Tasas ad valorem y montos específicos en configuración editable (la DGII actualiza los específicos de alcohol y tabaco cada trimestre).
+- Cálculo en ventas e importaciones con plantillas de impuesto; columnas del ISC en el 606 y 607.
+- Resumen de la declaración mensual del ISC (vence el día 20; formulario a confirmar con la DGII) y su recordatorio.
+
+### 8.3 Precios de transferencia (DIOR)
+- Marca de parte relacionada en clientes (en proveedores ya existe para el 609), con país y tipo de vinculación.
+- Resumen anual de operaciones con relacionados por tipo y contraparte para la DIOR; plazo y umbrales a confirmar.
+- Ajuste 1.9 del anexo G del cuadre IR-2 cuando el contribuyente autoimpugna un precio.
+
+### 8.4 Zonas francas y exportadores
+- Empresa de zona franca: exenciones según su resolución, compras con los comprobantes que correspondan y ventas al mercado local con su tratamiento.
+- Proveedores de zonas francas: clientes marcados como zona franca reciben B14/E44 solos.
+- Exportadores: ITBIS de las compras para exportación a compensar o pedir en reembolso, con su soporte.
+
+### 8.5 Impuesto sobre los activos
+- Confirmar si sigue vigente y en qué términos tras la Ley 30-26.
+- Si aplica: activos imponibles desde el anexo A-1, exentos, liquidación y crédito contra el ISR, en el cuadre del IR-2.
+
+### 8.6 Incentivos en el IR-2
+- Desde los incentivos del perfil: exenciones (casilla 3), deducción por inversión de la Ley 392-07 y sus activos (anexo D, sección C), créditos de energías renovables y de cine (casillas 15, 16 y 20).
+
+### 8.7 Régimen simplificado (RST)
+- Modalidades (por ingresos o por compras) y límites de la Ley 30-26.
+- Su declaración y cuotas, y qué formatos y declaraciones del régimen ordinario no aplican.
+
+### 8.8 Persona física con negocio (IR-1)
+- Perfil de persona física: declaración IR-1 (escala de personas físicas) en lugar del IR-2, sus anticipos y la cédula como identificación fiscal.
+
+### 8.9 Sectores regulados
+- Banca, seguros y AFP reportan además a sus superintendencias: fuera del alcance. El perfil lo indica y la app avisa qué cubre y qué no.
+
+Orden sugerido: 8.1 (base) → 8.2 → 8.3 → 8.4 → 8.5 → 8.6 → 8.7 → 8.8. Cada una en su rama `feature/*`, con PR contra `develop`, tests y documentación.
+
+## Fase 7 — Publicación en el Marketplace de Frappe (más adelante)
+Objetivo: que la app se instale desde el **Marketplace de Frappe** (registro [`frappe/marketplace`](https://github.com/frappe/marketplace), que usan `bench get-app` de Pilot y su panel) y desde Frappe Cloud, como las demás localizaciones (México, Ecuador, Alemania, Kenia). Repo público: https://github.com/daniellora7/ERPNext-DR-Compilance (GPL-3.0). Guía completa en `docs/marketplace.md`.
+
+Lo que exige el nuevo registro (analizado el 2026-10-20) y falta hacer:
+- [ ] **`pyproject.toml`**: `[tool.bench.frappe-dependencies]` con `frappe` y `erpnext` (`>=16.0.0,<17.0.0`); sin ella Pilot rechaza la app. `[tool.bench.assets]` con el Panel (`frontend/` → `erpnext_rd/public/frontend`, `erpnext_rd/www/rd-compliance.html`). Frappe HR no se declara (es opcional).
+- [ ] **Assets precompilados**: workflow `assets.yml` con `frappe/pilot/.github/workflows/app-assets.yml` en `version-16` y `develop` (contra Frappe `version-16`). El validador exige el archivo del commit publicado.
+- [ ] **Semgrep del registro sin bloqueantes**: hoy 16 hallazgos Major (SQL con f-string/`.format()`, excepciones en `_().format()`, commits manuales sin `nosemgrep` válido y un falso positivo en `Anulacion ENCF`) y 21 avisos. Detalle y corrección en `docs/marketplace.md`; agregar el escaneo al CI.
+- [ ] **Versiones**: rama `version-16` (ya existe) como canal `stable`, `develop` como `nightly`; subir `__version__` en cada publicación (el validador lo compara con lo publicado).
+- [ ] **Publicación**: entrada en `apps.json` (`category: "Compliance"`) y `apps/erpnext_rd.json`; después, workflow `publish-marketplace.yml` (reutiliza `frappe/marketplace/.github/workflows/publish-release.yml`) con el secreto `MARKETPLACE_PR_TOKEN` del usuario.
 
 Requisitos a cumplir (tenerlos en cuenta desde ya en todo lo nuevo):
 - ✅ **App en la raíz del repo** (2026-10-14): `pyproject.toml` y el paquete `erpnext_rd/` están en la raíz, como los espera `bench get-app`; `deploy/` y `docs/` quedan como carpetas extra.
-- **Rama por versión de Frappe**: `version-16` (y luego `version-17`), compatible con la versión que ofrezca Frappe Cloud. Se crea desde `main` al publicar `v0.3.0` (`CHANGELOG.md`).
+- **Rama por versión de Frappe**: `version-16` (y luego `version-17`). Ya existe en GitHub (igual a `main`); es la rama `stable` del registro.
 - ✅ **Sin acceso a la máquina** (se cumple hoy; mantenerlo): nada de pasos manuales, scripts de shell ni `docker exec`. Todo se configura en `after_install`/`after_migrate`, patches y DocTypes de configuración. Dependencias solo de pip en `pyproject.toml` (y apt en `[deploy.dependencies.apt]` si hiciera falta).
 - ✅ **Instalación y desinstalación limpias** (2026-10-14): sitio nuevo, sitio con datos (multiempresa, multipaís con `es_empresa_rd`) y reinstalación probados. `before_uninstall` quita formato por defecto, tareas programadas y Dock; Frappe borra lo que tiene módulo.
 - ✅ **HRMS opcional** (2026-10-14): `required_apps = ["frappe/erpnext"]`. Sin HRMS la app instala y pasa los tests (los de recibos de nómina se omiten); si HRMS se instala después, la Nómina RD se activa sola (campos, componentes, menú) y se retira si se desinstala. El CI (`deploy/ci/run-tests.sh`) corre los tests también en un sitio sin HRMS.

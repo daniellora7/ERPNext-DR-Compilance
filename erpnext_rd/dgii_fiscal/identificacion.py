@@ -80,3 +80,8 @@ def validar_party(doc, method=None):
 	doc.tax_id = numero
 	if doc.meta.has_field("rd_tipo_identificacion"):
 		doc.rd_tipo_identificacion = tipo
+
+	if doc.doctype == "Supplier" and (doc.is_new() or doc.has_value_changed("tax_id")):
+		from erpnext_rd.dgii_fiscal.consulta_ncf import avisar_padron
+
+		avisar_padron(numero, doc.supplier_name or doc.name)

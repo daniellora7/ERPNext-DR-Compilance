@@ -2,6 +2,28 @@
 
 Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `version-16` sigue a Frappe v16; cada versión lleva un tag `vX.Y.Z` desde `main`, que publica la imagen en GHCR.
 
+## Sin publicar
+
+### Fiscal (RD Compliance)
+- Tasa del dólar del Banco Central registrada cada día como tipo de cambio USD → DOP (compra, venta o compra en ventas y venta en compras).
+- Recordatorios por correo de los vencimientos: IR-17, 606-609, IT-1 y, con nómina, TSS, IR-3, regalía e IR-13; los lunes, las secuencias NCF en alerta. Apagados por defecto.
+- Formato *Cheque RD* del *Payment Entry*, con comprobante de pago, editable en el constructor y con las posiciones del cheque ajustables por banco.
+- Consulta del NCF del proveedor en la DGII al guardar la factura de compra (no corresponde al RNC, vencido) y aviso de proveedores no activos en el padrón. Opción para impedir validar con un NCF no válido.
+- Proporcionalidad del ITBIS (art. 349): proveedores y compras con ITBIS sujeto a proporcionalidad, columna del 606 y porcentaje no admitido en el resumen del IT-1.
+- Anticipos del ISR (art. 314): base anual con los datos del IR-2, cuota mensual, reporte del año y recordatorio.
+- Cuadre fiscal del IR-2: ajuste por inflación (anexo D-2) con los multiplicadores de la DGII, depreciación fiscal por categoría del art. 287 (anexos D y D-1) frente a la contable, ajustes del anexo G y liquidación estimada del impuesto. Categoría fiscal en las categorías de activo. Reparaciones de edificaciones por encima del 10% capitalizadas y formato de impresión del cuadre.
+- Recordatorio del IR-2, 120 días después del cierre del año fiscal.
+- Anexos A-1 (balance general) y B-1 (estado de resultados) del IR-2 por casilla, con la casilla en cada cuenta (asignada en el catálogo DGII). El cuadre toma de ahí el beneficio antes del ISR.
+- Perfil tributario por empresa: régimen, tamaño, cierre fiscal, actividades con tratamiento especial, incentivos y situación con el e-CF, con asistente desde la empresa y lista de requisitos con su estado. Los emisores electrónicos venden con la serie E y el IR-2 solo aplica a personas jurídicas del régimen ordinario.
+
+### Documentación
+- Requisitos del nuevo Marketplace de Frappe (registro `frappe/marketplace` y Pilot) en `docs/marketplace.md` y decisión de desplegar con Dokploy.
+- Capturas actualizadas, con la del perfil tributario.
+
+### Nómina RD
+- Dependientes adicionales del SFS en la ficha del empleado, con el per cápita y el Fonamat descontados en cada recibo.
+- Registro de subsidios de la SISALRIL (enfermedad común, maternidad y lactancia) con el monto estimado y el seguimiento del reembolso.
+
 ## v0.3.0 (primera versión)
 
 Para Frappe v16.52, ERPNext v16.51 y Frappe HR v16.51 (opcional).

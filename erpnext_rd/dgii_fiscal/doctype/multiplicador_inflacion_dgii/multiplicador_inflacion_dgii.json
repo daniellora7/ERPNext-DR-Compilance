@@ -1,0 +1,51 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 13:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "cierre",
+  "multiplicador",
+  "resolucion"
+ ],
+ "fields": [
+  {
+   "fieldname": "cierre",
+   "fieldtype": "Date",
+   "label": "Cierre del ejercicio",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 3
+  },
+  {
+   "fieldname": "multiplicador",
+   "fieldtype": "Float",
+   "label": "Multiplicador",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2,
+   "precision": "4",
+   "description": "Ej.: 1.0495 = 4.95% de inflación"
+  },
+  {
+   "fieldname": "resolucion",
+   "fieldtype": "Data",
+   "label": "Resolución DGII",
+   "in_list_view": 1,
+   "columns": 4
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-18 13:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "DGII Fiscal",
+ "name": "Multiplicador Inflacion DGII",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1
+}

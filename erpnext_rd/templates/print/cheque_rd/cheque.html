@@ -1,0 +1,7 @@
+{%- set c = rd_datos_cheque(doc) -%}
+<div class="rd-cheque">
+	<div class="rd-ch-fecha">{{ c.fecha }}</div>
+	<div class="rd-ch-beneficiario">{{ c.beneficiario }}</div>
+	<div class="rd-ch-monto">{{ c.simbolo }} **{{ c.monto }}**</div>
+	<div class="rd-ch-letras">{{ c.letras }}</div>
+</div>

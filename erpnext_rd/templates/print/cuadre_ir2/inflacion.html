@@ -1,0 +1,26 @@
+<div class="rd-ir2">
+	<h3>Ajuste por inflación (anexo D-2)</h3>
+	<table class="rd-resumen">
+		<tr><td>Patrimonio fiscal al inicio</td><td class="num">{{ doc.get_formatted("patrimonio_fiscal") }}</td>
+			<td>Multiplicador de la DGII</td><td class="num">{{ doc.multiplicador or "" }}</td></tr>
+		<tr><td>Activos no monetarios</td><td class="num">{{ doc.get_formatted("activos_no_monetarios") }}</td>
+			<td>Base del ajuste</td><td class="num">{{ doc.get_formatted("base_ajuste") }}</td></tr>
+		<tr><td><b>Ajuste fiscal patrimonial</b></td><td class="num"><b>{{ doc.get_formatted("ajuste_fiscal") }}</b></td><td></td><td></td></tr>
+	</table>
+	{% if doc.distribucion %}
+	<table class="rd-detalle">
+		<thead><tr><th>Activo no monetario</th><th class="num">Valor fiscal</th><th class="num">Peso</th><th class="num">Ajuste</th></tr></thead>
+		<tbody>
+			{% for d in doc.distribucion %}
+			<tr><td>{{ d.concepto }}</td><td class="num">{{ d.get_formatted("valor_fiscal", doc) }}</td>
+				<td class="num">{{ d.get_formatted("porcentaje", doc) }}</td><td class="num">{{ d.get_formatted("ajuste", doc) }}</td></tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	{% endif %}
+	{% if doc.terrenos_costo_inicial or doc.terrenos_costo_final %}
+	<p>Terrenos: costo fiscal {{ doc.get_formatted("terrenos_costo_inicial") }} + ajuste {{ doc.get_formatted("terrenos_ajuste") }}
+		+ compras {{ doc.get_formatted("terrenos_adiciones") }} − ventas {{ doc.get_formatted("terrenos_retiros") }}
+		= <b>{{ doc.get_formatted("terrenos_costo_final") }}</b></p>
+	{% endif %}
+</div>

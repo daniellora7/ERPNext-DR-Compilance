@@ -1,0 +1,159 @@
+{
+ "actions": [],
+ "autoname": "format:ANT-{ejercicio}-{###}",
+ "creation": "2026-10-16 20:00:00.000000",
+ "description": "Base de los anticipos mensuales del ISR de una empresa (art. 314 del Código Tributario), con los datos de su declaración jurada del año.",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "ejercicio",
+  "regimen",
+  "column_break_vigencia",
+  "aplica_desde",
+  "motivo_exencion",
+  "section_ir2",
+  "ingresos_brutos",
+  "impuesto_liquidado",
+  "column_break_calculo",
+  "tasa_efectiva",
+  "metodo",
+  "cuota_mensual"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Empresa",
+   "options": "Company",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "remember_last_selected_value": 1
+  },
+  {
+   "fieldname": "ejercicio",
+   "fieldtype": "Int",
+   "label": "Año declarado (IR-2)",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "description": "Año fiscal de la declaración jurada (IR-2) de la que salen los datos."
+  },
+  {
+   "fieldname": "regimen",
+   "fieldtype": "Select",
+   "label": "Régimen",
+   "options": "Mensual\nExento",
+   "default": "Mensual",
+   "in_list_view": 1,
+   "description": "Exento: microempresas (Ley 30-26, desde 2027), sector agropecuario o exención aprobada por la DGII (art. 314, párrafo IV)."
+  },
+  {
+   "fieldname": "column_break_vigencia",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "aplica_desde",
+   "fieldtype": "Date",
+   "label": "Se paga desde",
+   "description": "Primer vencimiento con esta base. Vacío: el mes siguiente a la fecha límite del IR-2 (cierre al 31 de diciembre: desde el 1 de mayo)."
+  },
+  {
+   "fieldname": "motivo_exencion",
+   "fieldtype": "Small Text",
+   "label": "Motivo de la exención",
+   "depends_on": "eval:doc.regimen=='Exento'"
+  },
+  {
+   "fieldname": "section_ir2",
+   "fieldtype": "Section Break",
+   "label": "Datos del IR-2",
+   "depends_on": "eval:doc.regimen=='Mensual'"
+  },
+  {
+   "fieldname": "ingresos_brutos",
+   "fieldtype": "Currency",
+   "label": "Ingresos brutos del año",
+   "options": "Company:company:default_currency",
+   "mandatory_depends_on": "eval:doc.regimen=='Mensual'"
+  },
+  {
+   "fieldname": "impuesto_liquidado",
+   "fieldtype": "Currency",
+   "label": "Impuesto liquidado",
+   "options": "Company:company:default_currency",
+   "description": "ISR liquidado en el IR-2, antes de restar anticipos, retenciones y saldos a favor."
+  },
+  {
+   "fieldname": "column_break_calculo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tasa_efectiva",
+   "fieldtype": "Percent",
+   "label": "Tasa efectiva de tributación",
+   "read_only": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "metodo",
+   "fieldtype": "Data",
+   "label": "Cálculo",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cuota_mensual",
+   "fieldtype": "Currency",
+   "label": "Anticipo mensual",
+   "options": "Company:company:default_currency",
+   "read_only": 1,
+   "in_list_view": 1,
+   "bold": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-16 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "DGII Fiscal",
+ "name": "Base Anticipo ISR",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "report": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "report": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "role": "Accounts User",
+   "read": 1,
+   "report": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "ejercicio",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "company",
+ "track_changes": 1
+}

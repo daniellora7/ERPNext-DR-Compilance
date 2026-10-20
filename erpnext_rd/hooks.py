@@ -63,6 +63,7 @@ after_app_uninstall = "erpnext_rd.install.al_desinstalar_app"
 page_js = {"print": "public/js/print_view.js"}
 
 doctype_js = {
+	"Company": "public/js/company_perfil.js",
 	"Customer": "public/js/party_rnc.js",
 	"Supplier": "public/js/party_rnc.js",
 	"Sales Invoice": "public/js/invoice_dgii.js",
@@ -140,6 +141,7 @@ jinja = {
 	"methods": [
 		"erpnext_rd.dgii_fiscal.impresion.rd_datos_fiscales",
 		"erpnext_rd.nomina_rd.volante.rd_datos_volante",
+		"erpnext_rd.dgii_fiscal.cheque.rd_datos_cheque",
 	],
 }
 
@@ -151,6 +153,10 @@ jinja = {
 scheduler_events = {
 	"cron": {
 		"0 2 * * *": ["erpnext_rd.padron_rnc.padron.encolar"],
+		# Tasa del dólar del Banco Central (publica la del día al final de la tarde)
+		"0 7,19 * * *": ["erpnext_rd.dgii_fiscal.tasa_bcrd.tarea_programada"],
+		# Recordatorios de vencimientos por correo (si están activados en Configuracion DGII)
+		"30 7 * * *": ["erpnext_rd.rd_compliance.recordatorios.enviar_recordatorios"],
 		# Resultado de los e-CF enviados a la DGII que siguen en proceso
 		# y reenvío de los que quedaron en contingencia; entrega de los aceptados a sus compradores
 		"*/15 * * * *": [

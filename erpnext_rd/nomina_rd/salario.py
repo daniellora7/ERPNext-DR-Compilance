@@ -29,7 +29,20 @@ INFOTEP = "INFOTEP empleador"
 INFOTEP_EMPLEADO = "INFOTEP empleado"
 # Devengo: la bonificación (participación en los beneficios, art. 223) es la base del INFOTEP del empleado
 BONIFICACION = "Bonificación (art. 223)"
-CONCEPTOS = [AFP, SFS, ISR, AFP_EMPLEADOR, SFS_EMPLEADOR, SRL, INFOTEP, INFOTEP_EMPLEADO, BONIFICACION]
+# Per cápita de los dependientes adicionales del SFS (padres, suegros, hijos mayores), a cargo del trabajador
+SFS_DEPENDIENTES = "SFS dependientes adicionales"
+CONCEPTOS = [
+	AFP,
+	SFS,
+	ISR,
+	AFP_EMPLEADOR,
+	SFS_EMPLEADOR,
+	SRL,
+	INFOTEP,
+	INFOTEP_EMPLEADO,
+	BONIFICACION,
+	SFS_DEPENDIENTES,
+]
 
 DEDUCCIONES = {AFP: "afp", SFS: "sfs"}
 APORTES_EMPLEADOR = {
@@ -52,6 +65,8 @@ COMPONENTES = [
 	("INFOTEP - Aporte Empleado", "INFOTEP_EE", "Deduction", INFOTEP_EMPLEADO, 0, "210403", None),
 	# Gravada para el ISR y fuera del salario cotizable de la TSS (art. 192)
 	("Bonificación", "BONIF", "Earning", BONIFICACION, 0, "6104", None),
+	# Descuento voluntario: no reduce la renta gravada del ISR
+	("SFS - Dependientes adicionales", "SFS_DA", "Deduction", SFS_DEPENDIENTES, 0, "210402", None),
 ]
 
 # Meses que cubre un recibo según la frecuencia de nómina
@@ -113,7 +128,30 @@ def calcular(slip, conf=None) -> frappe._dict:
 	montos.update({concepto: flt(tss[clave] * meses, 2) for concepto, clave in APORTES_EMPLEADOR.items()})
 	montos[ISR] = flt(isr * meses, 2)
 	montos[INFOTEP_EMPLEADO] = flt(b.bonificacion * flt(conf.infotep_empleado) / 100, 2)
+	dependientes = dependientes_adicionales(
+		slip.get("employee"), slip.get("start_date"), slip.get("end_date")
+	)
+	montos[SFS_DEPENDIENTES] = flt(dependientes * per_capita_adicional(conf) * meses, 2)
 	return montos
+
+
+def per_capita_adicional(conf) -> float:
+	"""Lo que cobra la TSS al mes por cada dependiente adicional: per cápita del SFS más Fonamat."""
+	return flt(conf.sfs_per_capita_adicional) + flt(conf.fonamat_per_capita)
+
+
+def dependientes_adicionales(employee: str | None, desde, hasta) -> int:
+	"""Dependientes adicionales del empleado afiliados en algún día del período del recibo."""
+	if not employee:
+		return 0
+	hasta = getdate(hasta or desde or today())
+	desde = getdate(desde or hasta)
+	filas = frappe.get_all(
+		"Dependiente Adicional SFS",
+		filters={"parenttype": "Employee", "parent": employee, "desde": ("<=", hasta)},
+		fields=["hasta"],
+	)
+	return sum(1 for f in filas if not f.hasta or getdate(f.hasta) >= desde)
 
 
 def _poner(slip, tabla: str, concepto: str, monto: float):
@@ -140,7 +178,7 @@ def aplicar(slip):
 	if not aplica(slip):
 		return
 	montos = calcular(slip)
-	for concepto in (AFP, SFS, ISR, INFOTEP_EMPLEADO):
+	for concepto in (AFP, SFS, ISR, INFOTEP_EMPLEADO, SFS_DEPENDIENTES):
 		_poner(slip, "deductions", concepto, montos[concepto])
 	if slip.meta.has_field("employer_contributions"):
 		for concepto in APORTES_EMPLEADOR:

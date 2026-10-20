@@ -7,13 +7,19 @@ Localización de **República Dominicana** para ERPNext v16 y Frappe HR, libre y
 ![RD Compliance: panel de cumplimiento con los formatos, el IT-1 y el IR-17 del mes, sus plazos y las secuencias NCF](docs/capturas/rd-compliance.png)
 
 - **DGII Fiscal**: tipos de comprobante (B01–B17, E31–E47), secuencias NCF sin duplicados, NCF en ventas, compras y POS (las devoluciones toman la nota de crédito B04/E34 solas), validación de RNC y Cédula, catálogo de cuentas DGII (NIIF PYMES) con plantillas de ITBIS y retenciones, formatos de impresión fiscales editables en el constructor de Frappe, con un formato de factura por empresa.
-- **DGII Reportes**: formatos 606, 607, 608 y 609 con descarga del TXT oficial, y resúmenes de apoyo para el IT-1 y el IR-17.
+- **DGII Reportes**: formatos 606, 607, 608 y 609 con descarga del TXT oficial, y resúmenes de apoyo para el IT-1 (con la proporcionalidad del ITBIS) y el IR-17.
+- **ISR de la empresa**: anticipos mensuales con su vencimiento; cuadre fiscal del IR-2 (ajuste por inflación, depreciación fiscal por categoría del art. 287, ajustes del anexo G y liquidación estimada, con formato imprimible) y anexos A-1 y B-1 por casilla desde el catálogo de cuentas.
+- **Perfil tributario** de cada empresa (régimen, tamaño, cierre fiscal, impuestos especiales, incentivos y e-CF), con asistente y lista de requisitos con su estado.
+- **Compras**: consulta del NCF del proveedor en la DGII y aviso de proveedores no activos en el padrón.
+- **Tasa del dólar** del Banco Central cada día como tipo de cambio, **recordatorios por correo** de los vencimientos y formato **Cheque RD** con su comprobante de pago.
 - **Padrón RNC**: padrón de contribuyentes de la DGII (cada día a las 2:00 a. m. revisa si la DGII publicó uno nuevo y solo entonces lo descarga) y autocompletado de la razón social.
 - **Panel RD Compliance** (*RD Compliance → Panel de cumplimiento*, dentro del escritorio; también en `/rd-compliance`): en una pantalla, los plazos y montos del 606, 607, 608, 609, IT-1 e IR-17 del mes, las secuencias NCF por agotarse o vencer y los registros con observaciones antes de enviarlos. Hecho con [frappe-ui](https://ui.frappe.io), el mismo estilo del escritorio de Frappe v16.
 - **Feriados de RD**: una lista de feriados de ERPNext, *Feriados RD*, con los feriados dominicanos y sus traslados según la Ley 139-97 (los toma de la misma librería que usa el botón "Agregar feriados locales" de ERPNext) y el domingo como día de descanso. Se crea sola, se extiende cada año hasta el 31 de diciembre del año siguiente y queda como lista por defecto de las empresas RD que no tengan otra. Lo que edites a mano (por ejemplo, un decreto que mueva un feriado) se respeta.
 - **e-CF** (facturación electrónica directa con la DGII): XML de los diez tipos (E31 a E47) y del resumen de consumo (RFCE) según los esquemas oficiales, firma digital con el certificado .p12 de la empresa, envío y consulta del resultado, reenvío automático en contingencia y entrega al comprador. Recepción de e-CF de proveedores con acuse de recibo y aprobación o rechazo comercial, anulación de rangos de e-NCF y set de pruebas para la certificación (CerteCF). Falta la certificación ante la DGII con un certificado real.
 
 ![Factura Fiscal RD de crédito fiscal (B01), editable en el constructor de formatos de Frappe](docs/capturas/factura-fiscal-rd.png)
+
+![Perfil tributario de la empresa con sus requisitos: cumplidos, pendientes y lo que la app aún no cubre](docs/capturas/perfil-tributario.png)
 
 ## Del lado de Frappe HR: Nómina RD (dock de Frappe HR → *Nómina RD*)
 
@@ -28,7 +34,8 @@ Opcional: se activa sola si Frappe HR está instalado (antes o después) y se re
 - **Horas extras**: sobre las de Frappe HR, con el valor de la hora y los recargos de ley (35 %, 100 % sobre 68 horas semanales y en feriados, y 15 % más en la jornada nocturna).
 - **Volante de pago RD**: formato de impresión del recibo con documento, NSS, AFP, ARS, descuentos de ley, neto y aportes del empleador.
 - **Datos del empleado**: cédula (solo avisa si no valida), NSS, pasaporte, AFP y ARS.
-- **TSS**: archivos de autodeterminación (AM), novedades (NV) y rectificativa del IR-3 (RT) para el SUIR Plus.
+- **TSS**: archivos de autodeterminación (AM), novedades (NV) y rectificativa del IR-3 (RT) para el SUIR Plus; dependientes adicionales del SFS descontados en el recibo.
+- **SISALRIL**: registro de los subsidios por enfermedad común, maternidad y lactancia, con el monto estimado y el reembolso.
 - **DGII**: resúmenes del IR-3 mensual y del IR-13 anual para revisar antes de presentar.
 - **Ministerio de Trabajo**: archivos de la planilla del personal fijo (DGT-3) y de sus cambios (DGT-4) para el SIRLA.
 - **Configuración Nómina RD**: tasas, topes, escalas del ISR por año (incluida la de 2027, Ley 30-26) y tramos, todo editable.
@@ -36,6 +43,8 @@ Opcional: se activa sola si Frappe HR está instalado (antes o después) y se re
 ![Volante de pago RD con los descuentos de ley y los aportes del empleador](docs/capturas/volante-pago-rd.png)
 
 La app no modifica el código de ERPNext ni de Frappe HR: todo va por hooks, campos personalizados y configuraciones, así que se pueden actualizar sin conflictos.
+
+**Alcance:** cubre a la persona jurídica del régimen ordinario. El impuesto selectivo al consumo, la DIOR, las zonas francas, el régimen simplificado, los incentivos, el impuesto sobre los activos y las personas físicas con negocio se registran en el perfil tributario de la empresa y se irán cubriendo ([plan](docs/PLAN.md), Fase 8).
 
 Toda la lógica (fiscal y de nómina) se aplica solo a las empresas con país *Dominican Republic*, así que la app convive con empresas de otros países en el mismo sitio: esas imprimen sus facturas con el formato estándar o con el que elijan en la empresa.
 
@@ -47,7 +56,7 @@ Paso a paso para configurar una empresa: [guía de uso](docs/GUIA-DE-USO.md). La
 
 ### Frappe Cloud
 
-Próximamente en el Marketplace de Frappe Cloud.
+Próximamente en el [Marketplace de Frappe](https://github.com/frappe/marketplace) (`bench get-app erpnext_rd` con Pilot) y en Frappe Cloud. Lo que falta: `docs/marketplace.md`.
 
 ### Bench
 
