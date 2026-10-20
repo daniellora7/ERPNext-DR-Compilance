@@ -2,7 +2,7 @@
 
 El usuario escribe en español: responder en español.
 
-**ERPNext RD**: ERPNext + Frappe HR + app propia `erpnext_rd` con la localización de República Dominicana (NCF, e-CF, reportes DGII, padrón RNC, nómina RD). Docker local; después Dokploy y Marketplace de Frappe Cloud.
+**ERPNext RD**: ERPNext + Frappe HR + app propia `erpnext_rd` con la localización de República Dominicana (NCF, e-CF, reportes DGII, padrón RNC, nómina RD). Docker local; después Dokploy y el Marketplace de Frappe.
 
 Documentos (leer el que haga falta, no todo):
 - `docs/PLAN.md`: fases, estado y pendientes. Actualizarlo al avanzar.
@@ -21,7 +21,7 @@ Frappe **v16.52.0** (`FRAPPE_BRANCH` en `deploy/Containerfile`), ERPNext **v16.5
 - Lógica fiscal y de nómina **solo en empresas con país *Dominican Republic*** (`ncf.es_empresa_rd`).
 - Lo que dependa del régimen, el tamaño o un impuesto especial se decide con el **perfil tributario** de la empresa (Fase 8 de `docs/PLAN.md`), nunca suponiendo el régimen ordinario. Normas nuevas: confirmar en el texto oficial antes de implementar.
 - **HRMS es opcional**: lo que toque sus DocTypes se condiciona con `nomina_rd.hrms_instalado()`.
-- **Marketplace**: instalable sin acceso a la máquina (`after_install`/`after_migrate`, patches), funciona sin HRMS y se desinstala limpio (todo Property Setter lleva `module` de la app).
+- **Marketplace** (registro `frappe/marketplace` + Pilot, ver `docs/marketplace.md`): instalable sin acceso a la máquina (`after_install`/`after_migrate`, patches), funciona sin HRMS, se desinstala limpio (todo Property Setter lleva `module` de la app) y pasa las reglas de Semgrep del registro (sin f-strings en `frappe.db.sql`, `str(e)` en `_().format()`, sin commits manuales sin `# nosemgrep: <regla>`, tipos en métodos whitelisted; ver `NOTAS-TECNICAS.md`).
 - **Interfaz**: estándar frappe-ui. Solo tokens CSS (`--ink-*`, `--surface-*`, `--outline-*`; avisos `--ink-amber-8`, errores `--ink-red-6`), nunca hex ni Bootstrap (salvo formatos de impresión). Revisar en claro y oscuro.
 - **Formatos imprimibles: siempre editables en el constructor de formatos de Frappe** (Print Format no estándar del constructor, bloques HTML/Jinja; ver `erpnext_rd/formatos.py`). Nunca formatos estándar ni `{% include %}` a plantillas de la app.
 - Nómina RD va del lado de Frappe HR (sidebar `nomina_rd`); lo fiscal, en el sidebar único de RD Compliance.

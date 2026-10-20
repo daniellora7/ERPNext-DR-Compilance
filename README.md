@@ -53,7 +53,7 @@ Paso a paso para configurar una empresa: [guía de uso](docs/GUIA-DE-USO.md). La
 
 ### Frappe Cloud
 
-Próximamente en el Marketplace de Frappe Cloud.
+Próximamente en el [Marketplace de Frappe](https://github.com/frappe/marketplace) (`bench get-app erpnext_rd` con Pilot) y en Frappe Cloud. Lo que falta: `docs/marketplace.md`.
 
 ### Bench
 
