@@ -9,6 +9,7 @@ Localización de **República Dominicana** para ERPNext v16 y Frappe HR, libre y
 - **DGII Fiscal**: tipos de comprobante (B01–B17, E31–E47), secuencias NCF sin duplicados, NCF en ventas, compras y POS (las devoluciones toman la nota de crédito B04/E34 solas), validación de RNC y Cédula, catálogo de cuentas DGII (NIIF PYMES) con plantillas de ITBIS y retenciones, formatos de impresión fiscales editables en el constructor de Frappe, con un formato de factura por empresa.
 - **DGII Reportes**: formatos 606, 607, 608 y 609 con descarga del TXT oficial, y resúmenes de apoyo para el IT-1 (con la proporcionalidad del ITBIS) y el IR-17.
 - **ISR de la empresa**: anticipos mensuales con su vencimiento; cuadre fiscal del IR-2 (ajuste por inflación, depreciación fiscal por categoría del art. 287, ajustes del anexo G y liquidación estimada, con formato imprimible) y anexos A-1 y B-1 por casilla desde el catálogo de cuentas.
+- **Perfil tributario** de cada empresa (régimen, tamaño, cierre fiscal, impuestos especiales, incentivos y e-CF), con asistente y lista de requisitos con su estado.
 - **Compras**: consulta del NCF del proveedor en la DGII y aviso de proveedores no activos en el padrón.
 - **Tasa del dólar** del Banco Central cada día como tipo de cambio, **recordatorios por correo** de los vencimientos y formato **Cheque RD** con su comprobante de pago.
 - **Padrón RNC**: padrón de contribuyentes de la DGII (cada día a las 2:00 a. m. revisa si la DGII publicó uno nuevo y solo entonces lo descarga) y autocompletado de la razón social.
@@ -41,7 +42,7 @@ Opcional: se activa sola si Frappe HR está instalado (antes o después) y se re
 
 La app no modifica el código de ERPNext ni de Frappe HR: todo va por hooks, campos personalizados y configuraciones, así que se pueden actualizar sin conflictos.
 
-**Alcance:** cubre a la persona jurídica del régimen ordinario. El impuesto selectivo al consumo, la DIOR, las zonas francas, el régimen simplificado, los incentivos, el impuesto sobre los activos y las personas físicas con negocio están planificados en un perfil tributario por empresa ([plan](docs/PLAN.md), Fase 8).
+**Alcance:** cubre a la persona jurídica del régimen ordinario. El impuesto selectivo al consumo, la DIOR, las zonas francas, el régimen simplificado, los incentivos, el impuesto sobre los activos y las personas físicas con negocio se registran en el perfil tributario de la empresa y se irán cubriendo ([plan](docs/PLAN.md), Fase 8).
 
 Toda la lógica (fiscal y de nómina) se aplica solo a las empresas con país *Dominican Republic*, así que la app convive con empresas de otros países en el mismo sitio: esas imprimen sus facturas con el formato estándar o con el que elijan en la empresa.
 

@@ -29,6 +29,12 @@ msgstr "Bonificación RD - Empleado"
 msgid "Configuracion DGII"
 msgstr "Configuración DGII"
 
+msgid "Perfil Tributario RD"
+msgstr "Perfil tributario RD"
+
+msgid "Incentivo Fiscal RD"
+msgstr "Incentivo fiscal RD"
+
 msgid "Cuadre Fiscal IR2"
 msgstr "Cuadre fiscal IR-2"
 

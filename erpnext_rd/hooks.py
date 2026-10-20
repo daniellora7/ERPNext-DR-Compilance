@@ -63,6 +63,7 @@ after_app_uninstall = "erpnext_rd.install.al_desinstalar_app"
 page_js = {"print": "public/js/print_view.js"}
 
 doctype_js = {
+	"Company": "public/js/company_perfil.js",
 	"Customer": "public/js/party_rnc.js",
 	"Supplier": "public/js/party_rnc.js",
 	"Sales Invoice": "public/js/invoice_dgii.js",

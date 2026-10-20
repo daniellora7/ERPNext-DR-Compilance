@@ -304,6 +304,22 @@
    "open_in_new_tab": 0,
    "show_arrow": 0,
    "link_type": "DocType",
+   "label": "Perfiles tributarios",
+   "link_to": "Perfil Tributario RD",
+   "type": "Link"
+  },
+  {
+   "added": 0,
+   "child": 1,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "link_type": "DocType",
    "label": "Bases de anticipos ISR",
    "link_to": "Base Anticipo ISR",
    "type": "Link"
@@ -357,7 +373,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-10-18 15:00:00.000000",
+ "modified": "2026-10-18 16:00:00.000000",
  "modified_by": "Administrator",
  "module": "RD Compliance",
  "name": "RD Compliance",

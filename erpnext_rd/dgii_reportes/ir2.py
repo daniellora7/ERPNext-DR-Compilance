@@ -158,23 +158,16 @@ def multiplicador(cierre) -> float | None:
 
 
 def cierre_fiscal(company: str, anio: int, mes: int) -> date | None:
-	"""Fecha de cierre del ejercicio de la empresa si cae en el mes (año, mes). Se toma del año fiscal
-	de ERPNext que cubre el mes (el de la empresa o uno para todas); sin año fiscal, el 31/12."""
+	"""Fecha de cierre del ejercicio de la empresa si cae en el mes (año, mes): la del año fiscal de
+	ERPNext que cubre el mes o, sin año fiscal, la del perfil tributario (31/12 por defecto)."""
+	from erpnext_rd.rd_compliance import perfil
+
 	fin_mes = add_days(add_months(date(anio, mes, 1), 1), -1)
-	cierres = frappe.db.sql(
-		"""SELECT fy.year_end_date FROM `tabFiscal Year` fy
-		WHERE fy.disabled = 0 AND %(fecha)s BETWEEN fy.year_start_date AND fy.year_end_date
-			AND (
-				NOT EXISTS (SELECT 1 FROM `tabFiscal Year Company` c WHERE c.parent = fy.name)
-				OR EXISTS (
-					SELECT 1 FROM `tabFiscal Year Company` c WHERE c.parent = fy.name AND c.company = %(company)s
-				)
-			)""",
-		{"fecha": fin_mes, "company": company},
-	)
-	if not cierres:
-		return date(anio, 12, 31) if mes == 12 else None
-	return next((getdate(c) for (c,) in cierres if getdate(c) == fin_mes), None)
+	anio_fiscal = perfil.anio_fiscal(company, fin_mes)
+	if anio_fiscal:
+		return fin_mes if getdate(anio_fiscal.hasta) == fin_mes else None
+	mes_cierre, dia = perfil.cierre(company)
+	return date(anio, mes, dia) if mes == mes_cierre else None
 
 
 def fecha_limite(cierre) -> date:

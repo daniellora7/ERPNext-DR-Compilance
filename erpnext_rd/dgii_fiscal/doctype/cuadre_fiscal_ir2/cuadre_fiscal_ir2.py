@@ -10,6 +10,7 @@ from frappe.utils import add_days, cint, flt, getdate
 
 from erpnext_rd.dgii_fiscal.ncf import es_empresa_rd
 from erpnext_rd.dgii_reportes import ir2
+from erpnext_rd.rd_compliance import perfil
 
 
 def _concepto_cuenta(categoria: str, uso: str) -> str:
@@ -20,6 +21,13 @@ class CuadreFiscalIR2(Document):
 	def validate(self):
 		if not es_empresa_rd(self.company):
 			frappe.throw(_("El cuadre del IR-2 solo aplica a empresas de República Dominicana"))
+		if not perfil.declara_ir2(self.company):
+			frappe.throw(
+				_(
+					"Según su perfil tributario, {0} no declara el IR-2 (solo las personas jurídicas del "
+					"régimen ordinario)."
+				).format(self.company)
+			)
 		duplicado = frappe.db.exists(
 			ir2.DOCTYPE,
 			{
