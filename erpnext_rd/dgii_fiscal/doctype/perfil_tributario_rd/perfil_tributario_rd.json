@@ -1,0 +1,265 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 16:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "tipo_contribuyente",
+  "column_break_regimen",
+  "regimen",
+  "tamano",
+  "column_break_cierre",
+  "cierre_fiscal",
+  "segmento_dgii",
+  "section_requisitos",
+  "requisitos_html",
+  "section_actividades",
+  "isc_alcohol",
+  "isc_tabaco",
+  "isc_combustibles",
+  "column_break_isc",
+  "isc_telecomunicaciones",
+  "isc_seguros",
+  "propina_legal",
+  "column_break_otras",
+  "partes_relacionadas",
+  "exportador",
+  "agente_retencion",
+  "sector_regulado",
+  "section_incentivos",
+  "incentivos",
+  "section_ecf",
+  "ecf_estado",
+  "column_break_ecf",
+  "ecf_obligada_desde"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Empresa",
+   "options": "Company",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "tipo_contribuyente",
+   "fieldtype": "Select",
+   "label": "Tipo de contribuyente",
+   "options": "Persona jurídica\nPersona física con negocio",
+   "default": "Persona jurídica",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_regimen",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "regimen",
+   "fieldtype": "Select",
+   "label": "Régimen",
+   "options": "Ordinario\nSimplificado (RST)",
+   "default": "Ordinario",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "tamano",
+   "fieldtype": "Select",
+   "label": "Tamaño de la empresa",
+   "options": "\nMicro (hasta 10 empleados)\nPequeña (11 a 50 empleados)\nMediana (51 a 150 empleados)\nGrande (más de 150 empleados)",
+   "description": "Ley 488-08 de mipymes, modificada por la Ley 187-17: se clasifica por cantidad de trabajadores y por ventas brutas anuales, que el MICM actualiza cada año por inflación. Si no coinciden, consulte la clasificación del MICM."
+  },
+  {
+   "fieldname": "column_break_cierre",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cierre_fiscal",
+   "fieldtype": "Select",
+   "label": "Cierre fiscal",
+   "options": "31 de diciembre\n31 de marzo\n30 de junio\n30 de septiembre",
+   "default": "31 de diciembre",
+   "reqd": 1
+  },
+  {
+   "fieldname": "segmento_dgii",
+   "fieldtype": "Data",
+   "label": "Segmento asignado por la DGII",
+   "description": "Si la DGII lo comunicó (p. ej. grandes contribuyentes)"
+  },
+  {
+   "fieldname": "section_requisitos",
+   "fieldtype": "Section Break",
+   "label": "Requisitos de la empresa"
+  },
+  {
+   "fieldname": "requisitos_html",
+   "fieldtype": "HTML",
+   "label": "Requisitos"
+  },
+  {
+   "fieldname": "section_actividades",
+   "fieldtype": "Section Break",
+   "label": "Actividades con tratamiento especial",
+   "description": "Marque solo lo que la empresa realiza. Lo que la app aún no cubre aparece en los requisitos como pendiente."
+  },
+  {
+   "fieldname": "isc_alcohol",
+   "fieldtype": "Check",
+   "label": "Produce o importa bebidas alcohólicas (ISC)",
+   "default": "0"
+  },
+  {
+   "fieldname": "isc_tabaco",
+   "fieldtype": "Check",
+   "label": "Produce o importa productos del tabaco (ISC)",
+   "default": "0"
+  },
+  {
+   "fieldname": "isc_combustibles",
+   "fieldtype": "Check",
+   "label": "Vende o importa combustibles (ISC)",
+   "default": "0"
+  },
+  {
+   "fieldname": "column_break_isc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "isc_telecomunicaciones",
+   "fieldtype": "Check",
+   "label": "Presta servicios de telecomunicaciones (ISC)",
+   "default": "0"
+  },
+  {
+   "fieldname": "isc_seguros",
+   "fieldtype": "Check",
+   "label": "Vende seguros (ISC)",
+   "default": "0"
+  },
+  {
+   "fieldname": "propina_legal",
+   "fieldtype": "Check",
+   "label": "Cobra propina legal (restaurantes y bares)",
+   "default": "0"
+  },
+  {
+   "fieldname": "column_break_otras",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "partes_relacionadas",
+   "fieldtype": "Check",
+   "label": "Tiene operaciones con partes relacionadas (DIOR)",
+   "default": "0"
+  },
+  {
+   "fieldname": "exportador",
+   "fieldtype": "Check",
+   "label": "Exporta bienes o servicios",
+   "default": "0"
+  },
+  {
+   "fieldname": "agente_retencion",
+   "fieldtype": "Check",
+   "label": "Designada agente de retención por la DGII",
+   "default": "0"
+  },
+  {
+   "fieldname": "sector_regulado",
+   "fieldtype": "Select",
+   "label": "Sector regulado",
+   "options": "No aplica\nBanca\nSeguros\nPensiones (AFP)\nOtro sector regulado",
+   "description": "Estos sectores reportan además a su superintendencia: la app no cubre esos reportes",
+   "default": "No aplica"
+  },
+  {
+   "fieldname": "section_incentivos",
+   "fieldtype": "Section Break",
+   "label": "Regímenes especiales e incentivos",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "incentivos",
+   "fieldtype": "Table",
+   "label": "Incentivos",
+   "options": "Incentivo Fiscal RD"
+  },
+  {
+   "fieldname": "section_ecf",
+   "fieldtype": "Section Break",
+   "label": "Facturación electrónica (e-CF)"
+  },
+  {
+   "fieldname": "ecf_estado",
+   "fieldtype": "Select",
+   "label": "Situación",
+   "options": "No obligada aún\nEn certificación\nEmisor electrónico",
+   "default": "No obligada aún",
+   "reqd": 1,
+   "description": "Como emisor electrónico, las ventas usan comprobantes electrónicos (E31, E32...)"
+  },
+  {
+   "fieldname": "column_break_ecf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ecf_obligada_desde",
+   "fieldtype": "Date",
+   "label": "Obligada desde",
+   "description": "Fecha desde la que la DGII le exige emitir e-CF"
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-18 17:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "DGII Fiscal",
+ "name": "Perfil Tributario RD",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts User",
+   "read": 1,
+   "report": 1,
+   "print": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "field:company",
+ "naming_rule": "By fieldname",
+ "title_field": "company",
+ "track_changes": 1,
+ "description": "Régimen, tamaño, impuestos especiales e incentivos de una empresa de RD. La app activa y exige lo que corresponde a cada perfil."
+}

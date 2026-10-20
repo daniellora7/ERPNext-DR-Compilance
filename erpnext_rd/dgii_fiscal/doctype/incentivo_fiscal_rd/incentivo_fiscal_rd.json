@@ -1,0 +1,80 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 16:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "regimen",
+  "resolucion",
+  "desde",
+  "hasta",
+  "exento_isr",
+  "exento_itbis",
+  "notas"
+ ],
+ "fields": [
+  {
+   "fieldname": "regimen",
+   "fieldtype": "Select",
+   "label": "Régimen o ley",
+   "options": "Zona franca (Ley 8-90)\nTurismo (Ley 158-01)\nProindustria (Ley 392-07)\nEnergías renovables (Ley 57-07)\nCine (Ley 108-10)\nDesarrollo fronterizo (Ley 28-01)\nOtro",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 3
+  },
+  {
+   "fieldname": "resolucion",
+   "fieldtype": "Data",
+   "label": "Resolución o certificado",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "desde",
+   "fieldtype": "Date",
+   "label": "Desde",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "hasta",
+   "fieldtype": "Date",
+   "label": "Hasta",
+   "in_list_view": 1,
+   "columns": 1,
+   "description": "Vacío: sin vencimiento"
+  },
+  {
+   "fieldname": "exento_isr",
+   "fieldtype": "Check",
+   "label": "Exento de ISR",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "exento_itbis",
+   "fieldtype": "Check",
+   "label": "Exento de ITBIS",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "notas",
+   "fieldtype": "Small Text",
+   "label": "Notas"
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-18 16:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "DGII Fiscal",
+ "name": "Incentivo Fiscal RD",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1
+}

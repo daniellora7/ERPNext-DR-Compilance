@@ -18,7 +18,7 @@ from frappe.utils import add_days, add_months, cint, formatdate, get_url, getdat
 from erpnext_rd.dgii_fiscal.ncf import PAIS
 from erpnext_rd.dgii_reportes import anticipos, declaraciones, ir2
 from erpnext_rd.nomina_rd import feriados, hrms_instalado
-from erpnext_rd.rd_compliance import panel
+from erpnext_rd.rd_compliance import panel, perfil
 
 MESES = (
 	"enero",
@@ -86,7 +86,7 @@ def obligaciones(company: str, anio: int, mes: int) -> list[dict]:
 	]
 	if a := anticipos.anticipo(company, anio, mes):
 		lista.append({"obligacion": _("Anticipo del ISR de {0}").format(periodo), "vence": a.vence})
-	if cierre := ir2.cierre_fiscal(company, anio, mes):
+	if perfil.declara_ir2(company) and (cierre := ir2.cierre_fiscal(company, anio, mes)):
 		lista.append(
 			{
 				"obligacion": _("IR-2 (ISR de la empresa) del ejercicio cerrado el {0}").format(

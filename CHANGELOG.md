@@ -15,6 +15,8 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 - Recordatorio del IR-2, 120 días después del cierre del año fiscal.
 - Anexos A-1 (balance general) y B-1 (estado de resultados) del IR-2 por casilla, con la casilla en cada cuenta (asignada en el catálogo DGII). El cuadre toma de ahí el beneficio antes del ISR.
 
+- Perfil tributario por empresa: régimen, tamaño, cierre fiscal, actividades con tratamiento especial, incentivos y situación con el e-CF, con asistente desde la empresa y lista de requisitos con su estado. Los emisores electrónicos venden con la serie E y el IR-2 solo aplica a personas jurídicas del régimen ordinario.
+
 ### Nómina RD
 - Dependientes adicionales del SFS en la ficha del empleado, con el per cápita y el Fonamat descontados en cada recibo.
 - Registro de subsidios de la SISALRIL (enfermedad común, maternidad y lactancia) con el monto estimado y el seguimiento del reembolso.
