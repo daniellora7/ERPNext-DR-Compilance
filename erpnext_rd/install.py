@@ -286,6 +286,16 @@ def campos_personalizados() -> dict:
 	return {
 		"Company": [
 			{
+				"fieldname": "rd_perfil_tributario",
+				"fieldtype": "Link",
+				"label": "Perfil tributario",
+				"options": "Perfil Tributario RD",
+				"insert_after": "tax_id",
+				"read_only": 1,
+				"no_copy": 1,
+				"description": "Se configura con el botón «Perfil tributario» (solo administradores)",
+			},
+			{
 				"fieldname": "rd_catalogo_dgii",
 				"fieldtype": "Check",
 				"label": "Catálogo de cuentas DGII aplicado",

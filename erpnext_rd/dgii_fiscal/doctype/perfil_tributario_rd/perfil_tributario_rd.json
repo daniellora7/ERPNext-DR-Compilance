@@ -5,6 +5,7 @@
  "engine": "InnoDB",
  "field_order": [
   "company",
+  "resumen",
   "tipo_contribuyente",
   "column_break_regimen",
   "regimen",
@@ -44,6 +45,14 @@
    "unique": 1,
    "in_list_view": 1,
    "in_standard_filter": 1
+  },
+  {
+   "fieldname": "resumen",
+   "fieldtype": "Data",
+   "label": "Resumen",
+   "read_only": 1,
+   "hidden": 1,
+   "no_copy": 1
   },
   {
    "fieldname": "tipo_contribuyente",
@@ -216,7 +225,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-21 18:00:00",
+ "modified": "2026-10-21 19:00:00",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Perfil Tributario RD",
@@ -256,7 +265,8 @@
  "states": [],
  "autoname": "field:company",
  "naming_rule": "By fieldname",
- "title_field": "company",
+ "title_field": "resumen",
  "track_changes": 1,
- "description": "Régimen, tamaño, impuestos especiales e incentivos de una empresa de RD. La app activa y exige lo que corresponde a cada perfil."
+ "description": "Régimen, tamaño, impuestos especiales e incentivos de una empresa de RD. La app activa y exige lo que corresponde a cada perfil.",
+ "show_title_field_in_link": 1
 }

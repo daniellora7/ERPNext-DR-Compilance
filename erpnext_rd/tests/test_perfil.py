@@ -145,6 +145,17 @@ class TestPerfilTributario(IntegrationTestCase):
 				frappe.get_doc({"doctype": perfil.DOCTYPE, "company": otra}).insert()
 			self.assertEqual(perfil.estado_empresa(otra), {"aplica": False})
 
+	def test_perfil_en_la_empresa(self):
+		"""La empresa muestra su perfil (solo lectura) con el resumen como título del enlace."""
+		perfil.guardar(EMPRESA, {"regimen": "Simplificado (RST)"})
+		self.assertEqual(frappe.db.get_value("Company", EMPRESA, "rd_perfil_tributario"), EMPRESA)
+		self.assertEqual(
+			frappe.db.get_value(perfil.DOCTYPE, EMPRESA, "resumen"),
+			"Persona jurídica · Régimen Simplificado (RST)",
+		)
+		frappe.delete_doc(perfil.DOCTYPE, EMPRESA)
+		self.assertIsNone(frappe.db.get_value("Company", EMPRESA, "rd_perfil_tributario"))
+
 	def test_configuracion_solo_para_administradores(self):
 		"""La configuración fiscal y de e-CF la edita solo el System Manager; contabilidad solo la ve."""
 		for doctype in (

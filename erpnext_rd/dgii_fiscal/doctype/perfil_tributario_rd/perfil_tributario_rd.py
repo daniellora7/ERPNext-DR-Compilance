@@ -16,3 +16,14 @@ class PerfilTributarioRD(Document):
 		for i in self.incentivos:
 			if i.desde and i.hasta and getdate(i.hasta) < getdate(i.desde):
 				frappe.throw(_("Fila {0}: la vigencia termina antes de empezar").format(i.idx))
+		# Título del enlace: lo que muestra el campo «Perfil tributario» de la empresa
+		self.resumen = _("{0} · Régimen {1}").format(_(self.tipo_contribuyente), _(self.regimen))
+
+	def on_update(self):
+		if frappe.db.get_value("Company", self.company, "rd_perfil_tributario") != self.name:
+			frappe.db.set_value(
+				"Company", self.company, "rd_perfil_tributario", self.name, update_modified=False
+			)
+
+	def on_trash(self):
+		frappe.db.set_value("Company", self.company, "rd_perfil_tributario", None, update_modified=False)
