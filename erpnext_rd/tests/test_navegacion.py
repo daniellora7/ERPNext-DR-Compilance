@@ -154,3 +154,17 @@ class TestDockNominaRD(unittest.TestCase):
 
 		dock = resolve_app_dock("hrms", upto="site", gated=False)
 		self.assertIn("Payroll", [e["link_to"] for e in dock])
+
+
+class TestEspanolDominicano(unittest.TestCase):
+	def test_es_do_sobre_el_espanol(self):
+		"""es-DO = el español de todas las apps más los términos de RD (locale/es_DO.po); el español neutro
+		no los lleva."""
+		from frappe.translate import get_all_translations
+
+		es, es_do = get_all_translations("es"), get_all_translations("es-DO")
+		self.assertEqual(es_do.get("Delivery Note"), "Conduce")
+		self.assertEqual(es_do.get("Tax ID"), "RNC / Cédula")
+		self.assertNotEqual(es.get("Delivery Note"), "Conduce")
+		# Lo que no cambia en RD sale del español
+		self.assertEqual(es_do.get("Leave Application"), es.get("Leave Application"))

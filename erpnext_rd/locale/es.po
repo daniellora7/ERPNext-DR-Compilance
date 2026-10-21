@@ -8,10 +8,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-# ERPNext: «Tax ID» es el RNC (o la cédula de una persona física) en la DGII
-msgid "Tax ID"
-msgstr "RNC / Cédula"
-
 msgid "Nomina RD"
 msgstr "Nómina RD"
 
@@ -82,553 +78,10 @@ msgid "Set Pruebas ECF"
 msgstr "Set de pruebas e-CF"
 
 # ---------------------------------------------------------------------------
-# Términos de República Dominicana en ERPNext, Frappe y Frappe HR: conduce (Delivery Note), feriado
-# (Holiday), forma de pago (Mode of Payment, como en la DGII), celular, POS, preaviso, fecha de salida,
-# liquidación final, cotización de proveedor y recibo de nómina unificado.
+# ERPNext y Frappe HR: traducciones erradas o mezcladas (nota de débito sin tilde; Salary Slip como
+# «nómina salarial», «recibo de sueldo» o «Salario Slips»: aquí siempre «recibo de nómina»).
+# Los términos de República Dominicana van aparte, en es_DO.po.
 # ---------------------------------------------------------------------------
-
-msgid "Applicable on POS Invoice"
-msgstr "Aplicable en facturas de POS"
-
-msgid "Cannot cancel POS Closing Entry"
-msgstr "No se puede cancelar el cierre de POS"
-
-msgid "Cashier is currently assigned to another POS."
-msgstr "El cajero está actualmente asignado a otro POS."
-
-msgid "Create Payment Entry for Consolidated POS Invoices."
-msgstr "Crear entrada de pago para facturas POS consolidadas."
-
-msgid "Customer POS ID"
-msgstr "ID POS del cliente"
-
-msgid "Duplicate POS Fields"
-msgstr "Campos POS duplicados"
-
-msgid "Duplicate POS Invoices found"
-msgstr "Se encontraron Factura de POS duplicadas"
-
-msgid "Duplicate POS Search Fields"
-msgstr "Campos de búsqueda POS duplicados"
-
-msgid "Editing {0} is not allowed as per POS Profile settings"
-msgstr "La edición de {0} no está permitida según la configuración del Perfil del POS"
-
-msgid "Enable Urchin Tracking Module parameters in Quotation, Sales Order, Sales Invoice, POS Invoice, Lead,  and Delivery Note."
-msgstr "Activar parámetros del módulo Urchin Tracking en cotización, orden de venta, factura de venta, factura POS, lead y conduce."
-
-msgid "If enabled, ledger entries will be posted for change amount in POS transactions"
-msgstr "Si está habilitado, se registrarán entradas contables por el monto de cambio en las transacciones de POS"
-
-msgid "Include POS Transactions"
-msgstr "Incluir transacciones POS"
-
-msgid "Include Payment (POS)"
-msgstr "Incluir Pago (POS)"
-
-msgid "Invalid POS Field"
-msgstr "Campo POS no válido"
-
-msgid "Invalid POS Fields"
-msgstr "Campos POS no válidos"
-
-msgid "Invalid POS Invoices"
-msgstr "Facturas de POS inválidas"
-
-msgid "Invalid POS Search Field"
-msgstr "Campo de búsqueda POS no válido"
-
-msgid "Invoice Type Created via POS Screen"
-msgstr "Tipo de factura creada desde la pantalla POS"
-
-msgid "Is created using POS"
-msgstr "Es creada usando POS"
-
-msgid "Multiple POS Opening Entry"
-msgstr "Varios asientos de apertura POS"
-
-msgid "No POS Profile found. Please create a New POS Profile first"
-msgstr "No se encontró ningún perfil de POS. Cree primero un nuevo perfil de POS"
-
-msgid "No open POS Opening Entry found for POS Profile {0}."
-msgstr "No se ha encontrado ninguna Entrada de Apertura para el perfil de POS {0}."
-
-msgid "Outdated POS Opening Entry"
-msgstr "Asiento de apertura POS obsoleto"
-
-msgid "POS Additional Fields"
-msgstr "Campos adicionales del POS"
-
-msgid "POS Closed"
-msgstr "POS cerrado"
-
-msgid "POS Closing Entry"
-msgstr "Entrada de cierre de POS"
-
-msgid "POS Closing Failed"
-msgstr "Cierre de POS fallido"
-
-msgid "POS Closing failed while running in a background process. You can resolve the {0} and retry the process again."
-msgstr "El Cierre del POS falló mientras se ejecutaba un proceso en segundo plano. Puede resolver el {0} y reintentar el proceso de nuevo."
-
-msgid "POS Configurations"
-msgstr "Configuraciones de POS"
-
-msgid "POS Customer Group"
-msgstr "Grupo de clientes de POS"
-
-msgid "POS Field"
-msgstr "Campo POS"
-
-msgid "POS Invoice"
-msgstr "Factura POS"
-
-msgid "POS Invoice is already consolidated"
-msgstr "La factura del POS ya está consolidada"
-
-msgid "POS Invoice is not submitted"
-msgstr "La Factura de POS no está validada"
-
-msgid "POS Invoice should have the field {0} checked."
-msgstr "La factura del POS debe tener el campo {0} seleccionado."
-
-msgid "POS Invoices"
-msgstr "Facturas POS"
-
-msgid "POS Invoices can't be added when Sales Invoice is enabled"
-msgstr "No se pueden añadir facturas POS cuando la factura de venta está activada"
-
-msgid "POS Invoices will be consolidated in a background process"
-msgstr "Las Facturas de POS se consolidarán en un proceso en segundo plano"
-
-msgid "POS Invoices will be unconsolidated in a background process"
-msgstr "Las Facturas de POS no se consolidarán en un proceso en segundo plano"
-
-msgid "POS Item Details"
-msgstr "Detalles del artículo POS"
-
-msgid "POS Item Group"
-msgstr "Grupo de Productos POS"
-
-msgid "POS Item Selector"
-msgstr "Selector de Productos POS"
-
-msgid "POS Opening Entry"
-msgstr "Entrada de Apertura POS"
-
-msgid "POS Opening Entry - {0} is outdated. Please close the POS and create a new POS Opening Entry."
-msgstr "Entrada de Apertura de POS - {0} está desactualizada. Cierre el POS y cree una nueva."
-
-msgid "POS Opening Entry Cancellation Error"
-msgstr "Error al cancelar el asiento de apertura POS"
-
-msgid "POS Opening Entry Cancelled"
-msgstr "Entrada de apertura de POS cancelada"
-
-msgid "POS Opening Entry Exists"
-msgstr "Existe un asiento de apertura POS"
-
-msgid "POS Opening Entry Missing"
-msgstr "Falta el asiento de apertura POS"
-
-msgid "POS Opening Entry cannot be cancelled as unconsolidated Invoices exists."
-msgstr "No se puede cancelar el asiento de apertura POS porque existen facturas sin consolidar."
-
-msgid "POS Opening Entry has been cancelled. Please refresh the page."
-msgstr "Se ha cancelado el asiento de apertura POS. Actualice la página."
-
-msgid "POS Payment Method"
-msgstr "Método de Pago POS"
-
-msgid "POS Profile"
-msgstr "Perfil de POS"
-
-msgid "POS Profile - {0} has multiple open POS Opening Entries. Please close or cancel the existing entries before proceeding."
-msgstr "Perfil de POS - {0} tiene varias entradas de apertura de POS abiertas. Cierre o cancele las entradas existentes antes de continuar."
-
-msgid "POS Profile - {0} is currently open. Please close the POS or cancel the existing POS Opening Entry before cancelling this POS Closing Entry."
-msgstr "El perfil de POS {0} está abierto. Cierre el POS o cancele la entrada de apertura antes de cancelar esta entrada de cierre."
-
-msgid "POS Profile User"
-msgstr "Usuario de Perfil POS"
-
-msgid "POS Profile doesn't match {}"
-msgstr "El perfil de POS no coincide con {}"
-
-msgid "POS Profile is mandatory to mark this invoice as POS Transaction."
-msgstr "El Perfil de POS es obligatorio para marcar esta factura como transacción POS."
-
-msgid "POS Profile required to make POS Entry"
-msgstr "Se requiere un Perfil de POS para crear entradas en el punto de venta"
-
-msgid "POS Profile {0} cannot be disabled as there are ongoing POS sessions."
-msgstr "No se puede desactivar el perfil POS {0} porque hay sesiones POS en curso."
-
-msgid "POS Profile {} does not belong to company {}"
-msgstr "El Perfil de POS {} no pertenece a la Empresa {}"
-
-msgid "POS Profile {} does not exist."
-msgstr "El Perfil de POS {} no existe."
-
-msgid "POS Profile {} is disabled."
-msgstr "El perfil POS {} está deshabilitado."
-
-msgid "POS Register"
-msgstr "Registro POS"
-
-msgid "POS Search Fields"
-msgstr "Campos de búsqueda en el POS"
-
-msgid "POS Settings"
-msgstr "Configuración de POS"
-
-msgid "POS Transactions"
-msgstr "Transacciones de POS"
-
-msgid "POS has been closed at {0}. Please refresh the page."
-msgstr "El POS se cerró a las {0}. Actualice la página."
-
-msgid "POS invoice {0} created successfully"
-msgstr "Factura POS {0} creada exitosamente"
-
-msgid "Partial Payment in POS Transactions are not allowed."
-msgstr "No se permiten pagos parciales en transacciones POS."
-
-msgid "Reserved for POS Transactions"
-msgstr "Reservado para transacciones POS"
-
-msgid "Row #{}: POS Invoice {} has been {}"
-msgstr "Fila n.° {}: La Factura de POS {} ha sido {}"
-
-msgid "Row #{}: POS Invoice {} is not against customer {}"
-msgstr "Fila # {}: Factura de POS {} no es contra el cliente {}"
-
-msgid "Row #{}: POS Invoice {} is not submitted yet"
-msgstr "Fila # {}: la Factura de POS {} aún no se ha validado"
-
-msgid "Sales Invoice is not created using POS"
-msgstr "La factura de venta no se creó con POS"
-
-msgid "Sales Invoice mode is activated in POS. Please create Sales Invoice instead."
-msgstr "El modo de factura de venta está activado en el POS. Cree una factura de venta en su lugar."
-
-msgid "Show only POS"
-msgstr "Mostrar solo POS"
-
-msgid "The current POS opening entry is outdated. Please close it and create a new one."
-msgstr "El asiento de apertura POS actual está obsoleto. Ciérrelo y cree uno nuevo."
-
-msgid "The system will create a Sales Invoice or a POS Invoice from the POS interface based on this setting. For high-volume transactions, it is recommended to use POS Invoice."
-msgstr "El sistema creará una Factura de Venta o una Factura de POS desde la interfaz de POS según esta configuración. Para transacciones de gran volumen, se recomienda usar la Factura de POS."
-
-msgid "To cancel this Sales Invoice you need to cancel the POS Closing Entry {}."
-msgstr "Para cancelar esta factura de venta debe cancelar el cierre de POS {}."
-
-msgid "Transactions using Sales Invoice in POS are disabled."
-msgstr "Las transacciones que usan factura de venta en el POS están desactivadas."
-
-msgid "You need to cancel POS Closing Entry {} to be able to cancel this document."
-msgstr "Debe cancelar la entrada de cierre de POS {} para poder cancelar este documento."
-
-msgid "{0} is open. Close the POS or cancel the existing POS Opening Entry to create a new POS Opening Entry."
-msgstr "{0} está abierto. Cierre el POS o cancele el asiento de apertura POS existente para crear uno nuevo."
-
-msgid "A Packing Slip can only be created for Draft Delivery Note."
-msgstr "Solo se puede crear una lista de empaque para un conduce en borrador."
-
-msgid "A quality inspection must be completed before generating a Delivery Note for this item."
-msgstr "Debe completarse una inspección de calidad antes de generar un conduce para este artículo."
-
-msgid "Against Delivery Note Item"
-msgstr "Contra el artículo del conduce"
-
-msgid "Applying a Discount Amount? When this Sales Order is partially fulfilled through multiple Delivery Notes and Sales Invoices, the Discount Amount is allocated on a FIFO basis. The earlier transactions receive a larger share of the discount. To spread the discount proportionally across item prices, use Additional Discount Percentage instead."
-msgstr "¿Aplicación de un descuento? Cuando esta orden de venta se completa parcialmente mediante varios conduces y facturas, el descuento se aplica según el método FIFO (primero en entrar, primero en salir). Las transacciones más antiguas reciben una mayor parte del descuento. Para distribuir el descuento proporcionalmente entre los precios de los artículos, utilice el porcentaje de descuento adicional."
-
-msgid "Create Delivery Note"
-msgstr "Crear conduce"
-
-msgid "Creating Delivery Note ..."
-msgstr "Creando conduce..."
-
-msgid "Delivery Note"
-msgstr "Conduce"
-
-msgid "Delivery Note Item"
-msgstr "Artículo del conduce"
-
-msgid "Delivery Note No"
-msgstr "No. de conduce"
-
-msgid "Delivery Note Packed Item"
-msgstr "Artículo empacado del conduce"
-
-msgid "Delivery Note Trends"
-msgstr "Evolución de los conduces"
-
-msgid "Delivery Note {0} is not submitted"
-msgstr "El conduce {0} no se ha validado"
-
-msgid "Delivery Notes"
-msgstr "Conduces"
-
-msgid "Delivery Notes should not be in draft state when submitting a Delivery Trip. The following Delivery Notes are still in draft state: {0}. Please submit them first."
-msgstr "Los conduces no deben estar en borrador al validar un viaje de entrega. Estos conduces siguen en borrador: {0}. Valídelos primero."
-
-msgid "Delivery Notes {0} updated"
-msgstr "Conduces {0} actualizados"
-
-msgid "Enable cut-off date on creating bulk Delivery Notes"
-msgstr "Activar fecha de corte al crear conduces masivos"
-
-msgid "Enable to make this supplier selectable as a transporter on Delivery Notes and Stock Entries"
-msgstr "Actívelo para que este proveedor se pueda seleccionar como transportista en conduces y entradas de inventario"
-
-msgid "For the convenience of customers, these codes can be used in print formats like Invoices and Delivery Notes"
-msgstr "Para comodidad de los clientes, estos códigos se pueden usar en formatos de impresión como facturas y conduces."
-
-msgid "From Delivery Note"
-msgstr "Desde conduce"
-
-msgid "Generate packing slips for packages to be delivered. Used to notify package number, package contents and its weight."
-msgstr "Genera listas de empaque para los paquetes que se van a entregar. Indica el número de paquete, su contenido y su peso."
-
-msgid "If checked, updates inventory; stock and accounting entries are created together. Leave unchecked if a Delivery Note is created separately."
-msgstr "Si está marcado, actualiza el inventario; los asientos de inventario y contables se crean juntos. Déjelo sin marcar si se crea un conduce por separado."
-
-msgid "In Words (Export) will be visible once you save the Delivery Note."
-msgstr "En letras (exportación) será visible una vez que guarde el conduce."
-
-msgid "In Words will be visible once you save the Delivery Note."
-msgstr "En letras será visible una vez que guarde el conduce."
-
-msgid "Is Delivery Note required to create Sales Invoice?"
-msgstr "¿Se requiere conduce para crear la factura de venta?"
-
-msgid "Is Sales Order required to create Sales Invoice/Delivery Note?"
-msgstr "¿Se requiere orden de venta para crear factura de venta/conduce?"
-
-msgid "Job Worker Delivery Note"
-msgstr "Conduce del subcontratista"
-
-msgid "Leave blank to use the standard Delivery Note format"
-msgstr "Deje en blanco para usar el formato estándar de conduce"
-
-msgid "No Delivery Note selected for Customer {}"
-msgstr "No se ha seleccionado ningún conduce para el cliente {}"
-
-msgid "Packaging Slip From Delivery Note"
-msgstr "Lista de empaque desde el conduce"
-
-msgid "Please pull items from Delivery Note"
-msgstr "Traiga los artículos del conduce"
-
-msgid "Please select a Delivery Note"
-msgstr "Seleccione un conduce"
-
-msgid "Return Against Delivery Note"
-msgstr "Devolución contra conduce"
-
-msgid "Row {0}: Either Delivery Note Item or Packed Item reference is mandatory."
-msgstr "Fila {0}: la referencia del artículo del conduce o del artículo empacado es obligatoria."
-
-msgid "Row {0}: Packing Slip is already created for Item {1}."
-msgstr "Fila {0}: ya se creó la lista de empaque del artículo {1}."
-
-msgid "Row {0}: Please provide a valid Delivery Note Item or Packed Item reference."
-msgstr "Fila {0}: indique una referencia válida de artículo del conduce o de artículo empacado."
-
-msgid "Serial No {0} does not belong to Delivery Note {1}"
-msgstr "El número de serie {0} no pertenece al conduce {1}"
-
-msgid "Shipment Delivery Note"
-msgstr "Conduce del envío"
-
-msgid "Show Linked Delivery Notes"
-msgstr "Mostrar conduces vinculados"
-
-msgid "Skip Delivery Note"
-msgstr "Omitir conduce"
-
-msgid "Stock cannot be updated against the following Delivery Notes: {0}"
-msgstr "El inventario no se puede actualizar con estos conduces: {0}"
-
-msgid "Supplier Delivery Note"
-msgstr "Conduce del proveedor"
-
-msgid "Update Billed Amount in Delivery Note"
-msgstr "Actualizar monto facturado en el conduce"
-
-msgid "Warn or stop if Item rate is changed in Delivery Notes and Sales Invoices generated from a Sales Order."
-msgstr "Avisar o detener si se cambia la tarifa del artículo en conduces y facturas de venta generados a partir de una orden de venta."
-
-msgid "When enabled, it adds a cutoff date filter to Delivery Notes created in bulk from Sales Orders. This allows you to process orders only with a transaction date up to the specified cutoff date, which is useful for period-end processing and batch fulfillment."
-msgstr "Al activarlo, añade un filtro de fecha de corte a los conduces creados en masa desde órdenes de venta. Así puede procesar solo órdenes con fecha de transacción hasta la fecha de corte, útil para el cierre de período y el despacho por lotes."
-
-msgid "You have entered a duplicate Delivery Note on Row"
-msgstr "Ha introducido un conduce duplicado en la fila"
-
-msgid "A Holiday List can be added to exclude counting these days for the Workstation."
-msgstr "Se puede añadir una lista de feriados para no contar esos días en la estación de trabajo."
-
-msgid "Add Local Holidays"
-msgstr "Agregar feriados locales"
-
-msgid "Add Weekly Holidays"
-msgstr "Agregar días libres semanales"
-
-msgid "Add to Holidays"
-msgstr "Agregar a feriados"
-
-msgid "Allow Production on Holidays"
-msgstr "Permitir producción en feriados"
-
-msgid "Applicable Holiday List"
-msgstr "Lista de feriados aplicable"
-
-msgid "Click on Add to Holidays. This will populate the holidays table with all the dates that fall on the selected weekly off. Repeat the process for populating the dates for all your weekly holidays"
-msgstr "Haga clic en Agregar a feriados. Esto llena la tabla de feriados con todas las fechas que caen en el día libre semanal seleccionado. Repita el proceso con cada día libre semanal"
-
-msgid "Default Holiday List"
-msgstr "Lista de feriados predeterminada"
-
-msgid "Enter a name for this Holiday List."
-msgstr "Introduzca un nombre para esta lista de feriados."
-
-msgid "Holiday"
-msgstr "Feriado"
-
-msgid "Holiday Date {0} added multiple times"
-msgstr "El feriado {0} se agregó varias veces"
-
-msgid "Holiday List"
-msgstr "Lista de feriados"
-
-msgid "Holiday List - {0} is not valid for current date."
-msgstr "La lista de feriados {0} no es válida para la fecha actual."
-
-msgid "Holiday List Name"
-msgstr "Nombre de la lista de feriados"
-
-msgid "Holidays"
-msgstr "Feriados"
-
-msgid "Please add a valid Holiday List on Appointment Booking Settings."
-msgstr "Añada una lista de feriados válida en la configuración de reserva de citas."
-
-msgid "Please select a Holiday List to enable Appointment Scheduling."
-msgstr "Seleccione una lista de feriados para activar la programación de citas."
-
-msgid "Please set a default Holiday List for Company {0}"
-msgstr "Defina una lista de feriados predeterminada para la compañía {0}"
-
-msgid "Please set a default Holiday List for Employee {0} or Company {1}"
-msgstr "Defina una lista de feriados predeterminada para el empleado {0} o para su compañía {1}"
-
-msgid "Total Holidays"
-msgstr "Total de feriados"
-
-msgid "Workstation is closed on the following dates as per Holiday List: {0}"
-msgstr "La estación de trabajo estará cerrada en estas fechas según la lista de feriados: {0}"
-
-msgid "Attendance not submitted for {0} as it is a Holiday."
-msgstr "No se validó la asistencia del {0} porque es feriado."
-
-msgid "Optional Holiday List not set for leave period {0}"
-msgstr "No hay lista de feriados opcionales para el período de permisos {0}"
-
-msgid "Worked On Holiday"
-msgstr "Trabajó en feriado"
-
-msgid "{0} is not in Optional Holiday List"
-msgstr "{0} no está en la lista de feriados opcionales"
-
-msgid "Mode of Payment"
-msgstr "Forma de pago"
-
-msgid "Mode of Payment Account"
-msgstr "Cuenta de la forma de pago"
-
-msgid "Mode of Payments"
-msgstr "Formas de pago"
-
-msgid "POS Profile {} contains Mode of Payment {}. Please remove them to disable this mode."
-msgstr "El perfil POS {} contiene la forma de pago {}. Quítela para desactivar esta forma de pago."
-
-msgid "Please set default Cash or Bank account in Mode of Payment {0}"
-msgstr "Defina la cuenta de caja o banco predeterminada en la forma de pago {0}"
-
-msgid "Please set default Cash or Bank account in Mode of Payment {}"
-msgstr "Defina la cuenta de caja o banco predeterminada en la forma de pago {}"
-
-msgid "Please set default Cash or Bank account in Mode of Payments {}"
-msgstr "Defina la cuenta de caja o banco predeterminada en las formas de pago {}"
-
-msgid "Row {0}: Please set the Mode of Payment in Payment Schedule"
-msgstr "Fila {0}: defina la forma de pago en el calendario de pagos"
-
-msgid "Row {0}: Please set the correct code on Mode of Payment {1}"
-msgstr "Fila {0}: defina el código correcto en la forma de pago {1}"
-
-msgid "Allow Login using Mobile Number"
-msgstr "Permitir inicio de sesión con número de celular"
-
-msgid "Field {0} on document {1} is neither a Mobile number field nor a Customer or User link"
-msgstr "El campo {0} del documento {1} no es un campo de número de celular ni un enlace a cliente o usuario"
-
-msgid "Is Primary Mobile"
-msgstr "Es el celular principal"
-
-msgid "LDAP Mobile Field"
-msgstr "Campo de celular LDAP"
-
-msgid "Mobile"
-msgstr "Celular"
-
-msgid "Mobile No"
-msgstr "Celular"
-
-msgid "Mobile Number"
-msgstr "Número de celular"
-
-msgid "Notification: customer {0} has no Mobile number set"
-msgstr "Notificación: el cliente {0} no tiene número de celular"
-
-msgid "Notification: user {0} has no Mobile number set"
-msgstr "Notificación: el usuario {0} no tiene número de celular"
-
-msgid "Primary Mobile"
-msgstr "Celular principal"
-
-msgid "User can login using Email id or Mobile number"
-msgstr "El usuario puede iniciar sesión con su correo o su número de celular"
-
-msgid "Contact Mobile"
-msgstr "Celular del contacto"
-
-msgid "Contact Mobile No"
-msgstr "Celular del contacto"
-
-msgid "Customer Mobile No"
-msgstr "Celular del cliente"
-
-msgid "Email or Phone/Mobile of the Contact are mandatory to continue."
-msgstr "El correo o el teléfono/celular del contacto son obligatorios para continuar."
-
-msgid "Full Name, Email or Phone/Mobile of the user are mandatory to continue."
-msgstr "El nombre completo, el correo o el teléfono/celular del usuario son obligatorios para continuar."
-
-msgid "Notice Period"
-msgstr "Preaviso"
-
-msgid "Relieving Date"
-msgstr "Fecha de salida"
-
-msgid "Relieving Date "
-msgstr "Fecha de salida "
-
-msgid "Full and Final Statement"
-msgstr "Liquidación final"
 
 msgid "Debit Note"
 msgstr "Nota de débito"
@@ -644,18 +97,6 @@ msgstr "Es devolución (nota de débito)"
 
 msgid "Return / Debit Note"
 msgstr "Devolución / Nota de débito"
-
-msgid "Create Supplier Quotation"
-msgstr "Crear cotización de proveedor"
-
-msgid "Material Requests for which Supplier Quotations are not created"
-msgstr "Solicitudes de materiales sin cotizaciones de proveedor"
-
-msgid "Supplier Quotation"
-msgstr "Cotización de proveedor"
-
-msgid "Supplier Quotation Item"
-msgstr "Artículo de la cotización de proveedor"
 
 msgid "Could not submit some Salary Slips: {}"
 msgstr "No se pudieron validar algunos recibos de nómina: {}"
@@ -725,45 +166,6 @@ msgstr "Validando recibos de nómina..."
 
 msgid "This will submit Salary Slips and create accrual Journal Entry. Do you want to proceed?"
 msgstr "Esto validará los recibos de nómina y creará el asiento contable de la provisión. ¿Desea continuar?"
-
-msgid "Allow sales invoice creation without delivery note"
-msgstr "Permitir crear factura de venta sin conduce"
-
-msgid "Create delivery note"
-msgstr "Crear conduce"
-
-msgid "If enabled then system won't apply the pricing rule on the delivery note which will be create from the pick list"
-msgstr "Si está habilitado, el sistema no aplicará la regla de precios en el conduce que se cree a partir de la lista de selección."
-
-msgid "At least one mode of payment is required for POS invoice."
-msgstr "La factura POS requiere al menos una forma de pago."
-
-msgid "Modes of Payment"
-msgstr "Formas de pago"
-
-msgid "Please add Mode of payments and opening balance details."
-msgstr "Agregue las formas de pago y los saldos de apertura."
-
-msgid "Salary Mode"
-msgstr "Forma de pago del salario"
-
-msgid "Switch Between Payment Modes"
-msgstr "Cambiar entre formas de pago"
-
-msgid "You can only select one mode of payment as default"
-msgstr "Solo puede seleccionar una forma de pago por defecto"
-
-msgid "Salary Payments Based On Payment Mode"
-msgstr "Pagos de salario según la forma de pago"
-
-msgid "Open your authentication app on your mobile phone."
-msgstr "Abra su aplicación de autenticación en su celular."
-
-msgid "Please enter valid mobile nos"
-msgstr "Introduzca un número de celular válido"
-
-msgid "Please enter mobile number first."
-msgstr "Introduzca primero el número de celular."
 
 # ---------------------------------------------------------------------------
 # Frappe HR: correcciones de su catálogo oficial de español (traducciones erradas, p. ej. «Tipo de
@@ -845,7 +247,7 @@ msgid "Expire Carry Forwarded Leaves (Days)"
 msgstr "Vencimiento de los permisos arrastrados (días)"
 
 msgid "Holiday List for Optional Leave"
-msgstr "Lista de feriados para los permisos opcionales"
+msgstr "Lista de festividades para los permisos opcionales"
 
 msgid "Import Attendance"
 msgstr "Importar asistencia"
@@ -1342,7 +744,7 @@ msgid "Allocation was skipped due to maximum leave allocation limit set in leave
 msgstr "Se omitió la asignación por el límite máximo de asignación definido en el tipo de permiso. Aumente el límite y vuelva a intentar las asignaciones fallidas."
 
 msgid "Allow Employee Checkin from Mobile App"
-msgstr "Permitir marcaciones desde la aplicación del celular"
+msgstr "Permitir marcaciones desde la aplicación móvil"
 
 msgid "Allow Geolocation Tracking"
 msgstr "Permitir el seguimiento de la ubicación"
@@ -1603,7 +1005,7 @@ msgid "Assignment must start between {0} and {1}"
 msgstr "La asignación debe empezar entre {0} y {1}"
 
 msgid "Assignment start date cannot be outside holiday list dates"
-msgstr "La fecha de inicio de la asignación no puede quedar fuera de las fechas de la lista de feriados"
+msgstr "La fecha de inicio de la asignación no puede quedar fuera de las fechas de la lista de festividades"
 
 msgid "Associate Job Opening"
 msgstr "Vincular vacante"
@@ -2027,7 +1429,7 @@ msgid "Consider Grace Period"
 msgstr "Tomar en cuenta el período de gracia"
 
 msgid "Consider Marked Attendance on Holidays"
-msgstr "Tomar en cuenta la asistencia marcada en feriados"
+msgstr "Tomar en cuenta la asistencia marcada en días festivos"
 
 msgid "Consider Tax Exemption Declaration"
 msgstr "Tomar en cuenta la declaración de exención de impuestos"
@@ -2096,7 +1498,7 @@ msgid "Create Gratuity Rule"
 msgstr "Crear regla de indemnización"
 
 msgid "Create Holiday List"
-msgstr "Crear lista de feriados"
+msgstr "Crear lista de festividades"
 
 msgid "Create Income Tax Slab"
 msgstr "Crear tramo del impuesto sobre la renta"
@@ -2600,7 +2002,7 @@ msgid "Employees Relieving (This Quarter)"
 msgstr "Empleados que salen (este trimestre)"
 
 msgid "Employees Working on a Holiday"
-msgstr "Empleados que trabajan en un feriado"
+msgstr "Empleados que trabajan en un día festivo"
 
 msgid "Employees by branch, department, designation or grade."
 msgstr "Empleados por sucursal, departamento, cargo o grado."
@@ -2756,7 +2158,7 @@ msgid "Exchange rate of Payment Entry against Employee Advance"
 msgstr "Tipo de cambio de la entrada de pago del anticipo al empleado"
 
 msgid "Exclude Holidays"
-msgstr "Excluir feriados"
+msgstr "Excluir días festivos"
 
 msgid "Excluded {0} Non-Encashable Leaves for {1}"
 msgstr "Se excluyeron {0} permisos no pagables de {1}"
@@ -3216,25 +2618,25 @@ msgid "Hiring vs Attrition Count"
 msgstr "Contrataciones frente a bajas"
 
 msgid "Holiday List Assignment"
-msgstr "Asignación de lista de feriados"
+msgstr "Asignación de lista de festividades"
 
 msgid "Holiday List Assignment for {0} already exists for date {1}: {2}"
-msgstr "Ya existe una asignación de lista de feriados de {0} para la fecha {1}: {2}"
+msgstr "Ya existe una asignación de lista de festividades de {0} para la fecha {1}: {2}"
 
 msgid "Holiday List End"
-msgstr "Fin de la lista de feriados"
+msgstr "Fin de la lista de festividades"
 
 msgid "Holiday List Start"
-msgstr "Inicio de la lista de feriados"
+msgstr "Inicio de la lista de festividades"
 
 msgid "Holidays in this month"
-msgstr "Feriados de este mes"
+msgstr "Días festivos de este mes"
 
 msgid "Holidays this Month."
-msgstr "Feriados de este mes."
+msgstr "Días festivos de este mes."
 
 msgid "Holidays this Week."
-msgstr "Feriados de esta semana."
+msgstr "Días festivos de esta semana."
 
 msgid "Horizontal Break"
 msgstr "Separador horizontal"
@@ -3327,7 +2729,7 @@ msgid "Include Company Descendants"
 msgstr "Incluir compañías subordinadas"
 
 msgid "Include Holidays"
-msgstr "Incluir feriados"
+msgstr "Incluir días festivos"
 
 msgid "Include Shift Attendance Without Checkins"
 msgstr "Incluir asistencia por turno sin marcaciones"
@@ -3708,7 +3110,7 @@ msgid "Leave(s) Taken"
 msgstr "Permisos tomados"
 
 msgid "Leaves & Holidays"
-msgstr "Permisos y feriados"
+msgstr "Permisos y días festivos"
 
 msgid "Leaves After Adjustment"
 msgstr "Permisos después del ajuste"
@@ -3807,7 +3209,7 @@ msgid "Manually"
 msgstr "Manualmente"
 
 msgid "Mark Auto Attendance on Holidays"
-msgstr "Marcar asistencia automática en feriados"
+msgstr "Marcar asistencia automática en días festivos"
 
 msgid "Mark as Completed"
 msgstr "Marcar como completado"
@@ -3970,7 +3372,7 @@ msgid "No Employees Selected"
 msgstr "No hay empleados seleccionados"
 
 msgid "No Holiday List was found for Employee {0} or their company {1} for date {2}. Please assign through {3}"
-msgstr "No se encontró una lista de feriados para el empleado {0} ni para su compañía {1} en la fecha {2}. Asígnela mediante {3}"
+msgstr "No se encontró una lista de festividades para el empleado {0} ni para su compañía {1} en la fecha {2}. Asígnela mediante {3}"
 
 msgid "No Interview has been scheduled."
 msgstr "No hay entrevistas programadas."
@@ -4633,7 +4035,7 @@ msgid "Please set the Appraisal Template for all the {0} or select the template 
 msgstr "Defina la plantilla de evaluación de todos los {0} o seleccione la plantilla en la tabla de empleados de abajo."
 
 msgid "Please set the Holiday List."
-msgstr "Defina la lista de feriados."
+msgstr "Defina la lista de festividades."
 
 msgid "Please set the date range."
 msgstr "Defina el rango de fechas."
@@ -5617,7 +5019,7 @@ msgid "The terms you offer the applicant. Submit it once they accept. See [Job O
 msgstr "Las condiciones que le ofrece al candidato. Valídela cuando la acepte. Vea [Oferta de trabajo](https://docs.frappe.io/hr/job-offer)."
 
 msgid "The weekly offs and public holidays your employees get. See [Holiday List](https://docs.frappe.io/hr/holiday-list)."
-msgstr "Los días libres semanales y los feriados de sus empleados. Vea [Lista de feriados](https://docs.frappe.io/hr/holiday-list)."
+msgstr "Los días libres semanales y los feriados de sus empleados. Vea [Lista de festividades](https://docs.frappe.io/hr/holiday-list)."
 
 msgid "There are multiple shifts assigned to the employee for the same period. Please mention the shift"
 msgstr "El empleado tiene varios turnos asignados en el mismo período. Indique el turno"
@@ -5932,10 +5334,10 @@ msgid "Untracked Hours (U)"
 msgstr "Horas sin registrar (U)"
 
 msgid "Upcoming Holidays"
-msgstr "Próximos feriados"
+msgstr "Próximos días festivos"
 
 msgid "Upcoming Holidays Reminder"
-msgstr "Recordatorio de próximos feriados"
+msgstr "Recordatorio de próximos días festivos"
 
 msgid "Upcoming Shifts"
 msgstr "Próximos turnos"

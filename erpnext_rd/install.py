@@ -1176,7 +1176,21 @@ def setup():
 	salario.crear_componentes()
 
 
+def idioma_dominicano():
+	"""Solo al instalar la app (no en cada migrate): el sitio y los usuarios que ya existen pasan al español de
+	República Dominicana; los nuevos lo toman del sitio. Después cada quien lo puede cambiar."""
+	if not frappe.db.exists("Language", formatos.IDIOMA):
+		return
+	frappe.db.set_value("Language", formatos.IDIOMA, "enabled", 1)
+	frappe.db.set_single_value("System Settings", "language", formatos.IDIOMA)
+	usuario = frappe.qb.DocType("User")
+	frappe.qb.update(usuario).set(usuario.language, formatos.IDIOMA).where(usuario.name != "Guest").run()
+	frappe.clear_cache()
+
+
 def after_install():
+	# Primero el idioma, luego lo propio de la app
+	idioma_dominicano()
 	setup()
 	programar_padron_inicial()
 

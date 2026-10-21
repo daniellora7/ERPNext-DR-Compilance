@@ -54,6 +54,9 @@ FISCALES = [
 FISCALES.append({**FISCALES[1], "name": "Recibo POS RD (POS Invoice)", "doc_type": "POS Invoice"})
 MODULO_FISCAL = "DGII Fiscal"
 
+# Español de República Dominicana (locale/es_DO.po: RNC / Cédula, conduce, forma de pago...)
+IDIOMA = "es-DO"
+
 
 def por_documento(funcion):
 	"""Guarda el resultado por documento durante la petición: cada bloque del formato lo vuelve a pedir."""
@@ -113,7 +116,7 @@ def valores(formato: dict, modulo: str) -> dict:
 		"css": _leer(formato["carpeta"], "estilos.css"),
 		"html": "",
 		"pdf_generator": "chrome",
-		"default_print_language": "es",
+		"default_print_language": IDIOMA,
 		"font_size": 11,
 		"page_number": "Hide",
 		"margin_top": margen,
