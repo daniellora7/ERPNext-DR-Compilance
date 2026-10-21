@@ -142,18 +142,16 @@ class AnulacionENCF(Document):
 	def on_submit(self):
 		emisor = emisor_de(self.company)
 		llave, certificado = emisor.cargar()
-		self.fecha_anulacion = now_datetime()
-		anecf = firma.firmar(
-			esquemas.construir("ANECF", self.datos_anecf(self.fecha_anulacion)), llave, certificado
-		)
+		fecha = now_datetime()
+		anecf = firma.firmar(esquemas.construir("ANECF", self.datos_anecf(fecha)), llave, certificado)
 		esquemas.validar("ANECF", anecf)
-		self.xml = guardar_xml(
+		xml = guardar_xml(
 			self.doctype, self.name, "xml", f"{rnc_empresa(self.company)}_ANECF_{self.name}.xml", anecf
 		)
-		self.db_set({"fecha_anulacion": self.fecha_anulacion, "estado": "Firmado"})
+		self.db_set({"fecha_anulacion": fecha, "xml": xml, "estado": "Firmado"})
 		self._saltar_rangos()
 		if emisor.habilitado:
-			self.enviar_dgii(emisor)
+			self._enviar(emisor)
 
 	def _saltar_rangos(self):
 		"""La secuencia no vuelve a dar los números anulados."""
@@ -174,11 +172,12 @@ class AnulacionENCF(Document):
 				)
 
 	@frappe.whitelist()
-	def enviar_dgii(self, emisor=None):
+	def enviar_dgii(self) -> str:
 		"""Envía (o reenvía) la anulación firmada a la DGII."""
-		if not isinstance(emisor, Document):
-			self.check_permission("submit")
-			emisor = emisor_de(self.company)
+		self.check_permission("submit")
+		return self._enviar(emisor_de(self.company))
+
+	def _enviar(self, emisor: Document) -> str:
 		if self.docstatus != 1 or self.estado in ("Aceptado", "Rechazado"):
 			frappe.throw(_("Esta anulación no se puede enviar ({0}).").format(self.estado))
 		llave, certificado = emisor.cargar()

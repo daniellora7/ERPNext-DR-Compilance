@@ -10,6 +10,7 @@ from datetime import date
 
 import frappe
 from frappe import _
+from frappe.query_builder.functions import Coalesce, Date, IfNull
 from frappe.utils import cint, flt, getdate
 
 from erpnext_rd.dgii_fiscal import catalogos as cat
@@ -164,7 +165,7 @@ def _retenciones_de_pago(pago: str, doctype: str, factura: str, acumulado, fecha
 			acumulado.isr += monto
 		else:
 			continue
-		acumulado.fecha = max(filter(None, [acumulado.fecha, getdate(fecha)]))
+		acumulado.fecha = max(f for f in (acumulado.fecha, getdate(fecha)) if f)
 
 
 def _es_bien(item_code: str | None) -> bool:
@@ -501,17 +502,25 @@ def datos_608(company: str, anio: int, mes: int) -> list[dict]:
 	desde, hasta = rango(anio, mes)
 	filas = []
 	for doctype in ("Sales Invoice", "POS Invoice", "Purchase Invoice"):
-		documentos = frappe.db.sql(
-			f"""
-			SELECT name, rd_ncf, rd_tipo_comprobante, rd_tipo_anulacion, posting_date,
-				COALESCE(rd_fecha_anulacion, DATE(modified)) AS fecha_anulacion
-			FROM `tab{doctype}`
-			WHERE company = %(company)s AND docstatus = 2 AND IFNULL(rd_ncf, '') != ''
-				AND COALESCE(rd_fecha_anulacion, DATE(modified)) BETWEEN %(desde)s AND %(hasta)s
-			ORDER BY posting_date, name
-			""",
-			{"company": company, "desde": desde, "hasta": hasta},
-			as_dict=True,
+		t = frappe.qb.DocType(doctype)
+		fecha_anulacion = Coalesce(t.rd_fecha_anulacion, Date(t.modified))
+		documentos = (
+			frappe.qb.from_(t)
+			.select(
+				t.name,
+				t.rd_ncf,
+				t.rd_tipo_comprobante,
+				t.rd_tipo_anulacion,
+				t.posting_date,
+				fecha_anulacion.as_("fecha_anulacion"),
+			)
+			.where(t.company == company)
+			.where(t.docstatus == 2)
+			.where(IfNull(t.rd_ncf, "") != "")
+			.where(fecha_anulacion.between(desde, hasta))
+			.orderby(t.posting_date)
+			.orderby(t.name)
+			.run(as_dict=True)
 		)
 		for d in documentos:
 			if doctype == "Purchase Invoice" and not frappe.get_cached_value(

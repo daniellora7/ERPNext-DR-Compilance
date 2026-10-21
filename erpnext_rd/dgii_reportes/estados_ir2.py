@@ -16,7 +16,7 @@ padre más cercana y, si ninguna la tiene, la de su tipo (`casilla_por_tipo`), c
 
 import frappe
 from frappe import _
-from frappe.utils import flt, getdate
+from frappe.utils import add_days, flt, getdate
 
 A1 = "A-1"
 B1 = "B-1"
@@ -485,16 +485,18 @@ def casillas_de_cuentas(company: str) -> tuple[dict[str, str | None], list[str]]
 	return resultado, por_tipo
 
 
-def _saldos(company: str, condicion: str, valores: dict) -> dict[str, float]:
-	"""Saldo deudor (débito - crédito) por cuenta, sin el asiento de cierre del período."""
+def _saldos(company: str, desde, hasta) -> dict[str, float]:
+	"""Saldo deudor (débito - crédito) por cuenta entre `desde` (sin límite si es None) y `hasta`,
+	sin el asiento de cierre del período."""
 	return {
 		cuenta: flt(saldo)
 		for cuenta, saldo in frappe.db.sql(
-			f"""SELECT account, SUM(debit - credit) FROM `tabGL Entry`
+			"""SELECT account, SUM(debit - credit) FROM `tabGL Entry`
 			WHERE company = %(company)s AND is_cancelled = 0
-				AND voucher_type != 'Period Closing Voucher' AND {condicion}
+				AND voucher_type != 'Period Closing Voucher'
+				AND (%(desde)s IS NULL OR posting_date >= %(desde)s) AND posting_date <= %(hasta)s
 			GROUP BY account""",
-			{"company": company, **valores},
+			{"company": company, "desde": desde, "hasta": hasta},
 		)
 	}
 
@@ -525,9 +527,7 @@ def calcular(company: str, desde, hasta) -> frappe._dict:
 	# B-1: movimiento del ejercicio
 	b1: dict[str, float] = {}
 	isr = 0.0
-	for cuenta, saldo in _saldos(
-		company, "posting_date BETWEEN %(desde)s AND %(hasta)s", {"desde": desde, "hasta": hasta}
-	).items():
+	for cuenta, saldo in _saldos(company, desde, hasta).items():
 		if raices.get(cuenta) not in ("Income", "Expense"):
 			continue
 		valor = casillas.get(cuenta)
@@ -567,7 +567,7 @@ def calcular(company: str, desde, hasta) -> frappe._dict:
 	a1: dict[str, float] = {}
 	resultado_anterior = 0.0
 	resultado_ejercicio = 0.0
-	for cuenta, saldo in _saldos(company, "posting_date <= %(hasta)s", {"hasta": hasta}).items():
+	for cuenta, saldo in _saldos(company, None, hasta).items():
 		raiz = raices.get(cuenta)
 		if raiz in ("Income", "Expense"):
 			continue
@@ -584,12 +584,10 @@ def calcular(company: str, desde, hasta) -> frappe._dict:
 		a1[cod] = a1.get(cod, 0) + monto
 		cuentas_por_casilla.setdefault((A1, cod), []).append(cuenta)
 
-	for cuenta, saldo in _saldos(company, "posting_date < %(desde)s", {"desde": desde}).items():
+	for cuenta, saldo in _saldos(company, None, add_days(desde, -1)).items():
 		if raices.get(cuenta) in ("Income", "Expense"):
 			resultado_anterior -= saldo
-	for cuenta, saldo in _saldos(
-		company, "posting_date BETWEEN %(desde)s AND %(hasta)s", {"desde": desde, "hasta": hasta}
-	).items():
+	for cuenta, saldo in _saldos(company, desde, hasta).items():
 		if raices.get(cuenta) in ("Income", "Expense"):
 			resultado_ejercicio -= saldo
 	a1["10.4"] = a1.get("10.4", 0) + resultado_anterior

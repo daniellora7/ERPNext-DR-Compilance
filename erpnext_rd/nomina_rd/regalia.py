@@ -129,9 +129,9 @@ def obtener(company: str, anio) -> list[dict]:
 @frappe.whitelist()
 def crear_regalias(
 	company: str,
-	anio,
+	anio: int,
 	payroll_date: str | None = None,
-	pay_via_salary_slip=1,
+	pay_via_salary_slip: int | bool = 1,
 	salary_component: str | None = None,
 	expense_account: str | None = None,
 	payable_account: str | None = None,
