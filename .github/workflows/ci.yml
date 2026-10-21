@@ -23,6 +23,24 @@ jobs:
       - run: ruff check .
       - run: ruff format --check .
 
+  # Las mismas reglas y criterios que el registro del Marketplace de Frappe: lo que bloquea allí
+  # bloquea aquí; los avisos solo se muestran.
+  semgrep:
+    runs-on: ubuntu-latest
+    container: semgrep/semgrep:1.140.0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: frappe/marketplace
+          path: .marketplace
+          sparse-checkout: validation/semgrep-rules
+      - name: Reglas del Marketplace
+        run: |
+          semgrep scan --config .marketplace/validation/semgrep-rules --metrics=off --json --quiet \
+            --exclude .marketplace . > /tmp/semgrep.json || [ $? -eq 1 ]
+          python3 deploy/ci/semgrep_marketplace.py < /tmp/semgrep.json
+
   tests:
     runs-on: ubuntu-latest
     timeout-minutes: 90
