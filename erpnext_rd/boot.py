@@ -8,6 +8,11 @@ DOCTYPES_FACTURA = ("Sales Invoice", "POS Invoice")
 def boot_session(bootinfo):
 	traducir_dock(bootinfo)
 	formatos_por_empresa(bootinfo)
+	if frappe.session.user != "Guest":
+		from erpnext_rd.rd_compliance.alcance import empresas_rd
+
+		# Los campos de la app solo se ven en estas empresas (`depends_on`, ver alcance.condicion_campo)
+		bootinfo.empresas_rd = empresas_rd()
 
 
 def formatos_por_empresa(bootinfo):

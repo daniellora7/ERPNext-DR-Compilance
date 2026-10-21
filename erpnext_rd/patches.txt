@@ -9,3 +9,4 @@ erpnext_rd.patches.v0_3.escala_isr_2027
 erpnext_rd.patches.v0_3.nomina_por_pagar_payable
 erpnext_rd.patches.v0_4.perfil_en_empresa
 erpnext_rd.patches.v0_4.formatos_es_do
+erpnext_rd.patches.v0_4.alcance_por_empresa

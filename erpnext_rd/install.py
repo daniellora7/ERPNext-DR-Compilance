@@ -27,6 +27,7 @@ from erpnext_rd.dgii_reportes import estados_ir2, ir2
 from erpnext_rd.dgii_reportes.ir2 import CATEGORIAS as CATEGORIAS_FISCALES
 from erpnext_rd.nomina_rd import hrms_instalado, salario, volante
 from erpnext_rd.nomina_rd.salario import CONCEPTOS as CONCEPTOS_NOMINA
+from erpnext_rd.rd_compliance import alcance
 
 MODULO = "DGII Fiscal"
 
@@ -302,7 +303,6 @@ def campos_personalizados() -> dict:
 				"insert_after": "chart_of_accounts",
 				"read_only": 1,
 				"no_copy": 1,
-				"depends_on": "eval:doc.country == 'Dominican Republic'",
 				"description": "Lo marca ERPNext RD al crear el catálogo de cuentas conforme a la DGII",
 			},
 			{
@@ -311,7 +311,6 @@ def campos_personalizados() -> dict:
 				"label": "Localidad SIRLA (RNL)",
 				"insert_after": "rd_catalogo_dgii",
 				"length": 6,
-				"depends_on": "eval:doc.country == 'Dominican Republic'",
 				"description": "Últimos 4 dígitos del Registro Nacional Laboral del establecimiento, para las planillas "
 				"DGT-3 / DGT-4 del Ministerio de Trabajo. Un empleado de otro establecimiento lo indica en su ficha.",
 			},
@@ -765,9 +764,17 @@ def crear_campos_personalizados():
 	# DocTypes que solo traen las versiones recientes de Frappe HR (p. ej. Overtime Type)
 	for doctype in [d for d in campos if not frappe.db.exists("DocType", d)]:
 		campos.pop(doctype)
-	for lista in campos.values():
-		for campo in lista:
-			campo["module"] = MODULO
+	for doctype, lista in campos.items():
+		# Copias: varios DocTypes comparten la misma definición (p. ej. el tipo de identificación)
+		campos[doctype] = [
+			{
+				**campo,
+				"module": MODULO,
+				# Solo se ven en empresas de RD (rd_compliance/alcance.py)
+				"depends_on": alcance.condicion_campo(doctype, campo.get("depends_on")),
+			}
+			for campo in lista
+		]
 	create_custom_fields(campos, ignore_validate=True, update=True)
 
 
@@ -1176,22 +1183,11 @@ def setup():
 	salario.crear_componentes()
 
 
-def idioma_dominicano():
-	"""Solo al instalar la app (no en cada migrate): el sitio y los usuarios que ya existen pasan al español de
-	República Dominicana; los nuevos lo toman del sitio. Después cada quien lo puede cambiar."""
-	if not frappe.db.exists("Language", formatos.IDIOMA):
-		return
-	frappe.db.set_value("Language", formatos.IDIOMA, "enabled", 1)
-	frappe.db.set_single_value("System Settings", "language", formatos.IDIOMA)
-	usuario = frappe.qb.DocType("User")
-	frappe.qb.update(usuario).set(usuario.language, formatos.IDIOMA).where(usuario.name != "Guest").run()
-	frappe.clear_cache()
-
-
 def after_install():
-	# Primero el idioma, luego lo propio de la app
-	idioma_dominicano()
+	# Primero el idioma, luego lo propio de la app y los módulos de cada usuario según sus empresas
+	alcance.idioma_inicial()
 	setup()
+	alcance.sincronizar_todos()
 	programar_padron_inicial()
 
 
