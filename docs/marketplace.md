@@ -60,9 +60,9 @@ La compilación no modifica archivos versionados; si lo hiciera (por ejemplo `fr
 pilot/scripts/build-app-assets.sh <checkout de la app> version-16 <carpeta de salida>
 ```
 
-**3. Publicación** (`.github/workflows/publish-marketplace.yml`). *Run workflow* sobre `version-16` (canal `stable`) o `develop` (canal `nightly`), **después** de que el workflow de assets termine en ese commit. Usa `frappe/marketplace/.github/workflows/publish-release.yml`: lee la versión, `frappe_core` y las dependencias del `pyproject.toml`, agrega el commit a `apps/erpnext_rd.json` y abre el PR en el registro.
+**3. Publicación: un PR desde el fork, a mano.** Cada versión es un PR al registro desde el fork de `frappe/marketplace` en la cuenta del usuario (`daniellora7/marketplace`), hecho con `gh`: la primera vez agrega la entrada a `apps.json` y crea `apps/erpnext_rd.json`; las siguientes, agrega la versión a `apps/erpnext_rd.json`. El PR es público y va a nombre del usuario: se abre solo con su confirmación.
 
-Necesita el secreto `MARKETPLACE_PR_TOKEN`: un token de GitHub del usuario que puede hacer *fork* de `frappe/marketplace`, subir una rama y abrir el PR (PAT *fine-grained* o token de una GitHub App). Va en *Settings → Secrets* del repo; **nunca en el código**.
+El registro ofrece un workflow reutilizable (`frappe/marketplace/.github/workflows/publish-release.yml`) para abrir ese PR desde el repo de la app, pero **no sirve fuera de Frappe**: clona `frappe/marketplace` y hace `git push origin` a ese mismo repo, así que el token necesita permiso de escritura allí (revisado el 2026-10-21). Por eso no lo usamos y no hace falta ningún secreto. Si algún día empuja a un fork, se puede retomar.
 
 **4. Semgrep.** El código pasa las reglas del registro sin hallazgos (2026-10-21). El job `semgrep` de `ci.yml` las corre en cada PR con los mismos criterios que el registro (`deploy/ci/semgrep_marketplace.py`): lo *Critical*, *Major* o `is_blocking` falla el CI; los avisos solo se muestran. Excepciones justificadas en el código con `# nosemgrep: <regla>` y el motivo en la línea anterior:
 - `frappe-manual-commit`: el padrón hace commit por lote (800 mil registros en la cola `long`) y el panel guarda el token CSRF en una petición GET.
@@ -77,7 +77,7 @@ docker run --rm -v "$PWD:/src" -w /src semgrep/semgrep:1.140.0 sh -c 'semgrep sc
 ```
 
 **5. Rama y versión.**
-- `version-16` es la rama `stable` que instalarán los benches. Hoy está en `v0.3.0`, que no tiene las tablas del `pyproject.toml`: la primera versión publicable es la siguiente (`0.4.0`).
+- `version-16` es la rama `stable` que instalarán los benches. `v0.3.0` no tiene las tablas del `pyproject.toml`: la primera versión publicable es `0.4.0`.
 - Antes de cada publicación hay que subir `__version__` en `erpnext_rd/__init__.py`, porque el validador compara el número publicado con el del commit y una rama no repite número.
 - `develop` se puede publicar como `nightly`.
 
@@ -106,7 +106,7 @@ docker run --rm -v "$PWD:/src" -w /src semgrep/semgrep:1.140.0 sh -c 'semgrep sc
 }
 ```
 
-`apps/erpnext_rd.json`, con la primera versión. Si se usa el workflow de publicación, este archivo se crea en el PR inicial y el workflow agrega las siguientes versiones:
+`apps/erpnext_rd.json`, con la primera versión. Las versiones siguientes se agregan al principio de `releases`, cada una en su PR:
 
 ```json
 {
@@ -130,7 +130,7 @@ ERPNext y Frappe HR ya están en el registro (`erpnext`, `hrms`). Las localizaci
 
 1. Subir `__version__` (p. ej. `0.4.0`), pasar «Sin publicar» del `CHANGELOG.md` a esa versión, fusionar `develop` en `main` y llevar `main` a `version-16`. Crear el tag `v0.x.y` (publica la imagen en GHCR).
 2. Esperar a que «Assets precompilados» termine en `version-16` y publique `erpnext_rd-<commit>.tar.gz` en el release `assets-version-16`.
-3. Primera vez: fork de `frappe/marketplace`; agregar la entrada a `apps.json` y crear `apps/erpnext_rd.json` con la versión (borradores arriba); abrir el PR. Las siguientes veces: *Run workflow* en «Publicar en el Marketplace de Frappe» (necesita `MARKETPLACE_PR_TOKEN`).
+3. Con `gh`, en el fork `daniellora7/marketplace` (se crea la primera vez y se sincroniza con `frappe/marketplace` antes de cada versión): rama `erpnext_rd-<versión>`; la primera vez, la entrada en `apps.json` (orden alfabético) y `apps/erpnext_rd.json` (borradores arriba); después, solo la versión nueva al principio de `releases`, con el SHA completo del commit de `version-16`. Abrir el PR contra `frappe/marketplace` (con confirmación del usuario).
 4. Revisar el comentario del CI en el PR. Corregir lo que bloquee y comentar `/rereview`.
 
 ## 2. Ficha y textos (Frappe Cloud y Marketplace de Frappe)
@@ -191,8 +191,8 @@ Opcionales para más adelante: formato 606 y envío e-CF aceptado (con el certif
 
 - [x] Rama `version-16` (Frappe Cloud y el registro instalan por rama): ya existe en GitHub.
 - [x] Tag `v0.3.0` (primera versión, en `version-16`). La siguiente, `v0.4.0`, es la primera que puede ir al registro.
-- [x] Lo que exige el registro `frappe/marketplace` en el repo (sección 1): `pyproject.toml`, assets precompilados, Semgrep sin hallazgos y en el CI, workflow de publicación.
-- [ ] Publicar la primera versión en el registro (`0.4.0`) y el secreto `MARKETPLACE_PR_TOKEN`.
+- [x] Lo que exige el registro `frappe/marketplace` en el repo (sección 1): `pyproject.toml`, assets precompilados y Semgrep sin hallazgos y en el CI.
+- [ ] Publicar la primera versión en el registro (`0.4.0`): PR desde el fork.
 - [x] CI público en verde en cada PR.
 - [x] Capturas en tema oscuro con datos ficticios (`docs/capturas/`).
 - [x] Enlace de soporte (issues de GitHub con plantillas) y documentación de uso (`docs/GUIA-DE-USO.md`).
