@@ -1141,7 +1141,7 @@ def programar_padron_inicial():
 	Después lo actualiza la tarea diaria (solo si la DGII publicó uno nuevo) o el botón de Configuración DGII."""
 	if frappe.flags.in_test or getattr(frappe, "in_test", False):
 		return
-	if frappe.get_all("Contribuyente DGII", limit=1):
+	if not alcance.hay_empresas_rd() or frappe.get_all("Contribuyente DGII", limit=1):
 		return
 	from erpnext_rd.padron_rnc.padron import encolar
 
@@ -1164,20 +1164,29 @@ def lista_padron_sin_filtro_reciente():
 
 
 def setup():
+	# Lo propio de la app: sus DocTypes, sus campos (ocultos fuera de RD), configuración y navegación
 	crear_campos_personalizados()
-	formatos.asegurar_fiscales()
-	cheque.crear_formato()
 	ir2.crear_formato()
 	estados_ir2.asignar_casillas()
-	formato_impresion_por_defecto()
 	crear_tipos_comprobante()
-	inicializar_formas_pago()
 	inicializar_configuracion()
 	asegurar_navegacion()
+	lista_padron_sin_filtro_reciente()
+	frappe.clear_cache()
+	# Lo que crea o cambia registros de ERPNext y Frappe HR, solo si hay empresas de RD (si aún no hay,
+	# lo hace la primera que se cree: alcance.al_cambiar_empresa)
+	if alcance.hay_empresas_rd():
+		registros_rd()
+
+
+def registros_rd():
+	formatos.asegurar_fiscales()
+	cheque.crear_formato()
+	formato_impresion_por_defecto()
+	inicializar_formas_pago()
 	dock_nomina()
 	datos_del_empleado()
 	prestaciones_y_feriados()
-	lista_padron_sin_filtro_reciente()
 	frappe.clear_cache()
 	catalogo_cuentas.aplicar_a_empresas_rd()
 	salario.crear_componentes()

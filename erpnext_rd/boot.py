@@ -9,10 +9,14 @@ def boot_session(bootinfo):
 	traducir_dock(bootinfo)
 	formatos_por_empresa(bootinfo)
 	if frappe.session.user != "Guest":
-		from erpnext_rd.rd_compliance.alcance import empresas_rd
+		from erpnext_rd.rd_compliance.alcance import MODULOS, empresas_rd
 
 		# Los campos de la app solo se ven en estas empresas (`depends_on`, ver alcance.condicion_campo)
 		bootinfo.empresas_rd = empresas_rd()
+		# Formatos de la app: no se ofrecen en documentos de otras empresas (public/js/print_view.js)
+		bootinfo.rd_formatos_app = frappe.get_all(
+			"Print Format", filters={"module": ("in", MODULOS)}, pluck="name"
+		)
 
 
 def formatos_por_empresa(bootinfo):

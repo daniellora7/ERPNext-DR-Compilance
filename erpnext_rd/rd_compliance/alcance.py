@@ -28,6 +28,10 @@ CON_EMPRESAS_RD = "(frappe.boot.empresas_rd || []).length"
 EN_COMPANY = f"doc.country == '{PAIS}'"
 
 
+def hay_empresas_rd() -> bool:
+	return bool(frappe.get_all("Company", filters={"country": PAIS}, limit=1))
+
+
 def empresas_del_usuario(user: str | None = None) -> list[str]:
 	user = user or frappe.session.user
 	permitidas = frappe.get_all(
@@ -62,6 +66,12 @@ def _usuarios():
 	return frappe.get_all("User", filters={"user_type": "System User", "name": ("!=", "Guest")}, pluck="name")
 
 
+def _limpiar_cache(user: str):
+	# Frappe lee los módulos bloqueados del User en caché (frappe.utils.modules.get_blocked_modules)
+	frappe.clear_cache(user=user)
+	frappe.clear_document_cache("User", user)
+
+
 def sincronizar_modulos(user: str):
 	"""Bloquea los módulos de la app a quien no trabaja con empresas de RD y los desbloquea a quien sí."""
 	bloqueados = set(
@@ -76,7 +86,7 @@ def sincronizar_modulos(user: str):
 			frappe.db.delete(
 				"Block Module", {"parenttype": "User", "parent": user, "module": ("in", list(bloqueados))}
 			)
-			frappe.clear_cache(user=user)
+			_limpiar_cache(user)
 		return
 	faltan = [m for m in MODULOS if m not in bloqueados and frappe.db.exists("Module Def", m)]
 	for modulo in faltan:
@@ -90,7 +100,7 @@ def sincronizar_modulos(user: str):
 			}
 		).db_insert()
 	if faltan:
-		frappe.clear_cache(user=user)
+		_limpiar_cache(user)
 
 
 def sincronizar_todos():
@@ -113,8 +123,25 @@ def al_cambiar_empresa(doc, method=None):
 	"""Empresa nueva o que cambió de país: puede cambiar quién trabaja con empresas de RD."""
 	if doc.has_value_changed("country"):
 		sincronizar_todos()
+		if doc.country == PAIS and frappe.db.count("Company", {"country": PAIS}) == 1:
+			_primera_empresa_rd()
 	if doc.country == PAIS:
 		idioma_inicial()
+
+
+def _primera_empresa_rd():
+	"""Al instalar sin empresas de RD no se tocaron los registros de ERPNext y Frappe HR (formatos,
+	componentes de nómina, feriados...): se crean con la primera. Si falla no detiene la creación de la
+	empresa (p. ej. el asistente de configuración): lo repite el siguiente migrate."""
+	from erpnext_rd import install
+
+	frappe.db.savepoint("rd_primera_empresa")
+	try:
+		install.registros_rd()
+		install.programar_padron_inicial()
+	except Exception:
+		frappe.db.rollback(save_point="rd_primera_empresa")
+		frappe.log_error(title="ERPNext RD: preparar la primera empresa de RD")
 
 
 # Idioma -----------------------------------------------------------------------------------------------

@@ -47,10 +47,15 @@ class TestAlcancePorEmpresa(IntegrationTestCase):
 		).insert()
 		self.assertEqual(alcance.empresas_rd(USUARIO), [])
 		self.assertIn("RD Compliance", self.bloqueados())
+		# Así lo lee Frappe para el menú, el dock y los íconos
+		from frappe.utils.modules import is_module_visible
+
+		self.assertFalse(is_module_visible("RD Compliance", USUARIO))
 
 		# Sin ese permiso vuelve a verlos
 		permiso.delete()
 		self.assertFalse(self.bloqueados() & set(alcance.MODULOS))
+		self.assertTrue(is_module_visible("RD Compliance", USUARIO))
 
 	def test_campos_solo_en_empresas_rd(self):
 		self.assertEqual(alcance.condicion_campo("Sales Invoice", None), f"eval:{alcance.EN_EMPRESA_RD}")
@@ -82,3 +87,24 @@ class TestAlcancePorEmpresa(IntegrationTestCase):
 		frappe.db.set_value("User", USUARIO, "language", "fr")
 		alcance.idioma_inicial()
 		self.assertEqual(frappe.db.get_value("User", USUARIO, "language"), "fr")
+
+	def test_sin_empresas_rd_no_toca_erpnext(self):
+		"""Sin empresas de RD la instalación no crea registros de ERPNext ni de Frappe HR; la primera
+		empresa de RD los prepara."""
+		from unittest.mock import patch
+
+		from erpnext_rd import install
+
+		with (
+			patch.object(alcance, "hay_empresas_rd", return_value=False),
+			patch.object(install, "registros_rd") as registros,
+		):
+			install.setup()
+		registros.assert_not_called()
+
+		with patch.object(alcance, "_primera_empresa_rd") as primera:
+			empresa = frappe.get_doc("Company", EMPRESA_US)
+			empresa.country = "Dominican Republic"
+			with patch.object(frappe.db, "count", return_value=1):
+				alcance.al_cambiar_empresa(empresa)
+		primera.assert_called_once()
