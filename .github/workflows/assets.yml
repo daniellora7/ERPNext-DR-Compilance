@@ -1,0 +1,20 @@
+# Assets precompilados para Pilot y el Marketplace de Frappe (docs/marketplace.md).
+# Compila el Panel RD Compliance y los bundles de la app contra Frappe v16 y los sube al release
+# assets-<rama> del repo; Pilot los descarga en vez de compilar en el servidor y el registro exige
+# que existan para el commit publicado. No afecta a la imagen Docker, que compila con `bench build`.
+name: Assets precompilados
+
+on:
+  push:
+    branches: [version-16, develop]
+  workflow_dispatch:
+
+jobs:
+  assets:
+    name: Assets precompilados
+    uses: frappe/pilot/.github/workflows/app-assets.yml@develop
+    with:
+      # develop también se compila contra Frappe v16 (sin esto usaría la rama develop de Frappe)
+      frappe-branch: version-16
+    permissions:
+      contents: write
