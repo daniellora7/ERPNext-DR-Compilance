@@ -31,6 +31,10 @@ deploy/
   resources/                   entrypoint y start.sh de frappe_docker
 ```
 
+## Permisos
+
+Roles estándar de ERPNext y Frappe HR, nada propio. La configuración (*Configuracion DGII*, *Perfil Tributario RD*, *Emisor ECF*, *Set Pruebas ECF*, *Secuencia NCF*, *Tipo Comprobante Fiscal*) la edita solo el **System Manager**; Accounts Manager y Accounts User la ven. Los documentos fiscales (e-CF, anulaciones, cuadre IR-2) y los reportes DGII son de contabilidad (Accounts Manager edita, Accounts User ve); los de nómina, de RR. HH. (HR Manager / HR User). Cada método whitelisted verifica el permiso del documento o el rol. Cada empresa puede cambiarlos en *Administrador de permisos de rol* sin tocar código.
+
 ## Por módulo
 
 - La imagen copia `erpnext_rd` dentro; para desarrollar usar `deploy/compose.dev.yaml`, que monta el código del repo.

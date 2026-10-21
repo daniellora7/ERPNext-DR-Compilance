@@ -144,3 +144,17 @@ class TestPerfilTributario(IntegrationTestCase):
 			with self.assertRaises(frappe.ValidationError):
 				frappe.get_doc({"doctype": perfil.DOCTYPE, "company": otra}).insert()
 			self.assertEqual(perfil.estado_empresa(otra), {"aplica": False})
+
+	def test_configuracion_solo_para_administradores(self):
+		"""La configuración fiscal y de e-CF la edita solo el System Manager; contabilidad solo la ve."""
+		for doctype in (
+			"Configuracion DGII",
+			"Perfil Tributario RD",
+			"Emisor ECF",
+			"Set Pruebas ECF",
+			"Secuencia NCF",
+			"Tipo Comprobante Fiscal",
+		):
+			for regla in frappe.get_meta(doctype).permissions:
+				if regla.role != "System Manager":
+					self.assertFalse(regla.write or regla.create or regla.delete, f"{doctype}: {regla.role}")

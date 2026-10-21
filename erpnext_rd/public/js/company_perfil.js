@@ -10,9 +10,12 @@ frappe.ui.form.on("Company", {
 			.then(({ message: estado }) => {
 				if (!estado || !estado.aplica) return;
 				if (!estado.existe) {
+					const enlace = estado.puede_configurar
+						? `<a href="#" data-rd-perfil style="margin-left: 8px; text-decoration: underline">${__("Configurar perfil tributario")}</a>`
+						: "";
 					frm.dashboard.set_headline_alert(
 						`${__("Esta empresa no tiene perfil tributario: la app la trata como persona jurídica del régimen ordinario.")}
-						<a href="#" data-rd-perfil style="margin-left: 8px; text-decoration: underline">${__("Configurar perfil tributario")}</a>`,
+						${enlace}`,
 						"orange"
 					);
 					// El aviso se dibuja fuera del área de alertas del tablero: se escucha en el formulario
@@ -27,6 +30,7 @@ frappe.ui.form.on("Company", {
 						"orange"
 					);
 				}
+				if (!estado.existe && !estado.puede_configurar) return;
 				frm.add_custom_button(__("Perfil tributario"), () =>
 					estado.existe
 						? frappe.set_route("Form", "Perfil Tributario RD", frm.doc.name)

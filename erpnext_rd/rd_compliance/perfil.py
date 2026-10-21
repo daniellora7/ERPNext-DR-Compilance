@@ -187,7 +187,13 @@ def estado_empresa(company: str) -> dict:
 	if not es_empresa_rd(company):
 		return {"aplica": False}
 	faltan = [r for r in evaluar(company) if r["obligatorio"] and r["estado"] == FALTA]
-	return {"aplica": True, "existe": bool(frappe.db.exists(DOCTYPE, company)), "faltan": len(faltan)}
+	return {
+		"aplica": True,
+		"existe": bool(frappe.db.exists(DOCTYPE, company)),
+		"faltan": len(faltan),
+		# Configurar el perfil es de administradores (System Manager)
+		"puede_configurar": frappe.has_permission(DOCTYPE, "create"),
+	}
 
 
 @frappe.whitelist()
