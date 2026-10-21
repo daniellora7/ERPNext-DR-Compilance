@@ -15,6 +15,8 @@ Empresas exentas (art. 226: agrícolas, industriales, forestales y mineras en su
 agrícolas pequeñas, zonas francas) simplemente no crean el documento.
 """
 
+from datetime import date
+
 import frappe
 from frappe import _
 from frappe.utils import add_days, cint, flt, getdate
@@ -105,7 +107,7 @@ def repartir(filas, fondo: float) -> tuple[float, float]:
 
 
 @frappe.whitelist()
-def utilidad_contable(company: str, desde, hasta) -> float:
+def utilidad_contable(company: str, desde: str | date, hasta: str | date) -> float:
 	"""Ingresos menos gastos del ejercicio según la contabilidad (para proponer la utilidad neta; el
 	usuario la ajusta: antes del ISR y de las bonificaciones de directores y gerentes)."""
 	frappe.has_permission("Company", doc=company, throw=True)

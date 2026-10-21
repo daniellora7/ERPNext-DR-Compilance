@@ -199,7 +199,9 @@ def generar_txt(
 
 
 @frappe.whitelist()
-def descargar_txt(company: str, anio, mes, employee: str | None = None, tipo_novedad: str | None = None):
+def descargar_txt(
+	company: str, anio: int, mes: int, employee: str | None = None, tipo_novedad: str | None = None
+):
 	frappe.only_for(tss.ROLES)
 	frappe.has_permission("Company", doc=company, throw=True)
 	tss.responder_archivo(*generar_txt(company, anio, mes, employee or None, tipo_novedad or None))

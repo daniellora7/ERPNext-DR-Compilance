@@ -18,7 +18,8 @@ def get_context(context):
 		frappe.throw(_("No tiene permiso para ver el Panel RD Compliance"), frappe.PermissionError)
 
 	csrf_token = frappe.sessions.get_csrf_token()
-	frappe.db.commit()  # nosemgrep: el token CSRF nuevo debe quedar guardado
+	# Una petición GET no guarda la sesión: el token CSRF nuevo tiene que quedar guardado
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit
 	context.boot = {
 		"csrf_token": csrf_token,
 		"site_name": frappe.local.site,

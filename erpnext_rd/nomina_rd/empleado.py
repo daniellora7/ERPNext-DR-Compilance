@@ -73,9 +73,8 @@ def validar_empleado(doc, method=None):
 def nombre_completo(doc):
 	"""ERPNext arma el nombre con nombre + segundo nombre + apellido; se agrega el segundo apellido."""
 	if doc.get("rd_segundo_apellido"):
-		doc.employee_name = " ".join(
-			filter(None, [doc.first_name, doc.middle_name, doc.last_name, doc.rd_segundo_apellido])
-		)
+		partes = (doc.first_name, doc.middle_name, doc.last_name, doc.rd_segundo_apellido)
+		doc.employee_name = " ".join(p for p in partes if p)
 
 
 def cedula_valida(cedula: str | None) -> bool:

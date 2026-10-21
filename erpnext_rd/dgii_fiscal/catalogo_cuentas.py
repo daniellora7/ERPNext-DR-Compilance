@@ -586,10 +586,9 @@ def _limpiar_referencias(company: str, cuentas: list[str]):
 		if meta.istable and df and df.reqd and meta.has_field("company"):
 			frappe.db.delete(campo.parent, {campo.fieldname: ("in", nombres), "company": company})
 		else:
-			frappe.db.sql(
-				f"UPDATE `tab{campo.parent}` SET `{campo.fieldname}` = NULL WHERE `{campo.fieldname}` IN %(c)s",
-				{"c": nombres},
-			)
+			tabla = frappe.qb.DocType(campo.parent)
+			columna = tabla[campo.fieldname]
+			frappe.qb.update(tabla).set(columna, None).where(columna.isin(nombres)).run()
 
 
 def _marcar_datos_dgii(cuentas: dict[str, str]):

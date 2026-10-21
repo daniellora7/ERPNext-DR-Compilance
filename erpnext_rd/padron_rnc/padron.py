@@ -10,6 +10,7 @@ import frappe
 import requests
 from frappe import _
 from frappe.utils import now_datetime
+from pypika.terms import Values
 
 from erpnext_rd.dgii_fiscal.validaciones import limpiar_identificacion
 
@@ -97,26 +98,44 @@ def importar_padron(contenido_zip: bytes) -> int:
 	return total
 
 
+COLUMNAS = (
+	"name",
+	"rnc",
+	"razon_social",
+	"nombre_comercial",
+	"actividad_economica",
+	"fecha_inicio",
+	"estado",
+	"regimen_pago",
+	"creation",
+	"modified",
+	"owner",
+	"modified_by",
+)
+# Lo que se actualiza si el RNC ya existe
+ACTUALIZAR = (
+	"razon_social",
+	"nombre_comercial",
+	"actividad_economica",
+	"fecha_inicio",
+	"estado",
+	"regimen_pago",
+	"modified",
+)
+
+
 def _guardar_lote(lote: list[tuple], ahora, usuario) -> int:
-	valores = [(f[0], *f, ahora, ahora, usuario, usuario) for f in lote]
-	frappe.db.sql(
-		"""
-		INSERT INTO `tabContribuyente DGII`
-			(name, rnc, razon_social, nombre_comercial, actividad_economica, fecha_inicio, estado,
-			 regimen_pago, creation, modified, owner, modified_by)
-		VALUES {}
-		ON DUPLICATE KEY UPDATE
-			razon_social = VALUES(razon_social),
-			nombre_comercial = VALUES(nombre_comercial),
-			actividad_economica = VALUES(actividad_economica),
-			fecha_inicio = VALUES(fecha_inicio),
-			estado = VALUES(estado),
-			regimen_pago = VALUES(regimen_pago),
-			modified = VALUES(modified)
-		""".format(", ".join(["(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"] * len(valores))),
-		[v for fila in valores for v in fila],
+	tabla = frappe.qb.DocType("Contribuyente DGII")
+	consulta = (
+		frappe.qb.into(tabla)
+		.columns(*COLUMNAS)
+		.insert(*[(f[0], *f, ahora, ahora, usuario, usuario) for f in lote])
 	)
-	frappe.db.commit()
+	for columna in ACTUALIZAR:
+		consulta = consulta.on_duplicate_key_update(tabla[columna], Values(tabla[columna]))
+	consulta.run()
+	# Un commit por lote: ~800 mil registros en la cola long sin una transacción gigante
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit
 	return len(lote)
 
 
@@ -143,7 +162,8 @@ def sincronizar_padron(forzar: bool = False) -> int | None:
 			padron_ultima_sincronizacion=now_datetime(), padron_registros=total, padron_version_dgii=version
 		)
 	frappe.db.set_single_value("Configuracion DGII", valores)
-	frappe.db.commit()
+	# Corre en la cola long: deja registrada la sincronización aunque el trabajo falle después
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit
 	return total
 
 

@@ -71,7 +71,7 @@ def recibir_ecf(xml: bytes) -> bytes:
 	try:
 		raiz = firma.leer(xml)
 	except etree.XMLSyntaxError as error:
-		raise ErrorRecepcion(_("El archivo no es un XML válido: {0}").format(error)) from error
+		raise ErrorRecepcion(_("El archivo no es un XML válido: {0}").format(str(error))) from error
 	if raiz.tag != "ECF":
 		raise ErrorRecepcion(_("El documento no es un e-CF"))
 	id_doc = "Encabezado/IdDoc/"
@@ -256,7 +256,7 @@ def recibir_aprobacion(xml: bytes):
 	try:
 		raiz = firma.leer(xml)
 	except etree.XMLSyntaxError as error:
-		raise ErrorRecepcion(_("El archivo no es un XML válido: {0}").format(error)) from error
+		raise ErrorRecepcion(_("El archivo no es un XML válido: {0}").format(str(error))) from error
 	if raiz.tag != "ACECF":
 		raise ErrorRecepcion(_("El documento no es una aprobación comercial"))
 	if not firma.verificar(xml):

@@ -174,7 +174,7 @@ def generar_txt(formato: str, company: str, anio, mes) -> tuple[str, str]:
 
 
 @frappe.whitelist()
-def descargar_txt(formato: str, company: str, anio, mes):
+def descargar_txt(formato: str, company: str, anio: int, mes: int):
 	frappe.only_for(ROLES)
 	frappe.has_permission("Company", doc=company, throw=True)
 	nombre, contenido = generar_txt(formato, company, anio, mes)

@@ -108,7 +108,8 @@ def autenticar():
 	invitado antes de atender (ver ReceptorECF.render), así nada corre con ese usuario."""
 	if frappe.request and frappe.request.path.strip("/").lower() in RUTAS and _token_valido():
 		frappe.local.flags.receptor_ecf = True
-		frappe.set_user("Administrator")
+		# Solo para pasar el auth_hook; ReceptorECF.render vuelve a Guest antes de atender
+		frappe.set_user("Administrator")  # nosemgrep: frappe-setuser
 
 
 def _autenticado() -> bool:
@@ -144,7 +145,7 @@ class ReceptorECF(BaseRenderer):
 
 	def render(self):
 		if frappe.local.flags.receptor_ecf:
-			frappe.set_user("Guest")
+			frappe.set_user("Guest")  # nosemgrep: frappe-setuser
 		metodo, servicio = RUTAS[self.path.lower()]
 		if frappe.request.method != metodo:
 			return _json({"mensaje": _("Método no permitido")}, 405)
