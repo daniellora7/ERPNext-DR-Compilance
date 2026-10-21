@@ -72,7 +72,8 @@ def por_documento(funcion):
 
 
 def _leer(carpeta: str, archivo: str) -> str:
-	with open(
+	# Plantillas de la propia app: carpeta y archivo vienen de constantes de este módulo
+	with open(  # nosemgrep: frappe-security-file-traversal
 		frappe.get_app_path("erpnext_rd", "templates", "print", carpeta, archivo), encoding="utf8"
 	) as f:
 		return f.read()

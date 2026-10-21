@@ -177,7 +177,7 @@ def enviar_a_dgii(envio, emisor=None):
 				{
 					"estado": CONTINGENCIA,
 					"proximo_intento": add_to_date(now_datetime(), minutes=espera),
-					"mensajes": _("La DGII no respondió; se reintenta solo. {0}").format(error),
+					"mensajes": _("La DGII no respondió; se reintenta solo. {0}").format(str(error)),
 				}
 			)
 		else:
@@ -244,7 +244,7 @@ def consultar_pendientes():
 				rnc_empresa(doc.company), llave, certificado, doc.ambiente
 			).consultar_resultado(doc.track_id)
 		except Exception as error:
-			doc.add_comment("Comment", _("No se pudo consultar la DGII: {0}").format(error))
+			doc.add_comment("Comment", _("No se pudo consultar la DGII: {0}").format(str(error)))
 			continue
 		doc.estado = estado(respuesta.get("estado"))
 		doc.update(
@@ -295,7 +295,7 @@ def entregar_al_comprador(envio, emisor=None, sesion=None):
 	except (ErrorDGII, OSError, ValueError) as error:
 		envio.intentos_comprador = cint(envio.intentos_comprador) + 1
 		envio.estado_comprador = "Error"
-		envio.add_comment("Comment", _("No se pudo entregar el e-CF al comprador: {0}").format(error))
+		envio.add_comment("Comment", _("No se pudo entregar el e-CF al comprador: {0}").format(str(error)))
 	envio.save(ignore_permissions=True)
 	return envio
 

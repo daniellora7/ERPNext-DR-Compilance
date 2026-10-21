@@ -1,0 +1,25 @@
+# Publica una versión en el Marketplace de Frappe (registro frappe/marketplace): abre el PR que agrega
+# el commit actual de la rama elegida a apps/erpnext_rd.json. Se lanza a mano (Run workflow) sobre
+# version-16 (stable) o develop (nightly), después de que el workflow de assets termine en ese commit
+# y con __version__ ya subido. La primera publicación (entrada en apps.json) se hace a mano; ver
+# docs/marketplace.md. Necesita el secreto MARKETPLACE_PR_TOKEN.
+name: Publicar en el Marketplace de Frappe
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Canal: stable para version-16, nightly para develop"
+        type: choice
+        options: [stable, nightly]
+        default: stable
+
+jobs:
+  publish:
+    uses: frappe/marketplace/.github/workflows/publish-release.yml@main
+    with:
+      app: erpnext_rd
+      branch: ${{ github.ref_name }}
+      channel: ${{ inputs.channel }}
+    secrets:
+      registry_token: ${{ secrets.MARKETPLACE_PR_TOKEN }}

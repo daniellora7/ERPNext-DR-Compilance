@@ -278,7 +278,7 @@ def obtener(company: str, anio, mes) -> list[dict]:
 				"clave_nomina": clave,
 				"tipo_documento": tipo or "",
 				"documento": numero,
-				"nombres": " ".join(filter(None, [emp.first_name, emp.middle_name])),
+				"nombres": " ".join(n for n in (emp.first_name, emp.middle_name) if n),
 				"primer_apellido": emp.last_name or "",
 				"segundo_apellido": emp.rd_segundo_apellido or "",
 				"sexo": _sexo(emp.gender).strip(),
@@ -419,7 +419,7 @@ def responder_archivo(nombre: str, contenido: str):
 
 
 @frappe.whitelist()
-def descargar_txt(company: str, anio, mes, proceso: str = PROCESO):
+def descargar_txt(company: str, anio: int, mes: int, proceso: str = PROCESO):
 	frappe.only_for(ROLES)
 	frappe.has_permission("Company", doc=company, throw=True)
 	if proceso not in (PROCESO, RECTIFICATIVA):

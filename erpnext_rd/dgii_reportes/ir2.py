@@ -30,6 +30,7 @@ from datetime import date
 
 import frappe
 from frappe import _
+from frappe.query_builder.functions import Sum
 from frappe.utils import add_days, add_months, cint, flt, getdate
 
 from erpnext_rd.dgii_fiscal.consulta_ncf import INVALIDOS
@@ -320,9 +321,8 @@ def activos(company: str, desde, hasta) -> list[frappe._dict]:
 
 def depreciacion_contable(company: str, desde, hasta) -> dict[str, float]:
 	"""Depreciación registrada por activo (asientos de depreciación validados) en el rango."""
-	filtro_desde = "AND je.posting_date >= %(desde)s" if desde else ""
 	filas = frappe.db.sql(
-		f"""
+		"""
 		SELECT ads.asset, SUM(ds.depreciation_amount)
 		FROM `tabDepreciation Schedule` ds
 		JOIN `tabAsset Depreciation Schedule` ads ON ads.name = ds.parent
@@ -330,10 +330,10 @@ def depreciacion_contable(company: str, desde, hasta) -> dict[str, float]:
 		JOIN `tabJournal Entry` je ON je.name = ds.journal_entry
 		WHERE ads.docstatus = 1 AND je.docstatus = 1 AND ads.company = %(company)s
 			AND IFNULL(ads.finance_book, '') = IFNULL(a.default_finance_book, '')
-			AND je.posting_date <= %(hasta)s {filtro_desde}
+			AND je.posting_date <= %(hasta)s AND (%(desde)s IS NULL OR je.posting_date >= %(desde)s)
 		GROUP BY ads.asset
 		""",
-		{"company": company, "desde": desde, "hasta": hasta},
+		{"company": company, "desde": desde or None, "hasta": hasta},
 	)
 	return {asset: flt(monto) for asset, monto in filas}
 
@@ -362,27 +362,31 @@ def valor_retiro(asset: str) -> float:
 	)
 
 
-def _saldo(company: str, fecha, condicion: str) -> float:
-	"""Saldo deudor (débito - crédito) a `fecha` de las cuentas que cumplen `condicion`."""
+def _saldo(company: str, fecha, campo: str, valores: tuple) -> float:
+	"""Saldo deudor (débito - crédito) a `fecha` de las cuentas cuyo `campo` está en `valores`."""
+	g = frappe.qb.DocType("GL Entry")
+	acc = frappe.qb.DocType("Account")
 	return flt(
-		frappe.db.sql(
-			f"""SELECT SUM(g.debit - g.credit)
-			FROM `tabGL Entry` g JOIN `tabAccount` acc ON acc.name = g.account
-			WHERE g.company = %(company)s AND g.is_cancelled = 0 AND g.posting_date <= %(fecha)s
-				AND {condicion}""",
-			{"company": company, "fecha": fecha},
-		)[0][0],
+		frappe.qb.from_(g)
+		.join(acc)
+		.on(acc.name == g.account)
+		.select(Sum(g.debit - g.credit))
+		.where(g.company == company)
+		.where(g.is_cancelled == 0)
+		.where(g.posting_date <= fecha)
+		.where(acc[campo].isin(valores))
+		.run()[0][0],
 		2,
 	)
 
 
 def patrimonio_contable(company: str, fecha) -> float:
 	"""Activos menos pasivos en libros a `fecha` (punto de partida del patrimonio fiscal)."""
-	return _saldo(company, fecha, "acc.root_type IN ('Asset', 'Liability')")
+	return _saldo(company, fecha, "root_type", ("Asset", "Liability"))
 
 
 def inventario_contable(company: str, fecha) -> float:
-	return _saldo(company, fecha, "acc.account_type = 'Stock'")
+	return _saldo(company, fecha, "account_type", ("Stock",))
 
 
 def resultado_contable(company: str, desde, hasta) -> frappe._dict:

@@ -50,7 +50,9 @@ TIPOS_FALTANTES = {
 
 @functools.cache
 def _arbol(tipo) -> etree._ElementTree:
-	with open(os.path.join(CARPETA, ARCHIVOS[tipo]), "rb") as archivo:
+	# XSD de la propia app: CARPETA y ARCHIVOS son fijos
+	ruta = os.path.join(CARPETA, ARCHIVOS[tipo])
+	with open(ruta, "rb") as archivo:  # nosemgrep: frappe-security-file-traversal
 		texto = archivo.read().replace(b"(?:", b"(")
 	raiz = etree.fromstring(texto)
 	definidos = {t.get("name") for t in raiz if isinstance(t.tag, str) and t.get("name")}

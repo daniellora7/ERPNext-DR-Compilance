@@ -209,11 +209,11 @@ Orden sugerido: 8.1 (base) → 8.2 → 8.3 → 8.4 → 8.5 → 8.6 → 8.7 → 8
 Objetivo: que la app se instale desde el **Marketplace de Frappe** (registro [`frappe/marketplace`](https://github.com/frappe/marketplace), que usan `bench get-app` de Pilot y su panel) y desde Frappe Cloud, como las demás localizaciones (México, Ecuador, Alemania, Kenia). Repo público: https://github.com/daniellora7/ERPNext-DR-Compilance (GPL-3.0). Guía completa en `docs/marketplace.md`.
 
 Lo que exige el nuevo registro (analizado el 2026-10-20) y falta hacer:
-- [ ] **`pyproject.toml`**: `[tool.bench.frappe-dependencies]` con `frappe` y `erpnext` (`>=16.0.0,<17.0.0`); sin ella Pilot rechaza la app. `[tool.bench.assets]` con el Panel (`frontend/` → `erpnext_rd/public/frontend`, `erpnext_rd/www/rd-compliance.html`). Frappe HR no se declara (es opcional).
-- [ ] **Assets precompilados**: workflow `assets.yml` con `frappe/pilot/.github/workflows/app-assets.yml` en `version-16` y `develop` (contra Frappe `version-16`). El validador exige el archivo del commit publicado.
-- [ ] **Semgrep del registro sin bloqueantes**: hoy 16 hallazgos Major (SQL con f-string/`.format()`, excepciones en `_().format()`, commits manuales sin `nosemgrep` válido y un falso positivo en `Anulacion ENCF`) y 21 avisos. Detalle y corrección en `docs/marketplace.md`; agregar el escaneo al CI.
-- [ ] **Versiones**: rama `version-16` (ya existe) como canal `stable`, `develop` como `nightly`; subir `__version__` en cada publicación (el validador lo compara con lo publicado).
-- [ ] **Publicación**: entrada en `apps.json` (`category: "Compliance"`) y `apps/erpnext_rd.json`; después, workflow `publish-marketplace.yml` (reutiliza `frappe/marketplace/.github/workflows/publish-release.yml`) con el secreto `MARKETPLACE_PR_TOKEN` del usuario.
+- [x] **`pyproject.toml`**: `[tool.bench.frappe-dependencies]` con `frappe` y `erpnext` (`>=16.0.0,<17.0.0`) y `[tool.bench.assets]` con el Panel. Frappe HR no se declara (es opcional). (2026-10-21)
+- [x] **Assets precompilados**: `assets.yml` con el workflow de Pilot en `version-16` y `develop` (contra Frappe `version-16`); probado en local con `build-app-assets.sh`. (2026-10-21)
+- [x] **Semgrep del registro sin hallazgos** y en el CI (`ci.yml`, mismos criterios que el registro). (2026-10-21)
+- [ ] **Versiones**: rama `version-16` como canal `stable`, `develop` como `nightly`; subir `__version__` en cada publicación (el validador lo compara con lo publicado). `version-16` está en `v0.3.0`, anterior a estos cambios: la primera versión publicable es `0.4.0`.
+- [ ] **Publicación**: workflow `publish-marketplace.yml` listo; falta el secreto `MARKETPLACE_PR_TOKEN` del usuario y el PR inicial al registro con la entrada en `apps.json` (`category: "Compliance"`) y `apps/erpnext_rd.json`.
 
 Requisitos a cumplir (tenerlos en cuenta desde ya en todo lo nuevo):
 - ✅ **App en la raíz del repo** (2026-10-14): `pyproject.toml` y el paquete `erpnext_rd/` están en la raíz, como los espera `bench get-app`; `deploy/` y `docs/` quedan como carpetas extra.

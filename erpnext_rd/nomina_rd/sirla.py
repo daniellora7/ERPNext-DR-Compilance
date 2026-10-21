@@ -143,7 +143,7 @@ def fila(emp, novedad: str, fecha_referencia, localidad_empresa: str, fecha_camb
 		"novedad": novedad,
 		"tipo_documento": tipo or "",
 		"documento": numero,
-		"nombres": " ".join(filter(None, [emp.first_name, emp.middle_name])),
+		"nombres": " ".join(n for n in (emp.first_name, emp.middle_name) if n),
 		"primer_apellido": emp.last_name or "",
 		"segundo_apellido": emp.rd_segundo_apellido or "",
 		"fecha_nacimiento": emp.date_of_birth,
@@ -251,7 +251,7 @@ def generar_txt(company: str, anio, mes, formulario: str = DGT3) -> tuple[str, s
 
 
 @frappe.whitelist()
-def descargar_txt(company: str, anio, mes, formulario: str = DGT3):
+def descargar_txt(company: str, anio: int, mes: int, formulario: str = DGT3):
 	frappe.only_for(tss.ROLES)
 	frappe.has_permission("Company", doc=company, throw=True)
 	tss.responder_archivo(*generar_txt(company, anio, mes, formulario))
