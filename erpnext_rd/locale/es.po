@@ -8,6 +8,10 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+# ERPNext: «Tax ID» es el RNC (o la cédula de una persona física) en la DGII
+msgid "Tax ID"
+msgstr "RNC"
+
 msgid "Nomina RD"
 msgstr "Nómina RD"
 
@@ -1093,9 +1097,6 @@ msgstr "Bloquear permisos en días importantes."
 
 msgid "Boarding Status"
 msgstr "Estado de incorporación"
-
-msgid "Body"
-msgstr "Cuerpo"
 
 msgid "Bonus"
 msgstr "Bonificación"
@@ -2187,9 +2188,6 @@ msgstr "No se pudo descargar el PDF"
 msgid "Failed to download PDF: {0}"
 msgstr "No se pudo descargar el PDF: {0}"
 
-msgid "Failed to personalize your setup"
-msgstr "No se pudo personalizar su configuración"
-
 msgid "Failed to send reset link"
 msgstr "No se pudo enviar el enlace para restablecer"
 
@@ -2514,9 +2512,6 @@ msgstr "N.º de seguro de salud"
 
 msgid "Health Insurance Provider"
 msgstr "Proveedor del seguro de salud"
-
-msgid "Hello"
-msgstr "Hola"
 
 msgid "Hey {}! This email is to remind you about the upcoming holidays."
 msgstr "¡Hola, {}! Este correo es para recordarle los próximos días festivos."
@@ -3157,9 +3152,6 @@ msgstr "¿Marcar {0} {1} como {2}?"
 msgid "Marking Attendance"
 msgstr "Marcando asistencia"
 
-msgid "Masters"
-msgstr "Maestros"
-
 msgid "Max Amount Eligible For Claim"
 msgstr "Monto máximo que se puede reclamar"
 
@@ -3201,9 +3193,6 @@ msgstr "Falta la cuenta de anticipos"
 
 msgid "Missing Configuration"
 msgstr "Falta configuración"
-
-msgid "Missing Field"
-msgstr "Falta un campo"
 
 msgid "Missing Mandatory Field"
 msgstr "Falta un campo obligatorio"
@@ -4316,9 +4305,6 @@ msgstr "Fila {0}: la puntuación de objetivos no puede ser mayor que {1}"
 msgid "Row {0}: Paid amount {1} is greater than pending accrued amount {2} against loan {3}"
 msgstr "Fila {0}: el monto pagado {1} es mayor que el monto acumulado pendiente {2} del préstamo {3}"
 
-msgid "Row {0}: {1}"
-msgstr "Fila {0}: {1}"
-
 msgid "Row {0}: {1}, {2} and {3} are required against advance {4}."
 msgstr "Fila {0}: {1}, {2} y {3} son obligatorios para el anticipo {4}."
 
@@ -4876,9 +4862,6 @@ msgstr "Nombre de la plantilla"
 
 msgid "Tenure"
 msgstr "Trayectoria"
-
-msgid "Thank you"
-msgstr "Gracias"
 
 msgid "Thank you for applying."
 msgstr "Gracias por postularse."
@@ -5528,9 +5511,6 @@ msgstr "objetivo"
 msgid "goals"
 msgstr "objetivos"
 
-msgid "here"
-msgstr "aquí"
-
 msgid "johndoe@mail.com"
 msgstr "juan.perez@correo.com"
 
@@ -5672,9 +5652,6 @@ msgstr "¿{0} {1} {2}?"
 
 msgid "{0}. Check error log for more details."
 msgstr "{0}. Revise el registro de errores para más detalles."
-
-msgid "{0}d"
-msgstr "{0} d"
 
 msgid "{} {} open for this position."
 msgstr "{} {} abiertas para este puesto."
