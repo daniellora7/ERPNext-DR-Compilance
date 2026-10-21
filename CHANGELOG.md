@@ -16,6 +16,10 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 - Anexos A-1 (balance general) y B-1 (estado de resultados) del IR-2 por casilla, con la casilla en cada cuenta (asignada en el catálogo DGII). El cuadre toma de ahí el beneficio antes del ISR.
 - Perfil tributario por empresa: régimen, tamaño, cierre fiscal, actividades con tratamiento especial, incentivos y situación con el e-CF, con asistente desde la empresa y lista de requisitos con su estado. Los emisores electrónicos venden con la serie E y el IR-2 solo aplica a personas jurídicas del régimen ordinario.
 
+### Marketplace de Frappe
+- Compatible con el nuevo registro `frappe/marketplace` y Pilot: dependencias de Frappe y ERPNext y el Panel declarados en el `pyproject.toml`, assets precompilados en cada push a `version-16` y `develop`, y workflow para publicar una versión. La imagen Docker y `bench get-app` siguen igual.
+- El código pasa las reglas de Semgrep del registro (consultas con `frappe.qb` o parámetros, tipos en los métodos expuestos), y el CI las corre en cada PR.
+
 ### Documentación
 - Requisitos del nuevo Marketplace de Frappe (registro `frappe/marketplace` y Pilot) en `docs/marketplace.md` y decisión de desplegar con Dokploy.
 - Capturas actualizadas, con la del perfil tributario.
