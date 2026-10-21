@@ -10,7 +10,7 @@ msgstr ""
 
 # ERPNext: «Tax ID» es el RNC (o la cédula de una persona física) en la DGII
 msgid "Tax ID"
-msgstr "RNC"
+msgstr "RNC / Cédula"
 
 msgid "Nomina RD"
 msgstr "Nómina RD"
