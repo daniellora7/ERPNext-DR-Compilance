@@ -4,11 +4,16 @@
 import frappe
 from frappe import _
 from frappe.utils import flt, getdate
-from hrms.hr.doctype.leave_encashment.leave_encashment import LeaveEncashment
 
 from erpnext_rd.dgii_fiscal.ncf import es_empresa_rd
 from erpnext_rd.nomina_rd import prestaciones
 from erpnext_rd.nomina_rd.vacaciones import dias_proporcionales
+
+# Frappe HR es opcional: sin él el DocType no existe y hooks.py nunca carga esta clase
+try:
+	from hrms.hr.doctype.leave_encashment.leave_encashment import LeaveEncashment
+except ImportError:
+	from frappe.model.document import Document as LeaveEncashment
 
 
 class LeaveEncashmentRD(LeaveEncashment):

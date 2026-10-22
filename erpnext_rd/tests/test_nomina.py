@@ -308,6 +308,52 @@ class TestReciboNominaRD(IntegrationTestCase):
 		recibo.end_date = "2027-01-31"
 		self.assertEqual(salario.calcular(recibo)[salario.ISR], 8672.17)
 
+	def test_isr_de_frappe_hr_duplicado(self):
+		from erpnext_rd.nomina_rd import salario
+
+		if not frappe.db.exists("Salary Component", "_Test ISR Frappe HR"):
+			frappe.get_doc(
+				{
+					"doctype": "Salary Component",
+					"salary_component": "_Test ISR Frappe HR",
+					"salary_component_abbr": "ISR_HR_T",
+					"type": "Deduction",
+					"variable_based_on_taxable_salary": 1,
+				}
+			).insert()
+		recibo = self._recibo()
+		recibo.append("deductions", {"salary_component": "_Test ISR Frappe HR", "amount": 5000})
+		with self.assertRaises(frappe.ValidationError):
+			salario.al_validar_recibo(recibo)
+
+	def test_subsidio_con_la_licencia(self):
+		if not frappe.db.exists("Leave Type", "_Test Licencia Medica RD"):
+			frappe.get_doc(
+				{"doctype": "Leave Type", "leave_type_name": "_Test Licencia Medica RD", "is_lwp": 1}
+			).insert()
+		licencia = frappe.get_doc(
+			{
+				"doctype": "Leave Application",
+				"employee": self.empleado.name,
+				"company": EMPRESA,
+				"leave_type": "_Test Licencia Medica RD",
+				"from_date": "2026-10-05",
+				"to_date": "2026-10-09",
+			}
+		).insert()
+		subsidio = frappe.get_doc(
+			{
+				"doctype": "Subsidio SISALRIL",
+				"employee": self.empleado.name,
+				"tipo": "Enfermedad común",
+				"desde": "2026-10-01",
+				"licencia": licencia.name,
+				"salario_base": 30_000,
+			}
+		).insert()
+		self.assertEqual(subsidio.tipo_licencia, "Leave Application")
+		self.assertEqual((str(subsidio.desde), str(subsidio.hasta)), ("2026-10-05", "2026-10-09"))
+
 	def test_desactivado(self):
 		frappe.db.set_single_value("Configuracion Nomina RD", "calcular_deducciones", 0)
 		try:

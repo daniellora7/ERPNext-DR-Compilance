@@ -8,9 +8,17 @@ from frappe.utils import flt, getdate
 
 from erpnext_rd.nomina_rd import subsidios
 
+# Sin enlace directo a Frappe HR (Dynamic Link sobre un campo Data, `tipo_licencia`) para que la app
+# instale y funcione sin él
+LICENCIA = "Leave Application"
+
 
 class SubsidioSISALRIL(Document):
 	def validate(self):
+		self.tipo_licencia = LICENCIA
+		if self.tipo == subsidios.LACTANCIA:
+			self.licencia = None
+		self._fechas_de_la_licencia()
 		if self.hasta and getdate(self.hasta) < getdate(self.desde):
 			frappe.throw(_("'Hasta' no puede ser anterior a 'Desde'"))
 		if self.tipo != subsidios.ENFERMEDAD:
@@ -40,3 +48,16 @@ class SubsidioSISALRIL(Document):
 				indicator="orange",
 				alert=True,
 			)
+
+	def _fechas_de_la_licencia(self):
+		"""Con la licencia de Frappe HR enlazada, las fechas son las de la solicitud de permiso."""
+		if not self.licencia:
+			return
+		licencia = frappe.db.get_value(
+			LICENCIA, self.licencia, ["employee", "from_date", "to_date", "docstatus"], as_dict=True
+		)
+		if not licencia or licencia.docstatus == 2:
+			frappe.throw(_("La licencia {0} no existe o está cancelada.").format(self.licencia))
+		if licencia.employee != self.employee:
+			frappe.throw(_("La licencia {0} es de otro empleado.").format(self.licencia))
+		self.desde, self.hasta = licencia.from_date, licencia.to_date

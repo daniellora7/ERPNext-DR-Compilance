@@ -7,10 +7,15 @@ es dominicana; lo demás (asiento, pago, estado, liquidación final) sigue siend
 
 import frappe
 from frappe.utils import cint, flt, getdate, today
-from hrms.payroll.doctype.gratuity.gratuity import Gratuity
 
 from erpnext_rd.dgii_fiscal.ncf import es_empresa_rd
 from erpnext_rd.nomina_rd import prestaciones
+
+# Frappe HR es opcional: sin él el DocType no existe y hooks.py nunca carga esta clase
+try:
+	from hrms.payroll.doctype.gratuity.gratuity import Gratuity
+except ImportError:
+	from frappe.model.document import Document as Gratuity
 
 
 class GratuityRD(Gratuity):
