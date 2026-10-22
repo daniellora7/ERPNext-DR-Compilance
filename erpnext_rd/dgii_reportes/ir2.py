@@ -450,7 +450,7 @@ def crear_formato():
 # ---------------------------------------------------------------------- botones del formulario
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def traer_datos(name: str):
 	doc = frappe.get_doc(DOCTYPE, name)
 	doc.check_permission("write")
@@ -459,7 +459,7 @@ def traer_datos(name: str):
 	return doc.name
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def crear_base_anticipos(name: str) -> str:
 	"""Base de los anticipos del año siguiente con los ingresos y el impuesto de este cuadre."""
 	from erpnext_rd.dgii_reportes import anticipos

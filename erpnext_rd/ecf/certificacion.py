@@ -161,7 +161,7 @@ def _envios(nombre: str, estados=None) -> list:
 	return frappe.get_all(ENVIO, filters=filtros, fields=["name", "encf", "estado"], order_by="creation")
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def generar(name: str) -> dict:
 	"""Firma los e-CF del set que todavía no tienen envío."""
 	doc = frappe.get_doc(SET, name)
@@ -199,7 +199,7 @@ def generar(name: str) -> dict:
 	return {"generados": doc.generados, "errores": len(errores)}
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def enviar(name: str) -> dict:
 	"""Envía a la DGII los e-CF firmados del set (y reintenta los que dieron error)."""
 	doc = frappe.get_doc(SET, name)

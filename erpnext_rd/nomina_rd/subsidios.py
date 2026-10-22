@@ -116,7 +116,7 @@ def salario_base(tipo: str, employee: str, company: str, desde, conf=None) -> fr
 	)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def salario_desde_nomina(name: str) -> dict:
 	"""Botón del formulario: vuelve a tomar el salario de los recibos de nómina y recalcula."""
 	doc = frappe.get_doc(DOCTYPE, name)

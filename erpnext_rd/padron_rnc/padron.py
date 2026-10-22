@@ -181,7 +181,7 @@ def encolar(forzar: bool = False):
 	)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def encolar_sincronizacion():
 	frappe.only_for(("System Manager", "Accounts Manager"))
 	encolar(forzar=True)

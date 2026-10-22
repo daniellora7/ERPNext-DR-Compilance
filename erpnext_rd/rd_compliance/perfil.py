@@ -218,7 +218,7 @@ def estado_empresa(company: str) -> dict:
 	}
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def guardar(company: str, valores: str | dict) -> str:
 	"""Asistente: crea o actualiza el perfil con los datos de sus pasos."""
 	valores = frappe.parse_json(valores) if isinstance(valores, str) else valores
@@ -243,7 +243,7 @@ def guardar(company: str, valores: str | dict) -> str:
 	return doc.name
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def crear_anio_fiscal(company: str) -> str:
 	"""Crea el año fiscal de ERPNext del ejercicio en curso según el cierre del perfil."""
 	frappe.has_permission("Fiscal Year", "create", throw=True)
