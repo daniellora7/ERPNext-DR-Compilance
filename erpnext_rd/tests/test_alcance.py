@@ -5,7 +5,9 @@ from frappe.tests import IntegrationTestCase
 
 from erpnext_rd.rd_compliance import alcance
 
-EMPRESA_US = "_Test Alcance US"
+# País sin configuración regional en ERPNext: la de EE. UU. crea campos (DDL, commit implícito) con la
+# primera empresa de ese país y en un sitio nuevo se perdía el savepoint de la prueba
+EMPRESA_EXT = "_Test Alcance MX"
 USUARIO = "alcance.rd@erpnext-rd.test"
 
 
@@ -15,10 +17,10 @@ class TestAlcancePorEmpresa(IntegrationTestCase):
 		frappe.get_doc(
 			{
 				"doctype": "Company",
-				"company_name": EMPRESA_US,
-				"abbr": "TAUS",
-				"country": "United States",
-				"default_currency": "USD",
+				"company_name": EMPRESA_EXT,
+				"abbr": "TAMX",
+				"country": "Mexico",
+				"default_currency": "MXN",
 				"create_chart_of_accounts_based_on": "Standard Template",
 				"chart_of_accounts": "Standard",
 			}
@@ -41,9 +43,9 @@ class TestAlcancePorEmpresa(IntegrationTestCase):
 		self.assertTrue(alcance.empresas_rd(USUARIO))
 		self.assertFalse(self.bloqueados() & set(alcance.MODULOS))
 
-		# Solo con la empresa de EE. UU.: no ve los módulos de la app
+		# Solo con la empresa de México: no ve los módulos de la app
 		permiso = frappe.get_doc(
-			{"doctype": "User Permission", "user": USUARIO, "allow": "Company", "for_value": EMPRESA_US}
+			{"doctype": "User Permission", "user": USUARIO, "allow": "Company", "for_value": EMPRESA_EXT}
 		).insert()
 		self.assertEqual(alcance.empresas_rd(USUARIO), [])
 		self.assertIn("RD Compliance", self.bloqueados())
@@ -78,7 +80,7 @@ class TestAlcancePorEmpresa(IntegrationTestCase):
 		frappe.db.set_value("User", USUARIO, "language", "en")
 		frappe.db.set_single_value("System Settings", "language", "en")
 		alcance.idioma_inicial()
-		# Hay una empresa de EE. UU.: el sitio no cambia, el usuario (todas sus empresas) tampoco
+		# Hay una empresa de México: el sitio no cambia, el usuario (todas sus empresas) tampoco
 		self.assertEqual(frappe.db.get_single_value("System Settings", "language"), "en")
 		self.assertEqual(frappe.db.get_value("User", USUARIO, "language"), "en")
 		self.assertTrue(frappe.db.get_default(alcance.CLAVE_IDIOMA))
@@ -103,8 +105,33 @@ class TestAlcancePorEmpresa(IntegrationTestCase):
 		registros.assert_not_called()
 
 		with patch.object(alcance, "_primera_empresa_rd") as primera:
-			empresa = frappe.get_doc("Company", EMPRESA_US)
+			empresa = frappe.get_doc("Company", EMPRESA_EXT)
 			empresa.country = "Dominican Republic"
 			with patch.object(frappe.db, "count", return_value=1):
 				alcance.al_cambiar_empresa(empresa)
+		primera.assert_called_once()
+
+		# Al crearla también (en v16 has_value_changed no ve el país de un documento nuevo)
+		contar = frappe.db.count
+
+		def una_sola_rd(doctype, filters=None, *args, **kwargs):
+			if doctype == "Company" and filters == {"country": alcance.PAIS}:
+				return 1
+			return contar(doctype, filters, *args, **kwargs)
+
+		with (
+			patch.object(alcance, "_primera_empresa_rd") as primera,
+			patch.object(frappe.db, "count", side_effect=una_sola_rd),
+		):
+			frappe.get_doc(
+				{
+					"doctype": "Company",
+					"company_name": "_Test Alcance RD",
+					"abbr": "TARD",
+					"country": alcance.PAIS,
+					"default_currency": "DOP",
+					"create_chart_of_accounts_based_on": "Standard Template",
+					"chart_of_accounts": "Standard",
+				}
+			).insert()
 		primera.assert_called_once()
