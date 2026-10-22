@@ -1,4 +1,5 @@
 [
   { "url": "https://github.com/frappe/erpnext", "branch": "v16.51.1" },
-  { "url": "https://github.com/frappe/hrms", "branch": "v16.51.0" }
+  { "url": "https://github.com/frappe/hrms", "branch": "v16.51.0" },
+  { "url": "https://github.com/frappe/builder", "branch": "v1.36.0" }
 ]
