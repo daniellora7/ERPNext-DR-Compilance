@@ -476,11 +476,8 @@ class TestPuntaAPunta(IntegrationTestCase):
 				}
 			).insert(ignore_permissions=True)
 		frappe.set_user(usuario)
-		self.assertTrue(frappe.has_permission("Company", doc=EMPRESA))
-		frappe.set_user("Administrator")
-
-		frappe.set_user(usuario)
 		try:
+			self.assertTrue(frappe.has_permission("Company", doc=EMPRESA))
 			with self.assertRaises(frappe.PermissionError):
 				utilidad_contable(EMPRESA, "2026-01-01", "2026-12-31")
 		finally:
