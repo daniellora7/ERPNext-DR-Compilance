@@ -4,9 +4,16 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 
 ## Sin publicar
 
+## v0.5.1 (2026-10-22)
+
+Corrige la 0.5.0, que no se publicó en el registro del Marketplace.
+
+- En un sitio nuevo, la primera empresa de RD no preparaba los formatos de impresión, los componentes de nómina, los feriados ni las formas de pago: Frappe v16 no detecta el país de una empresa al crearla. Los sitios con empresas de RD antes de la 0.5.0 no se ven afectados; si se creó una con la 0.5.0, `bench migrate` completa lo que falte.
+- Pruebas de alcance estables en un sitio nuevo.
+
 ## v0.5.0 (2026-10-22)
 
-Para Frappe v16.52, ERPNext v16.51 y Frappe HR v16.51 (opcional). Primera versión publicada en el registro del Marketplace de Frappe.
+Para Frappe v16.52, ERPNext v16.51 y Frappe HR v16.51 (opcional).
 
 ### Alcance por empresa
 - La app aplica según el país de cada empresa, no el del sitio. En documentos de empresas de otros países no se ven los campos de RD ni se ofrecen los formatos de impresión de la app.

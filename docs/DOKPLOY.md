@@ -33,7 +33,7 @@ En la pestaña *Environment*:
 
 ```
 ERPNEXT_IMAGE=ghcr.io/daniellora7/erpnext-dr-compilance
-ERPNEXT_IMAGE_TAG=0.5.0
+ERPNEXT_IMAGE_TAG=0.5.1
 SITE_NAME=erp.ejemplo.com
 ADMIN_PASSWORD=<contraseña larga del Administrator>
 DB_ROOT_PASSWORD=<otra contraseña larga>
