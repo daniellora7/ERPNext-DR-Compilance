@@ -28,3 +28,12 @@ class TestSeguridad(IntegrationTestCase):
 		for ruta in SOLO_POST:
 			funcion = frappe.get_attr(ruta)
 			self.assertEqual(frappe.allowed_http_methods_for_whitelisted_func.get(funcion), ["POST"], ruta)
+
+	def test_metodos_de_controlador_que_escriben_solo_por_post(self):
+		# frappe.get_attr no resuelve métodos de clase: se toman de la clase importada
+		from erpnext_rd.ecf.doctype.anulacion_encf.anulacion_encf import AnulacionENCF
+
+		for funcion in [AnulacionENCF.enviar_dgii]:
+			self.assertEqual(
+				frappe.allowed_http_methods_for_whitelisted_func.get(funcion), ["POST"], funcion.__qualname__
+			)
