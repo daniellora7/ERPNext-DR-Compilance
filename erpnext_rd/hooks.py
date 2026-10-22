@@ -100,7 +100,18 @@ doc_events = {
 	},
 	"Company": {
 		"validate": "erpnext_rd.dgii_fiscal.identificacion.validar_party",
-		"on_update": "erpnext_rd.dgii_fiscal.catalogo_cuentas.al_actualizar_empresa",
+		"on_update": [
+			"erpnext_rd.dgii_fiscal.catalogo_cuentas.al_actualizar_empresa",
+			"erpnext_rd.rd_compliance.alcance.al_cambiar_empresa",
+		],
+	},
+	# Solo ven los módulos de la app quienes trabajan con empresas de RD (rd_compliance/alcance.py)
+	"User": {
+		"after_insert": "erpnext_rd.rd_compliance.alcance.al_crear_usuario",
+	},
+	"User Permission": {
+		"on_update": "erpnext_rd.rd_compliance.alcance.al_cambiar_permiso",
+		"after_delete": "erpnext_rd.rd_compliance.alcance.al_cambiar_permiso",
 	},
 	"Customer": {
 		"validate": "erpnext_rd.dgii_fiscal.identificacion.validar_party",

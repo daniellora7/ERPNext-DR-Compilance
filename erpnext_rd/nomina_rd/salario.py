@@ -14,6 +14,7 @@ el neto y también en la vista previa) y en `validate` (por si el país del sist
 """
 
 import frappe
+from frappe import _
 from frappe.utils import cint, flt, getdate, today
 
 from erpnext_rd.dgii_fiscal.ncf import es_empresa_rd
@@ -185,6 +186,32 @@ def aplicar(slip):
 			_poner(slip, "employer_contributions", concepto, montos[concepto])
 
 
+def validar_isr_de_frappe_hr(slip):
+	"""Evita el ISR doble. En empresas RD el ISR lo calcula la app como la DGII (renta del mes x 12, la
+	escala, / 12; ver `calculos.isr_mensual`), no el *Income Tax Slab* de Frappe HR, que proyecta el año
+	y reparte el impuesto pendiente. Un componente "basado en el salario gravable" lo cobraría otra vez."""
+	duplicados = [
+		f.salary_component
+		for f in slip.get("deductions") or []
+		if flt(f.amount)
+		and _concepto(f.salary_component) not in CONCEPTOS
+		and cint(
+			frappe.get_cached_value(
+				"Salary Component", f.salary_component, "variable_based_on_taxable_salary"
+			)
+		)
+	]
+	if duplicados:
+		frappe.throw(
+			_(
+				"{0} calcula el ISR con la escala de Frappe HR (Income Tax Slab), pero en las empresas de "
+				"RD lo calcula ERPNext RD en {1}. Quítelo de la estructura salarial o desmarque "
+				"«Variable basada en el salario gravable» en el componente."
+			).format(", ".join(frappe.bold(c) for c in duplicados), frappe.bold(_componente_de(ISR) or ISR)),
+			title=_("ISR duplicado"),
+		)
+
+
 def deducciones_regionales(slip):
 	"""regional_overrides: SalarySlip.apply_regional_deductions (antes de calcular el neto)."""
 	aplicar(slip)
@@ -194,6 +221,7 @@ def al_validar_recibo(doc, method=None):
 	"""doc_events: Salary Slip -> validate. Cubre sitios cuyo país del sistema no es RD."""
 	if not aplica(doc):
 		return
+	validar_isr_de_frappe_hr(doc)
 	antes = [(f.salary_component, flt(f.amount)) for f in doc.deductions]
 	aplicar(doc)
 	if antes != [(f.salary_component, flt(f.amount)) for f in doc.deductions]:

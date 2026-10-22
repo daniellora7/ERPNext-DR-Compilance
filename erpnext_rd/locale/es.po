@@ -78,6 +78,96 @@ msgid "Set Pruebas ECF"
 msgstr "Set de pruebas e-CF"
 
 # ---------------------------------------------------------------------------
+# ERPNext y Frappe HR: traducciones erradas o mezcladas (nota de débito sin tilde; Salary Slip como
+# «nómina salarial», «recibo de sueldo» o «Salario Slips»: aquí siempre «recibo de nómina»).
+# Los términos de República Dominicana van aparte, en es_DO.po.
+# ---------------------------------------------------------------------------
+
+msgid "Debit Note"
+msgstr "Nota de débito"
+
+msgid "Debit Note Amount"
+msgstr "Monto de la nota de débito"
+
+msgid "Is Rate Adjustment Entry (Debit Note)"
+msgstr "Es ajuste de tarifa (nota de débito)"
+
+msgid "Is Return (Debit Note)"
+msgstr "Es devolución (nota de débito)"
+
+msgid "Return / Debit Note"
+msgstr "Devolución / Nota de débito"
+
+msgid "Could not submit some Salary Slips: {}"
+msgstr "No se pudieron validar algunos recibos de nómina: {}"
+
+msgid "Create Salary Slip"
+msgstr "Crear recibo de nómina"
+
+msgid "Create Salary Slips"
+msgstr "Crear recibos de nómina"
+
+msgid "Creating Salary Slips..."
+msgstr "Creando recibos de nómina..."
+
+msgid "Email Salary Slip to Employee"
+msgstr "Enviar el recibo de nómina al empleado por correo"
+
+msgid "Encrypt Salary Slips in Emails"
+msgstr "Cifrar los recibos de nómina en los correos"
+
+msgid "If checked, hides and disables Rounded Total field in Salary Slips"
+msgstr "Si está marcado, oculta y desactiva el campo Total redondeado en los recibos de nómina"
+
+msgid "Password policy for Salary Slips is not set"
+msgstr "No se ha definido la política de contraseñas de los recibos de nómina"
+
+msgid "Preview Salary Slip"
+msgstr "Vista previa del recibo de nómina"
+
+msgid "Salary Slip Based on Timesheet"
+msgstr "Recibo de nómina según registro de horas"
+
+msgid "Salary Slip ID"
+msgstr "ID del recibo de nómina"
+
+msgid "Salary Slip Loan"
+msgstr "Préstamo del recibo de nómina"
+
+msgid "Salary Slip Timesheet"
+msgstr "Registro de horas del recibo de nómina"
+
+msgid "Salary Slip already exists for {0} for the given dates"
+msgstr "Ya existe un recibo de nómina de {0} para esas fechas"
+
+msgid "Salary Slip of employee {0} already created for this period"
+msgstr "Ya se creó el recibo de nómina del empleado {0} para este período"
+
+msgid "Salary Slip of employee {0} already created for time sheet {1}"
+msgstr "Ya se creó el recibo de nómina del empleado {0} para el registro de horas {1}"
+
+msgid "Salary Slips Created"
+msgstr "Recibos de nómina creados"
+
+msgid "Salary Slips Submitted"
+msgstr "Recibos de nómina validados"
+
+msgid "Show Salary Slip"
+msgstr "Mostrar recibo de nómina"
+
+msgid "Submit Salary Slip"
+msgstr "Validar recibo de nómina"
+
+msgid "Submitting Salary Slips and creating Journal Entry..."
+msgstr "Validando recibos de nómina y creando el asiento contable..."
+
+msgid "Submitting Salary Slips..."
+msgstr "Validando recibos de nómina..."
+
+msgid "This will submit Salary Slips and create accrual Journal Entry. Do you want to proceed?"
+msgstr "Esto validará los recibos de nómina y creará el asiento contable de la provisión. ¿Desea continuar?"
+
+# ---------------------------------------------------------------------------
 # Frappe HR: correcciones de su catálogo oficial de español (traducciones erradas, p. ej. «Tipo de
 # Cambio» por Shift Type o «Losa» por Slab, y Leave como «vacaciones»). Mismo glosario del bloque
 # siguiente: Leave = permiso, Checkin = marcación, Slab = escala o tramo. Se mantienen aunque el bloque
@@ -1093,9 +1183,6 @@ msgstr "Bloquear permisos en días importantes."
 
 msgid "Boarding Status"
 msgstr "Estado de incorporación"
-
-msgid "Body"
-msgstr "Cuerpo"
 
 msgid "Bonus"
 msgstr "Bonificación"
@@ -2187,9 +2274,6 @@ msgstr "No se pudo descargar el PDF"
 msgid "Failed to download PDF: {0}"
 msgstr "No se pudo descargar el PDF: {0}"
 
-msgid "Failed to personalize your setup"
-msgstr "No se pudo personalizar su configuración"
-
 msgid "Failed to send reset link"
 msgstr "No se pudo enviar el enlace para restablecer"
 
@@ -2514,9 +2598,6 @@ msgstr "N.º de seguro de salud"
 
 msgid "Health Insurance Provider"
 msgstr "Proveedor del seguro de salud"
-
-msgid "Hello"
-msgstr "Hola"
 
 msgid "Hey {}! This email is to remind you about the upcoming holidays."
 msgstr "¡Hola, {}! Este correo es para recordarle los próximos días festivos."
@@ -3157,9 +3238,6 @@ msgstr "¿Marcar {0} {1} como {2}?"
 msgid "Marking Attendance"
 msgstr "Marcando asistencia"
 
-msgid "Masters"
-msgstr "Maestros"
-
 msgid "Max Amount Eligible For Claim"
 msgstr "Monto máximo que se puede reclamar"
 
@@ -3201,9 +3279,6 @@ msgstr "Falta la cuenta de anticipos"
 
 msgid "Missing Configuration"
 msgstr "Falta configuración"
-
-msgid "Missing Field"
-msgstr "Falta un campo"
 
 msgid "Missing Mandatory Field"
 msgstr "Falta un campo obligatorio"
@@ -4316,9 +4391,6 @@ msgstr "Fila {0}: la puntuación de objetivos no puede ser mayor que {1}"
 msgid "Row {0}: Paid amount {1} is greater than pending accrued amount {2} against loan {3}"
 msgstr "Fila {0}: el monto pagado {1} es mayor que el monto acumulado pendiente {2} del préstamo {3}"
 
-msgid "Row {0}: {1}"
-msgstr "Fila {0}: {1}"
-
 msgid "Row {0}: {1}, {2} and {3} are required against advance {4}."
 msgstr "Fila {0}: {1}, {2} y {3} son obligatorios para el anticipo {4}."
 
@@ -4876,9 +4948,6 @@ msgstr "Nombre de la plantilla"
 
 msgid "Tenure"
 msgstr "Trayectoria"
-
-msgid "Thank you"
-msgstr "Gracias"
 
 msgid "Thank you for applying."
 msgstr "Gracias por postularse."
@@ -5528,9 +5597,6 @@ msgstr "objetivo"
 msgid "goals"
 msgstr "objetivos"
 
-msgid "here"
-msgstr "aquí"
-
 msgid "johndoe@mail.com"
 msgstr "juan.perez@correo.com"
 
@@ -5672,9 +5738,6 @@ msgstr "¿{0} {1} {2}?"
 
 msgid "{0}. Check error log for more details."
 msgstr "{0}. Revise el registro de errores para más detalles."
-
-msgid "{0}d"
-msgstr "{0} d"
 
 msgid "{} {} open for this position."
 msgstr "{} {} abiertas para este puesto."

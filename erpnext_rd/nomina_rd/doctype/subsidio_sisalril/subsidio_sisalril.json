@@ -15,6 +15,8 @@
   "desde",
   "hasta",
   "numero_solicitud",
+  "tipo_licencia",
+  "licencia",
   "section_calculo",
   "salario_base",
   "meses_cotizados",
@@ -97,6 +99,22 @@
    "fieldname": "numero_solicitud",
    "fieldtype": "Data",
    "label": "Número de solicitud SISALRIL"
+  },
+  {
+   "fieldname": "tipo_licencia",
+   "fieldtype": "Data",
+   "label": "Tipo de documento de la licencia",
+   "default": "Leave Application",
+   "hidden": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "licencia",
+   "fieldtype": "Dynamic Link",
+   "label": "Licencia en Frappe HR",
+   "options": "tipo_licencia",
+   "depends_on": "eval:doc.tipo!='Lactancia'",
+   "description": "Opcional: la solicitud de permiso (Leave Application) de la licencia. Las fechas se toman de ella."
   },
   {
    "fieldname": "section_calculo",
@@ -193,7 +211,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-18 12:00:00.000000",
+ "modified": "2026-10-21 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Nomina RD",
  "name": "Subsidio SISALRIL",

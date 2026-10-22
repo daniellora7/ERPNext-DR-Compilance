@@ -10,9 +10,12 @@ frappe.ui.form.on("Company", {
 			.then(({ message: estado }) => {
 				if (!estado || !estado.aplica) return;
 				if (!estado.existe) {
+					const enlace = estado.puede_configurar
+						? `<a href="#" data-rd-perfil style="margin-left: 8px; text-decoration: underline">${__("Configurar perfil tributario")}</a>`
+						: "";
 					frm.dashboard.set_headline_alert(
 						`${__("Esta empresa no tiene perfil tributario: la app la trata como persona jurídica del régimen ordinario.")}
-						<a href="#" data-rd-perfil style="margin-left: 8px; text-decoration: underline">${__("Configurar perfil tributario")}</a>`,
+						${enlace}`,
 						"orange"
 					);
 					// El aviso se dibuja fuera del área de alertas del tablero: se escucha en el formulario
@@ -27,6 +30,7 @@ frappe.ui.form.on("Company", {
 						"orange"
 					);
 				}
+				if (!estado.existe && !estado.puede_configurar) return;
 				frm.add_custom_button(__("Perfil tributario"), () =>
 					estado.existe
 						? frappe.set_route("Form", "Perfil Tributario RD", frm.doc.name)
@@ -48,6 +52,28 @@ function erpnext_rd_asistente_perfil(company) {
 					options: ["Persona jurídica", "Persona física con negocio"],
 					default: "Persona jurídica",
 					reqd: 1,
+				},
+				{
+					fieldname: "tipo_sociedad",
+					label: __("Tipo de sociedad"),
+					fieldtype: "Select",
+					options: [
+						"",
+						"Sociedad de Responsabilidad Limitada (SRL)",
+						"Sociedad Anónima (SA)",
+						"Sociedad Anónima Simplificada (SAS)",
+						"Empresa Individual de Responsabilidad Limitada (EIRL)",
+						"Sociedad en Nombre Colectivo",
+						"Sociedad en Comandita Simple",
+						"Sociedad en Comandita por Acciones",
+						"Sucursal de sociedad extranjera",
+						"Asociación sin fines de lucro (ASFL)",
+						"Cooperativa",
+						"Otra",
+					],
+					depends_on: "eval:doc.tipo_contribuyente == 'Persona jurídica'",
+					juridica: true,
+					description: __("Forma jurídica con la que está registrada en el registro mercantil."),
 				},
 				{
 					fieldname: "regimen",
@@ -177,7 +203,10 @@ function erpnext_rd_asistente_perfil(company) {
 	};
 
 	const avanzar = () => {
-		const faltan = pasos[paso].campos.filter((c) => c.reqd && !dialogo.get_value(c.fieldname));
+		const juridica = dialogo.get_value("tipo_contribuyente") === "Persona jurídica";
+		const faltan = pasos[paso].campos.filter(
+			(c) => (c.reqd || (c.juridica && juridica)) && !dialogo.get_value(c.fieldname)
+		);
 		if (faltan.length) {
 			frappe.msgprint(__("Complete: {0}", [faltan.map((c) => c.label).join(", ")]));
 			return;
