@@ -121,7 +121,8 @@ def al_cambiar_permiso(doc, method=None):
 
 def al_cambiar_empresa(doc, method=None):
 	"""Empresa nueva o que cambió de país: puede cambiar quién trabaja con empresas de RD."""
-	if doc.has_value_changed("country"):
+	# Al crearla, has_value_changed no lo detecta: en v16 el documento ya trae su copia previa
+	if doc.flags.in_insert or doc.has_value_changed("country"):
 		sincronizar_todos()
 		if doc.country == PAIS and frappe.db.count("Company", {"country": PAIS}) == 1:
 			_primera_empresa_rd()
