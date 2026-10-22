@@ -26,6 +26,21 @@ JURIDICA = "Persona jurídica"
 FISICA = "Persona física con negocio"
 ORDINARIO = "Ordinario"
 RST = "Simplificado (RST)"
+# Formas jurídicas de la Ley 479-08 (modificada por la Ley 31-11) y otras personas jurídicas; el valor es
+# cómo se muestra en el resumen del perfil
+SOCIEDADES = {
+	"Sociedad de Responsabilidad Limitada (SRL)": "SRL",
+	"Sociedad Anónima (SA)": "SA",
+	"Sociedad Anónima Simplificada (SAS)": "SAS",
+	"Empresa Individual de Responsabilidad Limitada (EIRL)": "EIRL",
+	"Sociedad en Nombre Colectivo": "Sociedad en Nombre Colectivo",
+	"Sociedad en Comandita Simple": "Sociedad en Comandita Simple",
+	"Sociedad en Comandita por Acciones": "Sociedad en Comandita por Acciones",
+	"Sucursal de sociedad extranjera": "Sucursal extranjera",
+	"Asociación sin fines de lucro (ASFL)": "ASFL",
+	"Cooperativa": "Cooperativa",
+	"Otra": "Persona jurídica",
+}
 CIERRES = {
 	"31 de diciembre": (12, 31),
 	"31 de marzo": (3, 31),
@@ -65,6 +80,7 @@ def perfil(company: str) -> frappe._dict:
 	return frappe._dict(
 		company=company,
 		tipo_contribuyente=JURIDICA,
+		tipo_sociedad=None,
 		regimen=ORDINARIO,
 		tamano=None,
 		cierre_fiscal=CIERRE_POR_DEFECTO,
@@ -75,6 +91,12 @@ def perfil(company: str) -> frappe._dict:
 		existe=False,
 		**{c: 0 for c in ACTIVIDADES},
 	)
+
+
+def resumen(p) -> str:
+	"""Título del perfil (lo que muestra el campo «Perfil tributario» de la empresa): «SRL · Régimen Ordinario»."""
+	tipo = SOCIEDADES.get(p.tipo_sociedad) if p.tipo_contribuyente == JURIDICA else None
+	return _("{0} · Régimen {1}").format(_(tipo or p.tipo_contribuyente), _(p.regimen))
 
 
 def declara_ir2(company: str) -> bool:
@@ -202,6 +224,7 @@ def guardar(company: str, valores: str | dict) -> str:
 	valores = frappe.parse_json(valores) if isinstance(valores, str) else valores
 	permitidos = {
 		"tipo_contribuyente",
+		"tipo_sociedad",
 		"regimen",
 		"tamano",
 		"cierre_fiscal",
@@ -255,6 +278,8 @@ def _perfil_completo(company, p):
 		return _resultado(False, _("La empresa no tiene perfil tributario."), ["Form", DOCTYPE, "new"])
 	if not p.tamano:
 		return _resultado(False, _("Indique el tamaño de la empresa."), ["Form", DOCTYPE, company])
+	if p.tipo_contribuyente == JURIDICA and not p.tipo_sociedad:
+		return _resultado(False, _("Indique el tipo de sociedad."), ["Form", DOCTYPE, company])
 	return _resultado(True)
 
 

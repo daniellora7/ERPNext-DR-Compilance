@@ -54,6 +54,28 @@ function erpnext_rd_asistente_perfil(company) {
 					reqd: 1,
 				},
 				{
+					fieldname: "tipo_sociedad",
+					label: __("Tipo de sociedad"),
+					fieldtype: "Select",
+					options: [
+						"",
+						"Sociedad de Responsabilidad Limitada (SRL)",
+						"Sociedad Anónima (SA)",
+						"Sociedad Anónima Simplificada (SAS)",
+						"Empresa Individual de Responsabilidad Limitada (EIRL)",
+						"Sociedad en Nombre Colectivo",
+						"Sociedad en Comandita Simple",
+						"Sociedad en Comandita por Acciones",
+						"Sucursal de sociedad extranjera",
+						"Asociación sin fines de lucro (ASFL)",
+						"Cooperativa",
+						"Otra",
+					],
+					depends_on: "eval:doc.tipo_contribuyente == 'Persona jurídica'",
+					juridica: true,
+					description: __("Forma jurídica con la que está registrada en el registro mercantil."),
+				},
+				{
 					fieldname: "regimen",
 					label: __("Régimen"),
 					fieldtype: "Select",
@@ -181,7 +203,10 @@ function erpnext_rd_asistente_perfil(company) {
 	};
 
 	const avanzar = () => {
-		const faltan = pasos[paso].campos.filter((c) => c.reqd && !dialogo.get_value(c.fieldname));
+		const juridica = dialogo.get_value("tipo_contribuyente") === "Persona jurídica";
+		const faltan = pasos[paso].campos.filter(
+			(c) => (c.reqd || (c.juridica && juridica)) && !dialogo.get_value(c.fieldname)
+		);
 		if (faltan.length) {
 			frappe.msgprint(__("Complete: {0}", [faltan.map((c) => c.label).join(", ")]));
 			return;

@@ -53,6 +53,9 @@ class TestPerfilTributario(IntegrationTestCase):
 	def test_asistente_y_requisitos(self):
 		perfil.guardar(EMPRESA, {"tamano": perfil.PEQUENA, "cierre_fiscal": "31 de diciembre", "ignorado": 1})
 		self.assertTrue(perfil.perfil(EMPRESA).existe)
+		# Persona jurídica sin tipo de sociedad: el perfil aún no está completo
+		self.assertEqual(estados(EMPRESA)["Perfil tributario completo"], perfil.FALTA)
+		perfil.guardar(EMPRESA, {"tipo_sociedad": "Sociedad de Responsabilidad Limitada (SRL)"})
 		r = estados(EMPRESA)
 		self.assertEqual(r["Perfil tributario completo"], perfil.CUMPLIDO)
 		self.assertEqual(r["RNC de la empresa"], perfil.CUMPLIDO)
@@ -152,6 +155,16 @@ class TestPerfilTributario(IntegrationTestCase):
 		self.assertEqual(
 			frappe.db.get_value(perfil.DOCTYPE, EMPRESA, "resumen"),
 			"Persona jurídica · Régimen Simplificado (RST)",
+		)
+		perfil.guardar(EMPRESA, {"tipo_sociedad": "Sociedad Anónima Simplificada (SAS)"})
+		self.assertEqual(
+			frappe.db.get_value(perfil.DOCTYPE, EMPRESA, "resumen"), "SAS · Régimen Simplificado (RST)"
+		)
+		# La persona física no tiene tipo de sociedad
+		perfil.guardar(EMPRESA, {"tipo_contribuyente": perfil.FISICA})
+		self.assertEqual(
+			frappe.db.get_value(perfil.DOCTYPE, EMPRESA, ["tipo_sociedad", "resumen"]),
+			(None, "Persona física con negocio · Régimen Simplificado (RST)"),
 		)
 		frappe.delete_doc(perfil.DOCTYPE, EMPRESA)
 		self.assertIsNone(frappe.db.get_value("Company", EMPRESA, "rd_perfil_tributario"))
