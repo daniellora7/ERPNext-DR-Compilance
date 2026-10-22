@@ -1,5 +1,5 @@
 """Gratuity de Frappe HR con el cálculo de las prestaciones RD y la regalía proporcional
-(override_doctype_class en hooks.py).
+(extend_doctype_class en hooks.py: Frappe la combina con la clase de HRMS).
 
 Solo cambia el monto cuando la regla está marcada como prestación RD (`rd_prestacion`) y la empresa
 es dominicana; lo demás (asiento, pago, estado, liquidación final) sigue siendo de HRMS.
@@ -11,14 +11,8 @@ from frappe.utils import cint, flt, getdate, today
 from erpnext_rd.dgii_fiscal.ncf import es_empresa_rd
 from erpnext_rd.nomina_rd import prestaciones
 
-# Frappe HR es opcional: sin él el DocType no existe y hooks.py nunca carga esta clase
-try:
-	from hrms.payroll.doctype.gratuity.gratuity import Gratuity
-except ImportError:
-	from frappe.model.document import Document as Gratuity
 
-
-class GratuityRD(Gratuity):
+class GratuityRD:
 	def tipo_prestacion_rd(self) -> str | None:
 		if not (self.gratuity_rule and es_empresa_rd(self.company)):
 			return None

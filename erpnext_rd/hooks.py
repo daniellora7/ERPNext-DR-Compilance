@@ -88,10 +88,10 @@ regional_overrides = {
 
 # Prestaciones RD (preaviso y cesantía) sobre el Gratuity de Frappe HR: solo cambia el cálculo
 # del monto en las reglas marcadas con rd_prestacion. La clase solo se importa si HRMS está instalado.
-override_doctype_class = {
-	"Gratuity": "erpnext_rd.nomina_rd.gratuity_rd.GratuityRD",
-	"Leave Encashment": "erpnext_rd.nomina_rd.leave_encashment_rd.LeaveEncashmentRD",
-	"Overtime Slip": "erpnext_rd.nomina_rd.horas_extras_rd.OvertimeSlipRD",
+extend_doctype_class = {
+	"Gratuity": ["erpnext_rd.nomina_rd.gratuity_rd.GratuityRD"],
+	"Leave Encashment": ["erpnext_rd.nomina_rd.leave_encashment_rd.LeaveEncashmentRD"],
+	"Overtime Slip": ["erpnext_rd.nomina_rd.horas_extras_rd.OvertimeSlipRD"],
 }
 
 doc_events = {

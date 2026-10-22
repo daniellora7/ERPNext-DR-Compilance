@@ -1,6 +1,6 @@
-"""Overtime Slip de Frappe HR con las horas extras del Código de Trabajo (override_doctype_class en
-hooks.py). Solo cambia el cálculo en los tipos marcados con `rd_horas_extras` y en empresas RD; la lógica
-y los parámetros están en `horas_extras.py`."""
+"""Overtime Slip de Frappe HR con las horas extras del Código de Trabajo (extend_doctype_class en
+hooks.py: Frappe la combina con la clase de HRMS). Solo cambia el cálculo en los tipos marcados con
+`rd_horas_extras` y en empresas RD; la lógica y los parámetros están en `horas_extras.py`."""
 
 import frappe
 from frappe.utils import cstr, flt, getdate
@@ -9,14 +9,8 @@ from erpnext_rd.dgii_fiscal.ncf import es_empresa_rd
 from erpnext_rd.nomina_rd import prestaciones
 from erpnext_rd.nomina_rd.horas_extras import monto, nocturnas_de_la_salida, parametros
 
-# Frappe HR es opcional: sin él el DocType no existe y hooks.py nunca carga esta clase
-try:
-	from hrms.hr.doctype.overtime_slip.overtime_slip import OvertimeSlip
-except ImportError:
-	from frappe.model.document import Document as OvertimeSlip
 
-
-class OvertimeSlipRD(OvertimeSlip):
+class OvertimeSlipRD:
 	def _es_rd(self, overtime_type) -> bool:
 		return bool((self.overtime_types.get(overtime_type) or {}).get("rd"))
 

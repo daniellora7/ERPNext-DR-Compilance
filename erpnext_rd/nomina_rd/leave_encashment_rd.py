@@ -1,5 +1,5 @@
 """Leave Encashment de Frappe HR con el pago de vacaciones RD al terminar el contrato
-(override_doctype_class en hooks.py). Ver `vacaciones.py`."""
+(extend_doctype_class en hooks.py: Frappe la combina con la clase de HRMS). Ver `vacaciones.py`."""
 
 import frappe
 from frappe import _
@@ -9,14 +9,8 @@ from erpnext_rd.dgii_fiscal.ncf import es_empresa_rd
 from erpnext_rd.nomina_rd import prestaciones
 from erpnext_rd.nomina_rd.vacaciones import dias_proporcionales
 
-# Frappe HR es opcional: sin él el DocType no existe y hooks.py nunca carga esta clase
-try:
-	from hrms.hr.doctype.leave_encashment.leave_encashment import LeaveEncashment
-except ImportError:
-	from frappe.model.document import Document as LeaveEncashment
 
-
-class LeaveEncashmentRD(LeaveEncashment):
+class LeaveEncashmentRD:
 	"""Leave Encashment de Frappe HR: en vacaciones RD agrega la proporción del año incompleto y usa el
 	salario diario de las prestaciones. Los demás tipos de permiso y empresas siguen igual."""
 
