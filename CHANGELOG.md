@@ -4,6 +4,28 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 
 ## Sin publicar
 
+## v0.5.0 (2026-10-22)
+
+Para Frappe v16.52, ERPNext v16.51 y Frappe HR v16.51 (opcional). Primera versión publicada en el registro del Marketplace de Frappe.
+
+### Alcance por empresa
+- La app aplica según el país de cada empresa, no el del sitio. En documentos de empresas de otros países no se ven los campos de RD ni se ofrecen los formatos de impresión de la app.
+- A quien solo trabaja con empresas de otros países se le ocultan los módulos de la app (RD Compliance, Nómina RD).
+- Sin empresas de RD, la instalación no crea ni cambia registros de ERPNext ni de Frappe HR; lo hace la primera empresa de RD que se cree.
+
+### Fiscal (RD Compliance)
+- La configuración fiscal y de e-CF la edita solo el System Manager; contabilidad la ve.
+- La empresa muestra su perfil tributario («SRL · Régimen Ordinario»).
+- Tipo de sociedad en el perfil (SRL, SA, SAS, EIRL y demás formas de la Ley 479-08), pedido en el asistente.
+
+### Idioma
+- Nuevo idioma Español (República Dominicana) con los términos de RD: «RNC / Cédula» en vez de «Tax ID», conduce, feriado, forma de pago, preaviso… Se activa al instalar en el sitio y en los usuarios cuyas empresas son todas de RD.
+
+### Nómina RD (con Frappe HR)
+- Se bloquea el recibo con el ISR de Frappe HR en una empresa de RD, para no descontarlo dos veces.
+- El subsidio de la SISALRIL se enlaza con la licencia del empleado.
+- Frappe HR sigue siendo opcional también para el validador del Marketplace.
+
 ## v0.4.0 (2026-10-21)
 
 Para Frappe v16.52, ERPNext v16.51 y Frappe HR v16.51 (opcional). Primera versión para el Marketplace de Frappe.
