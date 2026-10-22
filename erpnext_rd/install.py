@@ -27,6 +27,7 @@ from erpnext_rd.dgii_reportes import estados_ir2, ir2
 from erpnext_rd.dgii_reportes.ir2 import CATEGORIAS as CATEGORIAS_FISCALES
 from erpnext_rd.nomina_rd import hrms_instalado, salario, volante
 from erpnext_rd.nomina_rd.salario import CONCEPTOS as CONCEPTOS_NOMINA
+from erpnext_rd.rd_compliance import alcance
 
 MODULO = "DGII Fiscal"
 
@@ -286,13 +287,22 @@ def campos_personalizados() -> dict:
 	return {
 		"Company": [
 			{
+				"fieldname": "rd_perfil_tributario",
+				"fieldtype": "Link",
+				"label": "Perfil tributario",
+				"options": "Perfil Tributario RD",
+				"insert_after": "tax_id",
+				"read_only": 1,
+				"no_copy": 1,
+				"description": "Se configura con el botón «Perfil tributario» (solo administradores)",
+			},
+			{
 				"fieldname": "rd_catalogo_dgii",
 				"fieldtype": "Check",
 				"label": "Catálogo de cuentas DGII aplicado",
 				"insert_after": "chart_of_accounts",
 				"read_only": 1,
 				"no_copy": 1,
-				"depends_on": "eval:doc.country == 'Dominican Republic'",
 				"description": "Lo marca ERPNext RD al crear el catálogo de cuentas conforme a la DGII",
 			},
 			{
@@ -301,7 +311,6 @@ def campos_personalizados() -> dict:
 				"label": "Localidad SIRLA (RNL)",
 				"insert_after": "rd_catalogo_dgii",
 				"length": 6,
-				"depends_on": "eval:doc.country == 'Dominican Republic'",
 				"description": "Últimos 4 dígitos del Registro Nacional Laboral del establecimiento, para las planillas "
 				"DGT-3 / DGT-4 del Ministerio de Trabajo. Un empleado de otro establecimiento lo indica en su ficha.",
 			},
@@ -755,9 +764,17 @@ def crear_campos_personalizados():
 	# DocTypes que solo traen las versiones recientes de Frappe HR (p. ej. Overtime Type)
 	for doctype in [d for d in campos if not frappe.db.exists("DocType", d)]:
 		campos.pop(doctype)
-	for lista in campos.values():
-		for campo in lista:
-			campo["module"] = MODULO
+	for doctype, lista in campos.items():
+		# Copias: varios DocTypes comparten la misma definición (p. ej. el tipo de identificación)
+		campos[doctype] = [
+			{
+				**campo,
+				"module": MODULO,
+				# Solo se ven en empresas de RD (rd_compliance/alcance.py)
+				"depends_on": alcance.condicion_campo(doctype, campo.get("depends_on")),
+			}
+			for campo in lista
+		]
 	create_custom_fields(campos, ignore_validate=True, update=True)
 
 
@@ -1124,7 +1141,7 @@ def programar_padron_inicial():
 	Después lo actualiza la tarea diaria (solo si la DGII publicó uno nuevo) o el botón de Configuración DGII."""
 	if frappe.flags.in_test or getattr(frappe, "in_test", False):
 		return
-	if frappe.get_all("Contribuyente DGII", limit=1):
+	if not alcance.hay_empresas_rd() or frappe.get_all("Contribuyente DGII", limit=1):
 		return
 	from erpnext_rd.padron_rnc.padron import encolar
 
@@ -1147,27 +1164,39 @@ def lista_padron_sin_filtro_reciente():
 
 
 def setup():
+	# Lo propio de la app: sus DocTypes, sus campos (ocultos fuera de RD), configuración y navegación
 	crear_campos_personalizados()
-	formatos.asegurar_fiscales()
-	cheque.crear_formato()
 	ir2.crear_formato()
 	estados_ir2.asignar_casillas()
-	formato_impresion_por_defecto()
 	crear_tipos_comprobante()
-	inicializar_formas_pago()
 	inicializar_configuracion()
 	asegurar_navegacion()
+	lista_padron_sin_filtro_reciente()
+	frappe.clear_cache()
+	# Lo que crea o cambia registros de ERPNext y Frappe HR, solo si hay empresas de RD (si aún no hay,
+	# lo hace la primera que se cree: alcance.al_cambiar_empresa)
+	if alcance.hay_empresas_rd():
+		registros_rd()
+
+
+def registros_rd():
+	formatos.asegurar_fiscales()
+	cheque.crear_formato()
+	formato_impresion_por_defecto()
+	inicializar_formas_pago()
 	dock_nomina()
 	datos_del_empleado()
 	prestaciones_y_feriados()
-	lista_padron_sin_filtro_reciente()
 	frappe.clear_cache()
 	catalogo_cuentas.aplicar_a_empresas_rd()
 	salario.crear_componentes()
 
 
 def after_install():
+	# Primero el idioma, luego lo propio de la app y los módulos de cada usuario según sus empresas
+	alcance.idioma_inicial()
 	setup()
+	alcance.sincronizar_todos()
 	programar_padron_inicial()
 
 

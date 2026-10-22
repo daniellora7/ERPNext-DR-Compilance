@@ -5,7 +5,9 @@
  "engine": "InnoDB",
  "field_order": [
   "company",
+  "resumen",
   "tipo_contribuyente",
+  "tipo_sociedad",
   "column_break_regimen",
   "regimen",
   "tamano",
@@ -46,6 +48,14 @@
    "in_standard_filter": 1
   },
   {
+   "fieldname": "resumen",
+   "fieldtype": "Data",
+   "label": "Resumen",
+   "read_only": 1,
+   "hidden": 1,
+   "no_copy": 1
+  },
+  {
    "fieldname": "tipo_contribuyente",
    "fieldtype": "Select",
    "label": "Tipo de contribuyente",
@@ -53,6 +63,15 @@
    "default": "Persona jurídica",
    "reqd": 1,
    "in_list_view": 1
+  },
+  {
+   "fieldname": "tipo_sociedad",
+   "fieldtype": "Select",
+   "label": "Tipo de sociedad",
+   "options": "\nSociedad de Responsabilidad Limitada (SRL)\nSociedad Anónima (SA)\nSociedad Anónima Simplificada (SAS)\nEmpresa Individual de Responsabilidad Limitada (EIRL)\nSociedad en Nombre Colectivo\nSociedad en Comandita Simple\nSociedad en Comandita por Acciones\nSucursal de sociedad extranjera\nAsociación sin fines de lucro (ASFL)\nCooperativa\nOtra",
+   "depends_on": "eval:doc.tipo_contribuyente == 'Persona jurídica'",
+   "in_list_view": 1,
+   "description": "Forma jurídica con la que está registrada (Ley 479-08 de sociedades comerciales y EIRL)"
   },
   {
    "fieldname": "column_break_regimen",
@@ -216,7 +235,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-18 17:30:00.000000",
+ "modified": "2026-10-22 10:00:00",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Perfil Tributario RD",
@@ -237,9 +256,6 @@
   {
    "role": "Accounts Manager",
    "read": 1,
-   "write": 1,
-   "create": 1,
-   "delete": 1,
    "report": 1,
    "export": 1,
    "print": 1,
@@ -259,7 +275,8 @@
  "states": [],
  "autoname": "field:company",
  "naming_rule": "By fieldname",
- "title_field": "company",
+ "title_field": "resumen",
  "track_changes": 1,
- "description": "Régimen, tamaño, impuestos especiales e incentivos de una empresa de RD. La app activa y exige lo que corresponde a cada perfil."
+ "description": "Régimen, tamaño, impuestos especiales e incentivos de una empresa de RD. La app activa y exige lo que corresponde a cada perfil.",
+ "show_title_field_in_link": 1
 }

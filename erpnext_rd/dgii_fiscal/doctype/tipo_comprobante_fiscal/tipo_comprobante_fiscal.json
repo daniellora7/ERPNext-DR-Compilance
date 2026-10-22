@@ -91,7 +91,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-12 18:00:00.000000",
+ "modified": "2026-10-21 18:00:00",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Tipo Comprobante Fiscal",
@@ -111,16 +111,13 @@
    "write": 1
   },
   {
-   "create": 1,
-   "delete": 1,
    "email": 1,
    "export": 1,
    "print": 1,
    "read": 1,
    "report": 1,
    "role": "Accounts Manager",
-   "share": 1,
-   "write": 1
+   "share": 1
   },
   {
    "read": 1,

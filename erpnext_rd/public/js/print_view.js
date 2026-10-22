@@ -38,3 +38,23 @@
 		return Promise.resolve(membrete_por_defecto.call(this)).then(() => quitar_membrete(this));
 	};
 })();
+
+// Documentos de empresas que no son de RD: el selector no ofrece los formatos de la app
+// (frappe.boot.rd_formatos_app y frappe.boot.empresas_rd, ver boot.py)
+(() => {
+	const vista = frappe.ui.form.PrintView.prototype;
+	const original = vista.setup_sidebar;
+
+	vista.setup_sidebar = function () {
+		original.call(this);
+		const consulta = this.print_format_field.df.get_query;
+		this.print_format_field.df.get_query = () => {
+			const filtro = consulta();
+			const empresa = this.frm.doc?.company;
+			if (empresa && !(frappe.boot.empresas_rd || []).includes(empresa)) {
+				filtro.filters.name = ["not in", frappe.boot.rd_formatos_app || []];
+			}
+			return filtro;
+		};
+	};
+})();
