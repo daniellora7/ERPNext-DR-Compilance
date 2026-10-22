@@ -14,6 +14,7 @@ NOTA_CREDITO = {"B": "B04", "E": "E34"}
 NOTA_DEBITO = {"B": "B03", "E": "E33"}
 PAGOS_EXTERIOR = {"B": "B17", "E": "E47"}
 PAIS = "Dominican Republic"
+VENTAS = ("Sales Invoice", "POS Invoice")
 
 
 # ---------------------------------------------------------------------------
@@ -185,6 +186,10 @@ def validar_venta(doc, method=None):
 		doc.rd_tipo_comprobante = doc.rd_ncf = doc.rd_ncf_vencimiento = doc.rd_secuencia_ncf = None
 		return
 
+	if doc.docstatus == 0:
+		# El NCF de venta lo asigna la secuencia al validar; uno enviado por la API no se acepta
+		doc.rd_ncf = doc.rd_ncf_vencimiento = doc.rd_secuencia_ncf = None
+
 	if not doc.rd_tipo_comprobante or _tipo_de_la_original(doc):
 		doc.rd_tipo_comprobante = tipo_por_defecto_venta(doc)
 	tipo = _tipo(doc.rd_tipo_comprobante)
@@ -209,8 +214,9 @@ def validar_venta(doc, method=None):
 
 
 def asignar_ncf_venta(doc, method=None):
-	"""doc_events: Sales Invoice / POS Invoice -> before_submit."""
-	if _no_aplica(doc) or doc.rd_ncf:
+	"""doc_events: Sales Invoice / POS Invoice -> before_submit. Siempre de la secuencia: un documento
+	insertado ya aprobado (docstatus 1) trae el NCF que mande el cliente."""
+	if _no_aplica(doc):
 		return
 	_asignar(doc)
 
@@ -392,8 +398,11 @@ def _validar_nota(doc, tipo):
 def _asignar(doc):
 	reservado = tomar_siguiente_ncf(doc.company, doc.rd_tipo_comprobante)
 
-	if frappe.db.exists(
-		doc.doctype, {"company": doc.company, "rd_ncf": reservado.ncf, "name": ("!=", doc.name)}
+	# Factura y POS Invoice comparten las secuencias de venta
+	doctypes = VENTAS if doc.doctype in VENTAS else (doc.doctype,)
+	if any(
+		frappe.db.exists(dt, {"company": doc.company, "rd_ncf": reservado.ncf, "name": ("!=", doc.name)})
+		for dt in doctypes
 	):
 		frappe.throw(
 			_(
