@@ -4,11 +4,16 @@ y los parámetros están en `horas_extras.py`."""
 
 import frappe
 from frappe.utils import cstr, flt, getdate
-from hrms.hr.doctype.overtime_slip.overtime_slip import OvertimeSlip
 
 from erpnext_rd.dgii_fiscal.ncf import es_empresa_rd
 from erpnext_rd.nomina_rd import prestaciones
 from erpnext_rd.nomina_rd.horas_extras import monto, nocturnas_de_la_salida, parametros
+
+# Frappe HR es opcional: sin él el DocType no existe y hooks.py nunca carga esta clase
+try:
+	from hrms.hr.doctype.overtime_slip.overtime_slip import OvertimeSlip
+except ImportError:
+	from frappe.model.document import Document as OvertimeSlip
 
 
 class OvertimeSlipRD(OvertimeSlip):
