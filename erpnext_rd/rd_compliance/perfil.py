@@ -125,20 +125,25 @@ def incentivos_vigentes(company: str, fecha=None) -> list[frappe._dict]:
 
 def anio_fiscal(company: str, fecha) -> frappe._dict | None:
 	"""Año fiscal de ERPNext que cubre `fecha` para la empresa (el suyo o uno para todas)."""
-	filas = frappe.db.sql(
-		"""SELECT fy.name, fy.year_start_date AS desde, fy.year_end_date AS hasta FROM `tabFiscal Year` fy
-		WHERE fy.disabled = 0 AND %(fecha)s BETWEEN fy.year_start_date AND fy.year_end_date
-			AND (
-				NOT EXISTS (SELECT 1 FROM `tabFiscal Year Company` c WHERE c.parent = fy.name)
-				OR EXISTS (
-					SELECT 1 FROM `tabFiscal Year Company` c WHERE c.parent = fy.name AND c.company = %(company)s
-				)
-			)
-		ORDER BY (SELECT COUNT(*) FROM `tabFiscal Year Company` c WHERE c.parent = fy.name) DESC""",
-		{"fecha": getdate(fecha), "company": company},
-		as_dict=True,
+	fecha = getdate(fecha)
+	anios = frappe.get_all(
+		"Fiscal Year",
+		filters={"disabled": 0, "year_start_date": ("<=", fecha), "year_end_date": (">=", fecha)},
+		fields=["name", "year_start_date as desde", "year_end_date as hasta"],
 	)
-	return filas[0] if filas else None
+	if not anios:
+		return None
+	empresas = {}
+	for fila in frappe.get_all(
+		"Fiscal Year Company",
+		filters={"parenttype": "Fiscal Year", "parent": ("in", [a.name for a in anios])},
+		fields=["parent", "company"],
+	):
+		empresas.setdefault(fila.parent, set()).add(fila.company)
+	# El año propio de la empresa antes que uno para todas; uno de otras empresas no sirve
+	propios = [a for a in anios if company in empresas.get(a.name, ())]
+	para_todas = [a for a in anios if a.name not in empresas]
+	return (propios + para_todas or [None])[0]
 
 
 def periodo_fiscal(company: str, fecha=None) -> tuple[date, date]:
@@ -328,14 +333,19 @@ def tipos_de_venta(company: str) -> list[str]:
 
 
 def secuencia_vigente(company: str, tipo: str) -> bool:
+	s = frappe.qb.DocType("Secuencia NCF")
 	return bool(
-		frappe.db.sql(
-			"""SELECT name FROM `tabSecuencia NCF`
-			WHERE company = %(company)s AND tipo_comprobante = %(tipo)s AND habilitada = 1
-				AND siguiente <= hasta AND (fecha_vencimiento IS NULL OR fecha_vencimiento >= %(hoy)s)
-			LIMIT 1""",
-			{"company": company, "tipo": tipo, "hoy": today()},
+		frappe.qb.from_(s)
+		.select(s.name)
+		.where(
+			(s.company == company)
+			& (s.tipo_comprobante == tipo)
+			& (s.habilitada == 1)
+			& (s.siguiente <= s.hasta)
+			& (s.fecha_vencimiento.isnull() | (s.fecha_vencimiento >= today()))
 		)
+		.limit(1)
+		.run()
 	)
 
 
@@ -389,13 +399,19 @@ def _propina(company, p):
 		return None
 	from erpnext_rd.dgii_fiscal.catalogos import PROPINA_LEGAL
 
-	existe = frappe.db.sql(
-		"""SELECT t.name FROM `tabSales Taxes and Charges Template` t
-		JOIN `tabSales Taxes and Charges` c ON c.parent = t.name
-		JOIN `tabAccount` a ON a.name = c.account_head
-		WHERE t.company = %s AND t.disabled = 0 AND a.rd_concepto_fiscal = %s LIMIT 1""",
-		(company, PROPINA_LEGAL),
-	)
+	t = frappe.qb.DocType("Sales Taxes and Charges Template")
+	c = frappe.qb.DocType("Sales Taxes and Charges")
+	a = frappe.qb.DocType("Account")
+	existe = (
+		frappe.qb.from_(t)
+		.join(c)
+		.on(c.parent == t.name)
+		.join(a)
+		.on(a.name == c.account_head)
+		.select(t.name)
+		.where((t.company == company) & (t.disabled == 0) & (a.rd_concepto_fiscal == PROPINA_LEGAL))
+		.limit(1)
+	).run()
 	return _resultado(
 		bool(existe),
 		"" if existe else _("Cree una plantilla de impuestos de venta con la cuenta de propina legal."),

@@ -23,27 +23,29 @@ VENTAS = ("Sales Invoice", "POS Invoice")
 
 
 def tomar_siguiente_ncf(company: str, tipo_comprobante: str) -> frappe._dict:
-	"""Reserva el siguiente NCF de la secuencia vigente con bloqueo de fila (SELECT ... FOR UPDATE).
+	"""Reserva el siguiente NCF de la secuencia vigente con bloqueo de fila (FOR UPDATE).
 
 	El bloqueo dura hasta el commit de la transacción del submit, así dos facturas
 	simultáneas nunca reciben el mismo número.
 	"""
-	secuencias = frappe.db.sql(
-		"""
-		SELECT name, serie, desde, hasta, siguiente, fecha_vencimiento
-		FROM `tabSecuencia NCF`
-		WHERE company = %(company)s
-			AND tipo_comprobante = %(tipo)s
-			AND habilitada = 1
-			AND siguiente <= hasta
-			AND (fecha_vencimiento IS NULL OR fecha_vencimiento >= %(hoy)s)
-		ORDER BY fecha_vencimiento IS NULL, fecha_vencimiento, desde
-		LIMIT 1
-		FOR UPDATE
-		""",
-		{"company": company, "tipo": tipo_comprobante, "hoy": nowdate()},
-		as_dict=True,
-	)
+	s = frappe.qb.DocType("Secuencia NCF")
+	secuencias = (
+		frappe.qb.from_(s)
+		.select(s.name, s.serie, s.desde, s.hasta, s.siguiente, s.fecha_vencimiento)
+		.where(
+			(s.company == company)
+			& (s.tipo_comprobante == tipo_comprobante)
+			& (s.habilitada == 1)
+			& (s.siguiente <= s.hasta)
+			& (s.fecha_vencimiento.isnull() | (s.fecha_vencimiento >= nowdate()))
+		)
+		# Primero la que vence antes; las que no vencen, al final
+		.orderby(s.fecha_vencimiento.isnull())
+		.orderby(s.fecha_vencimiento)
+		.orderby(s.desde)
+		.limit(1)
+		.for_update()
+	).run(as_dict=True)
 	if not secuencias:
 		frappe.throw(
 			_("No hay una Secuencia NCF habilitada y vigente del tipo {0} para la empresa {1}").format(

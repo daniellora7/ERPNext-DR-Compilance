@@ -16,6 +16,7 @@ padre más cercana y, si ninguna la tiene, la de su tipo (`casilla_por_tipo`), c
 
 import frappe
 from frappe import _
+from frappe.query_builder.functions import Sum
 from frappe.utils import add_days, flt, getdate
 
 from erpnext_rd.dgii_reportes.casillas_ir2 import (
@@ -85,17 +86,21 @@ def casillas_de_cuentas(company: str) -> tuple[dict[str, str | None], list[str]]
 def _saldos(company: str, desde, hasta) -> dict[str, float]:
 	"""Saldo deudor (débito - crédito) por cuenta entre `desde` (sin límite si es None) y `hasta`,
 	sin el asiento de cierre del período."""
-	return {
-		cuenta: flt(saldo)
-		for cuenta, saldo in frappe.db.sql(
-			"""SELECT account, SUM(debit - credit) FROM `tabGL Entry`
-			WHERE company = %(company)s AND is_cancelled = 0
-				AND voucher_type != 'Period Closing Voucher'
-				AND (%(desde)s IS NULL OR posting_date >= %(desde)s) AND posting_date <= %(hasta)s
-			GROUP BY account""",
-			{"company": company, "desde": desde, "hasta": hasta},
+	gl = frappe.qb.DocType("GL Entry")
+	consulta = (
+		frappe.qb.from_(gl)
+		.select(gl.account, Sum(gl.debit - gl.credit))
+		.where(
+			(gl.company == company)
+			& (gl.is_cancelled == 0)
+			& (gl.voucher_type != "Period Closing Voucher")
+			& (gl.posting_date <= hasta)
 		)
-	}
+		.groupby(gl.account)
+	)
+	if desde:
+		consulta = consulta.where(gl.posting_date >= desde)
+	return {cuenta: flt(saldo) for cuenta, saldo in consulta.run()}
 
 
 def _depreciacion_por_categoria(company: str, desde, hasta) -> dict[str, float]:
