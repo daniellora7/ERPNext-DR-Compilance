@@ -1,5 +1,5 @@
 """Horas extras y horas en feriados según el Código de Trabajo, sobre las de Frappe HR
-(override_doctype_class de *Overtime Slip* en hooks.py).
+(extend_doctype_class de *Overtime Slip* en hooks.py).
 
 Frappe HR ya registra las horas extras desde la asistencia (*Overtime Type*, *Overtime Slip*) y las paga
 con un *Additional Salary*. En los tipos marcados con `rd_horas_extras` y en empresas RD cambia:

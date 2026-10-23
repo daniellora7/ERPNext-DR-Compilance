@@ -4,6 +4,25 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 
 ## Sin publicar
 
+## v0.5.2 (2026-10-22)
+
+Revisión con las skills oficiales de Frappe (`frappe/skills`) y sus reglas de Semgrep.
+
+### Seguridad
+- El NCF de una factura de venta o POS siempre sale de la secuencia: uno enviado por la API ya no se conserva.
+- La utilidad contable de la bonificación solo la ve quien puede crear la bonificación; leer la empresa ya no basta.
+- Los métodos que escriben o envían a la DGII (e-CF, anulaciones, aprobaciones, IR-2, regalías, perfil tributario, padrón, tasa) solo aceptan POST, así Frappe exige el token CSRF.
+
+### Mejoras
+- La app se llama **RD Compliance**.
+- Reservar un NCF ya no bloquea las secuencias de otros tipos ni de otras empresas (índice en *Secuencia NCF*; el patch lo crea en sitios existentes).
+- Las extensiones de Gratuity, Leave Encashment y Overtime Slip se combinan con las de Frappe HR (`extend_doctype_class`) en vez de reemplazarlas.
+- Textos del Panel RD Compliance traducibles.
+- Imagen Docker con Frappe Builder v1.36.0.
+
+### Interno
+- Consultas con `frappe.qb` en vez de SQL; `install.py` y otros archivos grandes partidos por responsabilidad.
+
 ## v0.5.1 (2026-10-22)
 
 Corrige la 0.5.0, que no se publicó en el registro del Marketplace.

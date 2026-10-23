@@ -909,11 +909,11 @@ class TestReportesDGII(IntegrationTestCase):
 		self.assertIn("1.17 Otros ajustes positivos", html)
 
 	def test_anexos_a1_b1_ir2(self):
-		from erpnext_rd.dgii_reportes import estados_ir2
+		from erpnext_rd.dgii_reportes import casillas_ir2, estados_ir2
 
 		self.assertEqual(
 			frappe.db.get_value("Account", cuenta("4101"), "rd_casilla_ir2"),
-			estados_ir2.casilla("B-1", "1.1"),
+			casillas_ir2.casilla("B-1", "1.1"),
 		)
 		r = estados_ir2.calcular(EMPRESA, "2026-01-01", "2026-12-31")
 		self.assertEqual(r.avisos, [])

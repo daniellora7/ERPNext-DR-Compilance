@@ -30,7 +30,7 @@ from datetime import date
 
 import frappe
 from frappe import _
-from frappe.query_builder.functions import Sum
+from frappe.query_builder.functions import Date, IfNull, Sum
 from frappe.utils import add_days, add_months, cint, flt, getdate
 
 from erpnext_rd.dgii_fiscal.consulta_ncf import INVALIDOS
@@ -321,44 +321,62 @@ def activos(company: str, desde, hasta) -> list[frappe._dict]:
 
 def depreciacion_contable(company: str, desde, hasta) -> dict[str, float]:
 	"""Depreciación registrada por activo (asientos de depreciación validados) en el rango."""
-	filas = frappe.db.sql(
-		"""
-		SELECT ads.asset, SUM(ds.depreciation_amount)
-		FROM `tabDepreciation Schedule` ds
-		JOIN `tabAsset Depreciation Schedule` ads ON ads.name = ds.parent
-		JOIN `tabAsset` a ON a.name = ads.asset
-		JOIN `tabJournal Entry` je ON je.name = ds.journal_entry
-		WHERE ads.docstatus = 1 AND je.docstatus = 1 AND ads.company = %(company)s
-			AND IFNULL(ads.finance_book, '') = IFNULL(a.default_finance_book, '')
-			AND je.posting_date <= %(hasta)s AND (%(desde)s IS NULL OR je.posting_date >= %(desde)s)
-		GROUP BY ads.asset
-		""",
-		{"company": company, "desde": desde or None, "hasta": hasta},
+	ds = frappe.qb.DocType("Depreciation Schedule")
+	ads = frappe.qb.DocType("Asset Depreciation Schedule")
+	a = frappe.qb.DocType("Asset")
+	je = frappe.qb.DocType("Journal Entry")
+	consulta = (
+		frappe.qb.from_(ds)
+		.join(ads)
+		.on(ads.name == ds.parent)
+		.join(a)
+		.on(a.name == ads.asset)
+		.join(je)
+		.on(je.name == ds.journal_entry)
+		.select(ads.asset, Sum(ds.depreciation_amount))
+		.where(
+			(ads.docstatus == 1)
+			& (je.docstatus == 1)
+			& (ads.company == company)
+			# Solo el libro del activo
+			& (IfNull(ads.finance_book, "") == IfNull(a.default_finance_book, ""))
+			& (je.posting_date <= hasta)
+		)
+		.groupby(ads.asset)
 	)
-	return {asset: flt(monto) for asset, monto in filas}
+	if desde:
+		consulta = consulta.where(je.posting_date >= desde)
+	return {asset: flt(monto) for asset, monto in consulta.run()}
 
 
 def reparaciones_al_gasto(company: str, desde, hasta) -> dict[str, float]:
 	"""Reparaciones de activos terminadas en el rango y llevadas al gasto (no capitalizadas)."""
-	filas = frappe.db.sql(
-		"""SELECT asset, SUM(IFNULL(total_repair_cost, repair_cost)) FROM `tabAsset Repair`
-		WHERE company = %(company)s AND docstatus = 1 AND IFNULL(capitalize_repair_cost, 0) = 0
-			AND DATE(completion_date) BETWEEN %(desde)s AND %(hasta)s
-		GROUP BY asset""",
-		{"company": company, "desde": desde, "hasta": hasta},
-	)
+	r = frappe.qb.DocType("Asset Repair")
+	filas = (
+		frappe.qb.from_(r)
+		.select(r.asset, Sum(IfNull(r.total_repair_cost, r.repair_cost)))
+		.where(
+			(r.company == company)
+			& (r.docstatus == 1)
+			& (IfNull(r.capitalize_repair_cost, 0) == 0)
+			& Date(r.completion_date)[desde:hasta]
+		)
+		.groupby(r.asset)
+	).run()
 	return {asset: flt(monto) for asset, monto in filas}
 
 
 def valor_retiro(asset: str) -> float:
 	"""Valor de la transferencia: lo facturado por el activo (0 si se desechó)."""
+	i = frappe.qb.DocType("Sales Invoice Item")
+	s = frappe.qb.DocType("Sales Invoice")
 	return flt(
-		frappe.db.sql(
-			"""SELECT SUM(i.base_net_amount) FROM `tabSales Invoice Item` i
-			JOIN `tabSales Invoice` s ON s.name = i.parent
-			WHERE i.asset = %s AND s.docstatus = 1""",
-			asset,
-		)[0][0]
+		frappe.qb.from_(i)
+		.join(s)
+		.on(s.name == i.parent)
+		.select(Sum(i.base_net_amount))
+		.where((i.asset == asset) & (s.docstatus == 1))
+		.run()[0][0]
 	)
 
 
@@ -399,13 +417,17 @@ def resultado_contable(company: str, desde, hasta) -> frappe._dict:
 
 def gastos_con_ncf_invalido(company: str, desde, hasta) -> float:
 	"""Compras con NCF vencido o que no corresponde al RNC según la consulta de la DGII."""
+	pi = frappe.qb.DocType("Purchase Invoice")
 	return flt(
-		frappe.db.sql(
-			"""SELECT SUM(base_net_total) FROM `tabPurchase Invoice`
-			WHERE company = %(company)s AND docstatus = 1 AND posting_date BETWEEN %(desde)s AND %(hasta)s
-				AND rd_ncf_estado_dgii IN %(estados)s""",
-			{"company": company, "desde": desde, "hasta": hasta, "estados": INVALIDOS},
-		)[0][0],
+		frappe.qb.from_(pi)
+		.select(Sum(pi.base_net_total))
+		.where(
+			(pi.company == company)
+			& (pi.docstatus == 1)
+			& pi.posting_date[desde:hasta]
+			& pi.rd_ncf_estado_dgii.isin(INVALIDOS)
+		)
+		.run()[0][0],
 		2,
 	)
 
@@ -450,7 +472,7 @@ def crear_formato():
 # ---------------------------------------------------------------------- botones del formulario
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def traer_datos(name: str):
 	doc = frappe.get_doc(DOCTYPE, name)
 	doc.check_permission("write")
@@ -459,7 +481,7 @@ def traer_datos(name: str):
 	return doc.name
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def crear_base_anticipos(name: str) -> str:
 	"""Base de los anticipos del año siguiente con los ingresos y el impuesto de este cuadre."""
 	from erpnext_rd.dgii_reportes import anticipos

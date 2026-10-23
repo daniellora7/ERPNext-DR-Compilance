@@ -3,6 +3,7 @@ import { setConfig, frappeRequest, useColorScheme } from "frappe-ui"
 
 import App from "./App.vue"
 import router from "./router"
+import traducciones from "./translation"
 import { embebido } from "./utils"
 import "./index.css"
 
@@ -55,4 +56,4 @@ if (embebido) {
 	)
 }
 
-createApp(App).use(router).mount("#app")
+createApp(App).use(router).use(traducciones).mount("#app")

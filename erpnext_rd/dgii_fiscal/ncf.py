@@ -14,6 +14,7 @@ NOTA_CREDITO = {"B": "B04", "E": "E34"}
 NOTA_DEBITO = {"B": "B03", "E": "E33"}
 PAGOS_EXTERIOR = {"B": "B17", "E": "E47"}
 PAIS = "Dominican Republic"
+VENTAS = ("Sales Invoice", "POS Invoice")
 
 
 # ---------------------------------------------------------------------------
@@ -22,27 +23,29 @@ PAIS = "Dominican Republic"
 
 
 def tomar_siguiente_ncf(company: str, tipo_comprobante: str) -> frappe._dict:
-	"""Reserva el siguiente NCF de la secuencia vigente con bloqueo de fila (SELECT ... FOR UPDATE).
+	"""Reserva el siguiente NCF de la secuencia vigente con bloqueo de fila (FOR UPDATE).
 
 	El bloqueo dura hasta el commit de la transacción del submit, así dos facturas
 	simultáneas nunca reciben el mismo número.
 	"""
-	secuencias = frappe.db.sql(
-		"""
-		SELECT name, serie, desde, hasta, siguiente, fecha_vencimiento
-		FROM `tabSecuencia NCF`
-		WHERE company = %(company)s
-			AND tipo_comprobante = %(tipo)s
-			AND habilitada = 1
-			AND siguiente <= hasta
-			AND (fecha_vencimiento IS NULL OR fecha_vencimiento >= %(hoy)s)
-		ORDER BY fecha_vencimiento IS NULL, fecha_vencimiento, desde
-		LIMIT 1
-		FOR UPDATE
-		""",
-		{"company": company, "tipo": tipo_comprobante, "hoy": nowdate()},
-		as_dict=True,
-	)
+	s = frappe.qb.DocType("Secuencia NCF")
+	secuencias = (
+		frappe.qb.from_(s)
+		.select(s.name, s.serie, s.desde, s.hasta, s.siguiente, s.fecha_vencimiento)
+		.where(
+			(s.company == company)
+			& (s.tipo_comprobante == tipo_comprobante)
+			& (s.habilitada == 1)
+			& (s.siguiente <= s.hasta)
+			& (s.fecha_vencimiento.isnull() | (s.fecha_vencimiento >= nowdate()))
+		)
+		# Primero la que vence antes; las que no vencen, al final
+		.orderby(s.fecha_vencimiento.isnull())
+		.orderby(s.fecha_vencimiento)
+		.orderby(s.desde)
+		.limit(1)
+		.for_update()
+	).run(as_dict=True)
 	if not secuencias:
 		frappe.throw(
 			_("No hay una Secuencia NCF habilitada y vigente del tipo {0} para la empresa {1}").format(
@@ -185,6 +188,10 @@ def validar_venta(doc, method=None):
 		doc.rd_tipo_comprobante = doc.rd_ncf = doc.rd_ncf_vencimiento = doc.rd_secuencia_ncf = None
 		return
 
+	if doc.docstatus == 0:
+		# El NCF de venta lo asigna la secuencia al validar; uno enviado por la API no se acepta
+		doc.rd_ncf = doc.rd_ncf_vencimiento = doc.rd_secuencia_ncf = None
+
 	if not doc.rd_tipo_comprobante or _tipo_de_la_original(doc):
 		doc.rd_tipo_comprobante = tipo_por_defecto_venta(doc)
 	tipo = _tipo(doc.rd_tipo_comprobante)
@@ -209,8 +216,9 @@ def validar_venta(doc, method=None):
 
 
 def asignar_ncf_venta(doc, method=None):
-	"""doc_events: Sales Invoice / POS Invoice -> before_submit."""
-	if _no_aplica(doc) or doc.rd_ncf:
+	"""doc_events: Sales Invoice / POS Invoice -> before_submit. Siempre de la secuencia: un documento
+	insertado ya aprobado (docstatus 1) trae el NCF que mande el cliente."""
+	if _no_aplica(doc):
 		return
 	_asignar(doc)
 
@@ -392,8 +400,11 @@ def _validar_nota(doc, tipo):
 def _asignar(doc):
 	reservado = tomar_siguiente_ncf(doc.company, doc.rd_tipo_comprobante)
 
-	if frappe.db.exists(
-		doc.doctype, {"company": doc.company, "rd_ncf": reservado.ncf, "name": ("!=", doc.name)}
+	# Factura y POS Invoice comparten las secuencias de venta
+	doctypes = VENTAS if doc.doctype in VENTAS else (doc.doctype,)
+	if any(
+		frappe.db.exists(dt, {"company": doc.company, "rd_ncf": reservado.ncf, "name": ("!=", doc.name)})
+		for dt in doctypes
 	):
 		frappe.throw(
 			_(

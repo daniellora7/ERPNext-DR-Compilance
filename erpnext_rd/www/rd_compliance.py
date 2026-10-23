@@ -3,6 +3,7 @@
 
 import frappe
 from frappe import _
+from frappe.translate import get_translations_from_apps
 
 from erpnext_rd.dgii_reportes.formatos import ROLES
 
@@ -25,5 +26,7 @@ def get_context(context):
 		"site_name": frappe.local.site,
 		"user": frappe.session.user,
 		"desk_theme": frappe.db.get_value("User", frappe.session.user, "desk_theme") or "Light",
+		# Solo las de la app: todas las del sitio pesarían varios MB en cada carga
+		"__messages": get_translations_from_apps(frappe.local.lang, ["erpnext_rd"]),
 	}
 	return context
