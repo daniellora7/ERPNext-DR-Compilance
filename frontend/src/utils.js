@@ -1,5 +1,7 @@
 // Utilidades del panel: formato de montos y fechas, y enlaces al escritorio de Frappe (/desk)
 
+import { __ } from "@/translation"
+
 // Dentro del escritorio el panel se muestra en un iframe (página /desk/panel-cumplimiento)
 export const embebido = (() => {
 	try {
@@ -17,18 +19,18 @@ const moneda = new Intl.NumberFormat("es-DO", {
 const fecha = new Intl.DateTimeFormat("es-DO", { day: "numeric", month: "short", year: "numeric" })
 
 export const MESES = [
-	"Enero",
-	"Febrero",
-	"Marzo",
-	"Abril",
-	"Mayo",
-	"Junio",
-	"Julio",
-	"Agosto",
-	"Septiembre",
-	"Octubre",
-	"Noviembre",
-	"Diciembre",
+	__("Enero"),
+	__("Febrero"),
+	__("Marzo"),
+	__("Abril"),
+	__("Mayo"),
+	__("Junio"),
+	__("Julio"),
+	__("Agosto"),
+	__("Septiembre"),
+	__("Octubre"),
+	__("Noviembre"),
+	__("Diciembre"),
 ]
 
 export function formatoMoneda(valor) {

@@ -36,6 +36,7 @@
 import { Button } from "frappe-ui"
 import { NumberCard } from "frappe-ui/charts"
 import Plazo from "@/components/Plazo.vue"
+import { __ } from "@/translation"
 
 defineProps({
 	titulo: { type: String, required: true },
@@ -45,7 +46,7 @@ defineProps({
 	etiquetaValor: String,
 	detalle: Array,
 	enlace: String,
-	textoEnlace: { type: String, default: "Abrir reporte" },
+	textoEnlace: { type: String, default: () => __("Abrir reporte") },
 	cargando: Boolean,
 })
 </script>
