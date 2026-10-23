@@ -93,7 +93,7 @@ docker run --rm -v "$PWD:/src" -w /src semgrep/semgrep:1.140.0 sh -c 'semgrep sc
 ```json
 {
   "name": "erpnext_rd",
-  "title": "ERPNext RD",
+  "title": "RD Compliance",
   "description": "Localización de República Dominicana para ERPNext y Frappe HR: NCF y e-CF, reportes DGII, padrón RNC y nómina RD",
   "repo": "https://github.com/daniellora7/ERPNext-DR-Compilance",
   "logo_url": "https://raw.githubusercontent.com/daniellora7/ERPNext-DR-Compilance/main/erpnext_rd/public/images/erpnext_rd_logo.svg",

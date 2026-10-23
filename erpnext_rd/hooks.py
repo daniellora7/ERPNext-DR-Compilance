@@ -1,5 +1,5 @@
 app_name = "erpnext_rd"
-app_title = "ERPNext RD"
+app_title = "RD Compliance"
 app_publisher = "ERPNext RD"
 app_description = (
 	"Localizacion Republica Dominicana para ERPNext: NCF, e-CF DGII, reportes 606/607/608 y nomina RD"
