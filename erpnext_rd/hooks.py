@@ -1,5 +1,5 @@
 app_name = "erpnext_rd"
-app_title = "ERPNext RD"
+app_title = "RD Compliance"
 app_publisher = "ERPNext RD"
 app_description = (
 	"Localizacion Republica Dominicana para ERPNext: NCF, e-CF DGII, reportes 606/607/608 y nomina RD"
@@ -23,7 +23,7 @@ required_apps = ["frappe/erpnext"]
 # Navegación: un solo módulo "RD Compliance" en el dock de ERPNext (dock/erpnext_rd, mount_on =
 # erpnext), con su sidebar de secciones en rd_compliance/sidebar. Los módulos de código le ceden
 # su navegación, así todo lo suyo abre dentro de RD Compliance. La excepción es Nomina RD: tiene su
-# propio sidebar (nomina_rd/sidebar, app = hrms) y va en el dock de Frappe HR (install.dock_nomina).
+# propio sidebar (nomina_rd/sidebar, app = hrms) y va en el dock de Frappe HR (navegacion.dock_nomina).
 app_include_icons = ["/assets/erpnext_rd/icons/erpnext-rd-icons.svg"]
 code_only_modules = {
 	"DGII Fiscal": ["RD Compliance"],
@@ -86,12 +86,12 @@ regional_overrides = {
 	},
 }
 
-# Prestaciones RD (preaviso y cesantía) sobre el Gratuity de Frappe HR: solo cambia el cálculo
-# del monto en las reglas marcadas con rd_prestacion. La clase solo se importa si HRMS está instalado.
-override_doctype_class = {
-	"Gratuity": "erpnext_rd.nomina_rd.gratuity_rd.GratuityRD",
-	"Leave Encashment": "erpnext_rd.nomina_rd.leave_encashment_rd.LeaveEncashmentRD",
-	"Overtime Slip": "erpnext_rd.nomina_rd.horas_extras_rd.OvertimeSlipRD",
+# Extensiones RD de Gratuity, Leave Encashment y Overtime Slip de Frappe HR: extend_doctype_class
+# las combina con las clases de HRMS (y de otras apps) sin reemplazarlas. Solo cargan con HRMS instalado.
+extend_doctype_class = {
+	"Gratuity": ["erpnext_rd.nomina_rd.gratuity_rd.GratuityRD"],
+	"Leave Encashment": ["erpnext_rd.nomina_rd.leave_encashment_rd.LeaveEncashmentRD"],
+	"Overtime Slip": ["erpnext_rd.nomina_rd.horas_extras_rd.OvertimeSlipRD"],
 }
 
 doc_events = {

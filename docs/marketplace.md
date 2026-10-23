@@ -93,7 +93,7 @@ docker run --rm -v "$PWD:/src" -w /src semgrep/semgrep:1.140.0 sh -c 'semgrep sc
 ```json
 {
   "name": "erpnext_rd",
-  "title": "ERPNext RD",
+  "title": "RD Compliance",
   "description": "Localización de República Dominicana para ERPNext y Frappe HR: NCF y e-CF, reportes DGII, padrón RNC y nómina RD",
   "repo": "https://github.com/daniellora7/ERPNext-DR-Compilance",
   "logo_url": "https://raw.githubusercontent.com/daniellora7/ERPNext-DR-Compilance/main/erpnext_rd/public/images/erpnext_rd_logo.svg",
@@ -192,7 +192,7 @@ Opcionales para más adelante: formato 606 y envío e-CF aceptado (con el certif
 - [x] Rama `version-16` (Frappe Cloud y el registro instalan por rama): ya existe en GitHub.
 - [x] Tag `v0.3.0` (primera versión, en `version-16`). `v0.4.0` (2026-10-21) es la primera que cumple lo del registro; `v0.5.1` (2026-10-22), la primera que se publica en él.
 - [x] Lo que exige el registro `frappe/marketplace` en el repo (sección 1): `pyproject.toml`, assets precompilados y Semgrep sin hallazgos y en el CI.
-- [ ] Publicar la primera versión en el registro (`0.5.1`): PR desde el fork.
+- [ ] Publicar la primera versión en el registro (`0.5.1`): PR [frappe/marketplace#75](https://github.com/frappe/marketplace/pull/75) desde el fork `daniellora7/marketplace`, en revisión.
 - [x] CI público en verde en cada PR.
 - [x] Capturas en tema oscuro con datos ficticios (`docs/capturas/`).
 - [x] Enlace de soporte (issues de GitHub con plantillas) y documentación de uso (`docs/GUIA-DE-USO.md`).

@@ -110,6 +110,8 @@ def repartir(filas, fondo: float) -> tuple[float, float]:
 def utilidad_contable(company: str, desde: str | date, hasta: str | date) -> float:
 	"""Ingresos menos gastos del ejercicio según la contabilidad (para proponer la utilidad neta; el
 	usuario la ajusta: antes del ISR y de las bonificaciones de directores y gerentes)."""
+	# Leer la empresa no basta (el rol Employee puede): solo quien prepara la bonificación ve la utilidad
+	frappe.has_permission("Bonificacion RD", "create", throw=True)
 	frappe.has_permission("Company", doc=company, throw=True)
 	gl = frappe.qb.DocType("GL Entry")
 	cuenta = frappe.qb.DocType("Account")

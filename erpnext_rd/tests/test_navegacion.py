@@ -3,7 +3,7 @@ import unittest
 
 import frappe
 
-from erpnext_rd import install
+from erpnext_rd import navegacion
 from erpnext_rd.nomina_rd import hrms_instalado
 
 
@@ -119,36 +119,38 @@ class TestDockNominaRD(unittest.TestCase):
 	def filas_nomina(self):
 		return frappe.get_all(
 			"Dock Item",
-			filters={"parenttype": "Dock", "link_type": "Sidebar", "link_to": install.SIDEBAR_NOMINA},
+			filters={"parenttype": "Dock", "link_type": "Sidebar", "link_to": navegacion.SIDEBAR_NOMINA},
 			fields=["name", "parent", "added", "icon", "title"],
 		)
 
 	def test_sidebar_en_el_dock_de_frappe_hr(self):
 		# app = hrms: al abrirlo, el dock que se ve es el de Frappe HR y no el de ERPNext
-		self.assertEqual(frappe.db.get_value("Sidebar", install.SIDEBAR_NOMINA, "app"), "hrms")
+		self.assertEqual(frappe.db.get_value("Sidebar", navegacion.SIDEBAR_NOMINA, "app"), "hrms")
 
-		install.dock_nomina()
-		install.dock_nomina()
+		navegacion.dock_nomina()
+		navegacion.dock_nomina()
 		sitio = frappe.get_all("Dock", filters={"app": "hrms", "standard": 0, "user": ""}, pluck="name")
 		self.assertEqual(len(sitio), 1)
 		filas = [f for f in self.filas_nomina() if f.parent == sitio[0]]
 		self.assertEqual(len(filas), 1, "dos pasadas no duplican la entrada")
-		self.assertEqual((filas[0].added, filas[0].icon), (1, install.ICONO_DOCK_NOMINA))
+		self.assertEqual((filas[0].added, filas[0].icon), (1, navegacion.ICONO_DOCK_NOMINA))
 
 		# Un sitio con la entrada del ícono anterior pasa al nuevo
 		frappe.db.set_value("Dock Item", filas[0].name, "icon", "nomina-rd-duotone")
-		install.dock_nomina()
-		self.assertEqual(frappe.db.get_value("Dock Item", filas[0].name, "icon"), install.ICONO_DOCK_NOMINA)
+		navegacion.dock_nomina()
+		self.assertEqual(
+			frappe.db.get_value("Dock Item", filas[0].name, "icon"), navegacion.ICONO_DOCK_NOMINA
+		)
 
 		from frappe.desk.doctype.dock.dock import resolve_app_dock
 
 		dock = resolve_app_dock("hrms", upto="site", gated=False)
-		self.assertEqual(dock[-1]["link_to"], install.SIDEBAR_NOMINA)
+		self.assertEqual(dock[-1]["link_to"], navegacion.SIDEBAR_NOMINA)
 		self.assertIn("Payroll", [e["link_to"] for e in dock], "conserva los módulos de Frappe HR")
 
 	def test_quitar_deja_el_dock_de_frappe_hr(self):
-		install.dock_nomina()
-		install.quitar_dock_nomina()
+		navegacion.dock_nomina()
+		navegacion.quitar_dock_nomina()
 		self.assertFalse(self.filas_nomina())
 		from frappe.desk.doctype.dock.dock import resolve_app_dock
 

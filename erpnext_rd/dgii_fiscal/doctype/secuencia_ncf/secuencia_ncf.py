@@ -44,3 +44,8 @@ class SecuenciaNCF(Document):
 		)
 		if solapada:
 			frappe.throw(_("El rango se solapa con la secuencia {0}").format(solapada))
+
+
+def on_doctype_update():
+	# Sin índice, el SELECT ... FOR UPDATE de ncf.tomar_siguiente_ncf bloquea todas las secuencias
+	frappe.db.add_index("Secuencia NCF", ["company", "tipo_comprobante"])

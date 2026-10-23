@@ -126,7 +126,7 @@ def obtener(company: str, anio) -> list[dict]:
 	return filas
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def crear_regalias(
 	company: str,
 	anio: int,

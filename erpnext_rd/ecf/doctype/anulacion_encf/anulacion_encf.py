@@ -171,7 +171,7 @@ class AnulacionENCF(Document):
 					update_modified=False,
 				)
 
-	@frappe.whitelist()
+	@frappe.whitelist(methods=["POST"])
 	def enviar_dgii(self) -> str:
 		"""Envía (o reenvía) la anulación firmada a la DGII."""
 		self.check_permission("submit")

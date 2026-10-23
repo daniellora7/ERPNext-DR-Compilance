@@ -158,7 +158,7 @@ def _registrar(empresa: str, raiz, xml: bytes, acuse: bytes, motivo: int | None,
 # ---------------------------------------------------------------- aprobación comercial (compradora)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def aprobar(name: str, aprobado: int = 1, motivo: str | None = None) -> str:
 	"""Aprueba o rechaza un e-CF recibido: firma la ACECF y la envía a la DGII y al emisor."""
 	doc = frappe.get_doc(RECIBIDO, name)
@@ -237,7 +237,7 @@ def enviar_aprobacion(doc, emisor=None, sesion=None):
 	return doc
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def reenviar_aprobacion(name: str) -> str:
 	doc = frappe.get_doc(RECIBIDO, name)
 	doc.check_permission("write")

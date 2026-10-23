@@ -435,6 +435,63 @@ class TestPuntaAPunta(IntegrationTestCase):
 
 	# ------------------------------------------------------------------ nómina
 
+	def test_ncf_de_venta_solo_de_la_secuencia(self):
+		"""Un NCF enviado por la API (en borrador o al aprobar) se cambia por el de la secuencia."""
+		inventado = "B0100000099"
+		si = frappe.get_doc(
+			{
+				"doctype": "Sales Invoice",
+				"company": EMPRESA,
+				"customer": CLIENTE,
+				"set_posting_time": 1,
+				"posting_date": "2026-09-03",
+				"due_date": "2026-09-03",
+				"rd_ncf": inventado,
+				"items": [{"item_code": SERVICIO, "qty": 1, "rate": 1_000}],
+			}
+		)
+		con_impuestos(si, "Sales Taxes and Charges Template", "ITBIS 18%")
+		si.insert()
+		self.assertIsNone(si.rd_ncf)
+
+		si.rd_ncf = inventado
+		si.submit()
+		self.assertNotEqual(si.rd_ncf, inventado)
+		self.assertTrue(si.rd_ncf.startswith("B01"))
+		self.assertTrue(si.rd_secuencia_ncf)
+
+	def test_utilidad_contable_solo_para_quien_prepara_la_bonificacion(self):
+		from erpnext_rd.nomina_rd.bonificacion import utilidad_contable
+
+		# Rol interno que puede leer la empresa pero no prepara bonificaciones
+		usuario = "vendedor.punta@example.com"
+		if not frappe.db.exists("User", usuario):
+			frappe.get_doc(
+				{
+					"doctype": "User",
+					"email": usuario,
+					"first_name": "Vendedor",
+					"send_welcome_email": 0,
+					"roles": [{"role": "Sales User"}],
+				}
+			).insert(ignore_permissions=True)
+		frappe.set_user(usuario)
+		try:
+			self.assertTrue(frappe.has_permission("Company", doc=EMPRESA))
+			with self.assertRaises(frappe.PermissionError):
+				utilidad_contable(EMPRESA, "2026-01-01", "2026-12-31")
+		finally:
+			frappe.set_user("Administrator")
+		self.assertIsInstance(utilidad_contable(EMPRESA, "2026-01-01", "2026-12-31"), float)
+
+	def test_indice_de_secuencia_ncf(self):
+		indices = frappe.db.sql("SHOW INDEX FROM `tabSecuencia NCF`", as_dict=True)
+		columnas = {(i.Key_name, i.Column_name) for i in indices}
+		self.assertTrue(
+			any(c == "company" and (k, "tipo_comprobante") in columnas for k, c in columnas),
+			"falta el índice company + tipo_comprobante",
+		)
+
 	def _requiere_nomina(self):
 		if not self.nomina:
 			raise unittest.SkipTest("sin Frappe HR")

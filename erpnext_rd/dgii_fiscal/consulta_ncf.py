@@ -197,7 +197,7 @@ def antes_de_validar_compra(doc):
 		)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def verificar_factura(name: str) -> dict:
 	"""Botón de la factura de compra: vuelve a consultar el NCF en la DGII (también ya validada)."""
 	doc = frappe.get_doc("Purchase Invoice", name)

@@ -170,7 +170,7 @@ def tarea_programada():
 		pass
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def actualizar_ahora() -> str:
 	frappe.only_for(("System Manager", "Accounts Manager"))
 	nuevas = actualizar_tasa(forzar=True)

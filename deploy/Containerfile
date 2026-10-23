@@ -13,6 +13,9 @@ USER frappe
 
 COPY --chown=frappe:frappe deploy/apps.json /opt/frappe/apps.json
 
+# Frappe Builder trae Cypress (solo para sus pruebas): no descargar su binario.
+ENV CYPRESS_INSTALL_BINARY=0
+
 # Frappe + apps oficiales (versiones fijadas en deploy/apps.json)
 RUN bench init \
     --apps_path=/opt/frappe/apps.json \

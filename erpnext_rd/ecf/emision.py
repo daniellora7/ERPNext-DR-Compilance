@@ -88,7 +88,7 @@ def mensajes(respuesta) -> str:
 	return str(respuesta.get("mensaje") or "")
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def emitir(doctype: str, name: str, enviar: int | None = None) -> str:
 	"""Genera, firma y (según el emisor) envía el e-CF de la factura. Devuelve el Envio ECF."""
 	if doctype not in DOCTYPES:
@@ -186,7 +186,7 @@ def enviar_a_dgii(envio, emisor=None):
 	return envio
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def reenviar(envio: str) -> str:
 	"""Botón del Envio ECF: envía a la DGII un e-CF firmado, con error o en contingencia."""
 	doc = frappe.get_doc(ENVIO, envio)
@@ -300,7 +300,7 @@ def entregar_al_comprador(envio, emisor=None, sesion=None):
 	return envio
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def entregar(envio: str) -> str:
 	"""Botón del Envio ECF: entrega (o vuelve a entregar) el e-CF aceptado al comprador."""
 	doc = frappe.get_doc(ENVIO, envio)

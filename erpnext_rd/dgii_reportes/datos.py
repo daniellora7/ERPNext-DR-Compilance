@@ -98,16 +98,16 @@ def pagos(doctype: str, nombre: str, hasta) -> frappe._dict:
 	Devuelve: lista de pagos (fecha, forma, monto, comprobante), fecha en que quedó saldada
 	(None si aún debe algo a esa fecha) y retenciones hechas en las entradas de pago.
 	"""
-	filas = frappe.db.sql(
-		"""
-		SELECT voucher_type, voucher_no, posting_date, amount
-		FROM `tabPayment Ledger Entry`
-		WHERE against_voucher_type = %(dt)s AND against_voucher_no = %(name)s
-			AND delinked = 0 AND posting_date <= %(hasta)s
-		ORDER BY posting_date, creation
-		""",
-		{"dt": doctype, "name": nombre, "hasta": hasta},
-		as_dict=True,
+	filas = frappe.get_all(
+		"Payment Ledger Entry",
+		filters={
+			"against_voucher_type": doctype,
+			"against_voucher_no": nombre,
+			"delinked": 0,
+			"posting_date": ("<=", hasta),
+		},
+		fields=["voucher_type", "voucher_no", "posting_date", "amount"],
+		order_by="posting_date, creation",
 	)
 	saldo = sum(flt(f.amount) for f in filas)
 	lista, retenciones = [], frappe._dict(itbis=0.0, isr=0.0, fecha=None)
@@ -351,19 +351,27 @@ def datos_607(company: str, anio: int, mes: int) -> list[dict]:
 		):
 			filas.append(_fila_607(frappe.get_doc(doctype, nombre), hasta))
 
-	anteriores = frappe.db.sql(
-		"""
-		SELECT DISTINCT si.name
-		FROM `tabSales Invoice` si
-		JOIN `tabPayment Ledger Entry` ple
-			ON ple.against_voucher_type = 'Sales Invoice' AND ple.against_voucher_no = si.name
-			AND ple.voucher_type = 'Payment Entry' AND ple.delinked = 0
-		WHERE si.company = %(company)s AND si.docstatus = 1 AND IFNULL(si.rd_ncf, '') != ''
-			AND si.posting_date < %(desde)s AND ple.posting_date BETWEEN %(desde)s AND %(hasta)s
-		""",
-		{"company": company, "desde": desde, "hasta": hasta},
-		pluck=True,
-	)
+	si = frappe.qb.DocType("Sales Invoice")
+	ple = frappe.qb.DocType("Payment Ledger Entry")
+	anteriores = (
+		frappe.qb.from_(si)
+		.join(ple)
+		.on(
+			(ple.against_voucher_type == "Sales Invoice")
+			& (ple.against_voucher_no == si.name)
+			& (ple.voucher_type == "Payment Entry")
+			& (ple.delinked == 0)
+		)
+		.select(si.name)
+		.distinct()
+		.where(
+			(si.company == company)
+			& (si.docstatus == 1)
+			& (IfNull(si.rd_ncf, "") != "")
+			& (si.posting_date < desde)
+			& ple.posting_date[desde:hasta]
+		)
+	).run(pluck=True)
 	for nombre in anteriores:
 		fila = _fila_607(frappe.get_doc("Sales Invoice", nombre), hasta, desde_retencion=desde)
 		if fila:
@@ -548,19 +556,22 @@ def datos_608(company: str, anio: int, mes: int) -> list[dict]:
 
 def datos_609(company: str, anio: int, mes: int) -> list[dict]:
 	desde, hasta = rango(anio, mes)
-	facturas = frappe.db.sql(
-		"""
-		SELECT pi.name
-		FROM `tabPurchase Invoice` pi
-		JOIN `tabSupplier` s ON s.name = pi.supplier
-		WHERE pi.company = %(company)s AND pi.docstatus = 1
-			AND pi.posting_date BETWEEN %(desde)s AND %(hasta)s
-			AND IFNULL(s.country, '') NOT IN ('', %(pais)s)
-		ORDER BY pi.posting_date, pi.name
-		""",
-		{"company": company, "desde": desde, "hasta": hasta, "pais": "Dominican Republic"},
-		pluck=True,
-	)
+	pi = frappe.qb.DocType("Purchase Invoice")
+	s = frappe.qb.DocType("Supplier")
+	facturas = (
+		frappe.qb.from_(pi)
+		.join(s)
+		.on(s.name == pi.supplier)
+		.select(pi.name)
+		.where(
+			(pi.company == company)
+			& (pi.docstatus == 1)
+			& pi.posting_date[desde:hasta]
+			& IfNull(s.country, "").notin(["", "Dominican Republic"])
+		)
+		.orderby(pi.posting_date)
+		.orderby(pi.name)
+	).run(pluck=True)
 	return [_fila_609(frappe.get_doc("Purchase Invoice", nombre), hasta) for nombre in facturas]
 
 

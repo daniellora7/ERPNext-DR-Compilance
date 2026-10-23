@@ -2,7 +2,7 @@
 
 import frappe
 
-from erpnext_rd.install import crear_campos_personalizados
+from erpnext_rd.campos import crear_campos_personalizados
 from erpnext_rd.rd_compliance.perfil import resumen
 
 

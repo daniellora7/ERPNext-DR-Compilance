@@ -59,14 +59,15 @@ IDIOMA = "es-DO"
 
 
 def por_documento(funcion):
-	"""Guarda el resultado por documento durante la petición: cada bloque del formato lo vuelve a pedir."""
+	"""Guarda el resultado por documento durante la petición: cada bloque del formato lo vuelve a pedir.
+
+	Usa el almacén de @request_cache de Frappe (se vacía con cada petición). No usa el decorador porque
+	la clave es el documento y su versión (modified, docstatus), no el objeto."""
 
 	@functools.wraps(funcion)
 	def envoltura(doc):
-		cache = getattr(frappe.local, "rd_datos_impresion", None)
-		if cache is None:
-			cache = frappe.local.rd_datos_impresion = {}
-		clave = (funcion.__name__, doc.doctype, doc.name or id(doc), str(doc.get("modified")), doc.docstatus)
+		cache = frappe.local.request_cache[funcion]
+		clave = (doc.doctype, doc.name or id(doc), str(doc.get("modified")), doc.docstatus)
 		if clave not in cache:
 			cache[clave] = funcion(doc)
 		return cache[clave]
