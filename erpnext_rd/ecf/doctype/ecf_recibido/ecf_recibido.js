@@ -58,8 +58,7 @@ frappe.ui.form.on("ECF Recibido", {
 		}
 		if (frm.doc.estado_conversion === "Requiere revisión" || frm.doc.estado_conversion === "Error") {
 			frm.dashboard.set_headline_alert(
-				frappe.utils.escape_html(frm.doc.mensajes_conversion || "").replace(/
-/g, "<br>"),
+				frappe.utils.escape_html(frm.doc.mensajes_conversion || "").replace(/\n/g, "<br>"),
 				"orange"
 			);
 		}
