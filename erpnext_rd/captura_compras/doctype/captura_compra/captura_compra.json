@@ -1,0 +1,339 @@
+{
+ "actions": [],
+ "creation": "2026-10-28 18:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "links": [],
+ "modified": "2026-10-28 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Captura Compras",
+ "owner": "Administrator",
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "name": "Captura Compra",
+ "autoname": "CAP-.YYYY.-.#####",
+ "naming_rule": "Expression (old style)",
+ "title_field": "razon_social_emisor",
+ "track_changes": 1,
+ "description": "Factura de compra en papel o PDF con el QR del e-CF, capturada desde el celular.",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts User",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 0,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Captura Compras RD",
+   "read": 1,
+   "create": 1,
+   "write": 1,
+   "if_owner": 1
+  }
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Empresa",
+   "options": "Company",
+   "reqd": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "origen",
+   "fieldtype": "Select",
+   "label": "Origen",
+   "options": "QR\nPDF\nFoto",
+   "default": "QR",
+   "read_only": 1
+  },
+  {
+   "fieldname": "estado",
+   "fieldtype": "Select",
+   "label": "Estado",
+   "options": "Pendiente\nRequiere revisión\nLista\nFactura creada\nDuplicada\nDescartada",
+   "default": "Pendiente",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "column_break_0",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "archivo",
+   "fieldtype": "Attach",
+   "label": "Foto o PDF"
+  },
+  {
+   "fieldname": "url_timbre",
+   "fieldtype": "Small Text",
+   "label": "Texto del QR (URL del timbre)"
+  },
+  {
+   "fieldname": "id_cliente",
+   "fieldtype": "Data",
+   "label": "Id en el celular",
+   "read_only": 1,
+   "hidden": 1,
+   "unique": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "section_ecf",
+   "fieldtype": "Section Break",
+   "label": "Datos del e-CF"
+  },
+  {
+   "fieldname": "encf",
+   "fieldtype": "Data",
+   "label": "e-NCF",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "tipo_ecf",
+   "fieldtype": "Data",
+   "label": "Tipo",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fecha_emision",
+   "fieldtype": "Date",
+   "label": "Fecha de emisión",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "monto_total",
+   "fieldtype": "Currency",
+   "label": "Monto total",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rnc_emisor",
+   "fieldtype": "Data",
+   "label": "RNC del emisor",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "razon_social_emisor",
+   "fieldtype": "Data",
+   "label": "Emisor",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "rnc_comprador",
+   "fieldtype": "Data",
+   "label": "RNC del comprador"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "fecha_firma",
+   "fieldtype": "Datetime",
+   "label": "Fecha de firma"
+  },
+  {
+   "fieldname": "codigo_seguridad",
+   "fieldtype": "Data",
+   "label": "Código de seguridad"
+  },
+  {
+   "fieldname": "section_dgii",
+   "fieldtype": "Section Break",
+   "label": "Verificación en la DGII"
+  },
+  {
+   "fieldname": "estado_dgii",
+   "fieldtype": "Select",
+   "label": "Estado en la DGII",
+   "options": "Sin verificar\nAceptado\nAceptado condicional\nRechazado\nNo encontrado\nError",
+   "default": "Sin verificar",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "verificado_en",
+   "fieldtype": "Datetime",
+   "label": "Verificado el",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mensaje_dgii",
+   "fieldtype": "Small Text",
+   "label": "Respuesta de la DGII",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_montos",
+   "fieldtype": "Section Break",
+   "label": "Montos y clasificación"
+  },
+  {
+   "fieldname": "total_itbis",
+   "fieldtype": "Currency",
+   "label": "ITBIS facturado"
+  },
+  {
+   "fieldname": "monto_exento",
+   "fieldtype": "Currency",
+   "label": "Monto exento"
+  },
+  {
+   "fieldname": "fuente_montos",
+   "fieldtype": "Select",
+   "label": "Origen de los montos",
+   "options": "\nTexto del PDF\nDGII\nManual\nXML",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "proveedor",
+   "fieldtype": "Link",
+   "label": "Proveedor",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "rd_tipo_bienes_servicios",
+   "fieldtype": "Select",
+   "label": "Tipo de bienes y servicios (606)",
+   "options": "\n01 - Gastos de personal\n02 - Gastos por trabajos, suministros y servicios\n03 - Arrendamientos\n04 - Gastos de activos fijos\n05 - Gastos de representación\n06 - Otras deducciones admitidas\n07 - Gastos financieros\n08 - Gastos extraordinarios\n09 - Compras y gastos que formarán parte del costo de venta\n10 - Adquisiciones de activos\n11 - Gastos de seguros"
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "Artículo",
+   "options": "Item",
+   "description": "Vacío: el de la regla de gasto del proveedor o el artículo genérico."
+  },
+  {
+   "fieldname": "cuenta_gasto",
+   "fieldtype": "Link",
+   "label": "Cuenta de gasto",
+   "options": "Account"
+  },
+  {
+   "fieldname": "section_enlaces",
+   "fieldtype": "Section Break",
+   "label": "Enlaces"
+  },
+  {
+   "fieldname": "factura_compra",
+   "fieldtype": "Link",
+   "label": "Factura de compra",
+   "options": "Purchase Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ecf_recibido",
+   "fieldtype": "Link",
+   "label": "e-CF recibido",
+   "options": "ECF Recibido",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "avisos",
+   "fieldtype": "Small Text",
+   "label": "Avisos",
+   "read_only": 1
+  },
+  {
+   "fieldname": "observaciones",
+   "fieldtype": "Small Text",
+   "label": "Observaciones"
+  }
+ ],
+ "field_order": [
+  "company",
+  "origen",
+  "estado",
+  "column_break_0",
+  "archivo",
+  "url_timbre",
+  "id_cliente",
+  "section_ecf",
+  "encf",
+  "tipo_ecf",
+  "fecha_emision",
+  "monto_total",
+  "column_break_1",
+  "rnc_emisor",
+  "razon_social_emisor",
+  "rnc_comprador",
+  "column_break_2",
+  "fecha_firma",
+  "codigo_seguridad",
+  "section_dgii",
+  "estado_dgii",
+  "verificado_en",
+  "column_break_3",
+  "mensaje_dgii",
+  "section_montos",
+  "total_itbis",
+  "monto_exento",
+  "fuente_montos",
+  "column_break_4",
+  "proveedor",
+  "rd_tipo_bienes_servicios",
+  "item",
+  "cuenta_gasto",
+  "section_enlaces",
+  "factura_compra",
+  "ecf_recibido",
+  "column_break_5",
+  "avisos",
+  "observaciones"
+ ]
+}

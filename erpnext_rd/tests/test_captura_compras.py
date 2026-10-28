@@ -30,7 +30,9 @@ def rnc_libre() -> str:
 	raise AssertionError
 
 
-class TestCapturaCompras(IntegrationTestCase):
+class BaseCaptura(IntegrationTestCase):
+	"""Empresa, proveedor, artículos, cuentas y configuración de captura (también para test_captura_qr)."""
+
 	@classmethod
 	def setUpClass(cls):
 		super().setUpClass()
@@ -193,8 +195,8 @@ class TestCapturaCompras(IntegrationTestCase):
 			linea["TablaCodigosItem"] = {"CodigosItem": [{"TipoCodigo": "INTERNA", "CodigoItem": codigo}]}
 		return linea
 
-	# ------------------------------------------------------------ pruebas
 
+class TestCapturaCompras(BaseCaptura):
 	def test_articulo_del_proveedor(self):
 		recibido = self.recibir(
 			self.xml(

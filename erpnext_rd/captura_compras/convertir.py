@@ -22,7 +22,10 @@ COMPRA = "Purchase Invoice"
 # Tipos que se registran como factura de compra. E32 y E46 no dan crédito en compras y la factura
 # de compra no tiene nota de débito (E33): esos se registran a mano.
 TIPOS_COMPRA = ("E31", "E34", "E44", "E45")
+# Del QR no sale el NCF modificado: las notas de crédito impresas se registran a mano
+TIPOS_CAPTURA = ("E31", "E44", "E45")
 NOTA_CREDITO = "E34"
+CAPTURA = "Captura Compra"
 INDICADORES = {1: "ITBIS 18%", 2: "ITBIS 16%", 3: "ITBIS 0%", 4: "Exento"}
 TASAS = {1: 18, 2: 16}
 TOTALES = "Encabezado/Totales/"
@@ -80,6 +83,7 @@ def al_registrar(doc):
 	"""Desde la recepción: convierte en segundo plano si la empresa lo configuró."""
 	if doc.estado != "Recibido" or not es_empresa_rd(doc.company):
 		return
+	_enlazar_capturas(doc)
 	if not cint(frappe.db.get_value(CONFIG, doc.company, "crear_borrador_automatico")):
 		return
 	frappe.enqueue(
@@ -88,6 +92,28 @@ def al_registrar(doc):
 		name=doc.name,
 		enqueue_after_commit=True,
 	)
+
+
+def _enlazar_capturas(doc):
+	"""Llega el XML de un e-CF que ya se capturó impreso: se enlazan y el XML manda."""
+	for captura in frappe.get_all(
+		CAPTURA,
+		filters={
+			"company": doc.company,
+			"rnc_emisor": doc.rnc_emisor,
+			"encf": doc.encf,
+			"estado": ("!=", "Descartada"),
+		},
+		fields=["name", "monto_total", "factura_compra"],
+	):
+		cambios = {"ecf_recibido": doc.name}
+		if abs(flt(captura.monto_total) - flt(doc.monto_total)) > 0.01:
+			cambios["avisos"] = _("El total del XML ({0}) difiere del capturado ({1}).").format(
+				doc.monto_total, captura.monto_total
+			)
+		frappe.db.set_value(CAPTURA, captura.name, cambios)
+		if captura.factura_compra and not doc.factura_compra:
+			doc.db_set({"factura_compra": captura.factura_compra, "estado_conversion": "Borrador creado"})
 
 
 def desde_ecf(name: str):
@@ -138,34 +164,104 @@ def convertir(doc) -> str | None:
 		frappe.throw(
 			_("Los e-CF {0} no se convierten en factura de compra: regístrela a mano.").format(doc.tipo_ecf)
 		)
-	if not frappe.db.exists(CONFIG, doc.company):
-		frappe.throw(_("Falta la Configuración de captura de compras de la empresa {0}.").format(doc.company))
-	config = frappe.get_cached_doc(CONFIG, doc.company)
+	config = _config(doc.company)
 
 	raiz = leer(doc)
 	avisos = []
 	proveedor = _proveedor(doc, config)
-	if existente := frappe.db.get_value(
-		COMPRA, {"company": doc.company, "supplier": proveedor, "rd_ncf": doc.encf, "docstatus": ("<", 2)}
-	):
-		avisos.append(_("Ya existía la factura de compra {0} con este e-NCF.").format(existente))
+	if existente := _existente(doc, proveedor, avisos):
 		return _enlazar(doc, proveedor, existente, avisos)
 
 	factura = _factura(doc, raiz, proveedor, config, avisos)
+	_guardar(factura, doc, doc.xml, config, avisos)
+	return _enlazar(doc, proveedor, factura.name, avisos)
+
+
+def desde_captura(captura) -> str:
+	"""Factura de compra en borrador de una *Captura Compra* (e-CF impreso o en PDF): una sola línea
+	con el artículo de la captura, de la regla de gasto o el genérico, y el ITBIS como cargo."""
+	if captura.factura_compra:
+		return captura.factura_compra
+	if captura.tipo_ecf not in TIPOS_CAPTURA:
+		frappe.throw(
+			_("Los e-CF {0} no se convierten en factura de compra: regístrela a mano.").format(
+				captura.tipo_ecf
+			)
+		)
+	if captura.estado_dgii in ("Rechazado", "No encontrado"):
+		frappe.throw(_("La DGII no tiene este e-CF como aceptado ({0}).").format(_(captura.estado_dgii)))
+	if not captura.fuente_montos:
+		frappe.throw(_("Indique el ITBIS facturado antes de crear la factura."))
+	config = _config(captura.company)
+	avisos = []
+	proveedor = captura.proveedor or _proveedor(captura, config)
+	if existente := _existente(captura, proveedor, avisos):
+		factura = existente
+	else:
+		linea = frappe._dict(
+			numero_linea=1, descripcion=captura.razon_social_emisor or "", codigo_proveedor=None
+		)
+		if captura.item:
+			item, cuenta, centro, tipo = captura.item, captura.cuenta_gasto, None, None
+		else:
+			item, cuenta, centro, tipo = _resolver(linea, proveedor, config, avisos)
+		factura = _nueva_factura(captura, proveedor, captura.fecha_firma)
+		factura.append(
+			"items",
+			{
+				"item_code": item,
+				"description": _("e-CF {0} de {1}").format(
+					captura.encf, captura.razon_social_emisor or proveedor
+				),
+				"qty": 1,
+				"rate": flt(captura.monto_total) - flt(captura.total_itbis),
+				"expense_account": cuenta or captura.cuenta_gasto,
+				"cost_center": centro,
+			},
+		)
+		factura.rd_tipo_bienes_servicios = captura.rd_tipo_bienes_servicios or tipo
+		_impuestos(factura, captura, config, 1, avisos)
+		_guardar(factura, captura, captura.archivo, config, avisos)
+		factura = factura.name
+	captura.update({"proveedor": proveedor, "factura_compra": factura, "estado": "Factura creada"})
+	if avisos:
+		captura.avisos = "\n".join(avisos)
+	captura.save(ignore_permissions=True)
+	return factura
+
+
+def _config(company: str):
+	if not frappe.db.exists(CONFIG, company):
+		frappe.throw(_("Falta la Configuración de captura de compras de la empresa {0}.").format(company))
+	return frappe.get_cached_doc(CONFIG, company)
+
+
+def _existente(doc, proveedor: str, avisos: list[str]) -> str | None:
+	"""Factura de compra (no cancelada) del proveedor con el mismo e-NCF."""
+	existente = frappe.db.get_value(
+		COMPRA, {"company": doc.company, "supplier": proveedor, "rd_ncf": doc.encf, "docstatus": ("<", 2)}
+	)
+	if existente:
+		avisos.append(_("Ya existía la factura de compra {0} con este e-NCF.").format(existente))
+	return existente
+
+
+def _guardar(factura, doc, archivo: str | None, config, avisos: list[str]):
+	"""Inserta el borrador, revisa el cuadre y le adjunta el XML, la foto o el PDF."""
 	factura.insert(ignore_permissions=True)
 	_cuadre(doc, factura, config, avisos)
-	frappe.get_doc(
-		{
-			"doctype": "File",
-			"file_url": doc.xml,
-			"is_private": 1,
-			"attached_to_doctype": COMPRA,
-			"attached_to_name": factura.name,
-		}
-	).insert(ignore_permissions=True)
+	if archivo:
+		frappe.get_doc(
+			{
+				"doctype": "File",
+				"file_url": archivo,
+				"is_private": 1,
+				"attached_to_doctype": COMPRA,
+				"attached_to_name": factura.name,
+			}
+		).insert(ignore_permissions=True)
 	if avisos:
 		factura.add_comment("Comment", "<br>".join(avisos))
-	return _enlazar(doc, proveedor, factura.name, avisos)
 
 
 def _enlazar(doc, proveedor: str, factura: str, avisos: list[str]) -> str:
@@ -208,22 +304,8 @@ def _factura(doc, raiz, proveedor: str, config, avisos: list[str]):
 	signo = -1 if devolucion else 1
 	modificado = (raiz.findtext("InformacionReferencia/NCFModificado") or "").strip() or None
 	firmado = raiz.findtext("FechaHoraFirma")
-	factura = frappe.get_doc(
-		{
-			"doctype": COMPRA,
-			"company": doc.company,
-			"supplier": proveedor,
-			"posting_date": nowdate(),
-			"bill_no": doc.encf,
-			"bill_date": doc.fecha_emision,
-			"rd_ncf": doc.encf,
-			"rd_tipo_comprobante": doc.tipo_ecf,
-			"rd_codigo_seguridad": doc.codigo_seguridad,
-			"rd_fecha_firma": get_datetime(_fecha_hora(firmado)) if firmado else None,
-			"rd_ncf_modificado": modificado,
-			"is_return": cint(devolucion),
-		}
-	)
+	factura = _nueva_factura(doc, proveedor, get_datetime(_fecha_hora(firmado)) if firmado else None)
+	factura.update({"rd_ncf_modificado": modificado, "is_return": cint(devolucion)})
 	if devolucion:
 		factura.return_against = modificado and frappe.db.get_value(
 			COMPRA, {"company": doc.company, "supplier": proveedor, "rd_ncf": modificado, "docstatus": 1}
@@ -256,11 +338,37 @@ def _factura(doc, raiz, proveedor: str, config, avisos: list[str]):
 			},
 		)
 	factura.rd_tipo_bienes_servicios = tipo_606
+	_impuestos(factura, doc, config, signo, avisos)
+	if flt(doc.otros_impuestos):
+		avisos.append(
+			_("El e-CF trae otros impuestos por {0}: agréguelos a mano.").format(doc.otros_impuestos)
+		)
+	return factura
 
+
+def _nueva_factura(doc, proveedor: str, fecha_firma):
+	return frappe.get_doc(
+		{
+			"doctype": COMPRA,
+			"company": doc.company,
+			"supplier": proveedor,
+			"posting_date": nowdate(),
+			"bill_no": doc.encf,
+			"bill_date": doc.fecha_emision,
+			"rd_ncf": doc.encf,
+			"rd_tipo_comprobante": doc.tipo_ecf,
+			"rd_codigo_seguridad": doc.codigo_seguridad,
+			"rd_fecha_firma": fecha_firma,
+		}
+	)
+
+
+def _impuestos(factura, doc, config, signo: int, avisos: list[str]):
+	"""ITBIS y retenciones del e-CF como cargos de monto fijo: cuadran exacto con el comprobante."""
 	for cuenta, monto, tipo, descripcion in (
 		(config.cuenta_itbis, flt(doc.total_itbis), "Add", _("ITBIS facturado")),
-		(config.cuenta_itbis_retenido, flt(doc.itbis_retenido), "Deduct", _("ITBIS retenido")),
-		(config.cuenta_isr_retenido, flt(doc.isr_retenido), "Deduct", _("ISR retenido")),
+		(config.cuenta_itbis_retenido, flt(doc.get("itbis_retenido")), "Deduct", _("ITBIS retenido")),
+		(config.cuenta_isr_retenido, flt(doc.get("isr_retenido")), "Deduct", _("ISR retenido")),
 	):
 		if not monto:
 			continue
@@ -278,11 +386,6 @@ def _factura(doc, raiz, proveedor: str, config, avisos: list[str]):
 				"description": descripcion,
 			},
 		)
-	if flt(doc.otros_impuestos):
-		avisos.append(
-			_("El e-CF trae otros impuestos por {0}: agréguelos a mano.").format(doc.otros_impuestos)
-		)
-	return factura
 
 
 def _resolver(linea, proveedor: str, config, avisos: list[str]):

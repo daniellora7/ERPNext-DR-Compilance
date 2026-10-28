@@ -1,0 +1,18 @@
+{
+	"id": "/rd-compliance/escanear",
+	"name": "Escanear facturas - RD Compliance",
+	"short_name": "Escanear facturas",
+	"description": "Captura de facturas de compra con el QR del e-CF",
+	"lang": "es",
+	"start_url": "/rd-compliance/escanear",
+	"scope": "/rd-compliance/",
+	"display": "standalone",
+	"orientation": "portrait",
+	"background_color": "#ffffff",
+	"theme_color": "#ffffff",
+	"icons": [
+		{ "src": "/assets/erpnext_rd/pwa/icono-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+		{ "src": "/assets/erpnext_rd/pwa/icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+		{ "src": "/assets/erpnext_rd/pwa/icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+	]
+}

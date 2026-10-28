@@ -39,8 +39,9 @@ website_route_rules = [
 	{"from_route": "/rd-compliance/<path:app_path>", "to_route": "rd-compliance"},
 ]
 
-# Servicios públicos del receptor e-CF (/fe/...: autenticación, recepción y aprobación comercial)
-page_renderer = ["erpnext_rd.ecf.receptor.ReceptorECF"]
+# Servicios públicos del receptor e-CF (/fe/...: autenticación, recepción y aprobación comercial) y
+# service worker de la pantalla para escanear facturas (/rd-compliance-sw.js)
+page_renderer = ["erpnext_rd.ecf.receptor.ReceptorECF", "erpnext_rd.captura_compras.pwa.ServiceWorker"]
 # Su token «bearer» (Frappe lo tomaría por uno de OAuth y rechazaría la petición)
 auth_hooks = ["erpnext_rd.ecf.receptor.autenticar"]
 

@@ -381,6 +381,9 @@ def _aprobar_al_validar(nombre: str):
 
 
 def desvincular_factura(doc, method=None):
-	"""doc_events Purchase Invoice on_cancel / on_trash: el e-CF recibido vuelve a quedar sin factura."""
+	"""doc_events Purchase Invoice on_cancel / on_trash: el e-CF recibido y la captura vuelven a quedar
+	sin factura."""
 	for nombre in frappe.get_all(RECIBIDO, filters={"factura_compra": doc.name}, pluck="name"):
 		frappe.db.set_value(RECIBIDO, nombre, {"factura_compra": None, "estado_conversion": "Pendiente"})
+	for nombre in frappe.get_all(convertir.CAPTURA, filters={"factura_compra": doc.name}, pluck="name"):
+		frappe.db.set_value(convertir.CAPTURA, nombre, {"factura_compra": None, "estado": "Lista"})
