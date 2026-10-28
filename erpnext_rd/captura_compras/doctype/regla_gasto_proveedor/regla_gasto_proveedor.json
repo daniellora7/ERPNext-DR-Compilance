@@ -1,0 +1,74 @@
+{
+ "actions": [],
+ "creation": "2026-10-28 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "links": [],
+ "modified": "2026-10-28 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Captura Compras",
+ "owner": "Administrator",
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "name": "Regla Gasto Proveedor",
+ "fields": [
+  {
+   "fieldname": "proveedor",
+   "fieldtype": "Link",
+   "label": "Proveedor",
+   "options": "Supplier",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "contiene",
+   "fieldtype": "Data",
+   "label": "La descripción contiene",
+   "in_list_view": 1,
+   "description": "Opcional. Sin texto, la regla aplica a todas las líneas del proveedor."
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "Artículo",
+   "options": "Item",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cuenta_gasto",
+   "fieldtype": "Link",
+   "label": "Cuenta de gasto",
+   "options": "Account",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "centro_costo",
+   "fieldtype": "Link",
+   "label": "Centro de costo",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "rd_tipo_bienes_servicios",
+   "fieldtype": "Select",
+   "label": "Tipo de bienes y servicios (606)",
+   "options": "\n01 - Gastos de personal\n02 - Gastos por trabajos, suministros y servicios\n03 - Arrendamientos\n04 - Gastos de activos fijos\n05 - Gastos de representación\n06 - Otras deducciones admitidas\n07 - Gastos financieros\n08 - Gastos extraordinarios\n09 - Compras y gastos que formarán parte del costo de venta\n10 - Adquisiciones de activos\n11 - Gastos de seguros"
+  }
+ ],
+ "field_order": [
+  "proveedor",
+  "contiene",
+  "item",
+  "column_break_1",
+  "cuenta_gasto",
+  "centro_costo",
+  "rd_tipo_bienes_servicios"
+ ],
+ "istable": 1,
+ "editable_grid": 1,
+ "permissions": []
+}

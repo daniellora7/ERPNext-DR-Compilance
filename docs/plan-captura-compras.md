@@ -6,7 +6,7 @@ Módulo nuevo `Captura Compras` en `erpnext_rd` (rama `feature/captura-compras`)
 
 | Etapa | Fuente | Estado |
 |---|---|---|
-| 1 | e-CF de proveedor electrónico: XML recibido en `/fe/recepcion` o cargado a mano | Por hacer |
+| 1 | e-CF de proveedor electrónico: XML recibido en `/fe/recepcion` o cargado a mano | ✅ v0.5.3 |
 | 2 | e-CF entregado impreso o en PDF: QR, verificación DGII y montos | Por hacer |
 | 3 | Papel con NCF serie B: foto + OCR local | **Tentativa** |
 
@@ -17,7 +17,7 @@ Módulo nuevo `Captura Compras` en `erpnext_rd` (rama `feature/captura-compras`)
   - **Purchase Invoice** (borrador): documento final. No crear asientos (*Journal Entry*) directos.
   - **Supplier** (`tax_id`) y **Contribuyente DGII** (padrón) para encontrar o crear el proveedor.
   - **Item Supplier** (`supplier_part_no`) para relacionar el código del artículo del proveedor con un *Item*.
-  - **Item Default** (cuenta de gasto, centro de costo) e **Item Tax Template** (ITBIS 18 %, 16 %, exento) del catálogo DGII.
+  - **Item Default** (cuenta de gasto, centro de costo). El ITBIS va como cargo *Actual* con el monto del XML (decisión de la implementación: cuadra exacto y no depende de *Item Tax Template*).
   - **Assignment Rule** y **Notification** de Frappe para asignar la revisión al contador. Solo configuración, sin código.
   - **File** para adjuntar el XML, el PDF y las fotos a la factura.
 - No tocar Frappe ni ERPNext: hooks, Custom Fields por código y patches en `erpnext_rd`.
@@ -60,7 +60,7 @@ Resultado: cada e-CF que llega por `/fe/recepcion` (o que el usuario sube en XML
 - `crear_borrador_automatico` (Check): convertir al recibir.
 - `crear_proveedor` (Check): crear el *Supplier* desde el padrón si no existe.
 - `grupo_proveedor`, `item_generico` (*Item* de servicio sin inventario para líneas sin artículo), `cuenta_gasto_defecto`, `centro_costo_defecto`.
-- `plantilla_itbis_18`, `plantilla_itbis_16`, `plantilla_exento` (*Item Tax Template*).
+- `cuenta_itbis`, `cuenta_itbis_retenido`, `cuenta_isr_retenido`: cuentas de los cargos *Actual* con los montos del XML.
 - `tolerancia_redondeo` (Currency, por ejemplo RD$1).
 - `aprobar_al_validar` (Check): enviar la aprobación comercial (ACECF) al validar la factura.
 - Tabla hija **Regla Gasto Proveedor**: proveedor, texto que contiene la descripción (opcional), *Item*, cuenta de gasto, centro de costo, `rd_tipo_bienes_servicios` (tipo 606). La primera regla que coincide gana.
@@ -75,15 +75,15 @@ Se usa una Regla solo cuando el código del proveedor no está en **Item Supplie
    1. *Item Supplier* del proveedor con `supplier_part_no` = código del proveedor;
    2. *Regla Gasto Proveedor*;
    3. `item_generico` + `cuenta_gasto_defecto` y marcar **Requiere revisión**.
-4. *Item Tax Template* por línea según el indicador de facturación.
+4. ITBIS y retenciones del XML como cargos *Actual* (si los precios incluyen ITBIS, `IndicadorMontoGravado` = 1, se quita de cada línea).
 5. Tipo de documento:
 
    | e-CF | Factura de Compra |
    |---|---|
-   | E31 crédito fiscal, E44 régimen especial, E45 gubernamental, E46 exportación | Normal |
-   | E33 nota de débito | Normal con `rd_ncf_modificado` |
+   | E31 crédito fiscal, E44 régimen especial, E45 gubernamental | Normal |
+   | E33 nota de débito | No se convierte: la factura de compra no tiene nota de débito (a mano) |
    | E34 nota de crédito | `is_return` con `return_against` (buscada por `rd_ncf` = NCF modificado) y `rd_ncf_modificado` |
-   | E32 consumo | Normal, solo si trae RNC del comprador (si no, no da crédito de ITBIS) |
+   | E32 consumo, E46 exportación | No se convierten: el tipo no aplica a compras (a mano) |
 
 6. Encabezado: `supplier`, `company`, `bill_no` y `rd_ncf` = e-NCF, `bill_date` = fecha de emisión, `rd_tipo_comprobante`, `rd_codigo_seguridad`, `rd_fecha_firma`, `rd_tipo_bienes_servicios` (de la regla o del *Item*), moneda y tasa, retenciones si vienen en el XML.
 7. Adjuntar el XML a la factura y enlazar `ECF Recibido.factura_compra`.
@@ -110,7 +110,7 @@ Para los proveedores que envían el XML por correo:
 ### 1.5 Interfaz
 
 - Sección **Compras recibidas** en el sidebar de RD Compliance: *ECF Recibido*, *Configuracion Captura Compras*.
-- Panel RD Compliance: tarjeta con los e-CF recibidos sin factura, los que requieren revisión y las aprobaciones comerciales pendientes.
+- Panel RD Compliance: tarjeta con los e-CF recibidos sin factura, los que requieren revisión y las aprobaciones comerciales pendientes. **Pendiente**: va con la PWA en v0.5.4 (mismo build del frontend).
 - Configurar (documentado, sin código) una *Assignment Rule* sobre *Purchase Invoice* en borrador para el rol del contador.
 
 ### 1.6 Pruebas (`tests/test_captura_compras.py`)
@@ -218,9 +218,9 @@ Idea:
 
 | Paso | Contenido | Versión |
 |---|---|---|
-| 1 | Etapa 1: DocTypes, `convertir.py`, hooks, carga manual, panel, pruebas | `v0.6.0` |
+| 1 | Etapa 1: DocTypes, `convertir.py`, hooks, carga manual, panel, pruebas | `v0.5.3` |
 | 2 | Etapa 2 backend: *Captura Compra*, QR, verificación DGII, PDF con texto, pruebas | — |
-| 3 | Etapa 2 PWA: `/rd-compliance/escanear`, manifest, service worker, sin conexión, prueba en Android e iOS | `v0.7.0` |
+| 3 | Etapa 2 PWA: `/rd-compliance/escanear`, manifest, service worker, sin conexión, prueba en Android e iOS | `v0.5.4` |
 | 4 | Etapa 3 (si se aprueba) | — |
 
 Cada paso con commit, CI verde (ruff, tests y Semgrep) y actualización de `docs/NOTAS-TECNICAS.md`, `docs/PLAN.md` y `locale/es.po`.

@@ -31,6 +31,7 @@ code_only_modules = {
 	"Padron RNC": ["RD Compliance"],
 	"ECF": ["RD Compliance"],
 	"ERPNext RD": ["RD Compliance"],
+	"Captura Compras": ["RD Compliance"],
 }
 
 # Panel RD Compliance (frontend frappe-ui en frontend/, página www/rd_compliance.py)
@@ -142,6 +143,9 @@ doc_events = {
 			"erpnext_rd.ecf.recepcion.vincular_factura",
 		],
 		"before_cancel": "erpnext_rd.dgii_fiscal.ncf.antes_de_cancelar_compra",
+		# El e-CF recibido vuelve a quedar sin factura (captura de compras)
+		"on_cancel": "erpnext_rd.ecf.recepcion.desvincular_factura",
+		"on_trash": "erpnext_rd.ecf.recepcion.desvincular_factura",
 	},
 }
 

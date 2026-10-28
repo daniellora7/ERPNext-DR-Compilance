@@ -1,0 +1,174 @@
+{
+ "actions": [],
+ "creation": "2026-10-28 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "links": [],
+ "modified": "2026-10-28 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Captura Compras",
+ "owner": "Administrator",
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "name": "Configuracion Captura Compras",
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Empresa",
+   "options": "Company",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "crear_borrador_automatico",
+   "fieldtype": "Check",
+   "label": "Crear la factura de compra al recibir el e-CF",
+   "default": "1"
+  },
+  {
+   "fieldname": "crear_proveedor",
+   "fieldtype": "Check",
+   "label": "Crear el proveedor si no existe",
+   "default": "1",
+   "description": "Con el nombre del padrón RNC de la DGII."
+  },
+  {
+   "fieldname": "aprobar_al_validar",
+   "fieldtype": "Check",
+   "label": "Aprobar el e-CF al validar la factura",
+   "description": "Envía la aprobación comercial (ACECF) al emisor y a la DGII."
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "grupo_proveedor",
+   "fieldtype": "Link",
+   "label": "Grupo de proveedores",
+   "options": "Supplier Group"
+  },
+  {
+   "fieldname": "tolerancia_redondeo",
+   "fieldtype": "Currency",
+   "label": "Tolerancia de redondeo",
+   "default": "1",
+   "description": "Diferencia aceptada entre el total de la factura y el del e-CF."
+  },
+  {
+   "fieldname": "section_cuentas",
+   "fieldtype": "Section Break",
+   "label": "Artículo y cuentas"
+  },
+  {
+   "fieldname": "item_generico",
+   "fieldtype": "Link",
+   "label": "Artículo genérico",
+   "options": "Item",
+   "description": "Para las líneas sin artículo del proveedor ni regla. La factura queda marcada para revisión."
+  },
+  {
+   "fieldname": "cuenta_gasto_defecto",
+   "fieldtype": "Link",
+   "label": "Cuenta de gasto",
+   "options": "Account"
+  },
+  {
+   "fieldname": "centro_costo_defecto",
+   "fieldtype": "Link",
+   "label": "Centro de costo",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cuenta_itbis",
+   "fieldtype": "Link",
+   "label": "Cuenta del ITBIS en compras",
+   "options": "Account",
+   "description": "ITBIS facturado por el proveedor."
+  },
+  {
+   "fieldname": "cuenta_itbis_retenido",
+   "fieldtype": "Link",
+   "label": "Cuenta del ITBIS retenido",
+   "options": "Account"
+  },
+  {
+   "fieldname": "cuenta_isr_retenido",
+   "fieldtype": "Link",
+   "label": "Cuenta del ISR retenido",
+   "options": "Account"
+  },
+  {
+   "fieldname": "section_reglas",
+   "fieldtype": "Section Break",
+   "label": "Reglas de gasto por proveedor",
+   "description": "Se usan cuando el código del artículo del proveedor no está en el artículo (tabla Proveedores del artículo). Gana la primera regla que coincide."
+  },
+  {
+   "fieldname": "reglas",
+   "fieldtype": "Table",
+   "options": "Regla Gasto Proveedor"
+  }
+ ],
+ "field_order": [
+  "company",
+  "crear_borrador_automatico",
+  "crear_proveedor",
+  "aprobar_al_validar",
+  "column_break_1",
+  "grupo_proveedor",
+  "tolerancia_redondeo",
+  "section_cuentas",
+  "item_generico",
+  "cuenta_gasto_defecto",
+  "centro_costo_defecto",
+  "column_break_2",
+  "cuenta_itbis",
+  "cuenta_itbis_retenido",
+  "cuenta_isr_retenido",
+  "section_reglas",
+  "reglas"
+ ],
+ "autoname": "field:company",
+ "naming_rule": "By fieldname",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts User",
+   "read": 1,
+   "report": 1
+  }
+ ],
+ "description": "Cómo se convierten en factura de compra los e-CF recibidos de los proveedores."
+}
