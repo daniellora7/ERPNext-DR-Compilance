@@ -1,7 +1,18 @@
 <template>
 	<FrappeUIProvider>
+		<!-- Pantallas del celular (escanear facturas): se instalan como app -->
+		<MobileShell v-if="$route.meta.movil">
+			<RouterView />
+			<template #nav>
+				<MobileNav>
+					<MobileNavItem :label="__('Escanear')" icon="lucide-scan-qr-code" :route="{ name: 'Escanear' }" />
+					<MobileNavItem :label="__('Mis capturas')" icon="lucide-list" :route="{ name: 'Capturas' }" />
+				</MobileNav>
+			</template>
+		</MobileShell>
+
 		<!-- Dentro del escritorio la navegación la da el sidebar del escritorio -->
-		<div v-if="embebido" class="h-screen overflow-y-auto">
+		<div v-else-if="embebido" class="h-screen overflow-y-auto">
 			<RouterView />
 		</div>
 
@@ -30,6 +41,18 @@
 							:href="rutaDocumento('Configuracion DGII')"
 						/>
 
+						<SidebarLabel>{{ __("Compras") }}</SidebarLabel>
+						<SidebarItem
+							:label="__('Escanear facturas')"
+							icon="lucide-scan-qr-code"
+							:route="{ name: 'Escanear' }"
+						/>
+						<SidebarItem
+							:label="__('Capturas de compras')"
+							icon="lucide-scan-line"
+							:href="rutaDocumento('Captura Compra')"
+						/>
+
 						<SidebarLabel>{{ __("Reportes DGII") }}</SidebarLabel>
 						<SidebarItem
 							v-for="r in reportes"
@@ -55,6 +78,9 @@
 import {
 	DesktopShell,
 	FrappeUIProvider,
+	MobileNav,
+	MobileNavItem,
+	MobileShell,
 	Sidebar,
 	SidebarHeader,
 	SidebarItem,

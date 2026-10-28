@@ -56,4 +56,9 @@ if (embebido) {
 	)
 }
 
+// Service worker de la pantalla para escanear: abre sin conexión (ver erpnext_rd/captura_compras/pwa.py)
+if ("serviceWorker" in navigator && !embebido) {
+	navigator.serviceWorker.register("/rd-compliance-sw.js", { scope: "/rd-compliance/" }).catch(console.error)
+}
+
 createApp(App).use(router).use(traducciones).mount("#app")

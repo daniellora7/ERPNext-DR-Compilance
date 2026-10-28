@@ -7,7 +7,7 @@ Módulo nuevo `Captura Compras` en `erpnext_rd` (rama `feature/captura-compras`)
 | Etapa | Fuente | Estado |
 |---|---|---|
 | 1 | e-CF de proveedor electrónico: XML recibido en `/fe/recepcion` o cargado a mano | ✅ v0.5.3 |
-| 2 | e-CF entregado impreso o en PDF: QR, verificación DGII y montos | Por hacer |
+| 2 | e-CF entregado impreso o en PDF: QR, verificación DGII y montos | ✅ v0.5.4 |
 | 3 | Papel con NCF serie B: foto + OCR local | **Tentativa** |
 
 ## Principios
@@ -127,6 +127,13 @@ XML de prueba firmados con el certificado de prueba que ya usan `test_ecf_interc
 
 ## Etapa 2 — e-CF impreso o en PDF (QR)
 
+> **Hecho en v0.5.4**, con estos cambios frente al plan:
+> - El QR no se lee en el servidor (sin `pyzbar` ni `libzbar0` en la imagen): el celular lo lee de la cámara o de la foto con `qr-scanner`. Del PDF se lee el texto (e-NCF, RNC, código de seguridad, fecha de firma, ITBIS y total), que la DGII exige en la representación impresa.
+> - API más simple: `crear` recibe el QR, el archivo (subido antes con `upload_file`) y el ITBIS en una sola llamada, con un id del celular para que los reintentos sin conexión no dupliquen. `adjuntar` no hace falta.
+> - Service worker escrito a mano y servido en `/rd-compliance-sw.js` (no `vite-plugin-pwa`). Ver `docs/NOTAS-TECNICAS.md`.
+> - Las notas de crédito (E34) impresas se registran a mano: el QR no trae el NCF modificado.
+> - Pendiente: probar la instalación en un Android y un iPhone reales con HTTPS.
+
 Resultado: desde el celular se fotografía el QR (o se sube el PDF) y queda una captura verificada con la DGII, con el ITBIS leído del PDF o escrito por el usuario, lista para pasar a factura.
 
 ### 2.1 DocType **Captura Compra** (nuevo)
@@ -219,7 +226,7 @@ Idea:
 | Paso | Contenido | Versión |
 |---|---|---|
 | 1 | Etapa 1: DocTypes, `convertir.py`, hooks, carga manual, panel, pruebas | `v0.5.3` |
-| 2 | Etapa 2 backend: *Captura Compra*, QR, verificación DGII, PDF con texto, pruebas | — |
+| 2 | Etapa 2 backend: *Captura Compra*, QR, verificación DGII, PDF con texto, pruebas | `v0.5.4` |
 | 3 | Etapa 2 PWA: `/rd-compliance/escanear`, manifest, service worker, sin conexión, prueba en Android e iOS | `v0.5.4` |
 | 4 | Etapa 3 (si se aprueba) | — |
 

@@ -4,6 +4,18 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 
 ## Sin publicar
 
+## v0.5.4 (2026-10-28)
+
+Captura de compras, etapa 2: facturas electrónicas entregadas impresas o en PDF.
+
+### Nuevo
+- **Escanear facturas** (`/rd-compliance/escanear`): pantalla para el celular que se instala en la pantalla de inicio. Lee el QR del e-CF con la cámara o de una foto, o el PDF de la factura; el usuario escribe el ITBIS si no se pudo leer. Sin conexión, las capturas quedan guardadas en el celular y se envían al volver.
+- **Captura de compra**: los datos del QR, verificados con la DGII (estado del e-CF) con el certificado de la empresa. Revisa que la factura sea a nombre de la empresa y que no esté repetida. Botones **Verificar en la DGII**, **Crear factura de compra** (borrador) y **Descartar**.
+- Del PDF generado por el sistema del proveedor se leen el e-NCF, los RNC, el código de seguridad, el ITBIS y el total.
+- Rol **Captura Compras RD** para quien solo escanea (ve solo sus capturas).
+- Si después llega el XML del mismo e-CF, se enlaza con la captura y avisa si el total difiere.
+- La factura de compra guarda el código de seguridad y la fecha de firma del e-CF.
+
 ## v0.5.3 (2026-10-28)
 
 Captura de compras, etapa 1: los e-CF de los proveedores pasan a Factura de Compra en borrador.

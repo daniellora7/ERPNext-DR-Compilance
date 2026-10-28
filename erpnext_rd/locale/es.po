@@ -80,6 +80,12 @@ msgstr "Regla de gasto por proveedor"
 msgid "Captura Compras"
 msgstr "Captura de compras"
 
+msgid "Captura Compra"
+msgstr "Captura de compra"
+
+msgid "Captura Compras RD"
+msgstr "Captura de compras RD"
+
 msgid "Anulacion ENCF"
 msgstr "Anulación de e-NCF"
 
