@@ -1,4 +1,4 @@
-// e-CF recibido: aprobación o rechazo comercial (ACECF) y reenvío si falló
+// e-CF recibido: aprobación o rechazo comercial (ACECF), reenvío si falló y factura de compra
 frappe.ui.form.on("ECF Recibido", {
 	refresh(frm) {
 		const decidir = (aprobado, motivo) =>
@@ -28,6 +28,38 @@ frappe.ui.form.on("ECF Recibido", {
 					__("Rechazar e-CF {0}", [frm.doc.encf]),
 					__("Rechazar")
 				)
+			);
+		}
+		const compras = "erpnext_rd.captura_compras.convertir.";
+		const sin_factura = frm.doc.estado === "Recibido" && !frm.doc.factura_compra;
+		if (sin_factura && frm.doc.estado_conversion !== "Ignorado") {
+			const etiqueta = frm.doc.estado_conversion === "Error" ? __("Reintentar") : __("Crear factura de compra");
+			frm.add_custom_button(etiqueta, () =>
+				frappe
+					.call({
+						method: compras + "crear_factura",
+						args: { name: frm.doc.name },
+						freeze: true,
+						freeze_message: __("Creando la factura de compra en borrador..."),
+					})
+					.then(({ message }) => message && frappe.set_route("Form", "Purchase Invoice", message)),
+				__("Factura de compra")
+			);
+			frm.add_custom_button(
+				__("Ignorar"),
+				() =>
+					frappe.confirm(__("¿No registrar este e-CF como compra?"), () =>
+						frappe
+							.call({ method: compras + "ignorar", args: { name: frm.doc.name } })
+							.then(() => frm.reload_doc())
+					),
+				__("Factura de compra")
+			);
+		}
+		if (frm.doc.estado_conversion === "Requiere revisión" || frm.doc.estado_conversion === "Error") {
+			frm.dashboard.set_headline_alert(
+				frappe.utils.escape_html(frm.doc.mensajes_conversion || "").replace(/\n/g, "<br>"),
+				"orange"
 			);
 		}
 		if (frm.doc.envio_aprobacion === "Error") {

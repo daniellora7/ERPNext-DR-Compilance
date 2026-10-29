@@ -1,0 +1,136 @@
+{
+ "actions": [],
+ "creation": "2026-10-28 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "links": [],
+ "modified": "2026-10-28 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Captura Compras",
+ "owner": "Administrator",
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "name": "ECF Recibido Detalle",
+ "fields": [
+  {
+   "fieldname": "numero_linea",
+   "fieldtype": "Int",
+   "label": "Línea",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "codigo_proveedor",
+   "fieldtype": "Data",
+   "label": "Código del proveedor",
+   "read_only": 1
+  },
+  {
+   "fieldname": "descripcion",
+   "fieldtype": "Data",
+   "label": "Descripción",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 3
+  },
+  {
+   "fieldname": "cantidad",
+   "fieldtype": "Float",
+   "label": "Cantidad",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "unidad",
+   "fieldtype": "Data",
+   "label": "Unidad",
+   "read_only": 1
+  },
+  {
+   "fieldname": "precio",
+   "fieldtype": "Currency",
+   "label": "Precio",
+   "options": "moneda",
+   "read_only": 1
+  },
+  {
+   "fieldname": "descuento",
+   "fieldtype": "Currency",
+   "label": "Descuento",
+   "options": "moneda",
+   "read_only": 1
+  },
+  {
+   "fieldname": "monto",
+   "fieldtype": "Currency",
+   "label": "Monto",
+   "options": "moneda",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "indicador_facturacion",
+   "fieldtype": "Select",
+   "label": "ITBIS",
+   "options": "\nITBIS 18%\nITBIS 16%\nITBIS 0%\nExento",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "Artículo",
+   "options": "Item",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "cuenta_gasto",
+   "fieldtype": "Link",
+   "label": "Cuenta de gasto",
+   "options": "Account"
+  },
+  {
+   "fieldname": "centro_costo",
+   "fieldtype": "Link",
+   "label": "Centro de costo",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "moneda",
+   "fieldtype": "Link",
+   "label": "Moneda",
+   "options": "Currency",
+   "hidden": 1
+  }
+ ],
+ "field_order": [
+  "numero_linea",
+  "codigo_proveedor",
+  "descripcion",
+  "cantidad",
+  "unidad",
+  "precio",
+  "descuento",
+  "monto",
+  "indicador_facturacion",
+  "column_break_1",
+  "item",
+  "cuenta_gasto",
+  "centro_costo",
+  "moneda"
+ ],
+ "istable": 1,
+ "editable_grid": 0,
+ "permissions": []
+}

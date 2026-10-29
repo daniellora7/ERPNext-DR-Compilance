@@ -68,6 +68,24 @@ msgstr "Envío e-CF"
 msgid "ECF Recibido"
 msgstr "e-CF recibido"
 
+msgid "ECF Recibido Detalle"
+msgstr "Detalle del e-CF recibido"
+
+msgid "Configuracion Captura Compras"
+msgstr "Configuración de captura de compras"
+
+msgid "Regla Gasto Proveedor"
+msgstr "Regla de gasto por proveedor"
+
+msgid "Captura Compras"
+msgstr "Captura de compras"
+
+msgid "Captura Compra"
+msgstr "Captura de compra"
+
+msgid "Captura Compras RD"
+msgstr "Captura de compras RD"
+
 msgid "Anulacion ENCF"
 msgstr "Anulación de e-NCF"
 

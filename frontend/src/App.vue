@@ -1,7 +1,40 @@
 <template>
 	<FrappeUIProvider>
+		<!-- Pantallas del celular (escanear facturas): se instalan como app -->
+		<MobileShell v-if="$route.meta.movil">
+			<RouterView />
+			<template #nav>
+				<!-- Pestañas propias (no MobileNavItem): en frappe-ui 1.0.2 nunca marca la ruta actual y sus
+				     grises se confunden con el fondo en el tema claro. -->
+				<MobileNav>
+					<RouterLink
+						v-for="p in pestanas"
+						:key="p.ruta"
+						v-slot="{ href, navigate, isExactActive }"
+						:to="{ name: p.ruta }"
+						custom
+					>
+						<a
+							:href="href"
+							:aria-current="isExactActive ? 'page' : undefined"
+							class="flex min-h-14 items-center justify-center py-2 transition active:scale-95"
+							@click="navigate"
+						>
+							<span
+								class="flex flex-col items-center gap-1 transition-colors"
+								:class="isExactActive ? 'text-ink-gray-9' : 'text-ink-gray-6'"
+							>
+								<span class="size-6" :class="p.icono" aria-hidden="true" />
+								<span class="text-xs-medium leading-tighter">{{ p.label }}</span>
+							</span>
+						</a>
+					</RouterLink>
+				</MobileNav>
+			</template>
+		</MobileShell>
+
 		<!-- Dentro del escritorio la navegación la da el sidebar del escritorio -->
-		<div v-if="embebido" class="h-screen overflow-y-auto">
+		<div v-else-if="embebido" class="h-screen overflow-y-auto">
 			<RouterView />
 		</div>
 
@@ -30,6 +63,18 @@
 							:href="rutaDocumento('Configuracion DGII')"
 						/>
 
+						<SidebarLabel>{{ __("Compras") }}</SidebarLabel>
+						<SidebarItem
+							:label="__('Escanear facturas')"
+							icon="lucide-scan-qr-code"
+							:route="{ name: 'Escanear' }"
+						/>
+						<SidebarItem
+							:label="__('Capturas de compras')"
+							icon="lucide-scan-line"
+							:href="rutaDocumento('Captura Compra')"
+						/>
+
 						<SidebarLabel>{{ __("Reportes DGII") }}</SidebarLabel>
 						<SidebarItem
 							v-for="r in reportes"
@@ -55,6 +100,8 @@
 import {
 	DesktopShell,
 	FrappeUIProvider,
+	MobileNav,
+	MobileShell,
 	Sidebar,
 	SidebarHeader,
 	SidebarItem,
@@ -64,6 +111,11 @@ import {
 import Logo from "@/components/Logo.vue"
 import { __ } from "@/translation"
 import { embebido, rutaDocumento, rutaReporte } from "@/utils"
+
+const pestanas = [
+	{ label: __("Escanear"), icono: "lucide-scan-qr-code", ruta: "Escanear" },
+	{ label: __("Mis capturas"), icono: "lucide-list", ruta: "Capturas" },
+]
 
 const reportes = [
 	{ label: __("Formato {0}", ["606"]), reporte: "Formato 606 DGII" },

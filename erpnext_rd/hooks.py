@@ -31,6 +31,7 @@ code_only_modules = {
 	"Padron RNC": ["RD Compliance"],
 	"ECF": ["RD Compliance"],
 	"ERPNext RD": ["RD Compliance"],
+	"Captura Compras": ["RD Compliance"],
 }
 
 # Panel RD Compliance (frontend frappe-ui en frontend/, página www/rd_compliance.py)
@@ -38,8 +39,9 @@ website_route_rules = [
 	{"from_route": "/rd-compliance/<path:app_path>", "to_route": "rd-compliance"},
 ]
 
-# Servicios públicos del receptor e-CF (/fe/...: autenticación, recepción y aprobación comercial)
-page_renderer = ["erpnext_rd.ecf.receptor.ReceptorECF"]
+# Servicios públicos del receptor e-CF (/fe/...: autenticación, recepción y aprobación comercial) y
+# service worker de la pantalla para escanear facturas (/rd-compliance-sw.js)
+page_renderer = ["erpnext_rd.ecf.receptor.ReceptorECF", "erpnext_rd.captura_compras.pwa.ServiceWorker"]
 # Su token «bearer» (Frappe lo tomaría por uno de OAuth y rechazaría la petición)
 auth_hooks = ["erpnext_rd.ecf.receptor.autenticar"]
 
@@ -142,6 +144,9 @@ doc_events = {
 			"erpnext_rd.ecf.recepcion.vincular_factura",
 		],
 		"before_cancel": "erpnext_rd.dgii_fiscal.ncf.antes_de_cancelar_compra",
+		# El e-CF recibido vuelve a quedar sin factura (captura de compras)
+		"on_cancel": "erpnext_rd.ecf.recepcion.desvincular_factura",
+		"on_trash": "erpnext_rd.ecf.recepcion.desvincular_factura",
 	},
 }
 

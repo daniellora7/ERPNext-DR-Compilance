@@ -184,12 +184,16 @@ class ClienteDGII:
 		)
 		return self._respuesta(r)
 
-	def consultar_estado(self, encf: str, rnc_comprador: str | None, codigo_seguridad: str) -> dict:
+	def consultar_estado(
+		self, encf: str, rnc_comprador: str | None, codigo_seguridad: str, rnc_emisor: str | None = None
+	) -> dict:
+		"""Estado de un e-CF. Por defecto uno emitido por la empresa; con `rnc_emisor`, el de un
+		proveedor (la empresa como compradora)."""
 		r = self.sesion.get(
 			self._url(ECF, "/consultaestado/api/consultas/estado"),
 			headers=self._autorizacion(),
 			params={
-				"rncemisor": self.rnc,
+				"rncemisor": rnc_emisor or self.rnc,
 				"ncfelectronico": encf,
 				"rnccomprador": rnc_comprador or "",
 				"codigoseguridad": codigo_seguridad,

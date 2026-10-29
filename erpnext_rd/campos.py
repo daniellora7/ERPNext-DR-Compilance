@@ -271,6 +271,26 @@ def campos_personalizados() -> dict:
 			"print_hide": 1,
 			"depends_on": "rd_ncf_vigencia_dgii",
 		},
+		# e-CF del proveedor (captura de compras) o el que emite la empresa (E41, E43, E47)
+		{
+			"fieldname": "rd_codigo_seguridad",
+			"fieldtype": "Data",
+			"label": "Código de seguridad e-CF",
+			"insert_after": "rd_ncf_vigencia_dgii",
+			"read_only": 1,
+			"no_copy": 1,
+			"length": 6,
+			"depends_on": "eval:(doc.rd_ncf || '').startsWith('E')",
+		},
+		{
+			"fieldname": "rd_fecha_firma",
+			"fieldtype": "Datetime",
+			"label": "Fecha de firma e-CF",
+			"insert_after": "rd_codigo_seguridad",
+			"read_only": 1,
+			"no_copy": 1,
+			"depends_on": "eval:(doc.rd_ncf || '').startsWith('E')",
+		},
 	]
 
 	return {
