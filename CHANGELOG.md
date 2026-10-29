@@ -4,6 +4,10 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 
 ## Sin publicar
 
+## v0.5.5 (2026-10-29)
+
+Captura de compras, etapa 3 (sin OCR): facturas en papel sin QR.
+
 ### Nuevo
 - **Facturas en papel sin QR** (Escanear facturas): si la foto no tiene QR, se escriben el proveedor, el NCF, la fecha y el total. El proveedor se busca por nombre o RNC entre los proveedores y en el padrón de la DGII; al elegirlo se precargan su tipo de gasto (606) y la serie de su NCF. El NCF se verifica en la DGII: si está vencido o no es del proveedor, la captura queda en revisión.
 - Las capturas con NCF B01, B14 y B15 se convierten en factura de compra.
