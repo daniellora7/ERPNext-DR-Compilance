@@ -10,6 +10,7 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 
 ### Mejoras
 - La búsqueda en el padrón RNC por razón social usa un índice (de 5 s a milisegundos).
+- Búsqueda por palabras sueltas en el padrón (índice FULLTEXT en la razón social y el nombre comercial): «ochoa ferret» encuentra «FERRETERIA OCHOA S A». Se usa cuando la búsqueda por el inicio del nombre no llena la lista.
 
 ## v0.5.4 (2026-10-28)
 

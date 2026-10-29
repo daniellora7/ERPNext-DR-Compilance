@@ -11,3 +11,4 @@ erpnext_rd.patches.v0_4.perfil_en_empresa
 erpnext_rd.patches.v0_4.formatos_es_do
 erpnext_rd.patches.v0_4.alcance_por_empresa
 erpnext_rd.patches.v0_5.indice_secuencia_ncf
+erpnext_rd.patches.v0_5.indice_texto_padron

@@ -12,6 +12,7 @@ from erpnext_rd.dgii_fiscal.catalogos import TIPOS_BIENES_SERVICIOS
 from erpnext_rd.dgii_fiscal.ncf import es_empresa_rd
 from erpnext_rd.dgii_fiscal.validaciones import limpiar_identificacion
 from erpnext_rd.ecf.emision import leer_xml, rnc_empresa
+from erpnext_rd.padron_rnc.padron import buscar_por_palabras
 
 CAPTURA = convertir.CAPTURA
 ROL = "Captura Compras RD"
@@ -52,7 +53,8 @@ def contexto() -> dict:
 @frappe.whitelist()
 def buscar_emisor(texto: str) -> list:
 	"""Proveedores y contribuyentes del padrón por RNC o razón social, para la factura sin QR.
-	Primero los proveedores ya registrados; del padrón, solo por el inicio del nombre (índice)."""
+	Primero los proveedores ya registrados; del padrón, los que empiezan con lo escrito (índice
+	normal, lo más rápido) y, si faltan, los que tienen esas palabras en cualquier parte (FULLTEXT)."""
 	frappe.has_permission(CAPTURA, "create", throw=True)
 	texto = (texto or "").strip()
 	if len(texto) < 3:
@@ -79,7 +81,11 @@ def buscar_emisor(texto: str) -> list:
 		limit=LIMITE_EMISORES,
 	)
 	vistos = {p.rnc for p in proveedores}
-	return (proveedores + [c for c in padron if c.rnc not in vistos])[:LIMITE_EMISORES]
+	emisores = (proveedores + [c for c in padron if c.rnc not in vistos])[:LIMITE_EMISORES]
+	if not por_rnc and len(emisores) < LIMITE_EMISORES:
+		vistos |= {c.rnc for c in padron}
+		emisores += buscar_por_palabras(texto, LIMITE_EMISORES - len(emisores), excluir=vistos)
+	return emisores
 
 
 @frappe.whitelist()

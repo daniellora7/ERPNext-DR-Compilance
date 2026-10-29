@@ -211,7 +211,7 @@ Ruta nueva en el frontend existente: `/rd-compliance/escanear`, con frappe-ui y 
 **Decisión (2026-10-28): sin OCR.** Las facturas en papel serán entre el 5 % y el 15 % de las compras, y menos del 5 % del monto, y bajan a medida que los proveedores pasan a e-CF. El OCR solo ahorraría escribir unos 5 datos por factura, falla con papel térmico y Tesseract (Apache-2.0) no está en la lista de licencias.
 
 **Hecho en su lugar (versión mínima):** si la foto no tiene QR, el celular pide los datos y ayuda a llenarlos:
-- Proveedor por nombre o RNC (`api.buscar_emisor`): primero los proveedores registrados y luego el padrón de la DGII (por el inicio de la razón social, con índice). Un RNC o una cédula completos que no aparecen se pueden usar igual.
+- Proveedor por nombre o RNC (`api.buscar_emisor`): primero los proveedores registrados y luego el padrón de la DGII, por el inicio de la razón social (índice normal) y, si faltan, por palabras sueltas en cualquier orden (índice FULLTEXT). Un RNC o una cédula completos que no aparecen se pueden usar igual.
 - Al elegirlo (`api.emisor`): estado en el padrón y, si ya es proveedor, el tipo de gasto (606) y la serie de su última factura de compra.
 - NCF, fecha y total escritos a mano; el ITBIS sugiere el 18 % del total.
 - El NCF se verifica en segundo plano con la consulta pública de NCF (`qr.verificar_ncf`): «Válido», «Vencido» o «No corresponde al RNC». Con los dos últimos la captura queda en revisión y no se convierte.
