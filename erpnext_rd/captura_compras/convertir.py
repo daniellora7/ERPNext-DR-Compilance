@@ -22,8 +22,11 @@ COMPRA = "Purchase Invoice"
 # Tipos que se registran como factura de compra. E32 y E46 no dan crédito en compras y la factura
 # de compra no tiene nota de débito (E33): esos se registran a mano.
 TIPOS_COMPRA = ("E31", "E34", "E44", "E45")
-# Del QR no sale el NCF modificado: las notas de crédito impresas se registran a mano
-TIPOS_CAPTURA = ("E31", "E44", "E45")
+# Del QR no sale el NCF modificado: las notas de crédito impresas se registran a mano. En papel
+# (sin QR): crédito fiscal, régimen especial y gubernamental.
+TIPOS_CAPTURA = ("E31", "E44", "E45", "B01", "B14", "B15")
+# Respuestas de la DGII con las que la captura no se convierte (e-CF y consulta pública de NCF)
+NCF_INVALIDOS = ("Rechazado", "No encontrado", "Vencido", "No corresponde al RNC")
 NOTA_CREDITO = "E34"
 CAPTURA = "Captura Compra"
 INDICADORES = {1: "ITBIS 18%", 2: "ITBIS 16%", 3: "ITBIS 0%", 4: "Exento"}
@@ -184,12 +187,14 @@ def desde_captura(captura) -> str:
 		return captura.factura_compra
 	if captura.tipo_ecf not in TIPOS_CAPTURA:
 		frappe.throw(
-			_("Los e-CF {0} no se convierten en factura de compra: regístrela a mano.").format(
+			_("Los comprobantes {0} no se convierten en factura de compra: regístrela a mano.").format(
 				captura.tipo_ecf
 			)
 		)
-	if captura.estado_dgii in ("Rechazado", "No encontrado"):
-		frappe.throw(_("La DGII no tiene este e-CF como aceptado ({0}).").format(_(captura.estado_dgii)))
+	if captura.estado_dgii in NCF_INVALIDOS:
+		frappe.throw(_("La DGII no da este comprobante como válido ({0}).").format(_(captura.estado_dgii)))
+	if not (captura.rnc_emisor and flt(captura.monto_total)):
+		frappe.throw(_("Indique el RNC del emisor y el monto total antes de crear la factura."))
 	if not captura.fuente_montos:
 		frappe.throw(_("Indique el ITBIS facturado antes de crear la factura."))
 	config = _config(captura.company)
@@ -210,7 +215,7 @@ def desde_captura(captura) -> str:
 			"items",
 			{
 				"item_code": item,
-				"description": _("e-CF {0} de {1}").format(
+				"description": _("Comprobante {0} de {1}").format(
 					captura.encf, captura.razon_social_emisor or proveedor
 				),
 				"qty": 1,
