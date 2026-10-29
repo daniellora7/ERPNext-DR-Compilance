@@ -4,25 +4,32 @@
 		<MobileShell v-if="$route.meta.movil">
 			<RouterView />
 			<template #nav>
-				<!-- `active` explícito: en frappe-ui 1.0.2 el prop booleano vale false si no se pasa y la
-				     pestaña de la ruta actual nunca se marca. La activa lleva una píldora detrás del ícono. -->
+				<!-- Pestañas propias (no MobileNavItem): su slot solo cambia el ícono y el nombre queda fuera,
+				     y en frappe-ui 1.0.2 nunca marca la ruta actual. La activa lleva el ícono y el nombre dentro
+				     de una píldora. -->
 				<MobileNav>
-					<MobileNavItem
+					<RouterLink
 						v-for="p in pestanas"
 						:key="p.ruta"
-						:label="p.label"
-						:route="{ name: p.ruta }"
-						:active="$route.name === p.ruta"
+						v-slot="{ href, navigate, isExactActive }"
+						:to="{ name: p.ruta }"
+						custom
 					>
-						<template #default="{ active }">
+						<a
+							:href="href"
+							:aria-current="isExactActive ? 'page' : undefined"
+							class="flex min-h-14 items-center justify-center py-1.5 transition active:scale-95"
+							@click="navigate"
+						>
 							<span
-								class="flex h-8 w-16 items-center justify-center rounded-full transition-colors"
-								:class="active ? 'bg-surface-gray-3' : ''"
+								class="flex flex-col items-center gap-0.5 rounded-6 px-4 py-1 transition-colors"
+								:class="isExactActive ? 'bg-surface-gray-3 text-ink-gray-9' : 'text-ink-gray-5'"
 							>
-								<span class="size-5" :class="[p.icono, active ? 'text-ink-gray-9' : 'text-ink-gray-5']" />
+								<span class="size-5" :class="p.icono" aria-hidden="true" />
+								<span class="text-xs-medium leading-tighter">{{ p.label }}</span>
 							</span>
-						</template>
-					</MobileNavItem>
+						</a>
+					</RouterLink>
 				</MobileNav>
 			</template>
 		</MobileShell>
@@ -95,7 +102,6 @@ import {
 	DesktopShell,
 	FrappeUIProvider,
 	MobileNav,
-	MobileNavItem,
 	MobileShell,
 	Sidebar,
 	SidebarHeader,
