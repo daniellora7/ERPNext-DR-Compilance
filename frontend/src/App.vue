@@ -4,9 +4,25 @@
 		<MobileShell v-if="$route.meta.movil">
 			<RouterView />
 			<template #nav>
+				<!-- `active` explícito: en frappe-ui 1.0.2 el prop booleano vale false si no se pasa y la
+				     pestaña de la ruta actual nunca se marca. La activa lleva una píldora detrás del ícono. -->
 				<MobileNav>
-					<MobileNavItem :label="__('Escanear')" icon="lucide-scan-qr-code" :route="{ name: 'Escanear' }" />
-					<MobileNavItem :label="__('Mis capturas')" icon="lucide-list" :route="{ name: 'Capturas' }" />
+					<MobileNavItem
+						v-for="p in pestanas"
+						:key="p.ruta"
+						:label="p.label"
+						:route="{ name: p.ruta }"
+						:active="$route.name === p.ruta"
+					>
+						<template #default="{ active }">
+							<span
+								class="flex h-8 w-16 items-center justify-center rounded-full transition-colors"
+								:class="active ? 'bg-surface-gray-3' : ''"
+							>
+								<span class="size-5" :class="[p.icono, active ? 'text-ink-gray-9' : 'text-ink-gray-5']" />
+							</span>
+						</template>
+					</MobileNavItem>
 				</MobileNav>
 			</template>
 		</MobileShell>
@@ -90,6 +106,11 @@ import {
 import Logo from "@/components/Logo.vue"
 import { __ } from "@/translation"
 import { embebido, rutaDocumento, rutaReporte } from "@/utils"
+
+const pestanas = [
+	{ label: __("Escanear"), icono: "lucide-scan-qr-code", ruta: "Escanear" },
+	{ label: __("Mis capturas"), icono: "lucide-list", ruta: "Capturas" },
+]
 
 const reportes = [
 	{ label: __("Formato {0}", ["606"]), reporte: "Formato 606 DGII" },
