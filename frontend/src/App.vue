@@ -4,9 +4,8 @@
 		<MobileShell v-if="$route.meta.movil">
 			<RouterView />
 			<template #nav>
-				<!-- Pestañas propias (no MobileNavItem): su slot solo cambia el ícono y el nombre queda fuera,
-				     y en frappe-ui 1.0.2 nunca marca la ruta actual. La activa lleva el ícono y el nombre dentro
-				     de una píldora. -->
+				<!-- Pestañas propias (no MobileNavItem): en frappe-ui 1.0.2 nunca marca la ruta actual y sus
+				     grises se confunden con el fondo en el tema claro. -->
 				<MobileNav>
 					<RouterLink
 						v-for="p in pestanas"
@@ -18,14 +17,14 @@
 						<a
 							:href="href"
 							:aria-current="isExactActive ? 'page' : undefined"
-							class="flex min-h-14 items-center justify-center py-1.5 transition active:scale-95"
+							class="flex min-h-14 items-center justify-center py-2 transition active:scale-95"
 							@click="navigate"
 						>
 							<span
-								class="flex flex-col items-center gap-0.5 rounded-6 px-4 py-1 transition-colors"
-								:class="isExactActive ? 'bg-surface-gray-3 text-ink-gray-9' : 'text-ink-gray-5'"
+								class="flex flex-col items-center gap-1 transition-colors"
+								:class="isExactActive ? 'text-ink-gray-9' : 'text-ink-gray-6'"
 							>
-								<span class="size-5" :class="p.icono" aria-hidden="true" />
+								<span class="size-6" :class="p.icono" aria-hidden="true" />
 								<span class="text-xs-medium leading-tighter">{{ p.label }}</span>
 							</span>
 						</a>
