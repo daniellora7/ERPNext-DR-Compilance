@@ -2,8 +2,13 @@
 <html lang="es">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 		<link rel="icon" href="/assets/erpnext_rd/icons/rd-compliance.svg" />
+		<!-- PWA: la pantalla para escanear facturas se instala en el celular -->
+		<link rel="manifest" href="/assets/erpnext_rd/pwa/manifest.json" />
+		<link rel="apple-touch-icon" href="/assets/erpnext_rd/pwa/icono-180.png" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-title" content="Escanear facturas" />
 		<title>RD Compliance</title>
 	</head>
 	<!-- Fondo y texto con los tokens de frappe-ui: sin esto, en tema oscuro el lienzo del navegador queda blanco -->

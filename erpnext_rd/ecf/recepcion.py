@@ -14,6 +14,7 @@ from frappe import _
 from frappe.utils import cint, flt, getdate, now_datetime
 from lxml import etree
 
+from erpnext_rd.captura_compras import convertir
 from erpnext_rd.dgii_fiscal.ncf import es_empresa_rd
 from erpnext_rd.ecf import datos, esquemas, firma
 from erpnext_rd.ecf.cliente import ClienteDGII, ClienteReceptor, ErrorDGII
@@ -66,8 +67,8 @@ def _fecha(texto: str | None):
 		return None
 
 
-def recibir_ecf(xml: bytes) -> bytes:
-	"""Registra el e-CF de un proveedor y devuelve el acuse de recibo (ARECF) firmado."""
+def _leer_ecf(xml: bytes):
+	"""(raíz, RNC emisor, RNC comprador, e-NCF, tipo) del e-CF."""
 	try:
 		raiz = firma.leer(xml)
 	except etree.XMLSyntaxError as error:
@@ -78,22 +79,31 @@ def recibir_ecf(xml: bytes) -> bytes:
 	rnc_emisor = datos._rnc(raiz.findtext("Encabezado/Emisor/RNCEmisor"))
 	rnc_comprador = datos._rnc(raiz.findtext("Encabezado/Comprador/RNCComprador"))
 	encf = (raiz.findtext(id_doc + "eNCF") or "").strip()
-	tipo = cint(raiz.findtext(id_doc + "TipoeCF"))
 	if not (rnc_emisor and rnc_comprador and encf):
 		raise ErrorRecepcion(_("Al e-CF le falta el RNC del emisor, el del comprador o el e-NCF"))
+	return raiz, rnc_emisor, rnc_comprador, encf, cint(raiz.findtext(id_doc + "TipoeCF"))
 
-	empresa, emisor = _emisor_para(rnc_comprador)
-	motivo = None
+
+def _motivo(xml: bytes, empresa: str | None, rnc_emisor: str, encf: str, tipo: int) -> int | None:
+	"""Código del motivo de no recibido, o None si el e-CF se recibe."""
 	if not firma.verificar(xml):
-		motivo = FIRMA
-	elif tipo not in TIPOS or esquemas.errores(tipo, xml):
-		motivo = ESPECIFICACION
-	elif not empresa:
-		motivo = RNC_NO_CORRESPONDE
-	elif frappe.db.exists(
+		return FIRMA
+	if tipo not in TIPOS or esquemas.errores(tipo, xml):
+		return ESPECIFICACION
+	if not empresa:
+		return RNC_NO_CORRESPONDE
+	if frappe.db.exists(
 		RECIBIDO, {"company": empresa, "rnc_emisor": rnc_emisor, "encf": encf, "estado": "Recibido"}
 	):
-		motivo = DUPLICADO
+		return DUPLICADO
+	return None
+
+
+def recibir_ecf(xml: bytes) -> bytes:
+	"""Registra el e-CF de un proveedor y devuelve el acuse de recibo (ARECF) firmado."""
+	raiz, rnc_emisor, rnc_comprador, encf, tipo = _leer_ecf(xml)
+	empresa, emisor = _emisor_para(rnc_comprador)
+	motivo = _motivo(xml, empresa, rnc_emisor, encf, tipo)
 
 	ahora = now_datetime()
 	llave, certificado = emisor.cargar()
@@ -120,7 +130,41 @@ def recibir_ecf(xml: bytes) -> bytes:
 	return acuse
 
 
-def _registrar(empresa: str, raiz, xml: bytes, acuse: bytes, motivo: int | None, ahora):
+@frappe.whitelist(methods=["POST"])
+def cargar_xml(file_url: str) -> str:
+	"""Carga a mano el XML de un e-CF que el proveedor envió por correo. Pasa por las mismas
+	validaciones que la recepción, pero no se responde acuse de recibo."""
+	frappe.has_permission(RECIBIDO, "create", throw=True)
+	from erpnext_rd.ecf.emision import leer_xml
+
+	xml = leer_xml(file_url)
+	try:
+		raiz, rnc_emisor, rnc_comprador, encf, tipo = _leer_ecf(xml)
+	except ErrorRecepcion as error:
+		frappe.throw(str(error))
+	empresa = next(
+		(
+			e
+			for e in frappe.get_all("Company", filters={"tax_id": rnc_comprador}, pluck="name")
+			if es_empresa_rd(e)
+		),
+		None,
+	)
+	if motivo := _motivo(xml, empresa, rnc_emisor, encf, tipo):
+		frappe.throw(_("El e-CF no se puede registrar: {0}").format(_(MOTIVOS_NO_RECIBIDO.get(motivo))))
+	frappe.has_permission("Company", doc=empresa, throw=True)
+	return _registrar(empresa, raiz, xml, None, None, now_datetime(), origen="Carga manual").name
+
+
+def _registrar(
+	empresa: str,
+	raiz,
+	xml: bytes,
+	acuse: bytes | None,
+	motivo: int | None,
+	ahora,
+	origen: str = "Recepción electrónica",
+):
 	rnc_emisor = datos._rnc(raiz.findtext("Encabezado/Emisor/RNCEmisor"))
 	encf = raiz.findtext("Encabezado/IdDoc/eNCF").strip()
 	proveedor = frappe.db.get_value("Supplier", {"tax_id": rnc_emisor}, "name")
@@ -148,10 +192,18 @@ def _registrar(empresa: str, raiz, xml: bytes, acuse: bytes, motivo: int | None,
 			"fecha_recepcion": ahora,
 			"codigo_seguridad": None if motivo == FIRMA else firma.codigo_seguridad(xml),
 			"aprobacion": "Pendiente",
+			"origen": origen,
+			"estado_conversion": "Ignorado" if motivo else "Pendiente",
 		}
-	).insert(ignore_permissions=True)
-	guardar_xml(RECIBIDO, doc.name, "xml", f"{rnc_emisor}{encf}.xml", xml)
-	guardar_xml(RECIBIDO, doc.name, "acuse", f"{rnc_emisor}{encf}_ARECF.xml", acuse)
+	)
+	if not motivo:
+		convertir.leer(doc, raiz)
+	doc.insert(ignore_permissions=True)
+	doc.xml = guardar_xml(RECIBIDO, doc.name, "xml", f"{rnc_emisor}{encf}.xml", xml)
+	if acuse:
+		guardar_xml(RECIBIDO, doc.name, "acuse", f"{rnc_emisor}{encf}_ARECF.xml", acuse)
+	if not doc.factura_compra:
+		convertir.al_registrar(doc)
 	return doc
 
 
@@ -163,6 +215,10 @@ def aprobar(name: str, aprobado: int = 1, motivo: str | None = None) -> str:
 	"""Aprueba o rechaza un e-CF recibido: firma la ACECF y la envía a la DGII y al emisor."""
 	doc = frappe.get_doc(RECIBIDO, name)
 	doc.check_permission("write")
+	return decidir(doc, aprobado, motivo)
+
+
+def decidir(doc, aprobado: int = 1, motivo: str | None = None) -> str:
 	if doc.estado != "Recibido":
 		frappe.throw(_("Solo se aprueban o rechazan los e-CF recibidos."))
 	if doc.aprobacion != "Pendiente":
@@ -295,10 +351,39 @@ def vincular_factura(doc, method=None):
 	if not (doc.get("rd_ncf") or "").startswith("E"):
 		return
 	rnc = datos._rnc(frappe.db.get_value("Supplier", doc.supplier, "tax_id"))
-	for nombre in frappe.get_all(
+	for fila in frappe.get_all(
 		RECIBIDO,
-		filters={"company": doc.company, "encf": doc.rd_ncf, "factura_compra": ("is", "not set")},
+		filters={"company": doc.company, "encf": doc.rd_ncf},
 		or_filters={"proveedor": doc.supplier, "rnc_emisor": rnc or "-"},
-		pluck="name",
+		fields=["name", "factura_compra"],
 	):
+		if fila.factura_compra not in (None, "", doc.name):
+			continue
+		nombre = fila.name
 		frappe.db.set_value(RECIBIDO, nombre, {"factura_compra": doc.name, "proveedor": doc.supplier})
+		_aprobar_al_validar(nombre)
+
+
+def _aprobar_al_validar(nombre: str):
+	"""Si la empresa lo configuró, validar la factura aprueba comercialmente el e-CF (ACECF)."""
+	recibido = frappe.db.get_value(RECIBIDO, nombre, ["company", "estado", "aprobacion"], as_dict=True)
+	if recibido.estado != "Recibido" or recibido.aprobacion != "Pendiente":
+		return
+	if not cint(frappe.db.get_value(convertir.CONFIG, recibido.company, "aprobar_al_validar")):
+		return
+	try:
+		decidir(frappe.get_doc(RECIBIDO, nombre))
+	except frappe.ValidationError as error:
+		frappe.msgprint(
+			_("La factura se validó, pero no se pudo aprobar el e-CF {0}: {1}").format(nombre, str(error)),
+			indicator="orange",
+		)
+
+
+def desvincular_factura(doc, method=None):
+	"""doc_events Purchase Invoice on_cancel / on_trash: el e-CF recibido y la captura vuelven a quedar
+	sin factura."""
+	for nombre in frappe.get_all(RECIBIDO, filters={"factura_compra": doc.name}, pluck="name"):
+		frappe.db.set_value(RECIBIDO, nombre, {"factura_compra": None, "estado_conversion": "Pendiente"})
+	for nombre in frappe.get_all(convertir.CAPTURA, filters={"factura_compra": doc.name}, pluck="name"):
+		frappe.db.set_value(convertir.CAPTURA, nombre, {"factura_compra": None, "estado": "Lista"})

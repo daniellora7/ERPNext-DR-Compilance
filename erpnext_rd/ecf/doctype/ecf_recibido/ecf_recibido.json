@@ -4,7 +4,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "links": [],
- "modified": "2026-10-18 10:00:00.000000",
+ "modified": "2026-10-28 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "ECF",
  "owner": "Administrator",
@@ -228,6 +228,130 @@
    "fieldtype": "Small Text",
    "label": "Mensajes",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_detalle",
+   "fieldtype": "Section Break",
+   "label": "Detalle"
+  },
+  {
+   "fieldname": "detalle",
+   "fieldtype": "Table",
+   "options": "ECF Recibido Detalle"
+  },
+  {
+   "fieldname": "section_totales",
+   "fieldtype": "Section Break",
+   "label": "Totales del e-CF",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "moneda",
+   "fieldtype": "Link",
+   "label": "Moneda",
+   "options": "Currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tasa_cambio",
+   "fieldtype": "Float",
+   "label": "Tasa de cambio",
+   "read_only": 1
+  },
+  {
+   "fieldname": "monto_exento",
+   "fieldtype": "Currency",
+   "label": "Monto exento",
+   "read_only": 1
+  },
+  {
+   "fieldname": "otros_impuestos",
+   "fieldtype": "Currency",
+   "label": "Otros impuestos",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "monto_gravado_i1",
+   "fieldtype": "Currency",
+   "label": "Gravado ITBIS 18%",
+   "read_only": 1
+  },
+  {
+   "fieldname": "monto_gravado_i2",
+   "fieldtype": "Currency",
+   "label": "Gravado ITBIS 16%",
+   "read_only": 1
+  },
+  {
+   "fieldname": "monto_gravado_i3",
+   "fieldtype": "Currency",
+   "label": "Gravado ITBIS 0%",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "itbis_i1",
+   "fieldtype": "Currency",
+   "label": "ITBIS 18%",
+   "read_only": 1
+  },
+  {
+   "fieldname": "itbis_i2",
+   "fieldtype": "Currency",
+   "label": "ITBIS 16%",
+   "read_only": 1
+  },
+  {
+   "fieldname": "itbis_retenido",
+   "fieldtype": "Currency",
+   "label": "ITBIS retenido",
+   "read_only": 1
+  },
+  {
+   "fieldname": "isr_retenido",
+   "fieldtype": "Currency",
+   "label": "ISR retenido",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_conversion",
+   "fieldtype": "Section Break",
+   "label": "Factura de compra"
+  },
+  {
+   "fieldname": "estado_conversion",
+   "fieldtype": "Select",
+   "label": "Conversión",
+   "options": "Pendiente\nBorrador creado\nRequiere revisión\nError\nIgnorado",
+   "default": "Pendiente",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "origen",
+   "fieldtype": "Select",
+   "label": "Origen",
+   "options": "Recepción electrónica\nCarga manual",
+   "default": "Recepción electrónica",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mensajes_conversion",
+   "fieldtype": "Small Text",
+   "label": "Observaciones de la conversión",
+   "read_only": 1
   }
  ],
  "field_order": [
@@ -257,6 +381,27 @@
   "column_break_3",
   "envio_aprobacion",
   "xml_aprobacion",
-  "mensajes"
+  "mensajes",
+  "section_detalle",
+  "detalle",
+  "section_totales",
+  "moneda",
+  "tasa_cambio",
+  "monto_exento",
+  "otros_impuestos",
+  "column_break_4",
+  "monto_gravado_i1",
+  "monto_gravado_i2",
+  "monto_gravado_i3",
+  "column_break_5",
+  "itbis_i1",
+  "itbis_i2",
+  "itbis_retenido",
+  "isr_retenido",
+  "section_conversion",
+  "estado_conversion",
+  "origen",
+  "column_break_6",
+  "mensajes_conversion"
  ]
 }

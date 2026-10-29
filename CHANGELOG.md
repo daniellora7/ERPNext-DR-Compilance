@@ -4,6 +4,29 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 
 ## Sin publicar
 
+## v0.5.4 (2026-10-28)
+
+Captura de compras, etapa 2: facturas electrónicas entregadas impresas o en PDF.
+
+### Nuevo
+- **Escanear facturas** (`/rd-compliance/escanear`): pantalla para el celular que se instala en la pantalla de inicio. Lee el QR del e-CF con la cámara o de una foto, o el PDF de la factura; el usuario escribe el ITBIS si no se pudo leer. Sin conexión, las capturas quedan guardadas en el celular y se envían al volver.
+- **Captura de compra**: los datos del QR, verificados con la DGII (estado del e-CF) con el certificado de la empresa. Revisa que la factura sea a nombre de la empresa y que no esté repetida. Botones **Verificar en la DGII**, **Crear factura de compra** (borrador) y **Descartar**.
+- Del PDF generado por el sistema del proveedor se leen el e-NCF, los RNC, el código de seguridad, el ITBIS y el total.
+- Rol **Captura Compras RD** para quien solo escanea (ve solo sus capturas).
+- Si después llega el XML del mismo e-CF, se enlaza con la captura y avisa si el total difiere.
+- La factura de compra guarda el código de seguridad y la fecha de firma del e-CF.
+
+## v0.5.3 (2026-10-28)
+
+Captura de compras, etapa 1: los e-CF de los proveedores pasan a Factura de Compra en borrador.
+
+### Nuevo
+- Módulo **Captura Compras**. El *e-CF recibido* guarda el detalle y los totales del XML (ITBIS por tasa, exento, retenciones).
+- Botón **Crear factura de compra** (o automático al recibir, según la *Configuración de captura de compras* de cada empresa): busca o crea el proveedor desde el padrón, toma el artículo del proveedor (código en *Item Supplier*), una *Regla de gasto por proveedor* o el artículo genérico, y pone el ITBIS y las retenciones del XML. La factura queda siempre en borrador; si algo no cuadra, el e-CF queda en «Requiere revisión» con el motivo.
+- Notas de crédito E34 como devolución de la factura original. E32, E33 y E46 se registran a mano.
+- **Cargar XML** en la lista de e-CF recibidos, para los proveedores que lo envían por correo (mismas validaciones, sin acuse).
+- Opción para aprobar comercialmente el e-CF (ACECF) al validar la factura. Al cancelar o borrar la factura, el e-CF queda otra vez sin factura.
+
 ## v0.5.2 (2026-10-22)
 
 Revisión con las skills oficiales de Frappe (`frappe/skills`) y sus reglas de Semgrep.
