@@ -17,8 +17,10 @@ MUESTRAS = 8
 
 def arco(cx, cy, r, desde, hasta, pasos=12):
 	return [
-		(cx + r * math.cos(math.radians(desde + (hasta - desde) * i / pasos)),
-		 cy + r * math.sin(math.radians(desde + (hasta - desde) * i / pasos)))
+		(
+			cx + r * math.cos(math.radians(desde + (hasta - desde) * i / pasos)),
+			cy + r * math.sin(math.radians(desde + (hasta - desde) * i / pasos)),
+		)
 		for i in range(pasos + 1)
 	]
 
@@ -28,7 +30,12 @@ def bezier(p0, p1, p2, p3, pasos=24):
 	for i in range(1, pasos + 1):
 		t = i / pasos
 		u = 1 - t
-		puntos.append(tuple(u**3 * a + 3 * u * u * t * b + 3 * u * t * t * c + t**3 * d for a, b, c, d in zip(p0, p1, p2, p3)))
+		puntos.append(
+			tuple(
+				u**3 * a + 3 * u * u * t * b + 3 * u * t * t * c + t**3 * d
+				for a, b, c, d in zip(p0, p1, p2, p3, strict=False)
+			)
+		)
 	return puntos
 
 
@@ -40,12 +47,14 @@ RECIBO = (
 	+ [(50 - i * 26 / 6, 80 if i % 2 == 0 else 77) for i in range(7)]
 )
 RENGLONES = [(31, 30, 26), (31, 39, 18), (31, 48, 12)]
-ESCUDO_PUNTOS = (
-	[(66, 50), (81, 55.5), (81, 66.5)]
-	+ bezier((81, 66.5), (81, 73.5), (75.5, 78), (66, 82))
-	+ bezier((66, 82), (56.5, 78), (51, 73.5), (51, 66.5))
-	+ [(51, 55.5)]
-)
+ESCUDO_PUNTOS = [
+	(66, 50),
+	(81, 55.5),
+	(81, 66.5),
+	*bezier((81, 66.5), (81, 73.5), (75.5, 78), (66, 82)),
+	*bezier((66, 82), (56.5, 78), (51, 73.5), (51, 66.5)),
+	(51, 55.5),
+]
 CHEQUE = [(59, 66), (63.5, 70.5), (73, 61)]
 CENTRO = (52.5, 51)  # centro del dibujo
 
