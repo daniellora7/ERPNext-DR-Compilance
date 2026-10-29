@@ -11,7 +11,7 @@
 			<li v-for="p in pendientes" :key="p.id_cliente" class="flex items-center justify-between gap-3 py-3">
 				<div class="min-w-0">
 					<p class="truncate text-base font-medium text-ink-gray-8">
-						{{ leerUrl(p.url_timbre || "")?.encf || p.nombre_archivo }}
+						{{ nombreCaptura(p) }}
 					</p>
 					<p class="text-sm text-ink-gray-5">{{ __("Guardada en el celular") }}</p>
 				</div>
@@ -39,7 +39,7 @@
 import { onMounted, ref } from "vue"
 import { Alert, Badge, Button, PageHeader, PageHeaderTitle } from "frappe-ui"
 
-import { actualizarPendientes, api, leerUrl, pendientes } from "@/captura"
+import { actualizarPendientes, api, nombreCaptura, pendientes } from "@/captura"
 import { __ } from "@/translation"
 import { formatoMoneda } from "@/utils"
 
