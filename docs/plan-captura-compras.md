@@ -206,11 +206,20 @@ Ruta nueva en el frontend existente: `/rd-compliance/escanear`, con frappe-ui y 
 
 ---
 
-## Etapa 3 — Papel con NCF serie B (tentativa)
+## Etapa 3 — Papel con NCF serie B
 
-Se decide más adelante. Las facturas serie B van desapareciendo a medida que los proveedores pasan a e-CF.
+**Decisión (2026-10-28): sin OCR.** Las facturas en papel serán entre el 5 % y el 15 % de las compras, y menos del 5 % del monto, y bajan a medida que los proveedores pasan a e-CF. El OCR solo ahorraría escribir unos 5 datos por factura, falla con papel térmico y Tesseract (Apache-2.0) no está en la lista de licencias.
 
-Idea:
+**Hecho en su lugar (versión mínima):** si la foto no tiene QR, el celular pide los datos y ayuda a llenarlos:
+- Proveedor por nombre o RNC (`api.buscar_emisor`): primero los proveedores registrados y luego el padrón de la DGII, por el inicio de la razón social (índice normal) y, si faltan, por palabras sueltas en cualquier orden (índice FULLTEXT). Un RNC o una cédula completos que no aparecen se pueden usar igual.
+- Al elegirlo (`api.emisor`): estado en el padrón y, si ya es proveedor, el tipo de gasto (606) y la serie de su última factura de compra.
+- NCF, fecha y total escritos a mano; el ITBIS sugiere el 18 % del total.
+- El NCF se verifica en segundo plano con la consulta pública de NCF (`qr.verificar_ncf`): «Válido», «Vencido» o «No corresponde al RNC». Con los dos últimos la captura queda en revisión y no se convierte.
+- Se convierten B01, B14 y B15 (además de E31, E44 y E45).
+
+Volver a evaluar el OCR si las capturas «foto sin QR» pasan del 15 % o de unas 50 al mes.
+
+Idea original (descartada por ahora):
 - La misma *Captura Compra* con `origen = Foto` y sin QR.
 - OCR local con **Tesseract** (sin IA generativa y sin enviar datos fuera del servidor). **Licencia Apache-2.0**: no está en la lista permitida (GPL-3, LGPL-3, MIT). Decidir antes de empezar si se acepta como dependencia instalada sin copiar código, o buscar otra opción.
 - Reglas RD sobre el texto: RNC (9 dígitos con verificador) o cédula (11), NCF `B` + 10 dígitos, ITBIS y total junto a sus palabras, subtotal + ITBIS = total.
@@ -228,7 +237,7 @@ Idea:
 | 1 | Etapa 1: DocTypes, `convertir.py`, hooks, carga manual, panel, pruebas | `v0.5.3` |
 | 2 | Etapa 2 backend: *Captura Compra*, QR, verificación DGII, PDF con texto, pruebas | `v0.5.4` |
 | 3 | Etapa 2 PWA: `/rd-compliance/escanear`, manifest, service worker, sin conexión, prueba en Android e iOS | `v0.5.4` |
-| 4 | Etapa 3 (si se aprueba) | — |
+| 4 | Etapa 3 mínima: datos escritos a mano con búsqueda del proveedor y consulta de NCF, sin OCR | — |
 
 Cada paso con commit, CI verde (ruff, tests y Semgrep) y actualización de `docs/NOTAS-TECNICAS.md`, `docs/PLAN.md` y `locale/es.po`.
 
@@ -236,5 +245,4 @@ Cada paso con commit, CI verde (ruff, tests y Semgrep) y actualización de `docs
 
 - Para recibir XML en producción: certificado `.p12`, alta como emisor y receptor electrónico, y registrar en la DGII las URLs `/fe/...` del dominio con HTTPS (Fase 4).
 - Para la PWA en el celular: dominio con HTTPS.
-- Decidir la licencia de Tesseract antes de la Etapa 3.
 - Facturas reales de proveedores (XML y PDF) para probar, sin crear documentos en Dynamics Plastics sin permiso.

@@ -1,16 +1,25 @@
-"""Captura de compras, etapa 2: e-CF impreso o en PDF (QR, texto del PDF, verificación DGII y factura).
+"""Captura de compras, etapa 2: e-CF impreso o en PDF (QR, texto del PDF, verificación DGII y factura)
+y la factura en papel sin QR (datos escritos a mano y consulta pública de NCF).
 
 La DGII se simula."""
 
+import io
 from unittest.mock import patch
 
 import frappe
 from frappe.utils import flt, get_datetime, getdate
 
 from erpnext_rd.captura_compras import api, qr
+from erpnext_rd.dgii_fiscal import consulta_ncf
 from erpnext_rd.dgii_fiscal.impresion import url_timbre_ecf
 from erpnext_rd.ecf.cliente import ErrorDGII
-from erpnext_rd.tests.test_captura_compras import CODIGO, EMPRESA, RNC_EMPRESA, RNC_PROVEEDOR, BaseCaptura
+from erpnext_rd.tests.test_captura_compras import (
+	CODIGO,
+	EMPRESA,
+	RNC_EMPRESA,
+	RNC_PROVEEDOR,
+	BaseCaptura,
+)
 
 
 def url(encf, total=1180, comprador=RNC_EMPRESA, emisor=RNC_PROVEEDOR) -> str:
@@ -216,3 +225,102 @@ class TestCapturaQR(BaseCaptura):
 		captura.reload()
 		self.assertFalse(captura.factura_compra)
 		self.assertEqual(captura.estado, "Lista")
+
+
+def foto() -> bytes:
+	from PIL import Image
+
+	salida = io.BytesIO()
+	Image.new("RGB", (8, 8), "white").save(salida, "JPEG")
+	return salida.getvalue()
+
+
+def rnc_fuera_del_padron() -> str:
+	"""Un número que no está en el padrón (el sitio de pruebas puede tenerlo completo)."""
+	return next(
+		str(n) for n in range(999000000, 999100000) if not frappe.db.exists("Contribuyente DGII", str(n))
+	)
+
+
+def respuesta_ncf(estado, vigencia=None) -> frappe._dict:
+	return frappe._dict(estado=estado, vigencia=getdate(vigencia) if vigencia else None, mensaje=estado)
+
+
+class TestCapturaManual(BaseCaptura):
+	"""Factura en papel (o e-CF sin QR): foto y datos escritos en el celular."""
+
+	def capturar(self, ncf, **kw):
+		archivo = frappe.get_doc(
+			{"doctype": "File", "file_name": "factura.jpg", "content": foto(), "is_private": 1}
+		).insert()
+		datos = {
+			"rnc_emisor": RNC_PROVEEDOR,
+			"fecha_emision": "2026-10-20",
+			"monto_total": 1180,
+			"total_itbis": 180,
+			**kw,
+		}
+		with patch("frappe.enqueue"):
+			resumen = api.crear(EMPRESA, file_url=archivo.file_url, ncf=ncf, **datos)
+		return frappe.get_doc(api.CAPTURA, resumen["name"])
+
+	def test_factura_en_papel(self):
+		captura = self.capturar("b0100000123")
+		self.assertEqual(
+			(captura.origen, captura.encf, captura.tipo_ecf, captura.estado, captura.proveedor),
+			("Foto", "B0100000123", "B01", "Lista", self.proveedor),
+		)
+		with patch.object(consulta_ncf, "consultar", return_value=respuesta_ncf(consulta_ncf.VALIDO)):
+			self.assertEqual(api.verificar(captura.name), "Válido")
+
+		factura = frappe.get_doc("Purchase Invoice", api.crear_factura(captura.name))
+		self.assertEqual((factura.rd_ncf, factura.rd_tipo_comprobante), ("B0100000123", "B01"))
+		self.assertEqual(factura.bill_date, getdate("2026-10-20"))
+		self.assertEqual((flt(factura.net_total), flt(factura.grand_total)), (1000, 1180))
+
+	def test_ncf_vencido_o_de_otro_rnc(self):
+		for ncf, respuesta, estado in (
+			("B0100000124", respuesta_ncf(consulta_ncf.VENCIDO, "2026-01-31"), "Vencido"),
+			("B0100000125", respuesta_ncf(consulta_ncf.NO_CORRESPONDE), "No corresponde al RNC"),
+		):
+			with self.subTest(estado=estado):
+				captura = self.capturar(ncf)
+				with patch.object(consulta_ncf, "consultar", return_value=respuesta):
+					api.verificar(captura.name)
+				captura.reload()
+				self.assertEqual((captura.estado_dgii, captura.estado), (estado, "Requiere revisión"))
+				self.assertRaises(frappe.ValidationError, api.crear_factura, captura.name)
+
+	def test_vencido_despues_de_la_factura_es_valido(self):
+		captura = self.capturar("B0100000126")
+		vencido = respuesta_ncf(consulta_ncf.VENCIDO, "2026-12-31")
+		with patch.object(consulta_ncf, "consultar", return_value=vencido):
+			self.assertEqual(api.verificar(captura.name), "Válido")
+
+	def test_datos_incompletos_o_mal_escritos(self):
+		self.assertRaises(frappe.ValidationError, self.capturar, "B01123")
+		captura = self.capturar(None, rnc_emisor=None, monto_total=None)
+		self.assertEqual(captura.estado, "Requiere revisión")
+		for aviso in ("NCF", "RNC", "monto total"):
+			self.assertIn(aviso, captura.avisos)
+
+	def test_buscar_emisor(self):
+		rnc = rnc_fuera_del_padron()
+		frappe.get_doc(
+			{
+				"doctype": "Contribuyente DGII",
+				"rnc": rnc,
+				"razon_social": "ZQX PRUEBA CAPTURA SRL",
+				"estado": "ACTIVO",
+			}
+		).insert()
+		nombre = frappe.db.get_value("Supplier", self.proveedor, "supplier_name")
+
+		self.assertIn(self.proveedor, [e.get("proveedor") for e in api.buscar_emisor(RNC_PROVEEDOR[:5])])
+		self.assertIn(self.proveedor, [e.get("proveedor") for e in api.buscar_emisor(nombre[1:6])])
+		self.assertEqual([e.rnc for e in api.buscar_emisor("zqx prueba")], [rnc])
+		self.assertEqual(api.buscar_emisor("zq"), [])
+
+		datos = api.emisor(EMPRESA, rnc)
+		self.assertEqual((datos["razon_social"], datos["estado"]), ("ZQX PRUEBA CAPTURA SRL", "ACTIVO"))
+		self.assertEqual(api.emisor(EMPRESA, RNC_PROVEEDOR)["proveedor"], self.proveedor)

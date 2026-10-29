@@ -1,6 +1,7 @@
 """Padrón de contribuyentes de la DGII: descarga, importación y consulta."""
 
 import io
+import re
 import time
 import zipfile
 from datetime import timedelta
@@ -9,10 +10,13 @@ from email.utils import format_datetime, parsedate_to_datetime
 import frappe
 import requests
 from frappe import _
+from frappe.query_builder import Order
+from frappe.query_builder.terms import ParameterizedValueWrapper
 from frappe.utils import now_datetime
-from pypika.terms import Values
+from pypika.terms import Criterion, Values
 
 from erpnext_rd.dgii_fiscal.validaciones import limpiar_identificacion
+from erpnext_rd.padron_rnc.doctype.contribuyente_dgii.contribuyente_dgii import COLUMNAS_TEXTO
 
 # Archivo público de la DGII (texto separado por "|", codificación latin-1):
 # RNC|RAZÓN SOCIAL|NOMBRE COMERCIAL|ACTIVIDAD|...|...|...|...|FECHA INICIO|ESTADO|RÉGIMEN
@@ -186,6 +190,47 @@ def encolar_sincronizacion():
 	frappe.only_for(("System Manager", "Accounts Manager"))
 	encolar(forzar=True)
 	return _("Sincronización del padrón en cola. Puede tardar algunos minutos.")
+
+
+class _Coincide(Criterion):
+	"""MATCH (columnas) AGAINST (consulta IN BOOLEAN MODE) de MariaDB, que pypika no trae. La
+	consulta va como parámetro."""
+
+	def __init__(self, columnas, consulta: str):
+		super().__init__()
+		self.columnas = columnas
+		self.consulta = ParameterizedValueWrapper(consulta)
+
+	def get_sql(self, **kwargs):
+		columnas = ", ".join(c.get_sql(**kwargs) for c in self.columnas)
+		return f"MATCH ({columnas}) AGAINST ({self.consulta.get_sql(**kwargs)} IN BOOLEAN MODE)"
+
+
+def consulta_por_palabras(texto: str) -> str:
+	"""«ochoa ferret» -> «+ochoa* +ferret*»: todas las palabras, cada una como inicio de palabra. Las
+	de menos de 3 letras no están en el índice (innodb_ft_min_token_size) y se ignoran."""
+	palabras = [p for p in re.findall(r"\w+", texto or "") if len(p) >= 3][:6]
+	return " ".join(f"+{p}*" for p in palabras)
+
+
+def buscar_por_palabras(texto: str, limite: int = 8, excluir: set | None = None) -> list:
+	"""Contribuyentes cuyo nombre (razón social o comercial) tiene todas las palabras, en cualquier
+	orden y posición. Usa el índice FULLTEXT (contribuyente_dgii.on_doctype_update)."""
+	consulta = consulta_por_palabras(texto)
+	if not consulta:
+		return []
+	tabla = frappe.qb.DocType("Contribuyente DGII")
+	coincide = _Coincide([tabla[c] for c in COLUMNAS_TEXTO], consulta)
+	query = (
+		frappe.qb.from_(tabla)
+		.select(tabla.rnc, tabla.razon_social, tabla.estado)
+		.where(coincide)
+		.orderby(coincide, order=Order.desc)
+		.limit(limite)
+	)
+	if excluir:
+		query = query.where(tabla.rnc.notin(list(excluir)))
+	return query.run(as_dict=True)
 
 
 @frappe.whitelist()

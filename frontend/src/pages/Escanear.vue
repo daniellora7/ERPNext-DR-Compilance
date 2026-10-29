@@ -82,6 +82,24 @@
 					<dd class="text-right font-medium tabular-nums text-ink-gray-8">{{ d.valor }}</dd>
 				</div>
 			</dl>
+			<!-- Sin QR (factura en papel): el proveedor se busca por nombre o RNC -->
+			<template v-if="manual">
+				<BuscarEmisor v-model="rncEmisor" :description="avisoEmisor" @elegir="elegirEmisor" />
+				<FormControl
+					v-model="ncf"
+					:label="__('NCF')"
+					placeholder="B0100000001"
+					autocapitalize="characters"
+					:error="ncfInvalido ? __('El NCF tiene 11 caracteres (B01…) o 13 (E31…).') : undefined"
+				/>
+				<FormControl v-model="fecha" type="date" :label="__('Fecha de la factura')" />
+				<FormControl
+					v-model="montoTotal"
+					type="number"
+					inputmode="decimal"
+					:label="__('Total de la factura')"
+				/>
+			</template>
 			<FormControl
 				v-if="!esPdf"
 				v-model="itbis"
@@ -102,6 +120,7 @@
 					variant="solid"
 					:label="__('Enviar')"
 					:loading="enviando"
+					:disabled="ncfInvalido"
 					@click="enviarCaptura"
 				/>
 			</div>
@@ -110,9 +129,10 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue"
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue"
 import { Alert, Button, FormControl, PageHeader, PageHeaderTitle, Select } from "frappe-ui"
 
+import BuscarEmisor from "@/components/BuscarEmisor.vue"
 import Instalar from "@/components/Instalar.vue"
 import {
 	actualizarPendientes,
@@ -121,6 +141,7 @@ import {
 	enviar,
 	enviarPendientes,
 	escaner,
+	esNcf,
 	leerUrl,
 	pendientes,
 	qrDeImagen,
@@ -146,12 +167,33 @@ const tipo606 = ref("")
 const enviando = ref(false)
 const aviso = ref(null)
 
+// Factura sin QR: datos que escribe el usuario
+const hoy = () => new Date().toLocaleDateString("en-CA")
+const rncEmisor = ref(null)
+const emisor = ref(null)
+const ncf = ref("")
+const fecha = ref(hoy())
+const montoTotal = ref("")
+
 const qr = computed(() => (url.value ? leerUrl(url.value) : null))
 const esPdf = computed(() => archivo.value?.type === "application/pdf")
 const leido = computed(() => Boolean(url.value || archivo.value))
-const sugerencia = computed(() =>
-	qr.value?.montoTotal ? __("Si es 18 %: {0}", [((qr.value.montoTotal * 18) / 118).toFixed(2)]) : "",
+const manual = computed(() => Boolean(archivo.value && !url.value && !esPdf.value))
+const ncfInvalido = computed(() => manual.value && ncf.value.length >= 11 && !esNcf(ncf.value))
+const avisoEmisor = computed(() =>
+	emisor.value?.estado && emisor.value.estado !== "ACTIVO"
+		? __("Aparece como {0} en el padrón de la DGII.", [emisor.value.estado])
+		: undefined,
 )
+const sugerencia = computed(() => {
+	const total = qr.value ? qr.value.montoTotal : Number(montoTotal.value)
+	return total ? __("Si es 18 %: {0}", [((total * 18) / 118).toFixed(2)]) : ""
+})
+
+watch(ncf, (texto) => {
+	const limpio = (texto || "").toUpperCase().replace(/\s/g, "")
+	if (limpio !== texto) ncf.value = limpio
+})
 const datosLeidos = computed(() => {
 	if (!qr.value) return [{ label: __("Archivo"), valor: archivo.value?.name || "" }]
 	return [
@@ -224,7 +266,7 @@ async function elegirArchivo(evento) {
 			aviso.value = {
 				theme: "amber",
 				title: __("No se encontró el QR en la foto"),
-				description: __("Se enviará la foto y el contador completará los datos."),
+				description: __("Escriba los datos de la factura. Lo que falte lo completa el contador."),
 			}
 		archivo.value = new File([await comprimir(elegido)], nombreFoto(), { type: "image/jpeg" })
 	} else {
@@ -247,6 +289,12 @@ async function enviarCaptura() {
 			nombre_archivo: archivo.value?.name,
 			total_itbis: itbis.value === "" ? null : Number(itbis.value),
 			rd_tipo_bienes_servicios: tipo606.value,
+			...(manual.value && {
+				rnc_emisor: rncEmisor.value,
+				ncf: ncf.value,
+				fecha_emision: fecha.value,
+				monto_total: montoTotal.value === "" ? null : Number(montoTotal.value),
+			}),
 		})
 		aviso.value = resultado.enviada
 			? {
@@ -272,6 +320,25 @@ function reiniciar() {
 	archivo.value = null
 	itbis.value = ""
 	tipo606.value = ""
+	rncEmisor.value = null
+	ncf.value = ""
+	fecha.value = hoy()
+	montoTotal.value = ""
+}
+
+/** Con el proveedor elegido: estado en el padrón y, si ya le compramos, su tipo de gasto y su serie. */
+async function elegirEmisor(elegido) {
+	emisor.value = elegido
+	if (!elegido) return
+	try {
+		const datos = await api.get("emisor", { company: empresa.value, rnc: elegido.rnc })
+		if (rncEmisor.value !== elegido.rnc) return
+		emisor.value = { ...elegido, ...datos }
+		if (!tipo606.value && datos.tipo_606) tipo606.value = datos.tipo_606
+		if (!ncf.value && datos.serie) ncf.value = datos.serie
+	} catch {
+		// Sin conexión: se envía con el RNC y el servidor completa el resto
+	}
 }
 
 async function vaciarCola() {

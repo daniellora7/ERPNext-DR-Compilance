@@ -74,6 +74,9 @@ export function leerUrl(texto) {
 	}
 }
 
+/** NCF serie B (11 caracteres) o e-NCF (13), como los valida el servidor. */
+export const esNcf = (texto) => /^(B\d{10}|E\d{12})$/.test(texto)
+
 /** Busca el QR en una foto. null si no lo encuentra. */
 export async function qrDeImagen(archivo) {
 	try {
@@ -156,7 +159,17 @@ async function enviarAhora(captura) {
 		total_itbis: captura.total_itbis ?? undefined,
 		rd_tipo_bienes_servicios: captura.rd_tipo_bienes_servicios || undefined,
 		id_cliente: captura.id_cliente,
+		// Factura sin QR: lo que escribió el usuario
+		rnc_emisor: captura.rnc_emisor || undefined,
+		ncf: captura.ncf || undefined,
+		fecha_emision: captura.fecha_emision || undefined,
+		monto_total: captura.monto_total ?? undefined,
 	})
+}
+
+/** e-NCF del QR, NCF escrito o nombre del archivo: para mostrar una captura de la cola. */
+export function nombreCaptura(captura) {
+	return leerUrl(captura.url_timbre || "")?.encf || captura.ncf || captura.nombre_archivo
 }
 
 /** Envía la cola. Las que el servidor rechaza (repetidas, de otra empresa) salen de la cola con su error. */
@@ -168,7 +181,7 @@ export async function enviarPendientes() {
 			await enviarAhora(captura)
 		} catch (error) {
 			if (!error.validacion) break
-			errores.push(`${leerUrl(captura.url_timbre || "")?.encf || captura.nombre_archivo}: ${error.message}`)
+			errores.push(`${nombreCaptura(captura)}: ${error.message}`)
 		}
 		await tabla("readwrite", (t) => t.delete(captura.id_cliente))
 	}

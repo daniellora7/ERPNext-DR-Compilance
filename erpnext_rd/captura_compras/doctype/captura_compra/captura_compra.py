@@ -7,8 +7,10 @@ from frappe.model.document import Document
 from frappe.utils import flt
 
 from erpnext_rd.captura_compras import qr
-from erpnext_rd.captura_compras.convertir import TIPOS_CAPTURA
+from erpnext_rd.captura_compras.convertir import NCF_INVALIDOS, TIPOS_CAPTURA
+from erpnext_rd.dgii_fiscal import consulta_ncf
 from erpnext_rd.dgii_fiscal.identificacion import identificacion_valida
+from erpnext_rd.dgii_fiscal.validaciones import parsear_ncf
 from erpnext_rd.ecf.emision import rnc_empresa
 
 CERRADOS = ("Factura creada", "Duplicada", "Descartada")
@@ -26,6 +28,8 @@ class CapturaCompra(Document):
 		):
 			self.fuente_montos = "Manual"
 		self.encf = (self.encf or "").strip().upper() or None
+		if self.encf and not parsear_ncf(self.encf):
+			frappe.throw(_("El NCF {0} no tiene un formato válido.").format(self.encf))
 		self.tipo_ecf = self.encf[:3] if self.encf else None
 		self._validar_comprador()
 		self._proveedor()
@@ -33,7 +37,8 @@ class CapturaCompra(Document):
 		self._estado()
 
 	def after_insert(self):
-		if self.encf and self.codigo_seguridad:
+		# e-CF del QR: con el certificado de la empresa; NCF escrito a mano: consulta pública de NCF
+		if self.encf and (self.codigo_seguridad or (self.rnc_emisor and consulta_ncf._consulta_activa())):
 			frappe.enqueue(
 				"erpnext_rd.captura_compras.api.verificar_en_segundo_plano",
 				queue="short",
@@ -94,12 +99,16 @@ class CapturaCompra(Document):
 			return
 		avisos = []
 		if not self.encf:
-			avisos.append(_("Falta el e-NCF: escanee el QR o escríbalo."))
+			avisos.append(_("Falta el NCF: escanee el QR o escríbalo."))
 		elif self.tipo_ecf not in TIPOS_CAPTURA:
-			avisos.append(_("Los e-CF {0} se registran a mano.").format(self.tipo_ecf))
-		if self.estado_dgii in ("Rechazado", "No encontrado"):
+			avisos.append(_("Los comprobantes {0} se registran a mano.").format(self.tipo_ecf))
+		if not self.rnc_emisor:
+			avisos.append(_("Falta el RNC del emisor."))
+		if self.estado_dgii in NCF_INVALIDOS:
 			avisos.append(_("La DGII responde: {0}.").format(_(self.estado_dgii)))
-		if self.fuente_montos and flt(self.total_itbis) > flt(self.monto_total):
+		if self.fuente_montos and not flt(self.monto_total):
+			avisos.append(_("Falta el monto total."))
+		elif self.fuente_montos and flt(self.total_itbis) > flt(self.monto_total):
 			avisos.append(_("El ITBIS es mayor que el total."))
 		if avisos:
 			self.estado, self.avisos = "Requiere revisión", "\n".join(avisos)

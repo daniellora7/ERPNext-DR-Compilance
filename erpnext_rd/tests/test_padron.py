@@ -141,3 +141,53 @@ class TestListaPadron(IntegrationTestCase):
 			),
 			1,
 		)
+
+
+class TestBusquedaPorPalabras(IntegrationTestCase):
+	"""Índice FULLTEXT del padrón. InnoDB solo ve en MATCH lo que ya tiene commit: la prueba guarda dos
+	contribuyentes de verdad y los borra al terminar."""
+
+	RNCS = ("999200001", "999200002")
+
+	def setUp(self):
+		for rnc, nombre, comercial in (
+			(self.RNCS[0], "ZQXW ALMACENES DEL CIBAO SRL", "ZQXW TIENDA"),
+			(self.RNCS[1], "INVERSIONES ZQXW CIBAO SA", ""),
+		):
+			if not frappe.db.exists("Contribuyente DGII", rnc):
+				frappe.get_doc(
+					{
+						"doctype": "Contribuyente DGII",
+						"rnc": rnc,
+						"razon_social": nombre,
+						"nombre_comercial": comercial,
+						"estado": "ACTIVO",
+					}
+				).insert()
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit
+		self.addCleanup(self._borrar)
+
+	def _borrar(self):
+		frappe.db.delete("Contribuyente DGII", {"rnc": ("in", self.RNCS)})
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit
+
+	def test_consulta(self):
+		self.assertEqual(padron.consulta_por_palabras("Ochoa, ferret y SA"), "+Ochoa* +ferret*")
+		self.assertEqual(padron.consulta_por_palabras("de la"), "")
+
+	def test_indice_creado(self):
+		self.assertTrue(frappe.db.has_index("tabContribuyente DGII", "busqueda_nombre"))
+
+	def test_palabras_en_cualquier_orden_y_posicion(self):
+		rncs = lambda texto, **kw: sorted(c.rnc for c in padron.buscar_por_palabras(texto, **kw))  # noqa: E731
+		self.assertEqual(rncs("cibao zqxw"), list(self.RNCS))
+		self.assertEqual(rncs("zqxw almac"), [self.RNCS[0]])
+		self.assertEqual(rncs("zqxw tienda"), [self.RNCS[0]])  # nombre comercial
+		self.assertEqual(rncs("cibao zqxw", excluir={self.RNCS[0]}), [self.RNCS[1]])
+		self.assertEqual(rncs("zq"), [])
+
+	def test_buscar_emisor_completa_con_palabras(self):
+		from erpnext_rd.captura_compras.api import buscar_emisor
+
+		# Ninguno empieza con «cibao zqxw»: los trae el FULLTEXT
+		self.assertEqual(sorted(e.rnc for e in buscar_emisor("cibao zqxw")), list(self.RNCS))

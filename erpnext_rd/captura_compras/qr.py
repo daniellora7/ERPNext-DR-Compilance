@@ -1,4 +1,4 @@
-"""Captura de compras, etapa 2: e-CF entregado impreso o en PDF.
+"""Captura de compras, etapa 2: e-CF entregado impreso o en PDF (y la factura en papel sin QR).
 
 - `leer_url`: datos del QR (URL de consulta del timbre de la DGII). Solo se aceptan los dominios de la
   DGII: el QR de una factura falsa puede apuntar a cualquier lado.
@@ -6,6 +6,7 @@
   sistema del proveedor (la representación impresa del e-CF trae RNC, e-NCF, código de seguridad,
   fecha de firma, ITBIS y total). Un PDF escaneado no tiene texto: queda para revisión.
 - `verificar`: consulta el estado del e-CF en la DGII con el certificado de la empresa.
+- `verificar_ncf`: sin código de seguridad, la consulta pública de NCF (vigencia y si es del emisor).
 """
 
 import io
@@ -16,6 +17,7 @@ import frappe
 from frappe import _
 from frappe.utils import flt, get_datetime, getdate, now_datetime
 
+from erpnext_rd.dgii_fiscal import consulta_ncf
 from erpnext_rd.dgii_fiscal.validaciones import limpiar_identificacion
 from erpnext_rd.ecf.cliente import ClienteDGII, ErrorDGII
 from erpnext_rd.ecf.emision import EMISOR, rnc_empresa
@@ -130,7 +132,10 @@ def leer_texto(texto: str, rnc_comprador: str | None = None) -> dict:
 
 def verificar(doc) -> str:
 	"""Consulta el estado del e-CF en la DGII. Sin emisor e-CF de la empresa no hay con qué
-	autenticarse: queda «Sin verificar» y el usuario puede abrir la URL del timbre."""
+	autenticarse: queda «Sin verificar» y el usuario puede abrir la URL del timbre. Sin código de
+	seguridad (NCF escrito a mano), se usa la consulta pública de NCF."""
+	if not doc.codigo_seguridad:
+		return verificar_ncf(doc)
 	emisor = frappe.db.get_value(EMISOR, doc.company, "certificado")
 	if not emisor:
 		doc.mensaje_dgii = _("La empresa no tiene emisor e-CF: verifique el e-CF con el enlace del QR.")
@@ -157,4 +162,23 @@ def verificar(doc) -> str:
 	# Si la respuesta trae el ITBIS y nadie lo escribió, se toma de la DGII
 	if respuesta.get("totalITBIS") is not None and not doc.fuente_montos:
 		doc.update({"total_itbis": flt(respuesta["totalITBIS"]), "fuente_montos": "DGII"})
+	return doc.estado_dgii
+
+
+def verificar_ncf(doc) -> str:
+	"""NCF escrito a mano (factura en papel o e-CF sin QR): consulta pública de NCF de la DGII. Un
+	NCF vencido sirve si la factura es de antes del vencimiento."""
+	if not (doc.encf and doc.rnc_emisor):
+		return doc.estado_dgii
+	comprador = rnc_empresa(doc.company) if doc.encf.startswith("E") else None
+	resultado = consulta_ncf.consultar(doc.rnc_emisor, doc.encf, comprador)
+	doc.update(
+		{
+			"estado_dgii": consulta_ncf.estado_para_la_fecha(resultado, doc.fecha_emision),
+			"mensaje_dgii": resultado.mensaje,
+			"verificado_en": now_datetime(),
+		}
+	)
+	if resultado.razon_social and not doc.razon_social_emisor:
+		doc.razon_social_emisor = resultado.razon_social
 	return doc.estado_dgii
