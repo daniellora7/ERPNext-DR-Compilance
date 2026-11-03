@@ -76,3 +76,36 @@ const erpnext_rd_invoice = {
 frappe.ui.form.on("Sales Invoice", erpnext_rd_invoice);
 frappe.ui.form.on("POS Invoice", erpnext_rd_invoice);
 frappe.ui.form.on("Purchase Invoice", erpnext_rd_invoice);
+
+// ISC (dgii_fiscal/isc.py): base de cada línea de la fila «ISC por artículo», igual que en el servidor.
+// Servicios: tasa sobre el neto. Bienes: ISC por unidad de inventario por la cantidad.
+erpnext.taxable_base_resolvers = erpnext.taxable_base_resolvers || {};
+erpnext.taxable_base_resolvers["ISC por artículo"] = (calc, item) => {
+	if (flt(item.rd_isc_tasa)) return (flt(item.net_amount) * flt(item.rd_isc_tasa)) / 100;
+	return flt(item.rd_isc_unitario) * flt(item.qty) * (flt(item.conversion_factor) || 1);
+};
+
+// Al elegir el artículo, su ISC por unidad (la fila del ISC se agrega al guardar)
+const erpnext_rd_isc_linea = {
+	item_code(frm, cdt, cdn) {
+		const row = locals[cdt][cdn];
+		if (!row.item_code || !frm.doc.company) return;
+		frappe
+			.call({
+				method: "erpnext_rd.dgii_fiscal.isc.isc_de_articulo",
+				args: { company: frm.doc.company, item_code: row.item_code, fecha: frm.doc.posting_date },
+			})
+			.then(({ message }) => {
+				const tasa_cambio = flt(frm.doc.conversion_rate) || 1;
+				frappe.model.set_value(cdt, cdn, {
+					rd_isc_categoria: message?.categoria || "",
+					rd_isc_tasa: message?.tasa || 0,
+					rd_isc_unitario: message ? flt(message.unitario) / tasa_cambio : 0,
+				});
+				frm.cscript.calculate_taxes_and_totals?.();
+			});
+	},
+};
+
+frappe.ui.form.on("Sales Invoice Item", erpnext_rd_isc_linea);
+frappe.ui.form.on("POS Invoice Item", erpnext_rd_isc_linea);

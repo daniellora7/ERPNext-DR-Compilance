@@ -125,12 +125,16 @@ doc_events = {
 		"validate": "erpnext_rd.dgii_fiscal.identificacion.validar_party",
 	},
 	"Sales Invoice": {
+		# ISC de cada línea y su fila de impuesto, antes de que ERPNext calcule los totales
+		"before_validate": "erpnext_rd.dgii_fiscal.isc.aplicar",
 		"validate": "erpnext_rd.dgii_fiscal.ncf.validar_venta",
 		"before_submit": "erpnext_rd.dgii_fiscal.ncf.asignar_ncf_venta",
 		"on_submit": "erpnext_rd.ecf.emision.al_aprobar",
 		"before_cancel": "erpnext_rd.dgii_fiscal.ncf.antes_de_cancelar_venta",
 	},
 	"POS Invoice": {
+		# ISC de cada línea y su fila de impuesto, antes de que ERPNext calcule los totales
+		"before_validate": "erpnext_rd.dgii_fiscal.isc.aplicar",
 		"validate": "erpnext_rd.dgii_fiscal.ncf.validar_venta",
 		"before_submit": "erpnext_rd.dgii_fiscal.ncf.asignar_ncf_venta",
 		"before_cancel": "erpnext_rd.dgii_fiscal.ncf.antes_de_cancelar_venta",
@@ -149,6 +153,9 @@ doc_events = {
 		"on_trash": "erpnext_rd.ecf.recepcion.desvincular_factura",
 	},
 }
+
+# Base de cada línea del tipo de cargo propio «ISC por artículo» (gancho de ERPNext v16)
+erpnext_taxable_base_resolvers = {"ISC por artículo": "erpnext_rd.dgii_fiscal.isc.base_isc"}
 
 # Jinja (formatos de impresión)
 # -----------------------------

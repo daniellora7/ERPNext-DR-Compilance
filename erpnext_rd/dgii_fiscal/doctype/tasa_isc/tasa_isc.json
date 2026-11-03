@@ -1,0 +1,91 @@
+{
+ "actions": [],
+ "creation": "2026-11-03 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "categoria",
+  "presentacion",
+  "desde",
+  "hasta",
+  "ad_valorem",
+  "monto_especifico",
+  "base_legal"
+ ],
+ "fields": [
+  {
+   "fieldname": "categoria",
+   "fieldtype": "Select",
+   "label": "Categoría",
+   "options": "Alcohol\nTabaco\nVapeadores\nCombustibles\nTelecomunicaciones\nSeguros\nSeguros de vida",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "presentacion",
+   "fieldtype": "Select",
+   "label": "Presentación",
+   "options": "\n20 cigarrillos\n10 cigarrillos",
+   "in_list_view": 1,
+   "columns": 1,
+   "depends_on": "eval:doc.categoria == 'Tabaco'",
+   "mandatory_depends_on": "eval:doc.categoria == 'Tabaco'",
+   "description": "Cajetilla de 20 o de 10 cigarrillos"
+  },
+  {
+   "fieldname": "desde",
+   "fieldtype": "Date",
+   "label": "Desde",
+   "in_list_view": 1,
+   "columns": 1,
+   "description": "Vacío: sin fecha de inicio"
+  },
+  {
+   "fieldname": "hasta",
+   "fieldtype": "Date",
+   "label": "Hasta",
+   "in_list_view": 1,
+   "columns": 1,
+   "description": "Vacío: sin fecha de fin"
+  },
+  {
+   "fieldname": "ad_valorem",
+   "fieldtype": "Percent",
+   "label": "Tasa ad valorem",
+   "in_list_view": 1,
+   "columns": 1,
+   "description": "Bienes: sobre el precio de venta al por menor. Servicios: sobre el valor del servicio"
+  },
+  {
+   "fieldname": "monto_especifico",
+   "fieldtype": "Currency",
+   "label": "Monto específico",
+   "options": "DOP",
+   "in_list_view": 1,
+   "columns": 1,
+   "depends_on": "eval:['Alcohol', 'Tabaco', 'Combustibles'].includes(doc.categoria)",
+   "description": "Alcohol: por litro de alcohol absoluto. Tabaco: por cajetilla. Combustibles: por galón"
+  },
+  {
+   "fieldname": "base_legal",
+   "fieldtype": "Data",
+   "label": "Base legal",
+   "in_list_view": 1,
+   "columns": 3
+  }
+ ],
+ "links": [],
+ "modified": "2026-11-03 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "DGII Fiscal",
+ "name": "Tasa ISC",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1
+}
