@@ -222,8 +222,13 @@ def aplicar_catalogo_dgii(company: str) -> bool:
 	)
 
 	anteriores = frappe.get_all("Account", filters={"company": company}, pluck="name")
-	unset_existing_data(company)
+	# ERPNext borra las cuentas revisando sus enlaces: primero se quitan las referencias y las
+	# plantillas de impuestos por artículo que crea con la empresa ("Dominican Republic Tax")
+	for nombre in frappe.get_all("Item Tax Template", filters={"company": company}, pluck="name"):
+		frappe.db.delete("Item Tax", {"item_tax_template": nombre})
+		frappe.delete_doc("Item Tax Template", nombre, ignore_permissions=True)
 	_limpiar_referencias(company, anteriores)
+	unset_existing_data(company)
 
 	frappe.local.flags.ignore_root_company_validation = True
 	create_charts(company, custom_chart=arbol())

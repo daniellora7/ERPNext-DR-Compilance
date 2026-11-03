@@ -4,6 +4,11 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 
 ## Sin publicar
 
+### Mantenimiento
+- Imagen Docker con Frappe v16.55.0, ERPNext v16.53.0 y Frappe HR v16.53.0.
+- Frappe Builder sale de la imagen; entra Frappe Suite (rama `develop`, AGPL-3, sin modificar). Rust en la etapa de build para compilar `pycrdt`.
+- El catálogo DGII se aplica con ERPNext v16.53, que ahora revisa los enlaces al borrar las cuentas y crea la plantilla *Dominican Republic Tax* con la empresa.
+
 ## v0.5.5 (2026-10-29)
 
 Captura de compras, etapa 3 (sin OCR): facturas en papel sin QR.
