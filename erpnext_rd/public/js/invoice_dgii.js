@@ -90,10 +90,19 @@ const erpnext_rd_isc_linea = {
 	item_code(frm, cdt, cdn) {
 		const row = locals[cdt][cdn];
 		if (!row.item_code || !frm.doc.company) return;
+		// Vista previa: el servidor usa la tasa de la fila del ITBIS al guardar
+		const itbis = (frm.doc.taxes || []).find(
+			(t) => t.charge_type !== "ISC por artículo" && t.add_deduct_tax !== "Deduct" && flt(t.rate)
+		);
 		frappe
 			.call({
 				method: "erpnext_rd.dgii_fiscal.isc.isc_de_articulo",
-				args: { company: frm.doc.company, item_code: row.item_code, fecha: frm.doc.posting_date },
+				args: {
+					company: frm.doc.company,
+					item_code: row.item_code,
+					fecha: frm.doc.posting_date,
+					tasa_itbis: itbis ? flt(itbis.rate) : 0,
+				},
 			})
 			.then(({ message }) => {
 				const tasa_cambio = flt(frm.doc.conversion_rate) || 1;

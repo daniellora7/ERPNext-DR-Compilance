@@ -70,9 +70,14 @@ def qr_data_uri(texto: str, escala: int = 4) -> str:
 
 
 def _itbis_por_linea(doc) -> dict[str, frappe._dict]:
-	"""ITBIS de cada línea a partir de item_wise_tax_details (v16)."""
+	"""ITBIS de cada línea a partir de item_wise_tax_details (v16), sin la fila del ISC."""
+	from erpnext_rd.dgii_fiscal.isc import TIPO_CARGO
+
+	filas_isc = {t.name for t in doc.get("taxes") or [] if t.charge_type == TIPO_CARGO}
 	por_linea: dict[str, frappe._dict] = {}
 	for d in doc.get("item_wise_tax_details") or []:
+		if d.tax_row in filas_isc:
+			continue
 		fila = por_linea.setdefault(d.item_row, frappe._dict(monto=0.0, tasa=0.0))
 		fila.monto += flt(d.amount)
 		fila.tasa += flt(d.rate)

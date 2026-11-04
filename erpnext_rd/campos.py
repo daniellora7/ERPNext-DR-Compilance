@@ -791,12 +791,22 @@ def campos_isc_articulo() -> list[dict]:
 			"description": "Solo lo cobran las empresas que lo tienen en su perfil tributario",
 		},
 		{
+			"fieldname": "rd_isc_producto",
+			"fieldtype": "Select",
+			"label": "Producto (e-CF)",
+			"options": _opciones(isc.PRODUCTOS_ALCOHOL + isc.PRODUCTOS_TABACO),
+			"insert_after": "rd_isc_categoria",
+			"depends_on": "eval:['{}', '{}'].includes(doc.rd_isc_categoria)".format(isc.ALCOHOL, isc.TABACO),
+			"description": "Tipo de bebida o de cigarrillo en la tabla de impuestos adicionales de la DGII: "
+			"da el código del ISC en el e-CF",
+		},
+		{
 			"fieldname": "rd_isc_origen",
 			"fieldtype": "Select",
 			"label": "Origen",
 			"options": "\n".join((isc.PRODUCCION_LOCAL, isc.IMPORTADO)),
 			"default": isc.PRODUCCION_LOCAL,
-			"insert_after": "rd_isc_categoria",
+			"insert_after": "rd_isc_producto",
 			"depends_on": bien,
 			"description": "El ISC de los importados lo liquida la aduana: no se cobra al venderlos",
 		},
@@ -825,10 +835,20 @@ def campos_isc_articulo() -> list[dict]:
 			"description": "Ej.: una caja de 24 botellas de 0.355 L = 8.52",
 		},
 		{
+			"fieldname": "rd_isc_envases",
+			"fieldtype": "Int",
+			"label": "Envases por unidad",
+			"insert_after": "rd_isc_litros",
+			"default": "1",
+			"depends_on": es(isc.ALCOHOL),
+			"description": "Botellas o latas de una unidad de inventario (en el e-CF, la cantidad de "
+			"referencia). Ej.: una caja de 24 botellas = 24",
+		},
+		{
 			"fieldname": "rd_isc_grado",
 			"fieldtype": "Percent",
 			"label": "Grado alcohólico (% vol.)",
-			"insert_after": "rd_isc_litros",
+			"insert_after": "rd_isc_envases",
 			"depends_on": es(isc.ALCOHOL),
 		},
 		{

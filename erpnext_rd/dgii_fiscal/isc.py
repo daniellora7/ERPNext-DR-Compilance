@@ -58,6 +58,39 @@ PRODUCCION_LOCAL = "Producción local"
 IMPORTADO = "Importado"
 PRESENTACIONES = {20: "20 cigarrillos", 10: "10 cigarrillos"}
 
+# Base del ad valorem del alcohol y el tabaco (campo de la tasa). La Ley 30-26 (art. 41) prohíbe
+# deducir nada del precio al por menor; el formato del e-CF de la DGII (v1.0, anterior a esa ley)
+# lo calcula sobre el precio sin ITBIS ni ISC: (PVP / (1 + ITBIS) - específico) / (1 + tasa).
+BASE_INTEGRA = "PVP íntegro (Ley 30-26)"
+BASE_NETA = "PVP neto (formato e-CF DGII)"
+
+# Productos de la tabla I del formato del e-CF (codificación de impuestos adicionales). El código
+# del específico es el de la tabla; el del ad valorem, 17 más.
+PRODUCTOS_ALCOHOL = (
+	"Cerveza",
+	"Vinos de uva",
+	"Vermut y demás vinos de uvas frescas",
+	"Demás bebidas fermentadas",
+	"Alcohol etílico sin desnaturalizar (80% o más)",
+	"Alcohol etílico sin desnaturalizar (menos de 80%)",
+	"Aguardientes de uva",
+	"Whisky",
+	"Ron y demás aguardientes de caña",
+	"Gin y ginebra",
+	"Vodka",
+	"Licores",
+	"Los demás (bebidas y alcoholes)",
+)
+PRODUCTOS_TABACO = ("Cigarrillos que contienen tabaco", "Los demás cigarrillos")
+CODIGO_ALCOHOL = 6  # 006 cerveza … 018 los demás
+CODIGO_TABACO = {20: 19, 10: 21}  # 019-020 cajetilla de 20, 021-022 de 10
+AD_VALOREM_MAS = 17
+CODIGOS_SERVICIOS = {SEGUROS: "003", TELECOMUNICACIONES: "004"}
+# Unidades de medida del e-CF (tabla IV)
+BOTELLA, CAJETILLA, LITRO, UNIDAD = 5, 7, 24, 43
+# Tipos de e-CF que llevan el ISC del detalle (31, 32, 33, 34 y 45)
+TIPOS_ECF_CON_ISC = (31, 32, 33, 34, 45)
+
 # Unidad de la base del monto específico (columna del resumen)
 UNIDADES = {
 	ALCOHOL: "litros de alcohol absoluto",
@@ -84,7 +117,9 @@ TASAS_INICIALES = (
 
 CAMPOS_ARTICULO = (
 	"rd_isc_categoria",
+	"rd_isc_producto",
 	"rd_isc_origen",
+	"rd_isc_envases",
 	"rd_isc_grado",
 	"rd_isc_litros",
 	"rd_isc_cigarrillos",
@@ -126,6 +161,7 @@ def tasas() -> list[frappe._dict]:
 			"hasta",
 			"ad_valorem",
 			"monto_especifico",
+			"base_ad_valorem",
 			"base_legal",
 		],
 		order_by="idx",
@@ -180,11 +216,12 @@ def cuenta_isc(company: str) -> str | None:
 # ---------------------------------------------------------------------- cálculo
 
 
-def isc_unitario(company: str, item_code: str, fecha=None) -> frappe._dict | None:
+def isc_unitario(company: str, item_code: str, fecha=None, tasa_itbis: float = 0) -> frappe._dict | None:
 	"""ISC de una unidad de inventario del artículo (moneda de la empresa), o la tasa si es un servicio.
 
 	None si la empresa no cobra el ISC de ese artículo (sin categoría, categoría que no está en su
 	perfil o bien importado). Lanza un error si falta la tasa vigente o un dato del artículo.
+	`tasa_itbis` solo se usa con la base neta del ad valorem.
 	"""
 	articulo = frappe.get_cached_value("Item", item_code, CAMPOS_ARTICULO, as_dict=True)
 	if not articulo or not articulo.rd_isc_categoria:
@@ -205,7 +242,7 @@ def isc_unitario(company: str, item_code: str, fecha=None) -> frappe._dict | Non
 			),
 			title=_("Falta la tasa del ISC"),
 		)
-	resultado = frappe._dict(categoria=categoria, tasa=0.0, base_especifica=0.0, precio=0.0)
+	resultado = frappe._dict(categoria=categoria, tasa=0.0, base_especifica=0.0, base_ad_valorem=0.0)
 	if categoria in SERVICIOS:
 		resultado.tasa = flt(t.ad_valorem)
 		return resultado
@@ -213,12 +250,20 @@ def isc_unitario(company: str, item_code: str, fecha=None) -> frappe._dict | Non
 	resultado.base_especifica = _base_especifica(item_code, categoria, articulo)
 	resultado.especifico = resultado.base_especifica * flt(t.monto_especifico)
 	if flt(t.ad_valorem):
-		resultado.precio = flt(articulo.rd_isc_precio_por_menor)
-		if resultado.precio <= 0:
+		precio = flt(articulo.rd_isc_precio_por_menor)
+		if precio <= 0:
 			_falta_dato(item_code, "rd_isc_precio_por_menor")
-	resultado.ad_valorem = resultado.precio * flt(t.ad_valorem) / 100
+		resultado.base_ad_valorem = _base_ad_valorem(precio, resultado.especifico, t, tasa_itbis)
+	resultado.ad_valorem = resultado.base_ad_valorem * flt(t.ad_valorem) / 100
 	resultado.unitario = resultado.especifico + resultado.ad_valorem
 	return resultado
+
+
+def _base_ad_valorem(precio: float, especifico: float, t, tasa_itbis: float) -> float:
+	"""Base del ad valorem de una unidad: el precio al por menor o, con la base neta, sin ITBIS ni ISC."""
+	if t.base_ad_valorem != BASE_NETA or t.categoria not in (ALCOHOL, TABACO):
+		return precio
+	return (precio / (1 + flt(tasa_itbis) / 100) - especifico) / (1 + flt(t.ad_valorem) / 100)
 
 
 def _base_especifica(item_code: str, categoria: str, articulo) -> float:
@@ -277,11 +322,17 @@ def aplicar(doc, method=None):
 	if not categorias and not fila:
 		return
 
+	if not doc.get("taxes") and doc.get("taxes_and_charges"):
+		doc.append_taxes_from_master()
 	fecha = doc.get("posting_date") or today()
 	tasa_cambio = flt(doc.get("conversion_rate")) or 1
 	hay_bienes = hay_servicios = False
 	for item in doc.items:
-		datos = isc_unitario(doc.company, item.item_code, fecha) if item.item_code else None
+		datos = (
+			isc_unitario(doc.company, item.item_code, fecha, _tasa_itbis(doc, item))
+			if item.item_code
+			else None
+		)
 		_guardar_linea(item, datos, tasa_cambio)
 		if datos:
 			hay_bienes |= datos.categoria in BIENES
@@ -301,12 +352,25 @@ def aplicar(doc, method=None):
 			_quitar_fila(doc, fila)
 		return
 
-	if not doc.get("taxes") and doc.get("taxes_and_charges"):
-		doc.append_taxes_from_master()
 	fila = _fila_isc(doc) or _nueva_fila(doc)
 	_primera(doc, fila)
 	fila.rate = 100
 	_itbis_sobre_isc(doc, fila, hay_bienes)
+
+
+def _tasa_itbis(doc, item) -> float:
+	"""Tasa del ITBIS de la línea: la de su plantilla por artículo o la de la fila del ITBIS."""
+	import json
+
+	from erpnext_rd.dgii_fiscal.impuestos import concepto_de_cuenta
+
+	por_articulo = json.loads(item.get("item_tax_rate") or "{}")
+	for t in doc.get("taxes") or []:
+		if t.charge_type == TIPO_CARGO or t.get("add_deduct_tax") == "Deduct":
+			continue
+		if concepto_de_cuenta(t.account_head) == cat.ITBIS:
+			return flt(por_articulo.get(t.account_head, t.rate))
+	return 0.0
 
 
 def _guardar_linea(item, datos, tasa_cambio: float):
@@ -323,7 +387,7 @@ def _guardar_linea(item, datos, tasa_cambio: float):
 		return
 	item.rd_isc_unitario = flt(datos.unitario / tasa_cambio, 6)
 	item.rd_isc_base_especifica = flt(datos.base_especifica * cantidad, 4)
-	item.rd_isc_base_ad_valorem = flt(datos.precio * cantidad, 2)
+	item.rd_isc_base_ad_valorem = flt(datos.base_ad_valorem * cantidad, 2)
 	item.rd_isc_especifico = flt(datos.especifico * cantidad, 2)
 	item.rd_isc_ad_valorem = flt(datos.ad_valorem * cantidad, 2)
 
@@ -468,27 +532,132 @@ def resumen_mensual(company: str, anio: int, mes: int) -> list[frappe._dict]:
 # ---------------------------------------------------------------------- e-CF
 
 
+def _con_isc(item) -> bool:
+	return bool(flt(item.get("rd_isc_especifico")) or flt(item.get("rd_isc_ad_valorem")))
+
+
 def validar_ecf(doc):
-	"""El e-CF con ISC lleva los impuestos adicionales con sus códigos de la DGII: aún no los genera."""
-	if any(flt(i.get("rd_isc_especifico")) or flt(i.get("rd_isc_ad_valorem")) for i in doc.items):
+	"""Antes de emitir: el tipo de e-CF admite el ISC y cada línea tiene su código de la DGII."""
+	lineas = [i for i in doc.items if _con_isc(i)]
+	if not lineas:
+		return
+	tipo = (doc.get("rd_tipo_comprobante") or "")[1:]
+	if cint(tipo) not in TIPOS_ECF_CON_ISC:
 		frappe.throw(
-			_(
-				"La factura tiene ISC: el e-CF con impuestos adicionales aún no está en la app. Emita "
-				"este comprobante desde la Facturación Gratuita de la DGII."
+			_("El e-CF {0} no lleva el ISC de los artículos: use E31, E32, E33, E34 o E45.").format(
+				doc.get("rd_tipo_comprobante")
 			),
 			title=_("e-CF con ISC"),
 		)
+	for item in lineas:
+		ecf_linea(doc, item)
+
+
+def ecf_linea(doc, item) -> tuple[dict, list[frappe._dict]]:
+	"""Datos del ISC de una línea para el e-CF (formato v1.0 de la DGII).
+
+	Devuelve los campos del ítem (cantidad de referencia, subcantidad, grados, precio de referencia)
+	y los impuestos adicionales de la línea: código de la tabla I, tasa y montos en la moneda de la
+	factura. Lanza un error si la categoría no tiene código en la tabla o falta el producto.
+	"""
+	if not _con_isc(item):
+		return {}, []
+	conversion = flt(doc.get("conversion_rate")) or 1
+	especifico = abs(flt(item.rd_isc_especifico)) / conversion
+	ad_valorem = abs(flt(item.rd_isc_ad_valorem)) / conversion
+	categoria = item.rd_isc_categoria
+
+	if categoria in SERVICIOS:
+		codigo = _codigo_servicio(doc, item)
+		return {}, [frappe._dict(codigo=codigo, tasa=flt(item.rd_isc_tasa), otros=ad_valorem)]
+
+	if categoria not in (ALCOHOL, TABACO):
+		frappe.throw(
+			_(
+				"El ISC de {0} no tiene código en la tabla de impuestos adicionales del e-CF de la DGII: "
+				"emita este comprobante desde la Facturación Gratuita de la DGII."
+			).format(_(categoria)),
+			title=_("e-CF con ISC"),
+		)
+
+	articulo = frappe.get_cached_value("Item", item.item_code, CAMPOS_ARTICULO, as_dict=True)
+	productos = PRODUCTOS_ALCOHOL if categoria == ALCOHOL else PRODUCTOS_TABACO
+	if articulo.rd_isc_producto not in productos:
+		_falta_dato(item.item_code, "rd_isc_producto")
+	indice = productos.index(articulo.rd_isc_producto)
+	precio = flt(articulo.rd_isc_precio_por_menor) / conversion
+
+	if categoria == ALCOHOL:
+		envases = cint(articulo.rd_isc_envases) or 1
+		t = tasa(ALCOHOL, doc.posting_date)
+		codigo = CODIGO_ALCOHOL + indice
+		campos = {
+			"referencia": envases,
+			"unidad_referencia": BOTELLA,
+			"subcantidad": flt(articulo.rd_isc_litros) / envases,
+			"codigo_subcantidad": LITRO,
+			"grados": flt(articulo.rd_isc_grado),
+			"precio_referencia": precio / envases,
+		}
+	else:
+		cigarrillos = cint(articulo.rd_isc_cigarrillos)
+		cajetillas = flt(articulo.rd_isc_cajetillas) or 1
+		t = tasa(TABACO, doc.posting_date, PRESENTACIONES.get(cigarrillos))
+		codigo = CODIGO_TABACO[cigarrillos] + indice
+		campos = {
+			"referencia": cajetillas,
+			"unidad_referencia": CAJETILLA,
+			"subcantidad": cigarrillos,
+			"codigo_subcantidad": UNIDAD,
+			"precio_referencia": precio / cajetillas,
+		}
+
+	impuestos = []
+	if especifico:
+		impuestos.append(
+			frappe._dict(codigo=f"{codigo:03d}", tasa=flt(t.monto_especifico), especifico=especifico)
+		)
+	if ad_valorem:
+		impuestos.append(
+			frappe._dict(
+				codigo=f"{codigo + AD_VALOREM_MAS:03d}", tasa=flt(t.ad_valorem), ad_valorem=ad_valorem
+			)
+		)
+	return campos, impuestos
+
+
+def _codigo_servicio(doc, item) -> str:
+	"""Seguros y telecomunicaciones (003, 004). Los seguros de vida usan el 003 solo con su misma tasa."""
+	categoria = item.rd_isc_categoria
+	if categoria == SEGUROS_VIDA:
+		seguros = tasa(SEGUROS, doc.posting_date)
+		if seguros and flt(seguros.ad_valorem) == flt(item.rd_isc_tasa):
+			categoria = SEGUROS
+	if categoria not in CODIGOS_SERVICIOS:
+		frappe.throw(
+			_(
+				"El ISC de {0} al {1}% no tiene código en la tabla de impuestos adicionales del e-CF de la "
+				"DGII: emita este comprobante desde la Facturación Gratuita de la DGII."
+			).format(_(item.rd_isc_categoria), flt(item.rd_isc_tasa)),
+			title=_("e-CF con ISC"),
+		)
+	return CODIGOS_SERVICIOS[categoria]
 
 
 # ---------------------------------------------------------------------- navegador
 
 
 @frappe.whitelist()
-def isc_de_articulo(company: str, item_code: str, fecha: str | None = None) -> dict | None:
-	"""Para el formulario: ISC por unidad (moneda de la empresa) o tasa del servicio."""
+def isc_de_articulo(
+	company: str, item_code: str, fecha: str | None = None, tasa_itbis: float = 0
+) -> dict | None:
+	"""Para el formulario: ISC por unidad (moneda de la empresa) o tasa del servicio.
+
+	Es una vista previa: al guardar, el servidor lo recalcula con la tasa del ITBIS de la línea.
+	"""
 	frappe.has_permission("Item", "read", item_code, throw=True)
 	try:
-		datos = isc_unitario(company, item_code, fecha)
+		datos = isc_unitario(company, item_code, fecha, flt(tasa_itbis))
 	except frappe.ValidationError:
 		frappe.clear_messages()
 		return None

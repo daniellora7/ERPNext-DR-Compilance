@@ -5,7 +5,7 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 ## Sin publicar
 
 ### Nuevo
-- **Impuesto selectivo al consumo (ISC)** (Fase 8.2). Se clasifica en el artículo: alcohol, tabaco, vapeadores, combustibles, telecomunicaciones, seguros y seguros de vida. Las tasas y montos específicos se configuran con su vigencia; trae los de la DGII de octubre a diciembre de 2026 y el calendario de la Ley 30-26 para los seguros de vida. Se calcula en las ventas, línea por línea; en los bienes el ITBIS se calcula sobre el precio más el ISC. Incluye el resumen mensual (*Resumen ISC DGII*), el recordatorio del día 20 y los requisitos en el perfil tributario. Aún no se emite el e-CF de una factura con ISC.
+- **Impuesto selectivo al consumo (ISC)** (Fase 8.2). Se clasifica en el artículo: alcohol, tabaco, vapeadores, combustibles, telecomunicaciones, seguros y seguros de vida. Las tasas y montos específicos se configuran con su vigencia; trae los de la DGII de octubre a diciembre de 2026 y el calendario de la Ley 30-26 para los seguros de vida. Se calcula en las ventas, línea por línea; en los bienes el ITBIS se calcula sobre el precio más el ISC. Incluye el resumen mensual (*Resumen ISC DGII*), el recordatorio del día 20 y los requisitos en el perfil tributario. El e-CF lleva el ISC como impuestos adicionales, con los códigos de la DGII; la base del ad valorem del alcohol y el tabaco se elige en cada tasa: el precio al por menor íntegro (Ley 30-26) o el neto con el que valida el formato del e-CF.
 
 ### Mantenimiento
 - Imagen Docker con Frappe v16.55.0, ERPNext v16.53.0 y Frappe HR v16.53.0.
