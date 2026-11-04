@@ -6,3 +6,4 @@ Padron RNC
 Nomina RD
 RD Compliance
 Captura Compras
+Licitaciones

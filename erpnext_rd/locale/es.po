@@ -86,6 +86,24 @@ msgstr "Captura de compra"
 msgid "Captura Compras RD"
 msgstr "Captura de compras RD"
 
+msgid "Perfil Proveedor Estado"
+msgstr "Perfil de proveedor del Estado"
+
+msgid "Rubro Proveedor Estado"
+msgstr "Rubro de proveedor del Estado"
+
+msgid "Proceso Compra DGCP"
+msgstr "Proceso de compra DGCP"
+
+msgid "Articulo Proceso DGCP"
+msgstr "Artículo de proceso DGCP"
+
+msgid "Empresa Proceso DGCP"
+msgstr "Empresa del proceso DGCP"
+
+msgid "Configuracion Licitaciones"
+msgstr "Configuración de licitaciones"
+
 msgid "Anulacion ENCF"
 msgstr "Anulación de e-NCF"
 

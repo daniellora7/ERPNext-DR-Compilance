@@ -32,6 +32,7 @@ code_only_modules = {
 	"ECF": ["RD Compliance"],
 	"ERPNext RD": ["RD Compliance"],
 	"Captura Compras": ["RD Compliance"],
+	"Licitaciones": ["RD Compliance"],
 }
 
 # Panel RD Compliance (frontend frappe-ui en frontend/, página www/rd_compliance.py)
@@ -180,6 +181,10 @@ scheduler_events = {
 		"0 7,19 * * *": ["erpnext_rd.dgii_fiscal.tasa_bcrd.tarea_programada"],
 		# Recordatorios de vencimientos por correo (si están activados en Configuracion DGII)
 		"30 7 * * *": ["erpnext_rd.rd_compliance.recordatorios.enviar_recordatorios"],
+		# Procesos de compra de la DGCP, después de cada actualización de sus datos (00, 07, 14 y 21 h)
+		# y las alertas de la mañana a las empresas con perfil de proveedor del Estado
+		"30 1,8,15,22 * * *": ["erpnext_rd.licitaciones.procesos.encolar"],
+		"15 9 * * *": ["erpnext_rd.licitaciones.alertas.enviar_alertas"],
 		# Resultado de los e-CF enviados a la DGII que siguen en proceso
 		# y reenvío de los que quedaron en contingencia; entrega de los aceptados a sus compradores
 		"*/15 * * * *": [
@@ -192,4 +197,6 @@ scheduler_events = {
 	"monthly": ["erpnext_rd.nomina_rd.feriados.asegurar_lista_feriados"],
 	# Período de vacaciones en cada aniversario (si está activado en Configuracion Nomina RD)
 	"daily": ["erpnext_rd.nomina_rd.vacaciones.asignar_vacaciones"],
+	# Datos del Registro de Proveedores del Estado (DGCP) de los perfiles de proveedor activos
+	"weekly": ["erpnext_rd.licitaciones.proveedor.actualizar_perfiles"],
 }
