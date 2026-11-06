@@ -6,6 +6,7 @@ import frappe
 from frappe.tests import IntegrationTestCase, UnitTestCase
 
 from erpnext_rd.padron_rnc import padron
+from erpnext_rd.padron_rnc.doctype.contribuyente_dgii.contribuyente_dgii import INDICE_TEXTO, TABLA
 from erpnext_rd.padron_rnc.padron import parsear_linea
 
 VERSION = "Sat, 10 Oct 2026 07:02:47 GMT"
@@ -144,39 +145,52 @@ class TestListaPadron(IntegrationTestCase):
 
 
 class TestBusquedaPorPalabras(IntegrationTestCase):
-	"""Índice FULLTEXT del padrón. InnoDB solo ve en MATCH lo que ya tiene commit: la prueba guarda dos
-	contribuyentes de verdad y los borra al terminar."""
+	"""Índice FULLTEXT del padrón, sobre una copia vacía de la tabla con el mismo índice.
 
+	InnoDB solo ve en MATCH lo que ya tiene commit, así que las filas de prueba no se pueden deshacer
+	con rollback. No van en el padrón real porque borrarlas lo daña: los FTS_DOC_ID borrados siguen en
+	FTS_DELETED y, tras un apagado brusco de MariaDB, InnoDB los reutiliza en filas nuevas, que MATCH
+	ya no devuelve hasta un OPTIMIZE TABLE (docs/NOTAS-TECNICAS.md)."""
+
+	DOCTYPE_COPIA = "Prueba Padron FT"
+	TABLA_COPIA = f"tab{DOCTYPE_COPIA}"
 	RNCS = ("999200001", "999200002")
 
-	def setUp(self):
-		for rnc, nombre, comercial in (
-			(self.RNCS[0], "ZQXW ALMACENES DEL CIBAO SRL", "ZQXW TIENDA"),
-			(self.RNCS[1], "INVERSIONES ZQXW CIBAO SA", ""),
-		):
-			if not frappe.db.exists("Contribuyente DGII", rnc):
-				frappe.get_doc(
-					{
-						"doctype": "Contribuyente DGII",
-						"rnc": rnc,
-						"razon_social": nombre,
-						"nombre_comercial": comercial,
-						"estado": "ACTIVO",
-					}
-				).insert()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		frappe.db.sql_ddl(f"DROP TABLE IF EXISTS `{cls.TABLA_COPIA}`")
+		cls.addClassCleanup(frappe.db.sql_ddl, f"DROP TABLE IF EXISTS `{cls.TABLA_COPIA}`")
+		frappe.db.sql_ddl(f"CREATE TABLE `{cls.TABLA_COPIA}` LIKE `{TABLA}`")
+		(
+			frappe.qb.into(frappe.qb.DocType(cls.DOCTYPE_COPIA))
+			.columns("name", "rnc", "razon_social", "nombre_comercial", "estado")
+			.insert(
+				(cls.RNCS[0], cls.RNCS[0], "ZQXW ALMACENES DEL CIBAO SRL", "ZQXW TIENDA", "ACTIVO"),
+				(cls.RNCS[1], cls.RNCS[1], "INVERSIONES ZQXW CIBAO SA", "", "ACTIVO"),
+			)
+			.run()
+		)
 		frappe.db.commit()  # nosemgrep: frappe-manual-commit
-		self.addCleanup(self._borrar)
 
-	def _borrar(self):
-		frappe.db.delete("Contribuyente DGII", {"rnc": ("in", self.RNCS)})
-		frappe.db.commit()  # nosemgrep: frappe-manual-commit
+	def setUp(self):
+		doctype_original = frappe.qb.DocType
+
+		def doctype_en_copia(nombre, *args, **kwargs):
+			nombre = self.DOCTYPE_COPIA if nombre == "Contribuyente DGII" else nombre
+			return doctype_original(nombre, *args, **kwargs)
+
+		redireccion = patch.object(frappe.qb, "DocType", side_effect=doctype_en_copia)
+		redireccion.start()
+		self.addCleanup(redireccion.stop)
 
 	def test_consulta(self):
 		self.assertEqual(padron.consulta_por_palabras("Ochoa, ferret y SA"), "+Ochoa* +ferret*")
 		self.assertEqual(padron.consulta_por_palabras("de la"), "")
 
 	def test_indice_creado(self):
-		self.assertTrue(frappe.db.has_index("tabContribuyente DGII", "busqueda_nombre"))
+		self.assertTrue(frappe.db.has_index(TABLA, INDICE_TEXTO))
+		self.assertTrue(frappe.db.has_index(self.TABLA_COPIA, INDICE_TEXTO))
 
 	def test_palabras_en_cualquier_orden_y_posicion(self):
 		rncs = lambda texto, **kw: sorted(c.rnc for c in padron.buscar_por_palabras(texto, **kw))  # noqa: E731
