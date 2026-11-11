@@ -373,6 +373,21 @@ def campos_personalizados() -> dict:
 			tipo_identificacion,
 			tipo_comprobante_defecto("rd_tipo_identificacion"),
 			{
+				"fieldname": "rd_parte_relacionada",
+				"fieldtype": "Check",
+				"label": "Parte relacionada (DIOR)",
+				"insert_after": "rd_tipo_comprobante",
+				"description": "Art. 281 del Código Tributario. Sus ventas van en el resumen de la DIOR.",
+			},
+			{
+				"fieldname": "rd_vinculacion",
+				"fieldtype": "Data",
+				"label": "Tipo de vinculación",
+				"insert_after": "rd_parte_relacionada",
+				"depends_on": "rd_parte_relacionada",
+				"description": "Por qué es parte relacionada (art. 281, párrafo IV): accionista, misma casa matriz...",
+			},
+			{
 				"fieldname": "rd_regimen_especial",
 				"fieldtype": "Select",
 				"label": "Régimen especial",
@@ -439,14 +454,23 @@ def campos_personalizados() -> dict:
 			{
 				"fieldname": "rd_parte_relacionada",
 				"fieldtype": "Check",
-				"label": "Parte relacionada (609)",
+				"label": "Parte relacionada",
 				"insert_after": "rd_tipo_bienes_servicios",
-				"description": "Art. 281 del Código Tributario. Solo aplica a proveedores del exterior.",
+				"description": "Art. 281 del Código Tributario. Va en el 609 (proveedores del exterior) y en el "
+				"resumen de la DIOR.",
+			},
+			{
+				"fieldname": "rd_vinculacion",
+				"fieldtype": "Data",
+				"label": "Tipo de vinculación",
+				"insert_after": "rd_parte_relacionada",
+				"depends_on": "rd_parte_relacionada",
+				"description": "Por qué es parte relacionada (art. 281, párrafo IV): accionista, misma casa matriz...",
 			},
 			{
 				**proporcionalidad,
 				"label": "ITBIS sujeto a proporcionalidad por defecto (art. 349)",
-				"insert_after": "rd_parte_relacionada",
+				"insert_after": "rd_vinculacion",
 			},
 		],
 		"Salary Component": [

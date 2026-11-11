@@ -185,10 +185,12 @@ Base: Código Tributario, título IV, con los cambios de la Ley 30-26 (arts. 40 
 - ✅ ISC en la factura y el recibo POS impresos, aparte del ITBIS (2026-11-11).
 - Falta: la declaración semanal de los combustibles y el formulario exacto de la declaración, que hay que confirmar con la DGII.
 
-### 8.3 Precios de transferencia (DIOR)
-- Marca de parte relacionada en clientes (en proveedores ya existe para el 609), con país y tipo de vinculación.
-- Resumen anual de operaciones con relacionados por tipo y contraparte para la DIOR; plazo y umbrales a confirmar.
-- Ajuste 1.9 del anexo G del cuadre IR-2 cuando el contribuyente autoimpugna un precio.
+### 8.3 Precios de transferencia (DIOR) 🟡
+Base (página de Precios de Transferencia de la DGII, 2026-11-11): presentan la DIOR quienes operan con partes relacionadas residentes o del exterior, o con jurisdicciones de baja o nula tributación (Código Tributario arts. 281 a 281 quáter, Reglamento 78-14); cada año, a más tardar 180 días después del cierre, también sin operaciones. No se encontró umbral de monto. El instructivo con los campos de cada operación dio 404.
+- ✅ Marca de parte relacionada y tipo de vinculación en clientes y proveedores.
+- ✅ Reporte *Operaciones Relacionadas DIOR*: ventas y compras del ejercicio con relacionados, por contraparte, sin ITBIS.
+- ✅ Requisito en el perfil (partes relacionadas marcadas) y recordatorio 180 días después del cierre.
+- Falta: los campos exactos de la DIOR versión 6 (instructivo), préstamos y otras operaciones que no son facturas, y el ajuste 1.9 del anexo G del cuadre IR-2 cuando el contribuyente autoimpugna un precio.
 
 ### 8.4 Zonas francas y exportadores 🟡
 Base confirmada (2026-11-11): guía de la DGII de la Norma General 05-2019 (vigente desde el 8/4/2019), consultas DGII G. L. 2817XXX (2022) y 4398XXX (2024). Detalle en `dgii_fiscal/regimenes.py`.

@@ -107,6 +107,9 @@ msgstr "Configuración de licitaciones"
 msgid "Ofertas Estado"
 msgstr "Ofertas al Estado"
 
+msgid "Operaciones Relacionadas DIOR"
+msgstr "Operaciones con relacionados (DIOR)"
+
 msgid "Documento Oferta Estado"
 msgstr "Documento de oferta al Estado"
 

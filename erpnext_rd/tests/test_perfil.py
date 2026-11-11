@@ -116,7 +116,9 @@ class TestPerfilTributario(IntegrationTestCase):
 		# El ISC ya lo cubre la app (8.2): pide sus tasas y su cuenta
 		self.assertNotIn("Impuesto selectivo al consumo (ISC)", r)
 		self.assertIn("Tasas del ISC vigentes", r)
-		self.assertEqual(r["Operaciones con partes relacionadas (DIOR)"], perfil.PENDIENTE_APP)
+		# La DIOR también (8.3): pide marcar las partes relacionadas
+		self.assertNotIn("Operaciones con partes relacionadas (DIOR)", r)
+		self.assertIn("Partes relacionadas marcadas (DIOR)", r)
 		self.assertEqual(r["Régimen simplificado de tributación (RST)"], perfil.PENDIENTE_APP)
 		self.assertEqual(r["Reportes del sector regulado (Seguros)"], perfil.FUERA_ALCANCE)
 		# El catálogo DGII trae la plantilla de propina; sin plantillas activas, falta

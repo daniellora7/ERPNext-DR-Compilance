@@ -104,6 +104,17 @@ def obligaciones(company: str, anio: int, mes: int) -> list[dict]:
 				"vence": feriados.dia_habil(ir2.fecha_limite(cierre)),
 			}
 		)
+	if cint(perfil.perfil(company).partes_relacionadas) and (cierre := ir2.cierre_fiscal(company, anio, mes)):
+		from erpnext_rd.dgii_reportes import dior
+
+		lista.append(
+			{
+				"obligacion": _(
+					"DIOR (operaciones con partes relacionadas) del ejercicio cerrado el {0}"
+				).format(formatdate(cierre, "dd/MM/yyyy")),
+				"vence": feriados.dia_habil(dior.fecha_limite(cierre)),
+			}
+		)
 	if _con_nomina(company, anio, mes):
 		lista += [
 			{
@@ -135,9 +146,9 @@ def pendientes(company: str, hoy: date, dias: int) -> list[dict]:
 	"""Obligaciones que vencen en `dias` días o el mismo día, con los días que faltan."""
 	vistos = set()
 	resultado = []
-	# Vencen después del período: se miran los cinco últimos (el IR-13 de diciembre vence en marzo y el
-	# IR-2, 120 días después del cierre)
-	for atras in range(1, 6):
+	# Vencen después del período: se miran los siete últimos (el IR-13 de diciembre vence en marzo, el
+	# IR-2 120 días después del cierre y la DIOR 180)
+	for atras in range(1, 8):
 		inicio = add_months(date(hoy.year, hoy.month, 1), -atras)
 		for o in obligaciones(company, inicio.year, inicio.month):
 			faltan = (getdate(o["vence"]) - hoy).days
