@@ -200,17 +200,19 @@ Base confirmada (2026-11-11): guía de la DGII de la Norma General 05-2019 (vige
 - Exportadores: ITBIS de las compras para exportación a compensar o pedir en reembolso, con su soporte.
 
 ### 8.5 Impuesto sobre los activos
-- Confirmar si sigue vigente y en qué términos tras la Ley 30-26.
+- Investigado el 2026-11-11 (fuentes secundarias: PwC, Siempre al Día, El Caribe): la Ley 30-26 **no lo deroga**. Agrega un párrafo IV al art. 406 del Código Tributario que exime al sector agropecuario y mantiene la compensación de saldos a favor del ISR con este impuesto. Lo que sí se deroga es el impuesto por constitución de compañías y aumento de capital (desde 2027), el de registro de hipotecas (2028) y el de seguros de vida (2029). **Confirmar en el texto oficial de la Ley 30-26** antes de programar.
 - Si aplica: activos imponibles desde el anexo A-1, exentos, liquidación y crédito contra el ISR, en el cuadre del IR-2.
 
 ### 8.6 Incentivos en el IR-2
 - Desde los incentivos del perfil: exenciones (casilla 3), deducción por inversión de la Ley 392-07 y sus activos (anexo D, sección C), créditos de energías renovables y de cine (casillas 15, 16 y 20).
 
 ### 8.7 Régimen simplificado (RST)
+- Investigado el 2026-11-11 (fuentes secundarias: Siempre al Día, Alegra, PwC): con la Ley 30-26 los topes pasan a RD$30 millones de ingresos (personas jurídicas y negocios de único dueño de servicios o producción), RD$60 millones de compras (comerciantes) y RD$15 millones (profesionales independientes y productores agropecuarios). Sigue siendo voluntario, con autorización previa de la DGII (para 2027 se pide en 2026). Las causales de exclusión del Decreto 265-19 siguen hasta el nuevo reglamento; la cuota y la operación dependen de ese reglamento, que aún no aparece. **Confirmar los topes en el texto oficial y esperar el reglamento** antes de programar (los topes van en configuración).
 - Modalidades (por ingresos o por compras) y límites de la Ley 30-26.
 - Su declaración y cuotas, y qué formatos y declaraciones del régimen ordinario no aplican.
 
 ### 8.8 Persona física con negocio (IR-1)
+- Investigado el 2026-11-11: el IR-1 vence el 31 de marzo de cada año (página de la DGII). Las fuentes secundarias no coinciden en el calendario de los anticipos de las personas físicas con negocio (art. 314) ni traen la escala 2026; la escala 2027 ya está en la app (Ley 30-26, mínimo exento RD$480,000). Confirmar con el instructivo del IR-1 de la DGII.
 - Perfil de persona física: declaración IR-1 (escala de personas físicas) en lugar del IR-2, sus anticipos y la cédula como identificación fiscal.
 
 ### 8.9 Sectores regulados
