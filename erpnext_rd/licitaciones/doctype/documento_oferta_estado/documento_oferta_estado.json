@@ -1,0 +1,78 @@
+{
+ "actions": [],
+ "creation": "2026-11-11 12:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "documento",
+  "obligatorio",
+  "estado",
+  "vence",
+  "archivo",
+  "requisito",
+  "notas"
+ ],
+ "fields": [
+  {
+   "fieldname": "documento",
+   "fieldtype": "Data",
+   "label": "Documento",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 4
+  },
+  {
+   "fieldname": "obligatorio",
+   "fieldtype": "Check",
+   "label": "Obligatorio",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "estado",
+   "fieldtype": "Select",
+   "label": "Estado",
+   "options": "Pendiente\nListo\nNo aplica",
+   "default": "Pendiente",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "vence",
+   "fieldtype": "Date",
+   "label": "Vence",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "archivo",
+   "fieldtype": "Attach",
+   "label": "Archivo"
+  },
+  {
+   "fieldname": "requisito",
+   "fieldtype": "Select",
+   "label": "Se marca con",
+   "options": "\nRPE activo\nCertificación DGII\nCertificación TSS\nCertificación MIPYME\nGarantía de seriedad",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notas",
+   "fieldtype": "Small Text",
+   "label": "Notas"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-11 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Licitaciones",
+ "name": "Documento Oferta Estado",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

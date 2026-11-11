@@ -1,0 +1,60 @@
+{
+ "actions": [],
+ "creation": "2026-11-11 12:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "documento",
+  "obligatorio",
+  "solo_mipyme",
+  "requisito"
+ ],
+ "fields": [
+  {
+   "fieldname": "documento",
+   "fieldtype": "Data",
+   "label": "Documento",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 5
+  },
+  {
+   "fieldname": "obligatorio",
+   "fieldtype": "Check",
+   "label": "Obligatorio",
+   "default": "1",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "solo_mipyme",
+   "fieldtype": "Check",
+   "label": "Solo MIPYME",
+   "in_list_view": 1,
+   "columns": 1,
+   "description": "Solo se agrega cuando la empresa oferta como MIPYME."
+  },
+  {
+   "fieldname": "requisito",
+   "fieldtype": "Select",
+   "label": "Se marca con",
+   "options": "\nRPE activo\nCertificación DGII\nCertificación TSS\nCertificación MIPYME\nGarantía de seriedad",
+   "in_list_view": 1,
+   "columns": 3,
+   "description": "Dato del perfil de proveedor (o la garantía de la oferta) que marca el documento como listo."
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-11 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Licitaciones",
+ "name": "Documento Requerido Licitacion",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

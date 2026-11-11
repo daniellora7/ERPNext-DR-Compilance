@@ -1,7 +1,8 @@
 """Alertas de licitaciones (Fase 10.4): un correo diario por empresa con perfil de proveedor activo.
 
 Lleva los procesos nuevos de sus rubros desde la última alerta (acotados por las palabras clave y
-los montos del perfil) y los procesos de sus rubros que dejan de recibir ofertas pronto.
+los montos del perfil) y los procesos de sus rubros que dejan de recibir ofertas pronto. Desde la
+10.5, también sus ofertas en preparación que cierran pronto y las garantías que vencen.
 """
 
 import unicodedata
@@ -14,13 +15,15 @@ from frappe.utils import (
 	cint,
 	flt,
 	fmt_money,
+	format_date,
 	format_datetime,
 	get_url,
 	get_url_to_form,
+	getdate,
 	now_datetime,
 )
 
-from erpnext_rd.licitaciones import procesos, proveedor
+from erpnext_rd.licitaciones import ofertas, procesos, proveedor
 
 PUBLICADO = "Proceso publicado"
 # Procesos por tabla en el correo; el resto se ve en la lista
@@ -139,8 +142,60 @@ def _tabla(lista: list, titulo: str) -> str:
 	)
 
 
-def mensaje(company: str, lista_nuevos: list, lista_cierre: list) -> str:
+def _tabla_ofertas(lista: list) -> str:
+	celda = "padding:4px 12px 4px 0;vertical-align:top"
+	filas = "".join(
+		"<tr><td style='{c}'><a href='{url}'>{titulo}</a><br>{institucion}</td><td style='{c}'>{cierre}</td>"
+		"<td style='{c}'>{pendientes}</td></tr>".format(
+			c=celda,
+			url=get_url_to_form(ofertas.DOCTYPE, o.name),
+			titulo=frappe.utils.escape_html(o.title or o.name),
+			institucion=frappe.utils.escape_html(o.customer_name or ""),
+			cierre=format_datetime(o.rd_cierre_ofertas, "dd/MM/yyyy HH:mm"),
+			pendientes=o.pendientes or _("Ninguno"),
+		)
+		for o in lista[:MAXIMO_EN_CORREO]
+	)
+	return (
+		f"<p><b>{_('Sus ofertas que cierran pronto')}</b></p><table><tr><th align='left'>{_('Oferta')}</th>"
+		f"<th align='left'>{_('Recibe ofertas hasta')}</th><th align='left'>{_('Documentos pendientes')}</th></tr>"
+		f"{filas}</table>"
+	)
+
+
+def _tabla_garantias(lista: list) -> str:
+	celda = "padding:4px 12px 4px 0;vertical-align:top"
+	filas = "".join(
+		"<tr><td style='{c}'><a href='{url}'>{oferta}</a><br>{tipo} · {emisor}</td><td style='{c}'>{monto}</td>"
+		"<td style='{c}'>{vence}</td></tr>".format(
+			c=celda,
+			url=get_url_to_form(ofertas.DOCTYPE, g.parent),
+			oferta=frappe.utils.escape_html(g.parent),
+			tipo=frappe.utils.escape_html(_(g.tipo)),
+			emisor=frappe.utils.escape_html(g.emisor or ""),
+			monto=fmt_money(g.monto, currency=g.currency) if flt(g.monto) else "",
+			vence=format_date(g.vigencia_hasta, "dd/MM/yyyy"),
+		)
+		for g in lista[:MAXIMO_EN_CORREO]
+	)
+	return (
+		f"<p><b>{_('Garantías que vencen pronto')}</b></p><table><tr><th align='left'>{_('Garantía')}</th>"
+		f"<th align='left'>{_('Monto')}</th><th align='left'>{_('Vigente hasta')}</th></tr>{filas}</table>"
+	)
+
+
+def mensaje(
+	company: str,
+	lista_nuevos: list,
+	lista_cierre: list,
+	lista_ofertas: list | None = None,
+	lista_garantias: list | None = None,
+) -> str:
 	partes = [f"<p>{_('Procesos de compra del Estado para {0}.').format(frappe.bold(company))}</p>"]
+	if lista_ofertas:
+		partes.append(_tabla_ofertas(lista_ofertas))
+	if lista_garantias:
+		partes.append(_tabla_garantias(lista_garantias))
 	if lista_nuevos:
 		partes.append(_tabla(lista_nuevos, _("Procesos nuevos de sus rubros")))
 	if lista_cierre:
@@ -159,23 +214,39 @@ def mensaje(company: str, lista_nuevos: list, lista_cierre: list) -> str:
 def enviar_alertas(ahora: datetime | None = None) -> int:
 	"""Tarea diaria. Devuelve los correos enviados (uno por empresa con algo que avisar)."""
 	ahora = ahora or now_datetime()
-	dias = cint(frappe.db.get_single_value(procesos.CONFIGURACION, "dias_aviso_cierre"))
+	conf = ofertas.configuracion()
+	dias = cint(conf.dias_aviso_cierre)
+	dias_garantias = cint(conf.dias_aviso_garantias)
 	enviados = 0
 	for nombre in frappe.get_all(
 		proveedor.DOCTYPE, filters={"habilitado": 1, "alertas_activas": 1}, pluck="name"
 	):
 		perfil = frappe.get_doc(proveedor.DOCTYPE, nombre)
-		lista_nuevos = nuevos(perfil, perfil.ultima_alerta)
+		# Los procesos que ya tienen oferta de la empresa van en «Sus ofertas», no como procesos
+		con_oferta = set(
+			frappe.get_all(
+				ofertas.DOCTYPE,
+				filters={"company": perfil.company, "rd_proceso_dgcp": ("is", "set")},
+				pluck="rd_proceso_dgcp",
+			)
+		)
+		lista_nuevos = [p for p in nuevos(perfil, perfil.ultima_alerta) if p.name not in con_oferta]
 		vistos = {p.name for p in lista_nuevos}
 		lista_cierre = [p for p in por_cerrar(perfil, ahora, dias) if p.name not in vistos] if dias else []
+		lista_ofertas = ofertas.por_cerrar(perfil.company, ahora, dias) if dias else []
+		lista_garantias = (
+			ofertas.garantias_por_vencer(perfil.company, getdate(ahora), dias_garantias)
+			if dias_garantias
+			else []
+		)
+		lista_cierre = [p for p in lista_cierre if p.name not in con_oferta]
+		total = len(lista_nuevos) + len(lista_cierre) + len(lista_ofertas) + len(lista_garantias)
 		correos = destinatarios(perfil)
-		if (lista_nuevos or lista_cierre) and correos:
+		if total and correos:
 			frappe.sendmail(
 				recipients=correos,
-				subject=_("Licitaciones del Estado: {0} procesos para {1}").format(
-					len(lista_nuevos) + len(lista_cierre), perfil.company
-				),
-				message=mensaje(perfil.company, lista_nuevos, lista_cierre),
+				subject=_("Licitaciones del Estado: {0} avisos para {1}").format(total, perfil.company),
+				message=mensaje(perfil.company, lista_nuevos, lista_cierre, lista_ofertas, lista_garantias),
 				reference_doctype=proveedor.DOCTYPE,
 				reference_name=perfil.name,
 			)

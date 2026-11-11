@@ -104,6 +104,18 @@ msgstr "Empresa del proceso DGCP"
 msgid "Configuracion Licitaciones"
 msgstr "Configuración de licitaciones"
 
+msgid "Ofertas Estado"
+msgstr "Ofertas al Estado"
+
+msgid "Documento Oferta Estado"
+msgstr "Documento de oferta al Estado"
+
+msgid "Garantia Oferta Estado"
+msgstr "Garantía de oferta al Estado"
+
+msgid "Documento Requerido Licitacion"
+msgstr "Documento requerido de licitación"
+
 msgid "Anulacion ENCF"
 msgstr "Anulación de e-NCF"
 

@@ -72,6 +72,7 @@ doctype_js = {
 	"Sales Invoice": "public/js/invoice_dgii.js",
 	"POS Invoice": "public/js/invoice_dgii.js",
 	"Purchase Invoice": "public/js/invoice_dgii.js",
+	"Opportunity": "public/js/oferta_estado.js",
 }
 
 # Document Events
@@ -95,8 +96,6 @@ extend_doctype_class = {
 	"Gratuity": ["erpnext_rd.nomina_rd.gratuity_rd.GratuityRD"],
 	"Leave Encashment": ["erpnext_rd.nomina_rd.leave_encashment_rd.LeaveEncashmentRD"],
 	"Overtime Slip": ["erpnext_rd.nomina_rd.horas_extras_rd.OvertimeSlipRD"],
-	# Frappe Suite develop usa File.get_site_url_prefix (Frappe v17); ver compat_suite.py.
-	"File": ["erpnext_rd.compat_suite.FileCompatSuite"],
 }
 
 doc_events = {
@@ -120,6 +119,9 @@ doc_events = {
 	},
 	"Customer": {
 		"validate": "erpnext_rd.dgii_fiscal.identificacion.validar_party",
+	},
+	"Opportunity": {
+		"validate": "erpnext_rd.licitaciones.ofertas.validar_oportunidad",
 	},
 	"Employee": {
 		"validate": "erpnext_rd.nomina_rd.empleado.validar_empleado",

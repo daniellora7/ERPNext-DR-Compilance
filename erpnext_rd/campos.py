@@ -371,7 +371,18 @@ def campos_personalizados() -> dict:
 		"Customer": [
 			tipo_identificacion,
 			tipo_comprobante_defecto("rd_tipo_identificacion"),
+			{
+				"fieldname": "rd_unidad_compra_dgcp",
+				"fieldtype": "Int",
+				"label": "Unidad de compra (DGCP)",
+				"insert_after": "rd_tipo_comprobante",
+				"read_only": 1,
+				"no_copy": 1,
+				"depends_on": "rd_unidad_compra_dgcp",
+				"description": "Institución del Estado creada desde un proceso de compra (Licitaciones del Estado)",
+			},
 		],
+		"Opportunity": campos_oferta_estado(),
 		"Supplier": [
 			tipo_identificacion,
 			tipo_comprobante_defecto("rd_tipo_identificacion"),
@@ -767,6 +778,124 @@ def campos_personalizados() -> dict:
 		],
 		"Purchase Invoice": compra,
 	}
+
+
+def campos_oferta_estado() -> list[dict]:
+	"""Oportunidad de un proceso de compra del Estado (Fase 10.5, licitaciones/ofertas.py)."""
+	en_oferta = "rd_proceso_dgcp"
+	return [
+		{
+			"fieldname": "rd_proceso_dgcp",
+			"fieldtype": "Link",
+			"label": "Proceso de compra del Estado",
+			"options": "Proceso Compra DGCP",
+			"insert_after": "opportunity_type",
+			"no_copy": 1,
+			"search_index": 1,
+		},
+		{
+			"fieldname": "rd_estado_oferta",
+			"fieldtype": "Select",
+			"label": "Estado de la oferta",
+			"options": _opciones(
+				(
+					"Evaluando",
+					"En preparación",
+					"Presentada",
+					"Ganada",
+					"Perdida",
+					"No presentada",
+					"Desierto o cancelado",
+				)
+			),
+			"insert_after": "rd_proceso_dgcp",
+			"depends_on": en_oferta,
+			"mandatory_depends_on": en_oferta,
+			"in_standard_filter": 1,
+			"no_copy": 1,
+		},
+		{
+			"fieldname": "rd_tab_licitacion",
+			"fieldtype": "Tab Break",
+			"label": "Licitación",
+			"insert_after": "total",
+			"depends_on": en_oferta,
+		},
+		{
+			"fieldname": "rd_modalidad_dgcp",
+			"fieldtype": "Data",
+			"label": "Modalidad",
+			"insert_after": "rd_tab_licitacion",
+			"fetch_from": "rd_proceso_dgcp.modalidad",
+			"read_only": 1,
+		},
+		{
+			"fieldname": "rd_cierre_ofertas",
+			"fieldtype": "Datetime",
+			"label": "Recibe ofertas hasta",
+			"insert_after": "rd_modalidad_dgcp",
+			"read_only": 1,
+			"no_copy": 1,
+			"description": "Del proceso en la DGCP; se actualiza con cada descarga (enmiendas)",
+		},
+		{
+			"fieldname": "rd_oferta_mipyme",
+			"fieldtype": "Check",
+			"label": "Oferta como MIPYME",
+			"insert_after": "rd_cierre_ofertas",
+			"description": "Del perfil de proveedor. Cambia las garantías: fiel cumplimiento menor, sin seriedad de la oferta y solo fianza",
+		},
+		{
+			"fieldname": "rd_column_break_oferta",
+			"fieldtype": "Column Break",
+			"insert_after": "rd_oferta_mipyme",
+		},
+		{
+			"fieldname": "rd_monto_oferta",
+			"fieldtype": "Currency",
+			"label": "Monto de la oferta",
+			"options": "currency",
+			"insert_after": "rd_column_break_oferta",
+			"no_copy": 1,
+			"description": "Vacío: el monto de la oportunidad. Sobre este monto se calculan las garantías",
+		},
+		{
+			"fieldname": "rd_fecha_presentacion",
+			"fieldtype": "Date",
+			"label": "Presentada el",
+			"insert_after": "rd_monto_oferta",
+			"no_copy": 1,
+		},
+		{
+			"fieldname": "rd_section_documentos",
+			"fieldtype": "Section Break",
+			"label": "Documentos de la oferta",
+			"insert_after": "rd_fecha_presentacion",
+		},
+		{
+			"fieldname": "rd_documentos_oferta",
+			"fieldtype": "Table",
+			"label": "Documentos",
+			"options": "Documento Oferta Estado",
+			"insert_after": "rd_section_documentos",
+			"no_copy": 1,
+		},
+		{
+			"fieldname": "rd_section_garantias",
+			"fieldtype": "Section Break",
+			"label": "Garantías",
+			"insert_after": "rd_documentos_oferta",
+			"description": "Porcentajes de Configuración de licitaciones. Confirme en el pliego: puede pedir otros",
+		},
+		{
+			"fieldname": "rd_garantias",
+			"fieldtype": "Table",
+			"label": "Garantías",
+			"options": "Garantia Oferta Estado",
+			"insert_after": "rd_section_garantias",
+			"no_copy": 1,
+		},
+	]
 
 
 def campos_isc_articulo() -> list[dict]:
