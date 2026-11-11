@@ -9,7 +9,20 @@
   "dias_aviso_cierre",
   "column_break_ultima",
   "ultima_sincronizacion",
-  "ultimo_resultado"
+  "ultimo_resultado",
+  "section_garantias",
+  "pct_seriedad",
+  "modalidades_sin_seriedad",
+  "pct_fiel_cumplimiento",
+  "pct_fiel_cumplimiento_mipyme",
+  "umbral_fiel_cumplimiento_usd",
+  "column_break_garantias",
+  "pct_anticipo_mipyme",
+  "pct_garantia_anticipo",
+  "pct_vicios_ocultos",
+  "dias_aviso_garantias",
+  "section_documentos",
+  "documentos_oferta"
  ],
  "fields": [
   {
@@ -50,10 +63,96 @@
    "label": "Resultado",
    "no_copy": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "section_garantias",
+   "fieldtype": "Section Break",
+   "label": "Garantías de las ofertas",
+   "description": "Valores de la Ley 47-25 y su reglamento, el Decreto 52-26 (arts. 201 a 214). Cámbielos si cambia la norma o el pliego pide otro valor."
+  },
+  {
+   "fieldname": "pct_seriedad",
+   "fieldtype": "Percent",
+   "label": "Seriedad de la oferta (% de la oferta)",
+   "default": "1",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "modalidades_sin_seriedad",
+   "fieldtype": "Small Text",
+   "label": "Modalidades sin garantía de seriedad",
+   "default": "Sorteo de Obras\nSubasta Inversa",
+   "description": "Una modalidad por línea, como la escribe la DGCP."
+  },
+  {
+   "fieldname": "pct_fiel_cumplimiento",
+   "fieldtype": "Percent",
+   "label": "Fiel cumplimiento (% de la adjudicación)",
+   "default": "4",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "pct_fiel_cumplimiento_mipyme",
+   "fieldtype": "Percent",
+   "label": "Fiel cumplimiento MIPYME (%)",
+   "default": "1",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "umbral_fiel_cumplimiento_usd",
+   "fieldtype": "Currency",
+   "label": "Fiel cumplimiento obligatorio desde (US$)",
+   "default": "10000",
+   "non_negative": 1,
+   "description": "Por debajo, solo si el pliego la pide."
+  },
+  {
+   "fieldname": "column_break_garantias",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pct_anticipo_mipyme",
+   "fieldtype": "Percent",
+   "label": "Anticipo a las MIPYME (% del contrato)",
+   "default": "30",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "pct_garantia_anticipo",
+   "fieldtype": "Percent",
+   "label": "Garantía del anticipo (% del anticipo)",
+   "default": "100",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "pct_vicios_ocultos",
+   "fieldtype": "Percent",
+   "label": "Vicios ocultos, solo obras (% del costo)",
+   "default": "10",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "dias_aviso_garantias",
+   "fieldtype": "Int",
+   "label": "Avisar el vencimiento de las garantías con días de anticipación",
+   "default": "15",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "section_documentos",
+   "fieldtype": "Section Break",
+   "label": "Documentos de la oferta",
+   "description": "Lista con la que empieza cada oferta. En cada oferta se agregan o quitan los que pida el pliego."
+  },
+  {
+   "fieldname": "documentos_oferta",
+   "fieldtype": "Table",
+   "label": "Documentos",
+   "options": "Documento Requerido Licitacion"
   }
  ],
  "links": [],
- "modified": "2026-11-04 15:00:00.000000",
+ "modified": "2026-11-11 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Licitaciones",
  "name": "Configuracion Licitaciones",

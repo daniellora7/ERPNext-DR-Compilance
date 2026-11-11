@@ -15,7 +15,7 @@ import frappe
 from frappe import _
 from frappe.utils import add_days, cint, convert_utc_to_system_timezone, get_datetime, now_datetime
 
-from erpnext_rd.licitaciones import api_dgcp, proveedor
+from erpnext_rd.licitaciones import api_dgcp, ofertas, proveedor
 
 DOCTYPE = "Proceso Compra DGCP"
 CONFIGURACION = "Configuracion Licitaciones"
@@ -142,6 +142,8 @@ def guardar(fila: dict, articulos: list[dict] | None, empresas: dict[str, set[st
 		)
 	doc.flags.ignore_permissions = True
 	doc.save() if existe else doc.insert()
+	if existe:
+		ofertas.actualizar_desde_proceso(doc)
 	return doc, not existe
 
 

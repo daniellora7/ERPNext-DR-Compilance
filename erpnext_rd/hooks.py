@@ -72,6 +72,7 @@ doctype_js = {
 	"Sales Invoice": "public/js/invoice_dgii.js",
 	"POS Invoice": "public/js/invoice_dgii.js",
 	"Purchase Invoice": "public/js/invoice_dgii.js",
+	"Opportunity": "public/js/oferta_estado.js",
 }
 
 # Document Events
@@ -118,6 +119,9 @@ doc_events = {
 	},
 	"Customer": {
 		"validate": "erpnext_rd.dgii_fiscal.identificacion.validar_party",
+	},
+	"Opportunity": {
+		"validate": "erpnext_rd.licitaciones.ofertas.validar_oportunidad",
 	},
 	"Employee": {
 		"validate": "erpnext_rd.nomina_rd.empleado.validar_empleado",

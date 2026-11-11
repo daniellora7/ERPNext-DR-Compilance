@@ -13,6 +13,7 @@ from erpnext_rd.dgii_fiscal import catalogo_cuentas, cheque, isc
 from erpnext_rd.dgii_fiscal import catalogos as cat
 from erpnext_rd.dgii_fiscal.catalogos import TIPOS_COMPROBANTE
 from erpnext_rd.dgii_reportes import estados_ir2, ir2
+from erpnext_rd.licitaciones import ofertas
 from erpnext_rd.navegacion import asegurar_navegacion, dock_nomina, quitar_dock_nomina
 from erpnext_rd.nomina_rd import hrms_instalado, salario, volante
 from erpnext_rd.rd_compliance import alcance
@@ -319,6 +320,7 @@ def setup():
 	crear_tipos_comprobante()
 	tipo_cargo_isc()
 	inicializar_configuracion()
+	ofertas.asegurar_configuracion()
 	asegurar_navegacion()
 	lista_padron_sin_filtro_reciente()
 	frappe.clear_cache()

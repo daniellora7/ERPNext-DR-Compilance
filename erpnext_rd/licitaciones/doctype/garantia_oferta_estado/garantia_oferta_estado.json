@@ -1,0 +1,118 @@
+{
+ "actions": [],
+ "creation": "2026-11-11 12:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "tipo",
+  "porcentaje",
+  "base",
+  "monto",
+  "instrumento",
+  "estado",
+  "column_break_emisor",
+  "emisor",
+  "numero",
+  "vigencia_hasta",
+  "currency",
+  "notas"
+ ],
+ "fields": [
+  {
+   "fieldname": "tipo",
+   "fieldtype": "Select",
+   "label": "Garantía",
+   "options": "Seriedad de la oferta\nFiel cumplimiento\nAnticipo\nVicios ocultos",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "porcentaje",
+   "fieldtype": "Percent",
+   "label": "Porcentaje",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "base",
+   "fieldtype": "Currency",
+   "label": "Sobre",
+   "options": "currency",
+   "read_only": 1,
+   "description": "Monto de la oferta; en el anticipo, el anticipo que recibe la MIPYME."
+  },
+  {
+   "fieldname": "monto",
+   "fieldtype": "Currency",
+   "label": "Monto",
+   "options": "currency",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "instrumento",
+   "fieldtype": "Select",
+   "label": "Instrumento",
+   "options": "\nFianza de aseguradora\nGarantía bancaria\nConsignación bancaria",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "estado",
+   "fieldtype": "Select",
+   "label": "Estado",
+   "options": "Por gestionar\nEmitida\nEntregada\nDevuelta\nEjecutada",
+   "default": "Por gestionar",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "column_break_emisor",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "emisor",
+   "fieldtype": "Data",
+   "label": "Banco o aseguradora"
+  },
+  {
+   "fieldname": "numero",
+   "fieldtype": "Data",
+   "label": "Número"
+  },
+  {
+   "fieldname": "vigencia_hasta",
+   "fieldtype": "Date",
+   "label": "Vigente hasta",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Moneda",
+   "options": "Currency",
+   "hidden": 1
+  },
+  {
+   "fieldname": "notas",
+   "fieldtype": "Small Text",
+   "label": "Notas"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-11 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Licitaciones",
+ "name": "Garantia Oferta Estado",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
