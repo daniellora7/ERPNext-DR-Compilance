@@ -182,7 +182,8 @@ Base: Código Tributario, título IV, con los cambios de la Ley 30-26 (arts. 40 
 - ✅ e-CF con los impuestos adicionales de la tabla I del formato v1.0 (alcohol 006-018 y 023-035, cigarrillos 019-022 y 036-039, seguros 003, telecomunicaciones 004), con la cantidad de referencia, la subcantidad, los grados y el precio de referencia del ítem. XML validado con los XSD. Solo en E31, E32, E33, E34 y E45.
 - La base del ad valorem del alcohol y el tabaco se elige en cada tasa: PVP íntegro (Ley 30-26, art. 41) o PVP neto como lo valida el formato del e-CF (v1.0, de antes de la ley). **Pendiente (usuario):** confirmar con el contador o en TesteCF cuál acepta la DGII.
 - Sin código en la tabla de la DGII (el e-CF se bloquea): vapeadores, combustibles y seguros de vida con tasa distinta del 16%.
-- Falta: la declaración semanal de los combustibles y el formulario exacto de la declaración, que hay que confirmar con la DGII; el ISC en los formatos impresos.
+- ✅ ISC en la factura y el recibo POS impresos, aparte del ITBIS (2026-11-11).
+- Falta: la declaración semanal de los combustibles y el formulario exacto de la declaración, que hay que confirmar con la DGII.
 
 ### 8.3 Precios de transferencia (DIOR)
 - Marca de parte relacionada en clientes (en proveedores ya existe para el 609), con país y tipo de vinculación.

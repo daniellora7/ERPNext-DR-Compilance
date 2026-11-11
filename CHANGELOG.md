@@ -13,6 +13,9 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 - **Licitaciones en el Panel RD Compliance.** Para las empresas que venden al Estado: ofertas en curso con sus pendientes, procesos nuevos de sus rubros y garantías por vencer, con avisos arriba cuando una oferta cierra con documentos pendientes.
 - **Alertas de licitaciones** (Fase 10.4). Correo diario por empresa con los procesos nuevos de sus rubros (con filtros de palabras clave y monto) y los que dejan de recibir ofertas pronto.
 
+### Corregido
+- La factura y el recibo POS impresos mostraban el ISC sumado al ITBIS y el total de la línea sin el ISC. Ahora el ISC va en su propia columna y fila. Los formatos ya creados se actualizan si sus bloques no se editaron.
+
 ### Mantenimiento
 - Imagen Docker con Frappe v16.56.0, ERPNext v16.54.0 y Frappe HR v16.53.2.
 - Frappe Builder y Frappe Suite salen de la imagen. Suite sigue a Frappe develop (v17) y en v16 fallaba al adjuntar un archivo privado existente (captura de compras); se evalúa de nuevo con Frappe v17.

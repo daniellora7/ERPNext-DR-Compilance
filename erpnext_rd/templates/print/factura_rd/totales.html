@@ -8,6 +8,7 @@
 		{% endif %}
 		<tr><td>Subtotal</td><td class="num">{{ frappe.utils.fmt_money(f.subtotal, currency=m) }}</td></tr>
 		{% if f.descuento %}<tr><td>Descuento</td><td class="num">-{{ frappe.utils.fmt_money(f.descuento, currency=m) }}</td></tr>{% endif %}
+		{% if f.isc %}<tr><td>Impuesto selectivo al consumo (ISC)</td><td class="num">{{ frappe.utils.fmt_money(f.isc, currency=m) }}</td></tr>{% endif %}
 		<tr><td>ITBIS</td><td class="num">{{ frappe.utils.fmt_money(f.itbis, currency=m) }}</td></tr>
 		<tr class="rd-total"><td>TOTAL</td><td class="num">{{ frappe.utils.fmt_money(f.total, currency=m) }}</td></tr>
 	</table>

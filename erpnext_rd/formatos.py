@@ -150,6 +150,42 @@ def asegurar(formato: dict, modulo: str):
 		frappe.clear_document_cache("Print Format", formato["name"])
 
 
+def huella(html: str | None) -> str:
+	import hashlib
+
+	return hashlib.sha256((html or "").strip().encode()).hexdigest()
+
+
+def actualizar_bloques(formato: dict, anteriores: dict[str, set[str]]) -> bool:
+	"""Pone el contenido nuevo en los bloques que siguen como los dejó una versión anterior de la app.
+
+	`anteriores`: {archivo del bloque: {huellas del HTML de las versiones anteriores}}. Un bloque
+	editado (otra huella), movido a otro formato o quitado no se toca. Devuelve si cambió algo."""
+	if not frappe.db.exists("Print Format", formato["name"]):
+		return False
+	actual = frappe.db.get_value(
+		"Print Format", formato["name"], ["print_format_builder_beta", "format_data"], as_dict=True
+	)
+	if not actual.print_format_builder_beta or not actual.format_data:
+		return False
+	datos = json.loads(actual.format_data)
+	archivos = {f"custom_html_{i}": archivo for i, (_, archivo) in enumerate(formato["bloques"], start=1)}
+	cambio = False
+	for seccion in datos.get("sections") or []:
+		for columna in seccion.get("columns") or []:
+			for campo in columna.get("fields") or []:
+				archivo = archivos.get(campo.get("fieldname"))
+				if archivo in anteriores and huella(campo.get("html")) in anteriores[archivo]:
+					campo["html"] = _leer(formato["carpeta"], f"{archivo}.html")
+					cambio = True
+	if cambio:
+		frappe.db.set_value(
+			"Print Format", formato["name"], "format_data", json.dumps(datos, indent=1, ensure_ascii=False)
+		)
+		frappe.clear_document_cache("Print Format", formato["name"])
+	return cambio
+
+
 def asegurar_fiscales():
 	for formato in FISCALES:
 		asegurar(formato, MODULO_FISCAL)

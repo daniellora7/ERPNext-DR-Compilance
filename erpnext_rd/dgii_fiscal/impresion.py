@@ -69,19 +69,28 @@ def qr_data_uri(texto: str, escala: int = 4) -> str:
 	return "data:image/svg+xml;base64," + base64.b64encode(buffer.getvalue()).decode()
 
 
-def _itbis_por_linea(doc) -> dict[str, frappe._dict]:
-	"""ITBIS de cada línea a partir de item_wise_tax_details (v16), sin la fila del ISC."""
+def _impuestos_por_linea(doc) -> tuple[dict[str, frappe._dict], dict[str, float]]:
+	"""ITBIS e ISC de cada línea a partir de item_wise_tax_details (v16).
+
+	La fila del ISC (tipo de cargo propio, Fase 8.2) va aparte: no es ITBIS."""
 	from erpnext_rd.dgii_fiscal.isc import TIPO_CARGO
 
 	filas_isc = {t.name for t in doc.get("taxes") or [] if t.charge_type == TIPO_CARGO}
-	por_linea: dict[str, frappe._dict] = {}
+	itbis: dict[str, frappe._dict] = {}
+	isc: dict[str, float] = {}
 	for d in doc.get("item_wise_tax_details") or []:
 		if d.tax_row in filas_isc:
+			isc[d.item_row] = isc.get(d.item_row, 0.0) + flt(d.amount)
 			continue
-		fila = por_linea.setdefault(d.item_row, frappe._dict(monto=0.0, tasa=0.0))
+		fila = itbis.setdefault(d.item_row, frappe._dict(monto=0.0, tasa=0.0))
 		fila.monto += flt(d.amount)
 		fila.tasa += flt(d.rate)
-	return por_linea
+	return itbis, isc
+
+
+def _itbis_por_linea(doc) -> dict[str, frappe._dict]:
+	"""ITBIS de cada línea, sin el ISC (lo usa también el XML del e-CF)."""
+	return _impuestos_por_linea(doc)[0]
 
 
 def _empresa(doc) -> frappe._dict:
@@ -104,11 +113,12 @@ def rd_datos_fiscales(doc) -> frappe._dict:
 		else None
 	)
 	es_electronico = bool(tipo and tipo.serie == "E")
-	itbis = _itbis_por_linea(doc)
+	itbis, isc = _impuestos_por_linea(doc)
 
 	lineas, gravado, exento = [], 0.0, 0.0
 	for item in doc.items:
 		impuesto = itbis.get(item.name, frappe._dict(monto=0.0, tasa=0.0))
+		isc_linea = isc.get(item.name, 0.0)
 		if impuesto.monto:
 			gravado += flt(item.net_amount)
 		else:
@@ -121,9 +131,10 @@ def rd_datos_fiscales(doc) -> frappe._dict:
 				unidad=item.uom,
 				precio=item.rate,
 				descuento=flt(item.discount_amount) * flt(item.qty),
+				isc=isc_linea,
 				itbis=impuesto.monto,
 				tasa_itbis=impuesto.tasa,
-				total=flt(item.net_amount) + impuesto.monto,
+				total=flt(item.net_amount) + isc_linea + impuesto.monto,
 			)
 		)
 
@@ -148,7 +159,8 @@ def rd_datos_fiscales(doc) -> frappe._dict:
 		exento=exento,
 		subtotal=flt(doc.net_total),
 		descuento=flt(doc.discount_amount),
-		itbis=flt(doc.total_taxes_and_charges),
+		isc=sum(isc.values()),
+		itbis=flt(doc.total_taxes_and_charges) - sum(isc.values()),
 		total=flt(doc.rounded_total or doc.grand_total),
 		moneda=doc.currency,
 		pagos=[p for p in (doc.get("payments") or []) if flt(p.amount)],
