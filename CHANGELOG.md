@@ -11,9 +11,8 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 - **Alertas de licitaciones** (Fase 10.4). Correo diario por empresa con los procesos nuevos de sus rubros (con filtros de palabras clave y monto) y los que dejan de recibir ofertas pronto.
 
 ### Mantenimiento
-- Imagen Docker con Frappe v16.56.0, ERPNext v16.54.0 y Frappe HR v16.53.2; Frappe Suite al día con `develop` (incluye el arreglo de Drive que impedía ver archivos privados de otros usuarios).
-- Compatibilidad de Frappe Suite `develop` con Frappe v16: Drive usa `File.get_site_url_prefix` (de Frappe v17) y fallaba al adjuntar un archivo privado existente, como el XML o la foto de la captura de compras. La app agrega el método mientras se use v16.
-- Frappe Builder sale de la imagen; entra Frappe Suite (rama `develop`, AGPL-3, sin modificar). Rust en la etapa de build para compilar `pycrdt`.
+- Imagen Docker con Frappe v16.56.0, ERPNext v16.54.0 y Frappe HR v16.53.2.
+- Frappe Builder y Frappe Suite salen de la imagen. Suite sigue a Frappe develop (v17) y en v16 fallaba al adjuntar un archivo privado existente (captura de compras); se evalúa de nuevo con Frappe v17.
 - El catálogo DGII se aplica con ERPNext v16.53, que ahora revisa los enlaces al borrar las cuentas y crea la plantilla *Dominican Republic Tax* con la empresa.
 
 ## v0.5.5 (2026-10-29)
