@@ -16,6 +16,17 @@ frappe.ui.form.on("Opportunity", {
 				);
 			}
 		});
+		if (frm.doc.rd_estado_oferta === "Ganada" && frappe.model.can_create("Sales Order")) {
+			frm.add_custom_button(
+				__("Pedido de venta"),
+				() =>
+					frappe.model.open_mapped_doc({
+						method: "erpnext_rd.licitaciones.adjudicaciones.crear_pedido",
+						frm,
+					}),
+				__("Crear")
+			);
+		}
 		erpnext_rd_aviso_oferta(frm);
 	},
 });

@@ -123,6 +123,9 @@ doc_events = {
 	"Opportunity": {
 		"validate": "erpnext_rd.licitaciones.ofertas.validar_oportunidad",
 	},
+	"Payment Entry": {
+		"validate": "erpnext_rd.licitaciones.adjudicaciones.validar_cobro",
+	},
 	"Employee": {
 		"validate": "erpnext_rd.nomina_rd.empleado.validar_empleado",
 	},

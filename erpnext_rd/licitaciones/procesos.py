@@ -6,6 +6,7 @@ activos. Pasos de cada sincronización (detalle en docs/PLAN.md, *Resultado de l
 2. /procesos?startdate= con el mismo corte da el detalle de los procesos; los que falten se piden
    uno a uno por su código.
 3. Los procesos guardados que siguen abiertos se vuelven a consultar para ver su estado.
+4. Los procesos con ofertas de las empresas cuyo cierre pasó: estado y contratos (adjudicaciones.py).
 """
 
 from collections import defaultdict
@@ -198,6 +199,11 @@ def sincronizar() -> dict:
 			guardar(fila, None, {})
 			resultado["actualizados"] += 1
 			frappe.db.commit()  # nosemgrep: frappe-manual-commit
+
+	# 4. Adjudicaciones de los procesos con ofertas de las empresas (Fase 10.6)
+	from erpnext_rd.licitaciones import adjudicaciones
+
+	resultado["adjudicaciones"] = adjudicaciones.seguir_adjudicaciones()
 
 	conf.ultima_sincronizacion = inicio
 	conf.ultimo_resultado = _("{0} procesos nuevos y {1} actualizados.").format(

@@ -116,6 +116,9 @@ msgstr "Garantía de oferta al Estado"
 msgid "Documento Requerido Licitacion"
 msgstr "Documento requerido de licitación"
 
+msgid "Contrato Proceso DGCP"
+msgstr "Contrato del proceso DGCP"
+
 msgid "Anulacion ENCF"
 msgstr "Anulación de e-NCF"
 

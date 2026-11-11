@@ -22,7 +22,14 @@
   "pct_vicios_ocultos",
   "dias_aviso_garantias",
   "section_documentos",
-  "documentos_oferta"
+  "documentos_oferta",
+  "section_retenciones",
+  "avisar_retenciones",
+  "pct_retencion_isr",
+  "base_retencion_isr",
+  "column_break_retenciones",
+  "isr_exento_con_ecf",
+  "tolerancia_retencion"
  ],
  "fields": [
   {
@@ -149,10 +156,55 @@
    "fieldtype": "Table",
    "label": "Documentos",
    "options": "Documento Requerido Licitacion"
+  },
+  {
+   "fieldname": "section_retenciones",
+   "fieldtype": "Section Break",
+   "label": "Retenciones de las entidades del Estado",
+   "description": "La entidad retiene al pagar; lo retenido se registra como deducción en la Entrada de Pago con las cuentas de ISR o ITBIS retenido por terceros. Estos valores solo sirven para avisar si lo retenido no coincide."
+  },
+  {
+   "fieldname": "avisar_retenciones",
+   "fieldtype": "Check",
+   "label": "Avisar diferencias en los cobros a entidades del Estado",
+   "description": "Actívelo cuando el contador confirme la tasa, la base y las excepciones vigentes (Ley 30-26, Norma 02-2026)."
+  },
+  {
+   "fieldname": "pct_retencion_isr",
+   "fieldtype": "Percent",
+   "label": "ISR retenido por el Estado (%)",
+   "default": "5",
+   "non_negative": 1,
+   "description": "Código Tributario, art. 309, literal e."
+  },
+  {
+   "fieldname": "base_retencion_isr",
+   "fieldtype": "Select",
+   "label": "Base del ISR retenido",
+   "options": "Sin ITBIS\nCon ITBIS",
+   "default": "Sin ITBIS"
+  },
+  {
+   "fieldname": "column_break_retenciones",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "isr_exento_con_ecf",
+   "fieldtype": "Check",
+   "label": "Sin retención de ISR si el e-CF está Aceptado",
+   "default": "1",
+   "description": "Ley 32-23, art. 34. Confirmar que sigue vigente con la Ley 30-26."
+  },
+  {
+   "fieldname": "tolerancia_retencion",
+   "fieldtype": "Currency",
+   "label": "Diferencia que no se avisa",
+   "default": "1",
+   "non_negative": 1
   }
  ],
  "links": [],
- "modified": "2026-11-11 12:00:00.000000",
+ "modified": "2026-11-11 16:00:00.000000",
  "modified_by": "Administrator",
  "module": "Licitaciones",
  "name": "Configuracion Licitaciones",

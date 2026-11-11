@@ -35,6 +35,8 @@
   "empresas",
   "section_articulos",
   "articulos",
+  "section_contratos",
+  "contratos",
   "section_sync",
   "actualizado_dgcp"
  ],
@@ -238,6 +240,20 @@
    "read_only": 1
   },
   {
+   "fieldname": "section_contratos",
+   "fieldtype": "Section Break",
+   "label": "Adjudicación",
+   "description": "Contratos que publica la DGCP al adjudicar. Se consultan para los procesos con ofertas de las empresas.",
+   "depends_on": "contratos"
+  },
+  {
+   "fieldname": "contratos",
+   "fieldtype": "Table",
+   "label": "Contratos",
+   "options": "Contrato Proceso DGCP",
+   "read_only": 1
+  },
+  {
    "fieldname": "section_sync",
    "fieldtype": "Section Break",
    "label": "Sincronización",
@@ -252,7 +268,7 @@
   }
  ],
  "links": [],
- "modified": "2026-11-04 15:00:00.000000",
+ "modified": "2026-11-11 16:00:00.000000",
  "modified_by": "Administrator",
  "module": "Licitaciones",
  "name": "Proceso Compra DGCP",

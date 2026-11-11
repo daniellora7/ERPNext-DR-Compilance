@@ -383,6 +383,18 @@ def campos_personalizados() -> dict:
 			},
 		],
 		"Opportunity": campos_oferta_estado(),
+		"Sales Order": [
+			{
+				"fieldname": "rd_proceso_dgcp",
+				"fieldtype": "Link",
+				"label": "Proceso de compra del Estado",
+				"options": "Proceso Compra DGCP",
+				"insert_after": "po_date",
+				"read_only": 1,
+				"no_copy": 1,
+				"depends_on": "rd_proceso_dgcp",
+			},
+		],
 		"Supplier": [
 			tipo_identificacion,
 			tipo_comprobante_defecto("rd_tipo_identificacion"),
