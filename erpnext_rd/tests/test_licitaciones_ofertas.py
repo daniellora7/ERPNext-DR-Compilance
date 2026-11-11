@@ -10,7 +10,7 @@ import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, getdate, now_datetime, today
 
-from erpnext_rd.licitaciones import alertas, ofertas, procesos, proveedor
+from erpnext_rd.licitaciones import alertas, ofertas, panel, procesos, proveedor
 from erpnext_rd.licitaciones.report.ofertas_estado import ofertas_estado
 from erpnext_rd.tests.test_licitaciones import EMPRESA, crear_empresa
 
@@ -241,3 +241,17 @@ class TestOfertasEstado(IntegrationTestCase):
 		)
 		self.assertEqual((fila["proceso"], fila["documentos_pendientes"]), (PROCESO, 3))
 		self.assertEqual(fila["garantias_por_gestionar"], 1)
+
+	def test_bloque_del_panel(self):
+		doc = self._oferta()
+		crear_proceso(OBRA)
+		bloque = panel.resumen(EMPRESA)
+		self.assertEqual([o["oportunidad"] for o in bloque["ofertas"]], [doc.name])
+		# El proceso con oferta no sale como nuevo; el otro sí
+		self.assertEqual([p["name"] for p in bloque["nuevos"]], [OBRA])
+		self.assertEqual(bloque["garantias"], [])
+
+		# Sin perfil activo la empresa no vende al Estado: no hay bloque
+		self.perfil.habilitado = 0
+		self.perfil.save()
+		self.assertIsNone(panel.resumen(EMPRESA))

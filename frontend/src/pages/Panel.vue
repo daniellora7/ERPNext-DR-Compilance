@@ -157,6 +157,125 @@
 				</div>
 			</section>
 
+			<section v-if="lic">
+				<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+					<h2 class="text-lg-semibold text-ink-gray-8">{{ __("Licitaciones del Estado") }}</h2>
+					<div class="flex gap-1">
+						<Button
+							variant="ghost"
+							:label="__('Procesos de compra')"
+							icon-right="lucide-arrow-up-right"
+							:href="rutaDocumento('Proceso Compra DGCP')"
+						/>
+						<Button
+							variant="ghost"
+							:label="__('Ofertas al Estado')"
+							icon-right="lucide-arrow-up-right"
+							:href="rutaReporte('Ofertas Estado', { company: empresa })"
+						/>
+					</div>
+				</div>
+
+				<div class="grid gap-4 lg:grid-cols-2">
+					<div class="rounded-6 border border-outline-gray-2 bg-surface-base">
+						<h3 class="border-b border-outline-gray-1 px-4 py-2.5 text-base-medium text-ink-gray-8">
+							{{ __("Ofertas en curso") }}
+							<span class="text-ink-gray-5">· {{ formatoNumero(lic.total_ofertas) }}</span>
+						</h3>
+						<p v-if="!lic.ofertas.length" class="px-4 py-3 text-p-sm text-ink-gray-5">
+							{{ __("Sin ofertas en curso. Cree una desde el proceso de compra con «Crear oferta».") }}
+						</p>
+						<div v-else class="divide-y divide-outline-gray-1">
+							<div v-for="o in lic.ofertas" :key="o.oportunidad" class="space-y-1 px-4 py-2.5">
+								<div class="flex items-baseline justify-between gap-3">
+									<a
+										:href="rutaDocumento('Opportunity', o.oportunidad)"
+										class="line-clamp-1 text-base-medium text-ink-gray-8 hover:underline"
+									>
+										{{ o.titulo || o.oportunidad }}
+									</a>
+									<Badge
+										variant="subtle"
+										class="shrink-0"
+										:theme="TEMA_OFERTA[o.estado] || 'gray'"
+										:label="o.estado"
+									/>
+								</div>
+								<div class="flex flex-wrap gap-x-3 gap-y-0.5 text-sm text-ink-gray-5">
+									<span>{{ o.institucion }}</span>
+									<span v-if="o.cierre" :class="cierraPronto(o.cierre) ? 'text-ink-amber-8' : ''">
+										{{ __("Cierra {0}", [formatoFecha(o.cierre)]) }}
+									</span>
+									<span v-if="o.documentos_pendientes" class="text-ink-amber-8">
+										{{ __("{0} documentos pendientes", [o.documentos_pendientes]) }}
+									</span>
+									<span v-if="o.garantias_por_gestionar" class="text-ink-amber-8">
+										{{ __("{0} garantías por gestionar", [o.garantias_por_gestionar]) }}
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="rounded-6 border border-outline-gray-2 bg-surface-base">
+						<h3 class="border-b border-outline-gray-1 px-4 py-2.5 text-base-medium text-ink-gray-8">
+							{{ __("Procesos nuevos de sus rubros") }}
+							<span class="text-ink-gray-5">· {{ formatoNumero(lic.total_nuevos) }}</span>
+						</h3>
+						<p v-if="!lic.nuevos.length" class="px-4 py-3 text-p-sm text-ink-gray-5">
+							{{ __("Sin procesos nuevos en los últimos 7 días.") }}
+						</p>
+						<div v-else class="divide-y divide-outline-gray-1">
+							<div v-for="p in lic.nuevos" :key="p.name" class="space-y-1 px-4 py-2.5">
+								<a
+									:href="rutaDocumento('Proceso Compra DGCP', p.name)"
+									class="line-clamp-1 text-base-medium text-ink-gray-8 hover:underline"
+								>
+									{{ p.titulo || p.name }}
+								</a>
+								<div class="flex flex-wrap gap-x-3 gap-y-0.5 text-sm text-ink-gray-5">
+									<span>{{ p.institucion }}</span>
+									<span v-if="p.monto" class="tabular-nums">{{ formatoMonedaDe(p.monto, p.moneda) }}</span>
+									<span v-if="p.cierre">{{ __("Cierra {0}", [formatoFecha(p.cierre)]) }}</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div
+					v-if="lic.garantias.length"
+					class="mt-4 divide-y divide-outline-gray-1 rounded-6 border border-outline-gray-2 bg-surface-base"
+				>
+					<h3 class="px-4 py-2.5 text-base-medium text-ink-gray-8">{{ __("Garantías que vencen pronto") }}</h3>
+					<div
+						v-for="(g, i) in lic.garantias"
+						:key="i"
+						class="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-2.5"
+					>
+						<a
+							:href="rutaDocumento('Opportunity', g.oportunidad)"
+							class="text-base-medium text-ink-gray-8 hover:underline"
+						>
+							{{ g.oportunidad }}
+						</a>
+						<span class="text-sm text-ink-gray-6">{{ g.tipo }}{{ g.emisor ? ` · ${g.emisor}` : "" }}</span>
+						<span class="text-sm tabular-nums text-ink-gray-6">{{ formatoMonedaDe(g.monto, g.moneda) }}</span>
+						<span class="text-sm text-ink-amber-8">{{ __("Vence {0}", [formatoFecha(g.vence)]) }}</span>
+					</div>
+				</div>
+
+				<p class="mt-2 text-sm text-ink-gray-5">
+					{{
+						lic.ultima_sincronizacion
+							? __("Datos abiertos de la DGCP, descargados {0}. Confirme las fechas en el Portal Transaccional.", [
+									formatoFecha(lic.ultima_sincronizacion),
+								])
+							: __("Los procesos de la DGCP aún no se han descargado.")
+					}}
+				</p>
+			</section>
+
 			<section>
 				<h2 class="mb-1 text-lg-semibold text-ink-gray-8">{{ __("Observaciones") }}</h2>
 				<p class="mb-3 text-p-sm text-ink-gray-5">
@@ -232,6 +351,7 @@ import {
 	diasHasta,
 	formatoFecha,
 	formatoMoneda,
+	formatoMonedaDe,
 	formatoNumero,
 	rutaDocumento,
 	rutaReporte,
@@ -253,6 +373,13 @@ const ESTADOS = {
 	agotada: { label: __("Agotada"), theme: "red" },
 	vencida: { label: __("Vencida"), theme: "red" },
 	deshabilitada: { label: __("Deshabilitada"), theme: "gray" },
+}
+
+// Estados de la oferta (Fase 10.5); el servidor los manda traducidos
+const TEMA_OFERTA = {
+	[__("Evaluando")]: "gray",
+	[__("En preparación")]: "blue",
+	[__("Presentada")]: "green",
 }
 
 const empresa = ref(null)
@@ -279,6 +406,12 @@ watch([empresa, anio, mes], () => {
 })
 
 const r = computed(() => datos.data)
+const lic = computed(() => r.value?.licitaciones)
+
+function cierraPronto(cierre) {
+	const dias = diasHasta(cierre)
+	return dias !== null && dias >= 0 && dias <= (lic.value?.dias_aviso_cierre || 3)
+}
 const filtros = computed(() => ({ company: empresa.value, anio: anio.value, mes: mes.value }))
 
 const opcionesMes = MESES.map((label, i) => ({ label, value: i + 1 }))
@@ -348,6 +481,28 @@ const alertas = computed(() => {
 					? __("Corríjalos antes del {0}, cuando vence el envío de los formatos.", [formatoFecha(vence)])
 					: __("Revíselos en la sección Observaciones."),
 		})
+	}
+
+	if (lic.value) {
+		const urgentes = lic.value.ofertas.filter((o) => o.documentos_pendientes && o.cierre && cierraPronto(o.cierre))
+		if (urgentes.length) {
+			lista.push({
+				theme: "amber",
+				title:
+					urgentes.length === 1
+						? __("1 oferta al Estado cierra pronto con documentos pendientes")
+						: __("{0} ofertas al Estado cierran pronto con documentos pendientes", [urgentes.length]),
+				description: __("Complete los documentos obligatorios antes del cierre de ofertas."),
+				accion: { label: __("Ver ofertas"), href: rutaReporte("Ofertas Estado", { company: empresa.value }) },
+			})
+		}
+		if (lic.value.garantias.length) {
+			lista.push({
+				theme: "amber",
+				title: __("Garantías de ofertas al Estado por vencer: {0}", [lic.value.garantias.length]),
+				description: __("Renueve las garantías antes de su vencimiento o confirme su devolución."),
+			})
+		}
 	}
 
 	if (!r.value.padron.registros) {

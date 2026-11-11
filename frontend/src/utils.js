@@ -37,6 +37,16 @@ export function formatoMoneda(valor) {
 	return moneda.format(Number(valor) || 0)
 }
 
+// Montos en otra moneda (procesos del Estado en US$, por ejemplo)
+export function formatoMonedaDe(valor, codigo) {
+	if (!codigo || codigo === "DOP") return formatoMoneda(valor)
+	try {
+		return new Intl.NumberFormat("es-DO", { style: "currency", currency: codigo }).format(Number(valor) || 0)
+	} catch {
+		return `${codigo} ${formatoNumero(valor)}`
+	}
+}
+
 export function formatoNumero(valor) {
 	return new Intl.NumberFormat("es-DO").format(Number(valor) || 0)
 }

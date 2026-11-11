@@ -67,7 +67,7 @@ def coincide(perfil, proceso) -> bool:
 	return True
 
 
-def _de_la_empresa(company: str, filtros: dict) -> list:
+def de_la_empresa(company: str, filtros: dict) -> list:
 	nombres = frappe.get_all(
 		"Empresa Proceso DGCP",
 		filters={"parenttype": procesos.DOCTYPE, "company": company},
@@ -85,11 +85,11 @@ def _de_la_empresa(company: str, filtros: dict) -> list:
 
 def nuevos(perfil, desde: datetime | None) -> list:
 	filtros = {"creation": (">", desde)} if desde else {}
-	return [p for p in _de_la_empresa(perfil.company, filtros) if coincide(perfil, p)]
+	return [p for p in de_la_empresa(perfil.company, filtros) if coincide(perfil, p)]
 
 
 def por_cerrar(perfil, ahora: datetime, dias: int) -> list:
-	return _de_la_empresa(
+	return de_la_empresa(
 		perfil.company,
 		{
 			"estado_proceso": PUBLICADO,
