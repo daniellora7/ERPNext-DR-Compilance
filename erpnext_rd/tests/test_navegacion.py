@@ -68,13 +68,14 @@ class TestDockTraducido(unittest.TestCase):
 
 	@unittest.skipUnless(hrms_instalado(), "requiere Frappe HR")
 	def test_frappe_hr_completo_en_espanol(self):
-		"""Los textos que faltan en el catálogo de Frappe HR vienen en el es.po de la app."""
+		"""Frappe HR en español: su catálogo oficial y, lo que aún le falta, el es.po de la app."""
 		idioma = frappe.local.lang
 		try:
 			frappe.local.lang = "es"
 			for texto, esperado in (
 				("HR Setup", "Configuración de RR. HH."),
-				("Tenure", "Trayectoria"),
+				# Del catálogo oficial desde Frappe HR 16.53.2 (antes la app lo traducía «Trayectoria»)
+				("Tenure", "Antigüedad"),
 				("Recruitment", "Reclutamiento"),
 				("Salary Slip", "Recibo de nómina"),
 			):
@@ -93,6 +94,11 @@ class TestDockTraducido(unittest.TestCase):
 				("Income Tax Slab", "Escala del impuesto sobre la renta"),
 				("Leave Application", "Solicitud de permiso"),
 				("Employee Checkin", "Marcación del empleado"),
+				# El catálogo oficial dice «importe»: el glosario de la app usa «monto»
+				(
+					"<b>Base</b> amount has not been set for the following employee(s): {0}",
+					"No se ha definido el monto <b>base</b> para los siguientes empleados: {0}",
+				),
 			):
 				self.assertEqual(frappe._(texto), esperado)
 		finally:
