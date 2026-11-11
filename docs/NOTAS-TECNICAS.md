@@ -52,6 +52,7 @@ La app complementa, no sustituye: usa los documentos de la suite (*Salary Slip*,
 - ***Tramo Prestacion RD* en vez de *Gratuity Rule Slab*:** los tramos de Frappe HR son por años enteros y la cesantía tiene tramos en meses (3 a 6 y 6 a 12). Las reglas con `rd_prestacion` ocultan los tramos de Frappe HR.
 - ***Cheque RD* y *Cheque Print Template*:** el de ERPNext acomoda campos sobre un cheque preimpreso; el nuestro es el cheque-voucher completo con talón. Se usa uno u otro según el banco.
 - ***Entidad Seguridad Social RD* y *Employee Health Insurance*:** la de Frappe HR es solo una lista de nombres; la nuestra cubre AFP y ARS con sus códigos de la TSS.
+- **Frappe Suite (rama `develop`) sobre Frappe v16:** Suite sigue a Frappe develop y a veces usa API de v17. Desde el commit b6ec679d5 (2026-11-05) el *File* de Drive llama `get_site_url_prefix()`, que no existe en v16: fallaba todo adjunto de un archivo privado ya subido (p. ej. el XML o la foto de la captura de compras). `compat_suite.FileCompatSuite` (por `extend_doctype_class`, sin tocar Suite ni Frappe) agrega el método con el mismo código de Frappe develop (MIT); si la base ya lo trae, usa el de la base. Quitarlo al pasar a v17. Cada actualización de Suite: correr la suite completa de pruebas antes de desplegar.
 
 ## Por módulo
 

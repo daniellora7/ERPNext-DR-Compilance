@@ -2,7 +2,7 @@
 
 Responder en español. **ERPNext RD**: ERPNext + Frappe HR + app `erpnext_rd` (localización RD: NCF, e-CF, DGII, padrón RNC, nómina). Docs: `docs/PLAN.md` (pendientes), `docs/NOTAS-TECNICAS.md` (módulos), `docs/lineamientos-diseno-frappe.md` (interfaz), `docs/marketplace.md`; actualizarlos al cambiar algo.
 
-Versiones: Frappe v16.55.0 (`deploy/Containerfile`), ERPNext v16.53.0, HRMS v16.53.0 y Frappe Suite (rama `develop`, sin releases) (`deploy/apps.json`), MariaDB 11.8, Python 3.14.
+Versiones: Frappe v16.56.0 (`deploy/Containerfile`), ERPNext v16.54.0, HRMS v16.53.2 y Frappe Suite (rama `develop`, sin releases) (`deploy/apps.json`), MariaDB 11.8, Python 3.14.
 
 ## Reglas
 
