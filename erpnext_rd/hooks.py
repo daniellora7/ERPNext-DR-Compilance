@@ -133,16 +133,22 @@ doc_events = {
 		"validate": "erpnext_rd.dgii_fiscal.identificacion.validar_party",
 	},
 	"Sales Invoice": {
-		# ISC de cada línea y su fila de impuesto, antes de que ERPNext calcule los totales
-		"before_validate": "erpnext_rd.dgii_fiscal.isc.aplicar",
+		# Régimen especial (B14 / E44, sin ITBIS) y el ISC de cada línea, antes de que ERPNext calcule los totales
+		"before_validate": [
+			"erpnext_rd.dgii_fiscal.regimenes.antes_de_validar",
+			"erpnext_rd.dgii_fiscal.isc.aplicar",
+		],
 		"validate": "erpnext_rd.dgii_fiscal.ncf.validar_venta",
 		"before_submit": "erpnext_rd.dgii_fiscal.ncf.asignar_ncf_venta",
 		"on_submit": "erpnext_rd.ecf.emision.al_aprobar",
 		"before_cancel": "erpnext_rd.dgii_fiscal.ncf.antes_de_cancelar_venta",
 	},
 	"POS Invoice": {
-		# ISC de cada línea y su fila de impuesto, antes de que ERPNext calcule los totales
-		"before_validate": "erpnext_rd.dgii_fiscal.isc.aplicar",
+		# Régimen especial (B14 / E44, sin ITBIS) y el ISC de cada línea, antes de que ERPNext calcule los totales
+		"before_validate": [
+			"erpnext_rd.dgii_fiscal.regimenes.antes_de_validar",
+			"erpnext_rd.dgii_fiscal.isc.aplicar",
+		],
 		"validate": "erpnext_rd.dgii_fiscal.ncf.validar_venta",
 		"before_submit": "erpnext_rd.dgii_fiscal.ncf.asignar_ncf_venta",
 		"before_cancel": "erpnext_rd.dgii_fiscal.ncf.antes_de_cancelar_venta",

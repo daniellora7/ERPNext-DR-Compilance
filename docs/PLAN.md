@@ -190,9 +190,11 @@ Base: Código Tributario, título IV, con los cambios de la Ley 30-26 (arts. 40 
 - Resumen anual de operaciones con relacionados por tipo y contraparte para la DIOR; plazo y umbrales a confirmar.
 - Ajuste 1.9 del anexo G del cuadre IR-2 cuando el contribuyente autoimpugna un precio.
 
-### 8.4 Zonas francas y exportadores
-- Empresa de zona franca: exenciones según su resolución, compras con los comprobantes que correspondan y ventas al mercado local con su tratamiento.
-- Proveedores de zonas francas: clientes marcados como zona franca reciben B14/E44 solos.
+### 8.4 Zonas francas y exportadores 🟡
+Base confirmada (2026-11-11): guía de la DGII de la Norma General 05-2019 (vigente desde el 8/4/2019), consultas DGII G. L. 2817XXX (2022) y 4398XXX (2024). Detalle en `dgii_fiscal/regimenes.py`.
+- ✅ Proveedores de zonas francas y otros regímenes especiales: el cliente lleva su régimen y su Carnet de Acreditación de Regímenes Especiales (número y vigencia). Sus facturas salen con B14 (E44 para emisores electrónicos), sin ITBIS ni ISC; sin carnet o con el carnet vencido no se guardan. El vendedor puede elegir otro comprobante a mano (bienes que la zona franca no usa para operar).
+- ✅ Zonas francas comerciales: se marcan en el cliente con la licencia de la DGA; el comprobante no cambia, porque la consulta no lo dice (la venta de mercancías se trata como exportación, tasa cero, con el Formulario Único de Exportación).
+- Falta: empresa que **es** zona franca (según la guía, vende al mercado local con el comprobante para exportaciones, sin ITBIS ni ISC, y reporta en el RZF-01), sus compras y el recordatorio del vencimiento del carnet de los clientes.
 - Exportadores: ITBIS de las compras para exportación a compensar o pedir en reembolso, con su soporte.
 
 ### 8.5 Impuesto sobre los activos

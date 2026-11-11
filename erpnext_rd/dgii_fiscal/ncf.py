@@ -4,7 +4,7 @@ import frappe
 from frappe import _
 from frappe.utils import add_days, cint, flt, getdate, nowdate
 
-from erpnext_rd.dgii_fiscal import consulta_ncf
+from erpnext_rd.dgii_fiscal import consulta_ncf, regimenes
 from erpnext_rd.dgii_fiscal.identificacion import identificacion_valida
 from erpnext_rd.dgii_fiscal.impuestos import montos_impuestos, tipo_desde_cuentas
 from erpnext_rd.dgii_fiscal.validaciones import es_ncf_valido, formatear_ncf, tipo_identificacion
@@ -168,6 +168,9 @@ def tipo_por_defecto_venta(doc) -> str:
 		return del_cliente
 
 	serie = serie_por_defecto(doc.company)
+	# Zonas francas y otros regímenes especiales: B14 / E44 (Fase 8.4, regimenes.py)
+	if regimenes.regimen_del_cliente(doc.customer).rd_regimen_especial in regimenes.CON_COMPROBANTE_ESPECIAL:
+		return regimenes.tipo_especial(serie)
 	if tipo_identificacion(doc.tax_id) in ("RNC", "Cédula") and identificacion_valida(doc.tax_id):
 		return f"{serie}{'01' if serie == 'B' else '31'}"
 
@@ -199,6 +202,7 @@ def validar_venta(doc, method=None):
 	if not tipo.aplica_ventas:
 		frappe.throw(_("El tipo {0} no se usa en facturas de venta").format(tipo.name))
 	perfil.validar_serie_de_venta(doc, tipo)
+	regimenes.validar_venta(doc, tipo)
 
 	if tipo.requiere_rnc and not identificacion_valida(doc.tax_id):
 		frappe.throw(
