@@ -19,6 +19,7 @@ import frappe
 from frappe import _
 from frappe.utils import add_to_date, cint, flt, now_datetime
 
+from erpnext_rd.dgii_fiscal import isc
 from erpnext_rd.ecf import datos, esquemas, firma
 from erpnext_rd.ecf.cliente import ClienteDGII, ClienteReceptor, ErrorDGII
 
@@ -97,6 +98,7 @@ def emitir(doctype: str, name: str, enviar: int | None = None) -> str:
 	doc.check_permission("submit")
 	if doc.docstatus != 1:
 		frappe.throw(_("Apruebe la factura antes de emitir el e-CF."))
+	isc.validar_ecf(doc)
 	emisor = emisor_de(doc.company)
 	tipo = datos.tipo_ecf(doc)
 

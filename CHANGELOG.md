@@ -4,6 +4,18 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 
 ## Sin publicar
 
+### Nuevo
+- **Impuesto selectivo al consumo (ISC)** (Fase 8.2). Se clasifica en el artículo: alcohol, tabaco, vapeadores, combustibles, telecomunicaciones, seguros y seguros de vida. Las tasas y montos específicos se configuran con su vigencia; trae los de la DGII de octubre a diciembre de 2026 y el calendario de la Ley 30-26 para los seguros de vida. Se calcula en las ventas, línea por línea; en los bienes el ITBIS se calcula sobre el precio más el ISC. Incluye el resumen mensual (*Resumen ISC DGII*), el recordatorio del día 20 y los requisitos en el perfil tributario. El e-CF lleva el ISC como impuestos adicionales, con los códigos de la DGII; la base del ad valorem del alcohol y el tabaco se elige en cada tasa: el precio al por menor íntegro (Ley 30-26) o el neto con el que valida el formato del e-CF.
+- **Perfil de proveedor del Estado** (Fase 10.2, Licitaciones del Estado). Por empresa: con su RNC se consulta en la DGCP el Registro de Proveedores del Estado (número y estado del RPE, MIPYME, certificación del MICM y rubros UNSPSC registrados), y se actualiza cada semana. Muestra los requisitos para participar en compras públicas y recuerda por correo el vencimiento de las certificaciones de la DGII, la TSS y el MICM.
+- **Procesos de compra del Estado** (Fase 10.3). Cuatro veces al día se descargan de los datos abiertos de la DGCP los procesos con artículos de los rubros de las empresas: institución, modalidad, monto estimado, estado, cronograma, artículos y enlace al Portal Transaccional. Los documentos del proceso se consultan desde el formulario. Vista de calendario hasta el cierre de ofertas.
+- **Alertas de licitaciones** (Fase 10.4). Correo diario por empresa con los procesos nuevos de sus rubros (con filtros de palabras clave y monto) y los que dejan de recibir ofertas pronto.
+
+### Mantenimiento
+- Imagen Docker con Frappe v16.56.0, ERPNext v16.54.0 y Frappe HR v16.53.2; Frappe Suite al día con `develop` (incluye el arreglo de Drive que impedía ver archivos privados de otros usuarios).
+- Compatibilidad de Frappe Suite `develop` con Frappe v16: Drive usa `File.get_site_url_prefix` (de Frappe v17) y fallaba al adjuntar un archivo privado existente, como el XML o la foto de la captura de compras. La app agrega el método mientras se use v16.
+- Frappe Builder sale de la imagen; entra Frappe Suite (rama `develop`, AGPL-3, sin modificar). Rust en la etapa de build para compilar `pycrdt`.
+- El catálogo DGII se aplica con ERPNext v16.53, que ahora revisa los enlaces al borrar las cuentas y crea la plantilla *Dominican Republic Tax* con la empresa.
+
 ## v0.5.5 (2026-10-29)
 
 Captura de compras, etapa 3 (sin OCR): facturas en papel sin QR.

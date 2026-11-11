@@ -419,6 +419,53 @@ def _propina(company, p):
 	)
 
 
+@requisito("Tasas del ISC vigentes", obligatorio=True)
+def _tasas_isc(company, p):
+	from erpnext_rd.dgii_fiscal import isc
+
+	categorias = isc.categorias_de(company)
+	if not categorias:
+		return None
+	faltan = [c for c in isc.CATEGORIAS if c in categorias and not isc.tasa(c)]
+	return _resultado(
+		not faltan,
+		_("Sin tasa vigente: {0}").format(", ".join(_(c) for c in faltan)) if faltan else "",
+		["Form", "Configuracion DGII"],
+	)
+
+
+@requisito("Cuenta del ISC por pagar", obligatorio=True)
+def _cuenta_isc(company, p):
+	from erpnext_rd.dgii_fiscal import catalogos as cat
+	from erpnext_rd.dgii_fiscal import isc
+
+	if not isc.categorias_de(company):
+		return None
+	cuenta = isc.cuenta_isc(company)
+	return _resultado(
+		bool(cuenta),
+		cuenta or _("Marque la cuenta con el concepto fiscal «{0}».").format(_(cat.ISC)),
+		["Tree", "Account"],
+	)
+
+
+@requisito("Artículos clasificados en el ISC")
+def _articulos_isc(company, p):
+	from erpnext_rd.dgii_fiscal import isc
+
+	categorias = isc.categorias_de(company)
+	if not categorias:
+		return None
+	clasificados = frappe.db.count("Item", {"rd_isc_categoria": ("in", list(categorias)), "disabled": 0})
+	return _resultado(
+		bool(clasificados),
+		_("{0} artículos").format(clasificados)
+		if clasificados
+		else _("Indique la categoría del ISC en los artículos que lo pagan."),
+		["List", "Item"],
+	)
+
+
 @requisito("Casillas del IR-2 en el catálogo de cuentas")
 def _casillas_ir2(company, p):
 	if not declara_ir2(company):
@@ -463,7 +510,6 @@ def _multiplicador(company, p):
 
 # Lo que la empresa tiene pero la app aún no cubre (siguientes ramas de la Fase 8)
 PENDIENTES = (
-	(lambda p: any(cint(p.get(c)) for c in CAMPOS_ISC), "Impuesto selectivo al consumo (ISC)", "8.2"),
 	(lambda p: cint(p.partes_relacionadas), "Operaciones con partes relacionadas (DIOR)", "8.3"),
 	(lambda p: cint(p.exportador), "Reembolso o compensación del ITBIS de exportadores", "8.4"),
 	(lambda p: bool(p.incentivos), "Regímenes especiales e incentivos", "8.4 y 8.6"),

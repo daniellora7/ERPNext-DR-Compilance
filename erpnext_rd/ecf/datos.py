@@ -17,6 +17,7 @@ from frappe import _
 from frappe.utils import cint, date_diff, flt, getdate, now_datetime, strip_html
 
 from erpnext_rd.dgii_fiscal import catalogos as cat
+from erpnext_rd.dgii_fiscal import isc
 from erpnext_rd.dgii_fiscal.impresion import _itbis_por_linea
 from erpnext_rd.dgii_fiscal.impuestos import concepto_de_cuenta
 
@@ -103,9 +104,14 @@ def _indicador_bien_servicio(item) -> int:
 
 
 def _lineas(doc) -> tuple[list[dict], dict]:
-	"""Detalle y totales por tasa de ITBIS."""
+	"""Detalle, totales por tasa de ITBIS e impuestos adicionales (ISC) por código."""
 	itbis = _itbis_por_linea(doc)
-	totales = {"gravado": {1: 0.0, 2: 0.0, 3: 0.0}, "itbis": {1: 0.0, 2: 0.0, 3: 0.0}, "exento": 0.0}
+	totales = {
+		"gravado": {1: 0.0, 2: 0.0, 3: 0.0},
+		"itbis": {1: 0.0, 2: 0.0, 3: 0.0},
+		"exento": 0.0,
+		"adicionales": {},
+	}
 	items = []
 	for i, item in enumerate(doc.items, start=1):
 		impuesto = itbis.get(item.name)
@@ -127,9 +133,43 @@ def _lineas(doc) -> tuple[list[dict], dict]:
 				"CantidadItem": monto(abs(flt(item.qty))),
 				"PrecioUnitarioItem": precio(abs(flt(item.net_rate))),
 				"MontoItem": monto(abs(flt(item.net_amount))),
+				**_isc_linea(doc, item, totales["adicionales"]),
 			}
 		)
 	return items, totales
+
+
+def _isc_linea(doc, item, adicionales: dict) -> dict:
+	"""Campos del ISC del ítem; suma sus impuestos adicionales por código para los totales."""
+	campos, impuestos = isc.ecf_linea(doc, item)
+	if not impuestos:
+		return {}
+	for imp in impuestos:
+		total = adicionales.setdefault(
+			imp.codigo, frappe._dict(tasa=imp.tasa, especifico=0.0, ad_valorem=0.0, otros=0.0)
+		)
+		total.especifico += flt(imp.get("especifico"))
+		total.ad_valorem += flt(imp.get("ad_valorem"))
+		total.otros += flt(imp.get("otros"))
+	datos = {"TablaImpuestoAdicional": {"ImpuestoAdicional": [{"TipoImpuesto": i.codigo} for i in impuestos]}}
+	if campos:
+		datos.update(
+			{
+				"CantidadReferencia": monto(campos["referencia"]),
+				"UnidadReferencia": campos["unidad_referencia"],
+				"TablaSubcantidad": {
+					"SubcantidadItem": [
+						{
+							"Subcantidad": f"{flt(campos['subcantidad'], 3):.3f}",
+							"CodigoSubcantidad": campos["codigo_subcantidad"],
+						}
+					]
+				},
+				"GradosAlcohol": monto(campos["grados"]) if campos.get("grados") else None,
+				"PrecioUnitarioReferencia": monto(campos["precio_referencia"]),
+			}
+		)
+	return datos
 
 
 def _totales(doc, totales: dict) -> dict:
@@ -146,6 +186,22 @@ def _totales(doc, totales: dict) -> dict:
 			datos[f"MontoGravadoI{indicador}"] = monto(abs(gravado[indicador]))
 			datos[f"ITBIS{indicador}"] = tasa
 			datos[f"TotalITBIS{indicador}"] = monto(abs(itbis[indicador]))
+	if adicionales := totales["adicionales"]:
+		datos["MontoImpuestoAdicional"] = monto(
+			sum(a.especifico + a.ad_valorem + a.otros for a in adicionales.values())
+		)
+		datos["ImpuestosAdicionales"] = {
+			"ImpuestoAdicional": [
+				{
+					"TipoImpuesto": codigo,
+					"TasaImpuestoAdicional": monto(a.tasa),
+					"MontoImpuestoSelectivoConsumoEspecifico": monto(a.especifico) if a.especifico else None,
+					"MontoImpuestoSelectivoConsumoAdvalorem": monto(a.ad_valorem) if a.ad_valorem else None,
+					"OtrosImpuestosAdicionales": monto(a.otros) if a.otros else None,
+				}
+				for codigo, a in sorted(adicionales.items())
+			]
+		}
 	return datos
 
 

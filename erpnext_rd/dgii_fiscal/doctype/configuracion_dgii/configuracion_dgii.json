@@ -34,6 +34,8 @@
   "depreciacion_arrendamiento_2",
   "depreciacion_arrendamiento_3",
   "multiplicadores_inflacion",
+  "section_isc",
+  "tasas_isc",
   "section_tasa_bcrd",
   "tasa_bcrd_activa",
   "tasa_bcrd_tipo",
@@ -236,6 +238,19 @@
    "options": "Multiplicador Inflacion DGII"
   },
   {
+   "fieldname": "section_isc",
+   "fieldtype": "Section Break",
+   "label": "Impuesto selectivo al consumo (ISC)",
+   "collapsible": 1,
+   "description": "Tasas ad valorem y montos específicos por categoría y vigencia. La DGII publica los montos específicos del alcohol y del tabaco; desde 2027 se ajustan cada año por la inflación (Ley 30-26, art. 42). Las ventas de artículos con ISC sin tasa vigente no se pueden guardar."
+  },
+  {
+   "fieldname": "tasas_isc",
+   "fieldtype": "Table",
+   "label": "Tasas del ISC",
+   "options": "Tasa ISC"
+  },
+  {
    "fieldname": "section_tasa_bcrd",
    "fieldtype": "Section Break",
    "label": "Tasa del dólar (Banco Central)"
@@ -328,7 +343,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-21 18:00:00",
+ "modified": "2026-11-03 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Configuracion DGII",

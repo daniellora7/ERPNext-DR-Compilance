@@ -43,7 +43,7 @@ body:
     attributes:
       label: Versiones
       description: De Frappe, ERPNext, Frappe HR y ERPNext RD (en Ayuda → Acerca de).
-      placeholder: "Frappe v16.52.0, ERPNext v16.51.1, Frappe HR v16.51.0, ERPNext RD 0.3.0"
+      placeholder: "Frappe v16.56.0, ERPNext v16.54.0, Frappe HR v16.53.2, ERPNext RD 0.5.5"
     validations:
       required: true
   - type: dropdown

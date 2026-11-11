@@ -32,6 +32,7 @@ code_only_modules = {
 	"ECF": ["RD Compliance"],
 	"ERPNext RD": ["RD Compliance"],
 	"Captura Compras": ["RD Compliance"],
+	"Licitaciones": ["RD Compliance"],
 }
 
 # Panel RD Compliance (frontend frappe-ui en frontend/, página www/rd_compliance.py)
@@ -94,6 +95,8 @@ extend_doctype_class = {
 	"Gratuity": ["erpnext_rd.nomina_rd.gratuity_rd.GratuityRD"],
 	"Leave Encashment": ["erpnext_rd.nomina_rd.leave_encashment_rd.LeaveEncashmentRD"],
 	"Overtime Slip": ["erpnext_rd.nomina_rd.horas_extras_rd.OvertimeSlipRD"],
+	# Frappe Suite develop usa File.get_site_url_prefix (Frappe v17); ver compat_suite.py.
+	"File": ["erpnext_rd.compat_suite.FileCompatSuite"],
 }
 
 doc_events = {
@@ -125,12 +128,16 @@ doc_events = {
 		"validate": "erpnext_rd.dgii_fiscal.identificacion.validar_party",
 	},
 	"Sales Invoice": {
+		# ISC de cada línea y su fila de impuesto, antes de que ERPNext calcule los totales
+		"before_validate": "erpnext_rd.dgii_fiscal.isc.aplicar",
 		"validate": "erpnext_rd.dgii_fiscal.ncf.validar_venta",
 		"before_submit": "erpnext_rd.dgii_fiscal.ncf.asignar_ncf_venta",
 		"on_submit": "erpnext_rd.ecf.emision.al_aprobar",
 		"before_cancel": "erpnext_rd.dgii_fiscal.ncf.antes_de_cancelar_venta",
 	},
 	"POS Invoice": {
+		# ISC de cada línea y su fila de impuesto, antes de que ERPNext calcule los totales
+		"before_validate": "erpnext_rd.dgii_fiscal.isc.aplicar",
 		"validate": "erpnext_rd.dgii_fiscal.ncf.validar_venta",
 		"before_submit": "erpnext_rd.dgii_fiscal.ncf.asignar_ncf_venta",
 		"before_cancel": "erpnext_rd.dgii_fiscal.ncf.antes_de_cancelar_venta",
@@ -149,6 +156,9 @@ doc_events = {
 		"on_trash": "erpnext_rd.ecf.recepcion.desvincular_factura",
 	},
 }
+
+# Base de cada línea del tipo de cargo propio «ISC por artículo» (gancho de ERPNext v16)
+erpnext_taxable_base_resolvers = {"ISC por artículo": "erpnext_rd.dgii_fiscal.isc.base_isc"}
 
 # Jinja (formatos de impresión)
 # -----------------------------
@@ -173,6 +183,10 @@ scheduler_events = {
 		"0 7,19 * * *": ["erpnext_rd.dgii_fiscal.tasa_bcrd.tarea_programada"],
 		# Recordatorios de vencimientos por correo (si están activados en Configuracion DGII)
 		"30 7 * * *": ["erpnext_rd.rd_compliance.recordatorios.enviar_recordatorios"],
+		# Procesos de compra de la DGCP, después de cada actualización de sus datos (00, 07, 14 y 21 h)
+		# y las alertas de la mañana a las empresas con perfil de proveedor del Estado
+		"30 1,8,15,22 * * *": ["erpnext_rd.licitaciones.procesos.encolar"],
+		"15 9 * * *": ["erpnext_rd.licitaciones.alertas.enviar_alertas"],
 		# Resultado de los e-CF enviados a la DGII que siguen en proceso
 		# y reenvío de los que quedaron en contingencia; entrega de los aceptados a sus compradores
 		"*/15 * * * *": [
@@ -185,4 +199,6 @@ scheduler_events = {
 	"monthly": ["erpnext_rd.nomina_rd.feriados.asegurar_lista_feriados"],
 	# Período de vacaciones en cada aniversario (si está activado en Configuracion Nomina RD)
 	"daily": ["erpnext_rd.nomina_rd.vacaciones.asignar_vacaciones"],
+	# Datos del Registro de Proveedores del Estado (DGCP) de los perfiles de proveedor activos
+	"weekly": ["erpnext_rd.licitaciones.proveedor.actualizar_perfiles"],
 }

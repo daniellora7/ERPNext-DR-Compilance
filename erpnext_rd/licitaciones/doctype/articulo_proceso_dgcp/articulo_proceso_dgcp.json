@@ -1,0 +1,118 @@
+{
+ "actions": [],
+ "creation": "2026-11-04 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "subclase_unspsc",
+  "descripcion_articulo",
+  "descripcion_usuario",
+  "cantidad",
+  "unidad_medida",
+  "precio_unitario_estimado",
+  "column_break_familia",
+  "familia_unspsc",
+  "clase_unspsc",
+  "precio_total_estimado",
+  "divisa"
+ ],
+ "fields": [
+  {
+   "fieldname": "subclase_unspsc",
+   "fieldtype": "Data",
+   "label": "Subclase UNSPSC",
+   "length": 8,
+   "in_list_view": 1,
+   "columns": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "descripcion_articulo",
+   "fieldtype": "Data",
+   "label": "Artículo",
+   "length": 255,
+   "in_list_view": 1,
+   "columns": 3,
+   "read_only": 1
+  },
+  {
+   "fieldname": "descripcion_usuario",
+   "fieldtype": "Small Text",
+   "label": "Descripción de la institución",
+   "in_list_view": 1,
+   "columns": 3,
+   "read_only": 1
+  },
+  {
+   "fieldname": "cantidad",
+   "fieldtype": "Float",
+   "label": "Cantidad",
+   "in_list_view": 1,
+   "columns": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "unidad_medida",
+   "fieldtype": "Data",
+   "label": "Unidad",
+   "in_list_view": 1,
+   "columns": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "precio_unitario_estimado",
+   "fieldtype": "Currency",
+   "label": "Precio unitario estimado",
+   "options": "divisa",
+   "in_list_view": 1,
+   "columns": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_familia",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "familia_unspsc",
+   "fieldtype": "Data",
+   "label": "Familia UNSPSC",
+   "length": 8,
+   "read_only": 1
+  },
+  {
+   "fieldname": "clase_unspsc",
+   "fieldtype": "Data",
+   "label": "Clase UNSPSC",
+   "length": 8,
+   "read_only": 1
+  },
+  {
+   "fieldname": "precio_total_estimado",
+   "fieldtype": "Currency",
+   "label": "Total estimado",
+   "options": "divisa",
+   "read_only": 1
+  },
+  {
+   "fieldname": "divisa",
+   "fieldtype": "Link",
+   "label": "Moneda",
+   "options": "Currency",
+   "hidden": 1,
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-11-04 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Licitaciones",
+ "name": "Articulo Proceso DGCP",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 0
+}

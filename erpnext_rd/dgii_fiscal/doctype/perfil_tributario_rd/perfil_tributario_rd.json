@@ -131,12 +131,13 @@
    "fieldname": "isc_alcohol",
    "fieldtype": "Check",
    "label": "Produce o importa bebidas alcohólicas (ISC)",
-   "default": "0"
+   "default": "0",
+   "description": "Fabricante o importador: cobra el ISC al vender lo que produce en el país"
   },
   {
    "fieldname": "isc_tabaco",
    "fieldtype": "Check",
-   "label": "Produce o importa productos del tabaco (ISC)",
+   "label": "Produce o importa productos del tabaco o vapeadores (ISC)",
    "default": "0"
   },
   {
@@ -159,7 +160,8 @@
    "fieldname": "isc_seguros",
    "fieldtype": "Check",
    "label": "Vende seguros (ISC)",
-   "default": "0"
+   "default": "0",
+   "description": "Incluye los seguros de vida (exentos desde 2029)"
   },
   {
    "fieldname": "propina_legal",
@@ -235,7 +237,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-22 10:00:00",
+ "modified": "2026-11-03 12:00:00",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Perfil Tributario RD",

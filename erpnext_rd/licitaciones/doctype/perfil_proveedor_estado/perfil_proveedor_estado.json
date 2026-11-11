@@ -1,0 +1,296 @@
+{
+ "actions": [],
+ "autoname": "field:company",
+ "creation": "2026-11-04 12:00:00.000000",
+ "description": "Datos de la empresa como proveedora del Estado: su inscripción en el Registro de Proveedores del Estado (RPE) de la DGCP, sus rubros y los requisitos para participar en los procesos de compra.",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "rnc",
+  "column_break_activo",
+  "habilitado",
+  "section_rpe",
+  "rpe",
+  "razon_social_rpe",
+  "estado_rpe",
+  "fecha_registro_rpe",
+  "column_break_rpe",
+  "provee",
+  "es_mipyme",
+  "clasificacion_mipyme",
+  "certificacion_micm",
+  "vencimiento_micm",
+  "column_break_consulta",
+  "constancia_rpe",
+  "ultima_consulta_rpe",
+  "section_requisitos",
+  "requisitos_html",
+  "dgii_al_dia_hasta",
+  "column_break_tss",
+  "tss_al_dia_hasta",
+  "section_rubros",
+  "rubros",
+  "section_alertas",
+  "alertas_activas",
+  "destinatarios_alertas",
+  "column_break_filtros",
+  "palabras_clave",
+  "monto_minimo",
+  "monto_maximo",
+  "ultima_alerta"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Empresa",
+   "options": "Company",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "rnc",
+   "fieldtype": "Data",
+   "label": "RNC",
+   "fetch_from": "company.tax_id",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_activo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "habilitado",
+   "fieldtype": "Check",
+   "label": "Vende al Estado",
+   "default": "1",
+   "in_list_view": 1,
+   "description": "Activa la búsqueda de procesos de compra de los rubros de la empresa y la actualización semanal del RPE."
+  },
+  {
+   "fieldname": "section_rpe",
+   "fieldtype": "Section Break",
+   "label": "Registro de Proveedores del Estado (RPE)",
+   "description": "Datos de la DGCP. Se llenan con «Consultar el RPE» y cada semana. Para cambiarlos, actualice el registro en el Portal Transaccional (comprasdominicana.gob.do)."
+  },
+  {
+   "fieldname": "rpe",
+   "fieldtype": "Data",
+   "label": "Número de RPE",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "razon_social_rpe",
+   "fieldtype": "Data",
+   "label": "Razón social en el RPE",
+   "read_only": 1
+  },
+  {
+   "fieldname": "estado_rpe",
+   "fieldtype": "Data",
+   "label": "Estado en el RPE",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "fecha_registro_rpe",
+   "fieldtype": "Date",
+   "label": "Inscrito desde",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_rpe",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "provee",
+   "fieldtype": "Data",
+   "label": "Provee",
+   "read_only": 1,
+   "description": "Bienes, servicios u obras"
+  },
+  {
+   "fieldname": "es_mipyme",
+   "fieldtype": "Check",
+   "label": "MIPYME",
+   "read_only": 1
+  },
+  {
+   "fieldname": "clasificacion_mipyme",
+   "fieldtype": "Data",
+   "label": "Clasificación",
+   "read_only": 1,
+   "depends_on": "es_mipyme"
+  },
+  {
+   "fieldname": "certificacion_micm",
+   "fieldtype": "Check",
+   "label": "Certificación MIPYME del MICM",
+   "read_only": 1,
+   "depends_on": "es_mipyme"
+  },
+  {
+   "fieldname": "vencimiento_micm",
+   "fieldtype": "Date",
+   "label": "Certificación MIPYME vence",
+   "read_only": 1,
+   "depends_on": "certificacion_micm"
+  },
+  {
+   "fieldname": "column_break_consulta",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "constancia_rpe",
+   "fieldtype": "Data",
+   "label": "Constancia del RPE",
+   "options": "URL",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ultima_consulta_rpe",
+   "fieldtype": "Datetime",
+   "label": "Última consulta",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "section_requisitos",
+   "fieldtype": "Section Break",
+   "label": "Requisitos para participar"
+  },
+  {
+   "fieldname": "requisitos_html",
+   "fieldtype": "HTML",
+   "label": "Requisitos"
+  },
+  {
+   "fieldname": "dgii_al_dia_hasta",
+   "fieldtype": "Date",
+   "label": "Certificación de la DGII vigente hasta",
+   "description": "Vencimiento de la última certificación de estar al día con la DGII. Se recuerda antes de que venza."
+  },
+  {
+   "fieldname": "column_break_tss",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tss_al_dia_hasta",
+   "fieldtype": "Date",
+   "label": "Certificación de la TSS vigente hasta",
+   "description": "Vencimiento de la última certificación de estar al día con la Tesorería de la Seguridad Social."
+  },
+  {
+   "fieldname": "section_rubros",
+   "fieldtype": "Section Break",
+   "label": "Rubros",
+   "description": "Familias UNSPSC del catálogo de la DGCP. Las del RPE se traen al consultarlo; puede agregar otras. Solo se buscan procesos de compra de estas familias."
+  },
+  {
+   "fieldname": "rubros",
+   "fieldtype": "Table",
+   "label": "Rubros",
+   "options": "Rubro Proveedor Estado"
+  },
+  {
+   "fieldname": "section_alertas",
+   "fieldtype": "Section Break",
+   "label": "Alertas",
+   "description": "Correo diario con los procesos nuevos de los rubros de la empresa y los que cierran pronto. Las palabras clave y los montos acotan los procesos nuevos."
+  },
+  {
+   "fieldname": "alertas_activas",
+   "fieldtype": "Check",
+   "label": "Enviar alertas por correo",
+   "default": "1"
+  },
+  {
+   "fieldname": "destinatarios_alertas",
+   "fieldtype": "Small Text",
+   "label": "Destinatarios",
+   "depends_on": "alertas_activas",
+   "description": "Un correo por línea. Vacío: los usuarios con el rol Sales Manager."
+  },
+  {
+   "fieldname": "column_break_filtros",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "palabras_clave",
+   "fieldtype": "Small Text",
+   "label": "Palabras clave",
+   "description": "Una por línea. Si hay, solo se avisan los procesos cuyo título o descripción tenga alguna (sin importar tildes ni mayúsculas)."
+  },
+  {
+   "fieldname": "monto_minimo",
+   "fieldtype": "Currency",
+   "label": "Monto estimado mínimo",
+   "options": "Company:company:default_currency",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "monto_maximo",
+   "fieldtype": "Currency",
+   "label": "Monto estimado máximo",
+   "options": "Company:company:default_currency",
+   "non_negative": 1,
+   "description": "Cero: sin máximo. Los procesos sin monto estimado se avisan siempre."
+  },
+  {
+   "fieldname": "ultima_alerta",
+   "fieldtype": "Datetime",
+   "label": "Última alerta",
+   "read_only": 1,
+   "no_copy": 1,
+   "hidden": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-11-04 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Licitaciones",
+ "name": "Perfil Proveedor Estado",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Sales Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Sales User",
+   "read": 1,
+   "report": 1,
+   "print": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

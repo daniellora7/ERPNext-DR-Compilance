@@ -1,0 +1,303 @@
+{
+ "actions": [],
+ "creation": "2026-11-04 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "codigo_proceso",
+  "titulo",
+  "unidad_compra",
+  "codigo_unidad_compra",
+  "column_break_estado",
+  "estado_proceso",
+  "modalidad",
+  "tipo_excepcion",
+  "objeto_proceso",
+  "column_break_monto",
+  "divisa",
+  "monto_estimado",
+  "dirigido_mipymes",
+  "dirigido_mipymes_mujeres",
+  "url",
+  "section_fechas",
+  "fecha_publicacion",
+  "fecha_enmienda",
+  "column_break_ofertas",
+  "fecha_fin_recepcion_ofertas",
+  "fecha_apertura_ofertas",
+  "column_break_adjudicacion",
+  "fecha_estimada_adjudicacion",
+  "fecha_suscripcion",
+  "duracion_contrato",
+  "section_descripcion",
+  "descripcion",
+  "section_empresas",
+  "empresas",
+  "section_articulos",
+  "articulos",
+  "section_sync",
+  "actualizado_dgcp"
+ ],
+ "fields": [
+  {
+   "fieldname": "codigo_proceso",
+   "fieldtype": "Data",
+   "label": "Código del proceso",
+   "reqd": 1,
+   "unique": 1,
+   "in_standard_filter": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "titulo",
+   "fieldtype": "Data",
+   "label": "Título",
+   "length": 500,
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "unidad_compra",
+   "fieldtype": "Data",
+   "label": "Institución",
+   "length": 255,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "codigo_unidad_compra",
+   "fieldtype": "Int",
+   "label": "Código de la institución",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_estado",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "estado_proceso",
+   "fieldtype": "Data",
+   "label": "Estado en la DGCP",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "modalidad",
+   "fieldtype": "Data",
+   "label": "Modalidad",
+   "in_standard_filter": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "tipo_excepcion",
+   "fieldtype": "Data",
+   "label": "Tipo de excepción",
+   "read_only": 1
+  },
+  {
+   "fieldname": "objeto_proceso",
+   "fieldtype": "Data",
+   "label": "Objeto",
+   "in_standard_filter": 1,
+   "description": "Bienes, servicios u obras",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_monto",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "divisa",
+   "fieldtype": "Link",
+   "label": "Moneda",
+   "options": "Currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "monto_estimado",
+   "fieldtype": "Currency",
+   "label": "Monto estimado",
+   "options": "divisa",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "dirigido_mipymes",
+   "fieldtype": "Check",
+   "label": "Dirigido a MIPYMES",
+   "read_only": 1
+  },
+  {
+   "fieldname": "dirigido_mipymes_mujeres",
+   "fieldtype": "Check",
+   "label": "Dirigido a MIPYMES de mujeres",
+   "read_only": 1
+  },
+  {
+   "fieldname": "url",
+   "fieldtype": "Data",
+   "label": "Ver en el Portal Transaccional",
+   "options": "URL",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_fechas",
+   "fieldtype": "Section Break",
+   "label": "Cronograma",
+   "description": "Hora de República Dominicana."
+  },
+  {
+   "fieldname": "fecha_publicacion",
+   "fieldtype": "Datetime",
+   "label": "Publicado",
+   "in_standard_filter": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "fecha_enmienda",
+   "fieldtype": "Datetime",
+   "label": "Enmiendas hasta",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ofertas",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "fecha_fin_recepcion_ofertas",
+   "fieldtype": "Datetime",
+   "label": "Recepción de ofertas hasta",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "fecha_apertura_ofertas",
+   "fieldtype": "Datetime",
+   "label": "Apertura de ofertas",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_adjudicacion",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "fecha_estimada_adjudicacion",
+   "fieldtype": "Datetime",
+   "label": "Adjudicación estimada",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fecha_suscripcion",
+   "fieldtype": "Datetime",
+   "label": "Firma del contrato",
+   "read_only": 1
+  },
+  {
+   "fieldname": "duracion_contrato",
+   "fieldtype": "Data",
+   "label": "Duración del contrato",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_descripcion",
+   "fieldtype": "Section Break",
+   "label": "Descripción",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "descripcion",
+   "fieldtype": "Text",
+   "label": "Descripción",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_empresas",
+   "fieldtype": "Section Break",
+   "label": "Empresas interesadas",
+   "description": "Empresas con perfil de proveedor del Estado cuyos rubros coinciden con los artículos del proceso."
+  },
+  {
+   "fieldname": "empresas",
+   "fieldtype": "Table",
+   "label": "Empresas",
+   "options": "Empresa Proceso DGCP",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_articulos",
+   "fieldtype": "Section Break",
+   "label": "Artículos"
+  },
+  {
+   "fieldname": "articulos",
+   "fieldtype": "Table",
+   "label": "Artículos",
+   "options": "Articulo Proceso DGCP",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_sync",
+   "fieldtype": "Section Break",
+   "label": "Sincronización",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "actualizado_dgcp",
+   "fieldtype": "Datetime",
+   "label": "Actualizado desde la DGCP",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-11-04 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Licitaciones",
+ "name": "Proceso Compra DGCP",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Sales Manager",
+   "read": 1,
+   "write": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Sales User",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "fecha_publicacion",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "field:codigo_proceso",
+ "naming_rule": "By fieldname",
+ "title_field": "titulo",
+ "show_title_field_in_link": 1,
+ "search_fields": "titulo,unidad_compra",
+ "track_changes": 0,
+ "in_create": 1,
+ "description": "Proceso de compra publicado por una institución del Estado en el Sistema Nacional de Compras y Contrataciones Públicas. Los datos vienen de la API de datos abiertos de la DGCP; la fuente oficial es el Portal Transaccional."
+}

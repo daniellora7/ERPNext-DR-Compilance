@@ -1,0 +1,87 @@
+{
+ "actions": [],
+ "creation": "2026-11-04 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_sincronizacion",
+  "dias_iniciales",
+  "dias_aviso_cierre",
+  "column_break_ultima",
+  "ultima_sincronizacion",
+  "ultimo_resultado"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_sincronizacion",
+   "fieldtype": "Section Break",
+   "label": "Sincronización con la DGCP",
+   "description": "Los procesos se descargan 4 veces al día, después de cada actualización de los datos de la DGCP, y solo de los rubros de los perfiles de proveedor del Estado activos."
+  },
+  {
+   "fieldname": "dias_iniciales",
+   "fieldtype": "Int",
+   "label": "Días hacia atrás en la primera descarga",
+   "default": "15",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "dias_aviso_cierre",
+   "fieldtype": "Int",
+   "label": "Avisar el cierre de ofertas con días de anticipación",
+   "default": "3",
+   "non_negative": 1,
+   "description": "Los procesos de los rubros de la empresa que dejan de recibir ofertas dentro de estos días van en la alerta diaria."
+  },
+  {
+   "fieldname": "column_break_ultima",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ultima_sincronizacion",
+   "fieldtype": "Datetime",
+   "label": "Última sincronización",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "ultimo_resultado",
+   "fieldtype": "Small Text",
+   "label": "Resultado",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-11-04 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Licitaciones",
+ "name": "Configuracion Licitaciones",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Sales Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "issingle": 1,
+ "track_changes": 1
+}

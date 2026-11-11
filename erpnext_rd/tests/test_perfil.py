@@ -113,7 +113,9 @@ class TestPerfilTributario(IntegrationTestCase):
 			},
 		)
 		r = estados(EMPRESA)
-		self.assertEqual(r["Impuesto selectivo al consumo (ISC)"], perfil.PENDIENTE_APP)
+		# El ISC ya lo cubre la app (8.2): pide sus tasas y su cuenta
+		self.assertNotIn("Impuesto selectivo al consumo (ISC)", r)
+		self.assertIn("Tasas del ISC vigentes", r)
 		self.assertEqual(r["Operaciones con partes relacionadas (DIOR)"], perfil.PENDIENTE_APP)
 		self.assertEqual(r["Régimen simplificado de tributación (RST)"], perfil.PENDIENTE_APP)
 		self.assertEqual(r["Reportes del sector regulado (Seguros)"], perfil.FUERA_ALCANCE)

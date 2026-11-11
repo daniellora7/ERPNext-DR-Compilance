@@ -9,7 +9,7 @@ import frappe
 
 from erpnext_rd import formatos
 from erpnext_rd.campos import DOCTYPES_HRMS, MODULO, crear_campos_personalizados
-from erpnext_rd.dgii_fiscal import catalogo_cuentas, cheque
+from erpnext_rd.dgii_fiscal import catalogo_cuentas, cheque, isc
 from erpnext_rd.dgii_fiscal import catalogos as cat
 from erpnext_rd.dgii_fiscal.catalogos import TIPOS_COMPROBANTE
 from erpnext_rd.dgii_reportes import estados_ir2, ir2
@@ -116,6 +116,9 @@ def inicializar_configuracion():
 				{"cierre": cierre, "multiplicador": valor, "resolucion": resolucion},
 			)
 		dgii.save(ignore_permissions=True)
+	if not dgii.tasas_isc:
+		isc.cargar_tasas_iniciales(dgii)
+		dgii.save(ignore_permissions=True)
 
 	conf = frappe.get_single("Configuracion Nomina RD")
 	if not conf.escala_isr:
@@ -140,6 +143,15 @@ FORMATOS_POR_DEFECTO = {
 	"Sales Invoice": ("Factura Fiscal RD", ("Sales Invoice Classic", "Sales Invoice Modern with Images")),
 	"POS Invoice": ("Recibo POS RD (POS Invoice)", ("POS Invoice Classic", "POS Invoice Modern with Images")),
 }
+
+
+def tipo_cargo_isc():
+	"""Tipo de cargo «ISC por artículo» en las filas de impuestos de venta (ver dgii_fiscal/isc.py)."""
+	opciones = frappe.get_meta("Sales Taxes and Charges").get_field("charge_type").options or ""
+	if isc.TIPO_CARGO not in opciones.split("\n"):
+		_property_setters(
+			"Sales Taxes and Charges", (("charge_type", "options", f"{opciones}\n{isc.TIPO_CARGO}", "Text"),)
+		)
 
 
 def formato_impresion_por_defecto():
@@ -305,6 +317,7 @@ def setup():
 	ir2.crear_formato()
 	estados_ir2.asignar_casillas()
 	crear_tipos_comprobante()
+	tipo_cargo_isc()
 	inicializar_configuracion()
 	asegurar_navegacion()
 	lista_padron_sin_filtro_reciente()

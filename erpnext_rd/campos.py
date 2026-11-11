@@ -6,6 +6,7 @@ Cada campo lleva el módulo de la app y solo se ve en empresas de RD (`rd_compli
 import frappe
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
+from erpnext_rd.dgii_fiscal import isc
 from erpnext_rd.dgii_fiscal.catalogos import (
 	CONCEPTOS_FISCALES,
 	DETALLES_SERVICIO_EXTERIOR,
@@ -728,6 +729,7 @@ def campos_personalizados() -> dict:
 				"insert_after": "is_stock_item",
 				"description": "Vacío = automático: los artículos de inventario y los activos fijos son bienes",
 			},
+			*campos_isc_articulo(),
 		],
 		"Asset Category": [
 			{
@@ -751,6 +753,8 @@ def campos_personalizados() -> dict:
 		],
 		"Sales Invoice": campos_venta("has_subcontracted"),
 		"POS Invoice": campos_venta("return_against"),
+		"Sales Invoice Item": campos_isc_linea(),
+		"POS Invoice Item": campos_isc_linea(),
 		"POS Profile": [
 			{
 				"fieldname": "rd_tipo_comprobante",
@@ -763,6 +767,193 @@ def campos_personalizados() -> dict:
 		],
 		"Purchase Invoice": compra,
 	}
+
+
+def campos_isc_articulo() -> list[dict]:
+	"""Clasificación del ISC en el artículo (ver dgii_fiscal/isc.py). Cantidades por unidad de inventario."""
+	es = "eval:doc.rd_isc_categoria == '{}'".format
+	bien = "eval:{}.includes(doc.rd_isc_categoria)".format(list(isc.BIENES))
+	return [
+		{
+			"fieldname": "rd_section_isc",
+			"fieldtype": "Section Break",
+			"label": "Impuesto selectivo al consumo (ISC)",
+			"insert_after": "rd_bien_o_servicio",
+			"collapsible": 1,
+			"collapsible_depends_on": "rd_isc_categoria",
+		},
+		{
+			"fieldname": "rd_isc_categoria",
+			"fieldtype": "Select",
+			"label": "Categoría del ISC",
+			"options": _opciones(isc.CATEGORIAS),
+			"insert_after": "rd_section_isc",
+			"description": "Solo lo cobran las empresas que lo tienen en su perfil tributario",
+		},
+		{
+			"fieldname": "rd_isc_producto",
+			"fieldtype": "Select",
+			"label": "Producto (e-CF)",
+			"options": _opciones(isc.PRODUCTOS_ALCOHOL + isc.PRODUCTOS_TABACO),
+			"insert_after": "rd_isc_categoria",
+			"depends_on": "eval:['{}', '{}'].includes(doc.rd_isc_categoria)".format(isc.ALCOHOL, isc.TABACO),
+			"description": "Tipo de bebida o de cigarrillo en la tabla de impuestos adicionales de la DGII: "
+			"da el código del ISC en el e-CF",
+		},
+		{
+			"fieldname": "rd_isc_origen",
+			"fieldtype": "Select",
+			"label": "Origen",
+			"options": "\n".join((isc.PRODUCCION_LOCAL, isc.IMPORTADO)),
+			"default": isc.PRODUCCION_LOCAL,
+			"insert_after": "rd_isc_producto",
+			"depends_on": bien,
+			"description": "El ISC de los importados lo liquida la aduana: no se cobra al venderlos",
+		},
+		{
+			"fieldname": "rd_isc_precio_por_menor",
+			"fieldtype": "Currency",
+			"label": "Precio de venta al por menor (ISC)",
+			"options": "DOP",
+			"insert_after": "rd_isc_origen",
+			"depends_on": bien,
+			"description": "Precio final al consumidor de una unidad de inventario, con envase, etiqueta y "
+			"tapa (art. 367): base del ISC ad valorem",
+		},
+		{
+			"fieldname": "rd_column_isc",
+			"fieldtype": "Column Break",
+			"insert_after": "rd_isc_precio_por_menor",
+		},
+		{
+			"fieldname": "rd_isc_litros",
+			"fieldtype": "Float",
+			"label": "Litros por unidad",
+			"insert_after": "rd_column_isc",
+			"precision": "4",
+			"depends_on": es(isc.ALCOHOL),
+			"description": "Ej.: una caja de 24 botellas de 0.355 L = 8.52",
+		},
+		{
+			"fieldname": "rd_isc_envases",
+			"fieldtype": "Int",
+			"label": "Envases por unidad",
+			"insert_after": "rd_isc_litros",
+			"default": "1",
+			"depends_on": es(isc.ALCOHOL),
+			"description": "Botellas o latas de una unidad de inventario (en el e-CF, la cantidad de "
+			"referencia). Ej.: una caja de 24 botellas = 24",
+		},
+		{
+			"fieldname": "rd_isc_grado",
+			"fieldtype": "Percent",
+			"label": "Grado alcohólico (% vol.)",
+			"insert_after": "rd_isc_envases",
+			"depends_on": es(isc.ALCOHOL),
+		},
+		{
+			"fieldname": "rd_isc_cigarrillos",
+			"fieldtype": "Select",
+			"label": "Cigarrillos por cajetilla",
+			"options": "\n20\n10",
+			"insert_after": "rd_isc_grado",
+			"depends_on": es(isc.TABACO),
+		},
+		{
+			"fieldname": "rd_isc_cajetillas",
+			"fieldtype": "Float",
+			"label": "Cajetillas por unidad",
+			"insert_after": "rd_isc_cigarrillos",
+			"default": "1",
+			"depends_on": es(isc.TABACO),
+			"description": "Ej.: un cartón de 10 cajetillas = 10",
+		},
+		{
+			"fieldname": "rd_isc_galones",
+			"fieldtype": "Float",
+			"label": "Galones por unidad",
+			"insert_after": "rd_isc_cajetillas",
+			"precision": "4",
+			"depends_on": es(isc.COMBUSTIBLES),
+		},
+	]
+
+
+def campos_isc_linea() -> list[dict]:
+	"""ISC de cada línea de la factura de venta (lo calcula isc.aplicar). Montos en moneda de la empresa."""
+	solo_lectura = {"read_only": 1, "no_copy": 1, "depends_on": "rd_isc_categoria"}
+	return [
+		{
+			"fieldname": "rd_section_isc",
+			"fieldtype": "Section Break",
+			"label": "Impuesto selectivo al consumo (ISC)",
+			"insert_after": "item_tax_rate",
+			"collapsible": 1,
+			"depends_on": "rd_isc_categoria",
+		},
+		{
+			"fieldname": "rd_isc_categoria",
+			"fieldtype": "Data",
+			"label": "Categoría del ISC",
+			"insert_after": "rd_section_isc",
+			"read_only": 1,
+			"no_copy": 1,
+		},
+		{
+			"fieldname": "rd_isc_unitario",
+			"fieldtype": "Float",
+			"label": "ISC por unidad de inventario",
+			"insert_after": "rd_isc_categoria",
+			"precision": "6",
+			"hidden": 1,
+			"no_copy": 1,
+		},
+		{
+			"fieldname": "rd_isc_tasa",
+			"fieldtype": "Percent",
+			"label": "Tasa del ISC (servicios)",
+			"insert_after": "rd_isc_unitario",
+			**solo_lectura,
+		},
+		{
+			"fieldname": "rd_isc_base_especifica",
+			"fieldtype": "Float",
+			"label": "Base del monto específico",
+			"insert_after": "rd_isc_tasa",
+			"precision": "4",
+			**solo_lectura,
+			"description": "Litros de alcohol absoluto, cajetillas o galones",
+		},
+		{
+			"fieldname": "rd_column_isc",
+			"fieldtype": "Column Break",
+			"insert_after": "rd_isc_base_especifica",
+		},
+		{
+			"fieldname": "rd_isc_base_ad_valorem",
+			"fieldtype": "Currency",
+			"label": "Base del ISC ad valorem",
+			"options": "Company:company:default_currency",
+			"insert_after": "rd_column_isc",
+			**solo_lectura,
+		},
+		{
+			"fieldname": "rd_isc_especifico",
+			"fieldtype": "Currency",
+			"label": "ISC específico",
+			"options": "Company:company:default_currency",
+			"insert_after": "rd_isc_base_ad_valorem",
+			**solo_lectura,
+		},
+		{
+			"fieldname": "rd_isc_ad_valorem",
+			"fieldtype": "Currency",
+			"label": "ISC ad valorem",
+			"options": "Company:company:default_currency",
+			"insert_after": "rd_isc_especifico",
+			**solo_lectura,
+		},
+	]
 
 
 def crear_campos_personalizados():

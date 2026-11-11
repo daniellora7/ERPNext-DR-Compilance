@@ -2,7 +2,7 @@
 
 Responder en español. **ERPNext RD**: ERPNext + Frappe HR + app `erpnext_rd` (localización RD: NCF, e-CF, DGII, padrón RNC, nómina). Docs: `docs/PLAN.md` (pendientes), `docs/NOTAS-TECNICAS.md` (módulos), `docs/lineamientos-diseno-frappe.md` (interfaz), `docs/marketplace.md`; actualizarlos al cambiar algo.
 
-Versiones: Frappe v16.52.0 (`deploy/Containerfile`), ERPNext v16.51.1, HRMS v16.51.0 y Builder v1.36.0 (`deploy/apps.json`), MariaDB 11.8, Python 3.14.
+Versiones: Frappe v16.56.0 (`deploy/Containerfile`), ERPNext v16.54.0, HRMS v16.53.2 y Frappe Suite (rama `develop`, sin releases) (`deploy/apps.json`), MariaDB 11.8, Python 3.14.
 
 ## Reglas
 
@@ -14,7 +14,7 @@ Versiones: Frappe v16.52.0 (`deploy/Containerfile`), ERPNext v16.51.1, HRMS v16.
 - Pasar Semgrep del Marketplace: consultas con `frappe.qb` o `frappe.get_all` (no `frappe.db.sql`), `str(e)` en `_().format()`, commits manuales con `# nosemgrep: <regla>`, tipos en métodos whitelisted y `methods=["POST"]` en los que escriben.
 - Interfaz frappe-ui: solo tokens CSS (`--ink-*`, `--surface-*`, `--outline-*`), nunca hex ni Bootstrap; revisar claro y oscuro.
 - Formatos imprimibles editables en el constructor de Frappe (ver `erpnext_rd/formatos.py`).
-- Terceros solo GPL-3, LGPL-3 o MIT.
+- Terceros solo GPL-3, LGPL-3 o MIT; AGPL-3 solo para apps instaladas sin modificar (Frappe Suite), nunca código copiado a `erpnext_rd`.
 
 ## Entorno local
 
