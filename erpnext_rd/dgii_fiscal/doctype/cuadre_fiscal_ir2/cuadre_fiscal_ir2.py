@@ -76,6 +76,7 @@ class CuadreFiscalIR2(Document):
 		self.ingresos_brutos = resultado.ingresos
 		self.anticipos_pagados = ir2.anticipos_del_ejercicio(self.company, self.desde, self.hasta)
 		avisos += self._traer_incentivos()
+		avisos += self._avisar_relacionados()
 
 		activos = ir2.activos(self.company, self.desde, self.hasta)
 		contable = ir2.depreciacion_contable(self.company, self.desde, self.hasta)
@@ -138,6 +139,25 @@ class CuadreFiscalIR2(Document):
 				).format(", ".join(sin_categoria))
 			)
 		self.avisos = "\n".join(avisos)
+
+	def _avisar_relacionados(self) -> list[str]:
+		"""Con operaciones con partes relacionadas en el ejercicio, recuerda el ajuste 1.9 del anexo G
+		(precios de transferencia): la app no lo calcula, sale del estudio de precios de la empresa."""
+		from erpnext_rd.dgii_reportes import dior
+
+		if not cint(perfil.perfil(self.company).partes_relacionadas):
+			return []
+		if any(a.concepto == ir2.AJUSTE_PRECIOS_TRANSFERENCIA for a in self.ajustes):
+			return []
+		operaciones = dior.operaciones(self.company, self.desde, self.hasta)
+		if not operaciones:
+			return []
+		return [
+			_(
+				"Hubo {0} operaciones con partes relacionadas (reporte DIOR). Si algún precio no es de "
+				"mercado según el estudio de precios de transferencia, agregue el ajuste «{1}»."
+			).format(sum(cint(o.documentos) for o in operaciones), ir2.AJUSTE_PRECIOS_TRANSFERENCIA)
+		]
 
 	def _traer_incentivos(self) -> list[str]:
 		"""Casillas 3, 10, 15, 16 y 20 desde los incentivos del perfil tributario. Un incentivo exento

@@ -14,11 +14,13 @@ relacionada, por contraparte. El instructivo con los campos de cada operación n
 from datetime import date
 
 import frappe
+from frappe.query_builder.functions import Count, IfNull, Sum
 from frappe.utils import add_days, flt, getdate
 
 DIAS_PRESENTACION = 180
 VENTA = "Venta"
 COMPRA = "Compra"
+ASIENTO = "Asiento"
 
 
 def fecha_limite(cierre) -> date:
@@ -34,7 +36,8 @@ def relacionados() -> dict[str, list[str]]:
 
 
 def operaciones(company: str, desde, hasta) -> list[frappe._dict]:
-	"""Ventas y compras aprobadas del período con partes relacionadas, por contraparte y tipo.
+	"""Ventas y compras aprobadas del período con partes relacionadas, por contraparte y tipo, y los
+	asientos con ellas que no pagan facturas (préstamos, anticipos, cargos entre compañías...).
 
 	Montos netos de ITBIS en la moneda de la empresa; las notas de crédito restan."""
 	partes = relacionados()
@@ -60,24 +63,71 @@ def operaciones(company: str, desde, hasta) -> list[frappe._dict]:
 			],
 			group_by=campo_parte,
 		):
-			datos = frappe.db.get_value(
-				parte,
-				f[campo_parte],
-				["tax_id", "rd_vinculacion", f"{'customer' if parte == 'Customer' else 'supplier'}_name"]
-				+ (["country"] if parte == "Supplier" else []),
-				as_dict=True,
+			filas.append(_fila(parte, f[campo_parte], tipo, documentos=f.documentos, monto=flt(f.monto)))
+	filas += asientos(company, desde, hasta, partes)
+	return sorted(filas, key=lambda f: (f.nombre or "", f.tipo))
+
+
+def _fila(parte: str, contraparte: str, tipo: str, **montos) -> frappe._dict:
+	campo_nombre = "customer_name" if parte == "Customer" else "supplier_name"
+	datos = frappe.db.get_value(
+		parte,
+		contraparte,
+		["tax_id", "rd_vinculacion", campo_nombre] + (["country"] if parte == "Supplier" else []),
+		as_dict=True,
+	)
+	return frappe._dict(
+		tipo=tipo,
+		parte=parte,
+		contraparte=contraparte,
+		nombre=datos.get(campo_nombre),
+		identificacion=datos.tax_id,
+		pais=datos.get("country"),
+		vinculacion=datos.rd_vinculacion,
+		**montos,
+	)
+
+
+def asientos(company: str, desde, hasta, partes: dict | None = None) -> list[frappe._dict]:
+	"""Asientos validados del período con partes relacionadas que no pagan ni cruzan facturas:
+	préstamos, anticipos y otras operaciones. Cargos y abonos por contraparte, sin compensarlos
+	(un préstamo dado y cobrado en el año son dos operaciones)."""
+	partes = partes or relacionados()
+	jea = frappe.qb.DocType("Journal Entry Account")
+	je = frappe.qb.DocType("Journal Entry")
+	filas = []
+	for parte, nombres in partes.items():
+		if not nombres:
+			continue
+		for party, cargos, abonos, documentos in (
+			frappe.qb.from_(jea)
+			.join(je)
+			.on(jea.parent == je.name)
+			.select(
+				jea.party,
+				Sum(jea.debit),
+				Sum(jea.credit),
+				Count(je.name).distinct(),
 			)
+			.where(
+				(je.company == company)
+				& (je.docstatus == 1)
+				& (je.posting_date[getdate(desde) : getdate(hasta)])
+				& (jea.party_type == parte)
+				& (jea.party.isin(nombres))
+				& (IfNull(jea.reference_type, "").notin(("Sales Invoice", "Purchase Invoice")))
+			)
+			.groupby(jea.party)
+			.run()
+		):
 			filas.append(
-				frappe._dict(
-					tipo=tipo,
-					parte=parte,
-					contraparte=f[campo_parte],
-					nombre=datos.get("customer_name") or datos.get("supplier_name"),
-					identificacion=datos.tax_id,
-					pais=datos.get("country"),
-					vinculacion=datos.rd_vinculacion,
-					documentos=f.documentos,
-					monto=flt(f.monto),
+				_fila(
+					parte,
+					party,
+					ASIENTO,
+					documentos=documentos,
+					cargos=flt(cargos),
+					abonos=flt(abonos),
 				)
 			)
-	return sorted(filas, key=lambda f: (f.nombre or "", f.tipo))
+	return filas

@@ -60,6 +60,7 @@ GASTOS_SIN_COMPROBANTE = "1.13 Gastos sin comprobantes con valor fiscal"
 DEFICIENCIA_DEPRECIACION = "2.1 Deficiencia en depreciación"
 AJUSTE_INVENTARIO = "2.2 Ajustes de inventario (D-2)"
 OTROS_POSITIVOS = "1.17 Otros ajustes positivos"
+AJUSTE_PRECIOS_TRANSFERENCIA = "1.9 Ajustes de precios de transferencia"
 CONCEPTOS_POSITIVOS = (
 	"1.1 Impuestos no deducibles",
 	EXCESO_DEPRECIACION,
@@ -69,7 +70,7 @@ CONCEPTOS_POSITIVOS = (
 	"1.6 Pérdida de capital no compensable",
 	"1.7 Diferencia cambiaria",
 	"1.8 Ajustes positivos por reembolsos",
-	"1.9 Ajustes de precios de transferencia",
+	AJUSTE_PRECIOS_TRANSFERENCIA,
 	"1.10 Gastos de intereses no deducibles",
 	"1.11 Otros gastos no admitidos (art. 288)",
 	"1.12 Ajustes de inventarios",

@@ -27,7 +27,9 @@ def execute(filters=None):
 	filas = dior.operaciones(filters.company, desde, hasta)
 	mensaje = _(
 		"Ejercicio del {0} al {1}. La DIOR se presenta en la Oficina Virtual a más tardar el {2}, también si "
-		"no hubo operaciones. El estudio de precios de transferencia se hace aparte."
+		"no hubo operaciones. Los asientos (préstamos, anticipos y otras operaciones que no son facturas) "
+		"van con sus cargos y abonos: clasifíquelos en la DIOR. El estudio de precios de transferencia se "
+		"hace aparte."
 	).format(
 		frappe.format(desde, "Date"),
 		frappe.format(hasta, "Date"),
@@ -50,7 +52,9 @@ def columnas() -> list[dict]:
 		{"fieldname": "identificacion", "label": _("RNC / ID"), "fieldtype": "Data", "width": 120},
 		{"fieldname": "pais", "label": _("País"), "fieldtype": "Data", "width": 120},
 		{"fieldname": "vinculacion", "label": _("Vinculación"), "fieldtype": "Data", "width": 180},
-		{"fieldname": "documentos", "label": _("Facturas"), "fieldtype": "Int", "width": 80},
+		{"fieldname": "documentos", "label": _("Documentos"), "fieldtype": "Int", "width": 100},
 		{"fieldname": "monto", "label": _("Monto sin ITBIS"), "fieldtype": "Currency", "width": 150},
+		{"fieldname": "cargos", "label": _("Cargos (asientos)"), "fieldtype": "Currency", "width": 140},
+		{"fieldname": "abonos", "label": _("Abonos (asientos)"), "fieldtype": "Currency", "width": 140},
 		{"fieldname": "parte", "label": _("Tipo de parte"), "fieldtype": "Data", "hidden": 1},
 	]
