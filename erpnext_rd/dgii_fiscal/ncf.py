@@ -171,6 +171,10 @@ def tipo_por_defecto_venta(doc) -> str:
 	# Zonas francas y otros regímenes especiales: B14 / E44 (Fase 8.4, regimenes.py)
 	if regimenes.regimen_del_cliente(doc.customer).rd_regimen_especial in regimenes.CON_COMPROBANTE_ESPECIAL:
 		return regimenes.tipo_especial(serie)
+	# La empresa es zona franca y transfiere bienes al mercado local: B16 / E46
+	de_zona_franca = regimenes.tipo_zona_franca(doc, serie)
+	if de_zona_franca:
+		return de_zona_franca
 	if tipo_identificacion(doc.tax_id) in ("RNC", "Cédula") and identificacion_valida(doc.tax_id):
 		return f"{serie}{'01' if serie == 'B' else '31'}"
 

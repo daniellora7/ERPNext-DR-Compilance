@@ -327,7 +327,8 @@ def tipos_de_venta(company: str) -> list[str]:
 	p = perfil(company)
 	serie_e = p.ecf_estado == ECF_EMISOR
 	tipos = ["E31", "E32", "E34"] if serie_e else ["B01", "B02", "B04"]
-	if p.exportador:
+	# Exportadores y zonas francas (estas venden al mercado local con el de exportación, NG 05-2019)
+	if p.exportador or any(i.regimen == "Zona franca (Ley 8-90)" for i in incentivos_vigentes(company)):
 		tipos.append("E46" if serie_e else "B16")
 	return tipos
 
@@ -532,7 +533,11 @@ def _partes_relacionadas(company, p):
 # Lo que la empresa tiene pero la app aún no cubre (siguientes ramas de la Fase 8)
 PENDIENTES = (
 	(lambda p: cint(p.exportador), "Reembolso o compensación del ITBIS de exportadores", "8.4"),
-	(lambda p: bool(p.incentivos), "Regímenes especiales e incentivos", "8.4 y 8.6"),
+	(
+		lambda p: any(i.regimen == "Proindustria (Ley 392-07)" for i in p.incentivos),
+		"Activos de la Ley 392-07 en el IR-2 (anexo D, sección C)",
+		"8.6",
+	),
 	(lambda p: p.regimen == RST, "Régimen simplificado de tributación (RST)", "8.7"),
 	(lambda p: p.tipo_contribuyente == FISICA, "Persona física con negocio (IR-1)", "8.8"),
 )
