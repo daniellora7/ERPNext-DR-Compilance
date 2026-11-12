@@ -203,8 +203,11 @@ Base confirmada (2026-11-11): guía de la DGII de la Norma General 05-2019 (vige
 - Investigado el 2026-11-11 (fuentes secundarias: PwC, Siempre al Día, El Caribe): la Ley 30-26 **no lo deroga**. Agrega un párrafo IV al art. 406 del Código Tributario que exime al sector agropecuario y mantiene la compensación de saldos a favor del ISR con este impuesto. Lo que sí se deroga es el impuesto por constitución de compañías y aumento de capital (desde 2027), el de registro de hipotecas (2028) y el de seguros de vida (2029). **Confirmar en el texto oficial de la Ley 30-26** antes de programar.
 - Si aplica: activos imponibles desde el anexo A-1, exentos, liquidación y crédito contra el ISR, en el cuadre del IR-2.
 
-### 8.6 Incentivos en el IR-2
-- Desde los incentivos del perfil: exenciones (casilla 3), deducción por inversión de la Ley 392-07 y sus activos (anexo D, sección C), créditos de energías renovables y de cine (casillas 15, 16 y 20).
+### 8.6 Incentivos en el IR-2 🟡
+Base confirmada (2026-11-12): instructivo oficial del IR-2 y sus anexos (DGII, marzo de 2026), liquidación casillas 1 a 24 y anexo D, sección C.
+- ✅ Liquidación del *Cuadre Fiscal IR2* con las casillas del instructivo: 3 exención por ley de incentivos, 4 dividendos ganados, 9 renta después de pérdidas, 10 deducción por inversión (Ley 392-07), 15 crédito por inversión (Ley 108-10, art. 34), 16 crédito por energía renovable (Ley 57-07) y 20 crédito fiscal (Ley 108-10, art. 39, y Ley 253-12). Las demás (17, 18, 19 y 21) siguen juntas en «Otros créditos».
+- ✅ Desde el perfil tributario: un incentivo exento del ISR todo el ejercicio propone la exención total (casilla 3 = toda la renta, se puede desmarcar); si cubre solo parte del ejercicio, o si el perfil tiene Proindustria, energías renovables o cine con la casilla vacía, avisa. Los montos los aprueba la DGII o Proindustria: la app no los calcula.
+- Falta: anexo D, sección C (activos de la Ley 392-07). El instructivo no da la tasa: confirmar en la Ley 392-07 (art. 50) antes de programar.
 
 ### 8.7 Régimen simplificado (RST)
 - Investigado el 2026-11-11 (fuentes secundarias: Siempre al Día, Alegra, PwC): con la Ley 30-26 los topes pasan a RD$30 millones de ingresos (personas jurídicas y negocios de único dueño de servicios o producción), RD$60 millones de compras (comerciantes) y RD$15 millones (profesionales independientes y productores agropecuarios). Sigue siendo voluntario, con autorización previa de la DGII (para 2027 se pide en 2026). Las causales de exclusión del Decreto 265-19 siguen hasta el nuevo reglamento; la cuota y la operación dependen de ese reglamento, que aún no aparece. **Confirmar los topes en el texto oficial y esperar el reglamento** antes de programar (los topes van en configuración).

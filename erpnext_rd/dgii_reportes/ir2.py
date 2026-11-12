@@ -135,6 +135,15 @@ FORMATO = {
 # El IR-2 se presenta y se paga dentro de los 120 días siguientes al cierre (art. 328 y su reglamento)
 DIAS_PRESENTACION = 120
 
+# Incentivos del perfil tributario con casilla propia en la liquidación (instructivo IR-2, marzo 2026).
+# Los montos los aprueba la DGII (o Proindustria): la app avisa si el perfil tiene el incentivo y la
+# casilla está vacía, pero no los calcula.
+CASILLAS_INCENTIVO = {
+	"Proindustria (Ley 392-07)": (("deduccion_inversion",), "10"),
+	"Energías renovables (Ley 57-07)": (("credito_energia_renovable",), "16"),
+	"Cine (Ley 108-10)": (("credito_inversion_cine", "credito_fiscal_cine"), "15 o 20"),
+}
+
 
 # ---------------------------------------------------------------------- configuración
 
@@ -256,14 +265,27 @@ def distribuir_ajuste(patrimonio: float, valores: list[tuple[str, float]], facto
 
 
 def liquidar(
-	beneficio: float, positivos: float, negativos: float, perdidas: float, tasa_isr: float, creditos: float
+	beneficio: float,
+	positivos: float,
+	negativos: float,
+	perdidas: float,
+	tasa_isr: float,
+	creditos: float,
+	exencion: float = 0,
+	dividendos: float = 0,
+	deduccion_inversion: float = 0,
 ) -> frappe._dict:
-	renta_antes = flt(flt(beneficio) + flt(positivos) - flt(negativos), 2)
-	renta = flt(max(renta_antes - flt(perdidas), 0), 2)
+	"""Liquidación del IR-2 (instructivo de marzo de 2026, casillas 1 a 24):
+	7 = 1 + 2 - 3 (exención por incentivos) - 4 (dividendos) - 5; 9 = 7 - 8 (pérdidas);
+	11 = 9 - 10 (deducción por inversión, Ley 392-07); 12 = 11 x tasa; 23/24 = 12 - créditos (13 a 22)."""
+	renta_antes = flt(flt(beneficio) + flt(positivos) - flt(exencion) - flt(dividendos) - flt(negativos), 2)
+	antes_deduccion = flt(max(renta_antes - flt(perdidas), 0), 2)
+	renta = flt(max(antes_deduccion - flt(deduccion_inversion), 0), 2)
 	impuesto = flt(renta * flt(tasa_isr) / 100, 2)
 	diferencia = flt(impuesto - flt(creditos), 2)
 	return frappe._dict(
 		renta_antes_perdidas=renta_antes,
+		renta_antes_deduccion=antes_deduccion,
 		renta_neta_imponible=renta,
 		impuesto_liquidado=impuesto,
 		diferencia_pagar=max(diferencia, 0),

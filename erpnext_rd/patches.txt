@@ -13,3 +13,4 @@ erpnext_rd.patches.v0_4.alcance_por_empresa
 erpnext_rd.patches.v0_5.indice_secuencia_ncf
 erpnext_rd.patches.v0_5.indice_texto_padron
 erpnext_rd.patches.v0_5.isc_en_formatos
+erpnext_rd.patches.v0_6.incentivos_ir2

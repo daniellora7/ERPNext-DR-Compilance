@@ -75,6 +75,7 @@ class CuadreFiscalIR2(Document):
 		self.beneficio_contable = resultado.beneficio
 		self.ingresos_brutos = resultado.ingresos
 		self.anticipos_pagados = ir2.anticipos_del_ejercicio(self.company, self.desde, self.hasta)
+		avisos += self._traer_incentivos()
 
 		activos = ir2.activos(self.company, self.desde, self.hasta)
 		contable = ir2.depreciacion_contable(self.company, self.desde, self.hasta)
@@ -137,6 +138,34 @@ class CuadreFiscalIR2(Document):
 				).format(", ".join(sin_categoria))
 			)
 		self.avisos = "\n".join(avisos)
+
+	def _traer_incentivos(self) -> list[str]:
+		"""Casillas 3, 10, 15, 16 y 20 desde los incentivos del perfil tributario. Un incentivo exento
+		del ISR todo el ejercicio propone la exención total; los demás montos se escriben a mano."""
+		desde, hasta = getdate(self.desde), getdate(self.hasta)
+
+		def cubre(i, inicio, fin):
+			return (not i.desde or getdate(i.desde) <= inicio) and (not i.hasta or getdate(i.hasta) >= fin)
+
+		vigentes = [i for i in perfil.perfil(self.company).incentivos if cubre(i, hasta, desde)]
+		exentos = [i for i in vigentes if i.exento_isr]
+		self.exencion_total = 1 if any(cubre(i, desde, hasta) for i in exentos) else 0
+		avisos = []
+		if exentos and not self.exencion_total:
+			avisos.append(
+				_(
+					"El incentivo {0} exime del ISR solo parte del ejercicio: escriba la exención en la "
+					"casilla 3."
+				).format(", ".join(i.regimen for i in exentos))
+			)
+		for regimen, (campos, casilla) in ir2.CASILLAS_INCENTIVO.items():
+			if any(i.regimen == regimen for i in vigentes) and not any(flt(self.get(c)) for c in campos):
+				avisos.append(
+					_(
+						"El perfil tiene el incentivo {0}: escriba el monto aprobado en la casilla {1}."
+					).format(regimen, casilla)
+				)
+		return avisos
 
 	def _traer_edificaciones(self, anterior, activos, contable, en_libros, sin_costo_fiscal, reparaciones):
 		previas = {e.asset: e for e in anterior.edificaciones if not e.fecha_retiro} if anterior else {}
@@ -342,10 +371,25 @@ class CuadreFiscalIR2(Document):
 			for v in (
 				self.anticipos_pagados,
 				self.retenciones_estado,
+				self.credito_inversion_cine,
+				self.credito_energia_renovable,
+				self.credito_fiscal_cine,
 				self.otros_creditos,
 				self.saldo_favor_anterior,
 			)
 		)
+		if self.exencion_total:
+			# Toda la renta del ejercicio queda exenta (casilla 3 = casillas 1 + 2 - 4 - 5)
+			self.exencion_incentivos = max(
+				flt(
+					flt(self.beneficio_contable)
+					+ self.total_positivos
+					- flt(self.dividendos_ganados)
+					- self.total_negativos,
+					2,
+				),
+				0,
+			)
 		self.update(
 			ir2.liquidar(
 				self.beneficio_contable,
@@ -354,6 +398,9 @@ class CuadreFiscalIR2(Document):
 				self.perdidas_compensables,
 				self.tasa_isr,
 				creditos,
+				exencion=self.exencion_incentivos,
+				dividendos=self.dividendos_ganados,
+				deduccion_inversion=self.deduccion_inversion,
 			)
 		)
 
