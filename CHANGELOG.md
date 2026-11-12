@@ -4,6 +4,10 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 
 ## Sin publicar
 
+## v0.6.0 (2026-11-12)
+
+Monitor de e-CF, portal del empleado, licitaciones del Estado (ofertas y adjudicaciones), ISC, DIOR, zonas francas e incentivos en el IR-2.
+
 ### Nuevo
 - **Portal del empleado** (`/rd-compliance/mi-nomina`, requiere Frappe HR). El empleado con usuario vinculado ve sus volantes de pago aprobados y los descarga en PDF con el formato *Volante de pago RD*, su acumulado del año (salario bruto, AFP, SFS, ISR y neto), el saldo de vacaciones y permisos, y sus solicitudes. Puede solicitar un permiso, que aprueba su supervisor en Frappe HR. Sin roles de contabilidad solo ve su portal.
 - **Monitor de e-CF** en el Panel RD Compliance (`/rd-compliance/ecf`, y *Monitor de e-CF* en el sidebar del escritorio). Por empresa y período: envíos por estado; e-CF en contingencia, rechazados o con error, con el botón para reenviar; entregas al comprador fallidas, con el botón para entregar; facturas con comprobante electrónico sin e-CF y e-CF recibidos con la aprobación comercial pendiente. Avisa si falta el emisor, si el envío está deshabilitado, si el certificado vence en 30 días o menos y si el ambiente es de pruebas.
