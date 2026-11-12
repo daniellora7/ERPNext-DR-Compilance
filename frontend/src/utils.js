@@ -63,6 +63,23 @@ export function formatoFecha(valor) {
 	return f ? fecha.format(f) : "—"
 }
 
+// Fecha y hora del servidor ("AAAA-MM-DD HH:MM:SS", hora del sitio): se muestran tal cual llegan
+const fechaHora = new Intl.DateTimeFormat("es-DO", {
+	day: "numeric",
+	month: "short",
+	year: "numeric",
+	hour: "numeric",
+	minute: "2-digit",
+})
+
+export function formatoFechaHora(valor) {
+	if (!valor) return "—"
+	const [d, t = "00:00:00"] = String(valor).split(" ")
+	const [a, m, dia] = d.split("-").map(Number)
+	const [hh, mm] = t.split(":").map(Number)
+	return fechaHora.format(new Date(a, m - 1, dia, hh, mm))
+}
+
 export function diasHasta(valor) {
 	const f = aFecha(valor)
 	if (!f) return null

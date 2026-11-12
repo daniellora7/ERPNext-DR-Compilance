@@ -51,6 +51,8 @@
 					<div class="flex-1 overflow-y-auto px-2 py-2">
 						<SidebarItem :label="__('Panel')" icon="lucide-layout-dashboard" route="/" />
 
+						<SidebarItem :label="__('Monitor de e-CF')" icon="lucide-activity" :route="{ name: 'Ecf' }" />
+
 						<SidebarLabel>{{ __("DGII Fiscal") }}</SidebarLabel>
 						<SidebarItem
 							:label="__('Secuencias NCF')"

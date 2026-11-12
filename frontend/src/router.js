@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from "vue-router"
 // `movil`: pantallas para el celular, con MobileShell en vez del shell del escritorio
 const routes = [
 	{ path: "/", name: "Panel", component: () => import("@/pages/Panel.vue") },
+	{ path: "/ecf", name: "Ecf", component: () => import("@/pages/Ecf.vue") },
 	{
 		path: "/escanear",
 		name: "Escanear",
