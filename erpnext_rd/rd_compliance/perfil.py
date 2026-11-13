@@ -554,7 +554,7 @@ def _partes_relacionadas(company, p):
 PENDIENTES = (
 	(
 		lambda p: any(i.regimen == "Proindustria (Ley 392-07)" for i in p.incentivos),
-		"Activos de la Ley 392-07 en el IR-2 (anexo D, sección C)",
+		"Depreciación acelerada en el IR-2 (anexo D, sección C)",
 		"8.6",
 	),
 	(lambda p: p.regimen == RST, "Régimen simplificado de tributación (RST)", "8.7"),
