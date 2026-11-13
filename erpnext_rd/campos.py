@@ -21,6 +21,7 @@ from erpnext_rd.dgii_fiscal.catalogos import (
 from erpnext_rd.dgii_fiscal.consulta_ncf import ESTADOS as ESTADOS_NCF_DGII
 from erpnext_rd.dgii_fiscal.regimenes import REGIMENES as REGIMENES_ESPECIALES
 from erpnext_rd.dgii_reportes import casillas_ir2
+from erpnext_rd.dgii_reportes.dior import SUPUESTOS_VINCULACION
 from erpnext_rd.dgii_reportes.ir2 import CATEGORIAS as CATEGORIAS_FISCALES
 from erpnext_rd.nomina_rd import hrms_instalado
 from erpnext_rd.nomina_rd.salario import CONCEPTOS as CONCEPTOS_NOMINA
@@ -192,6 +193,39 @@ def campos_personalizados() -> dict:
 				"read_only": 1,
 				"no_copy": 1,
 				"depends_on": "eval:(doc.rd_ncf || '').startsWith('E')",
+			},
+			# Contingencia sin poder emitir e-CF: serie B y el e-CF que la reemplaza (ecf/contingencia.py)
+			{
+				"fieldname": "rd_contingencia_ecf",
+				"fieldtype": "Check",
+				"label": "Emitida en contingencia",
+				"insert_after": "rd_fecha_firma",
+				"read_only": 1,
+				"no_copy": 1,
+				"depends_on": "rd_contingencia_ecf",
+				"description": "Comprobante de la serie B de un emisor electrónico en contingencia: hay que "
+				"enviar a la DGII el e-CF que lo reemplaza.",
+			},
+			{
+				"fieldname": "rd_encf_reemplazo",
+				"fieldtype": "Data",
+				"label": "e-NCF de reemplazo",
+				"insert_after": "rd_contingencia_ecf",
+				"read_only": 1,
+				"no_copy": 1,
+				"allow_on_submit": 1,
+				"length": 13,
+				"depends_on": "rd_contingencia_ecf",
+			},
+			{
+				"fieldname": "rd_plazo_reemplazo",
+				"fieldtype": "Date",
+				"label": "Plazo del e-CF de reemplazo",
+				"insert_after": "rd_encf_reemplazo",
+				"read_only": 1,
+				"no_copy": 1,
+				"allow_on_submit": 1,
+				"depends_on": "rd_contingencia_ecf",
 			},
 		]
 		return campos
@@ -388,6 +422,15 @@ def campos_personalizados() -> dict:
 				"description": "Por qué es parte relacionada (art. 281, párrafo IV): accionista, misma casa matriz...",
 			},
 			{
+				"fieldname": "rd_supuesto_vinculacion",
+				"fieldtype": "Select",
+				"label": "Supuesto de vinculación (DIOR)",
+				"options": "\n" + "\n".join(SUPUESTOS_VINCULACION),
+				"insert_after": "rd_vinculacion",
+				"depends_on": "rd_parte_relacionada",
+				"description": "Código del supuesto del art. 281 (modificado por la Ley 253-12) que pide la DIOR",
+			},
+			{
 				"fieldname": "rd_regimen_especial",
 				"fieldtype": "Select",
 				"label": "Régimen especial",
@@ -468,9 +511,18 @@ def campos_personalizados() -> dict:
 				"description": "Por qué es parte relacionada (art. 281, párrafo IV): accionista, misma casa matriz...",
 			},
 			{
+				"fieldname": "rd_supuesto_vinculacion",
+				"fieldtype": "Select",
+				"label": "Supuesto de vinculación (DIOR)",
+				"options": "\n" + "\n".join(SUPUESTOS_VINCULACION),
+				"insert_after": "rd_vinculacion",
+				"depends_on": "rd_parte_relacionada",
+				"description": "Código del supuesto del art. 281 (modificado por la Ley 253-12) que pide la DIOR",
+			},
+			{
 				**proporcionalidad,
 				"label": "ITBIS sujeto a proporcionalidad por defecto (art. 349)",
-				"insert_after": "rd_vinculacion",
+				"insert_after": "rd_supuesto_vinculacion",
 			},
 		],
 		"Salary Component": [

@@ -18,6 +18,7 @@ import secrets
 
 import frappe
 from frappe import _
+from frappe.rate_limiter import rate_limit
 from frappe.utils import add_to_date, now_datetime
 from frappe.website.page_renderers.base_renderer import BaseRenderer
 from lxml import etree
@@ -75,7 +76,12 @@ def validar_certificado() -> Response:
 		valor = (firma.leer(xml).findtext("valor") or "").strip()
 	except etree.XMLSyntaxError:
 		valor = ""
-	if not valor or not frappe.cache.get_value(_clave("semilla", valor)) or not firma.verificar(xml):
+	if (
+		not valor
+		or not frappe.cache.get_value(_clave("semilla", valor))
+		or not firma.verificar(xml)
+		or not recepcion.certificado_aceptable(xml)
+	):
 		return _json({"mensaje": _("Semilla vencida, desconocida o mal firmada")}, 401)
 	frappe.cache.delete_value(_clave("semilla", valor))
 
@@ -129,11 +135,19 @@ def recibir_aprobacion() -> Response:
 	return _json({"mensaje": _("Aprobación comercial recibida")})
 
 
+def _limitado(servicio, limite: int):
+	"""Límite de peticiones por IP y minuto (rate_limit de Frappe, en Redis): las rutas son públicas."""
+	return rate_limit(limit=limite, seconds=60, endpoint=f"erpnext_rd.ecf.receptor.{servicio.__name__}")(
+		servicio
+	)
+
+
+# Peticiones por IP y minuto. Un proveedor grande puede entregar muchos e-CF seguidos con un solo token.
 RUTAS = {
-	"fe/autenticacion/api/semilla": ("GET", semilla),
-	"fe/autenticacion/api/validacioncertificado": ("POST", validar_certificado),
-	"fe/recepcion/api/ecf": ("POST", recibir_ecf),
-	"fe/aprobacioncomercial/api/ecf": ("POST", recibir_aprobacion),
+	"fe/autenticacion/api/semilla": ("GET", _limitado(semilla, 30)),
+	"fe/autenticacion/api/validacioncertificado": ("POST", _limitado(validar_certificado, 30)),
+	"fe/recepcion/api/ecf": ("POST", _limitado(recibir_ecf, 300)),
+	"fe/aprobacioncomercial/api/ecf": ("POST", _limitado(recibir_aprobacion, 300)),
 }
 
 
@@ -153,6 +167,9 @@ class ReceptorECF(BaseRenderer):
 			return servicio()
 		except recepcion.ErrorRecepcion as error:
 			return _json({"mensaje": str(error)}, 400)
+		except frappe.RateLimitExceededError:
+			frappe.clear_messages()
+			return _json({"mensaje": _("Demasiadas peticiones; intente en un minuto")}, 429)
 		except Exception:
 			frappe.db.rollback()
 			frappe.log_error(_("Servicio del receptor e-CF: {0}").format(self.path))

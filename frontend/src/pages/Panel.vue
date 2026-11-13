@@ -99,6 +99,32 @@
 						:enlace="rutaReporte('Resumen IR-17 DGII', filtros)"
 						:texto-enlace="__('Abrir resumen')"
 					/>
+					<Tarjeta
+						v-if="r.ecf"
+						titulo="e-CF"
+						:subtitulo="__('Últimos 30 días')"
+						:valor="formatoNumero(r.ecf.aceptados)"
+						:etiqueta-valor="__('aceptados por la DGII')"
+						:detalle="[
+							{
+								label: __('Rechazados o con error'),
+								valor: formatoNumero(r.ecf.rechazados),
+								clase: r.ecf.rechazados ? 'text-ink-red-6' : 'text-ink-gray-8',
+							},
+							{
+								label: __('En contingencia'),
+								valor: formatoNumero(r.ecf.contingencia),
+								clase: r.ecf.contingencia ? 'text-ink-amber-8' : 'text-ink-gray-8',
+							},
+							{
+								label: __('Facturas sin e-CF'),
+								valor: formatoNumero(r.ecf.sin_emitir),
+								clase: r.ecf.sin_emitir ? 'text-ink-amber-8' : 'text-ink-gray-8',
+							},
+						]"
+						:enlace="RUTA_MONITOR"
+						:texto-enlace="__('Abrir monitor')"
+					/>
 				</div>
 			</section>
 
@@ -349,6 +375,7 @@ import { __ } from "@/translation"
 import {
 	MESES,
 	diasHasta,
+	embebido,
 	formatoFecha,
 	formatoMoneda,
 	formatoMonedaDe,
@@ -358,6 +385,8 @@ import {
 } from "@/utils"
 
 const API = "/api/v2/method/erpnext_rd.rd_compliance.panel"
+// El monitor es otra pantalla de esta app (en el escritorio, la página monitor-ecf)
+const RUTA_MONITOR = embebido ? "/desk/monitor-ecf" : "/rd-compliance/ecf"
 
 const SUBTITULOS = {
 	606: __("Compras"),
@@ -501,6 +530,59 @@ const alertas = computed(() => {
 				theme: "amber",
 				title: __("Garantías de ofertas al Estado por vencer: {0}", [lic.value.garantias.length]),
 				description: __("Renueve las garantías antes de su vencimiento o confirme su devolución."),
+			})
+		}
+	}
+
+	const ecf = r.value.ecf
+	if (ecf) {
+		const accion = { label: __("Abrir monitor"), href: RUTA_MONITOR }
+		if (ecf.emisor.certificado === "vencido") {
+			lista.push({
+				theme: "red",
+				title: __("El certificado digital del e-CF venció"),
+				description: __("No se pueden firmar comprobantes electrónicos. Renueve el certificado y súbalo al emisor."),
+				accion,
+			})
+		} else if (ecf.emisor.certificado === "por_vencer") {
+			lista.push({
+				theme: "amber",
+				title: __("El certificado digital del e-CF vence en {0} días", [ecf.emisor.dias_certificado]),
+				description: __("Solicite la renovación a su entidad certificadora."),
+				accion,
+			})
+		}
+		if (ecf.rechazados) {
+			lista.push({
+				theme: "red",
+				title: __("{0} e-CF rechazados o con error en los últimos 30 días", [ecf.rechazados]),
+				description: __("Un e-CF rechazado no tiene validez fiscal: revíselos en el monitor."),
+				accion,
+			})
+		}
+		if (ecf.contingencia_vencida) {
+			lista.push({
+				theme: "red",
+				title: __("{0} e-CF en contingencia pasaron el plazo de envío a la DGII", [ecf.contingencia_vencida]),
+				description: __("Los e-CF firmados sin conexión se envían en 72 horas como máximo."),
+				accion,
+			})
+		}
+		if (ecf.contingencia_declarada) {
+			const d = ecf.contingencia_declarada
+			lista.push({
+				theme: d.dias > d.maximo ? "red" : "amber",
+				title: __("Contingencia declarada: día {0} de {1}", [d.dias, d.maximo]),
+				description: __("Las facturas salen con la serie B; al salir hay que enviar sus e-CF de reemplazo."),
+				accion,
+			})
+		}
+		if (ecf.reemplazos) {
+			lista.push({
+				theme: "amber",
+				title: __("{0} comprobantes de contingencia sin e-CF de reemplazo", [ecf.reemplazos]),
+				description: __("Envíe a la DGII el e-CF que reemplaza cada factura de la serie B."),
+				accion,
 			})
 		}
 	}

@@ -15,6 +15,7 @@ SOLO_POST = [
 	"erpnext_rd.ecf.emision.entregar",
 	"erpnext_rd.ecf.recepcion.aprobar",
 	"erpnext_rd.ecf.recepcion.reenviar_aprobacion",
+	"erpnext_rd.nomina_rd.portal.solicitar_permiso",
 	"erpnext_rd.nomina_rd.regalia.crear_regalias",
 	"erpnext_rd.nomina_rd.subsidios.salario_desde_nomina",
 	"erpnext_rd.padron_rnc.padron.encolar_sincronizacion",

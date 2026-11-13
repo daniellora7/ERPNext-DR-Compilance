@@ -11,6 +11,25 @@ frappe.ui.form.on("ECF Recibido", {
 				})
 				.then(() => frm.reload_doc());
 
+		// La DGII confirma que el e-CF existe y fue aceptado (recepcion.verificar_en_dgii)
+		if (frm.doc.estado === "Recibido") {
+			frm.add_custom_button(__("Verificar en la DGII"), () =>
+				frappe
+					.call({
+						method: "erpnext_rd.ecf.recepcion.verificar",
+						args: { name: frm.doc.name },
+						freeze: true,
+						freeze_message: __("Consultando la DGII..."),
+					})
+					.then(() => frm.reload_doc())
+			);
+			if (["Rechazado", "No encontrado"].includes(frm.doc.estado_dgii)) {
+				frm.dashboard.set_headline_alert(
+					__("La DGII responde «{0}» para este e-CF: no se puede aprobar.", [__(frm.doc.estado_dgii)]),
+					"red"
+				);
+			}
+		}
 		if (frm.doc.estado === "Recibido" && frm.doc.aprobacion === "Pendiente") {
 			frm.add_custom_button(__("Aprobar"), () =>
 				frappe.confirm(__("¿Aprobar comercialmente el e-CF {0}?", [frm.doc.encf]), () => decidir(1))

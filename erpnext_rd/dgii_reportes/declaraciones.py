@@ -124,8 +124,17 @@ def resumen_it1(
 		retenciones_tarjetas=flt(retenciones_tarjetas),
 	)
 
+	# Las facturas, por lotes (una misma puede venir dos veces si se reinforma por una retención)
+	por_tipo = {}
 	for f in ventas:
-		doc = frappe.get_doc(f["_doctype"], f["_documento"])
+		por_tipo.setdefault(f["_doctype"], {})[f["_documento"]] = None
+	docs = {
+		(doctype, d.name): d
+		for doctype, nombres in por_tipo.items()
+		for d in datos.documentos(doctype, list(nombres))
+	}
+	for f in ventas:
+		doc = docs[(f["_doctype"], f["_documento"])]
 		signo = _signo(f)
 		monto = flt(f["monto_facturado"])
 		if signo < 0:

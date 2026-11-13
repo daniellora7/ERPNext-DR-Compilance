@@ -309,6 +309,8 @@ def entregar(envio: str) -> str:
 	doc.check_permission("write")
 	if doc.estado not in ACEPTADOS or doc.es_rfce or doc.tipo_ecf not in TIPOS_CON_COMPRADOR:
 		frappe.throw(_("Solo se entregan al comprador los e-CF aceptados con comprador contribuyente."))
+	if doc.es_reemplazo:
+		frappe.throw(_("El e-CF que reemplaza un comprobante de contingencia se envía solo a la DGII."))
 	return entregar_al_comprador(doc).estado_comprador
 
 
@@ -319,6 +321,8 @@ def entregar_a_compradores():
 		filters={
 			"estado": ("in", ACEPTADOS),
 			"es_rfce": 0,
+			# El e-CF que reemplaza la serie B de una contingencia va solo a la DGII
+			"es_reemplazo": 0,
 			"tipo_ecf": ("in", TIPOS_CON_COMPRADOR),
 			"intentos_comprador": ("<", INTENTOS_ENTREGA),
 		},

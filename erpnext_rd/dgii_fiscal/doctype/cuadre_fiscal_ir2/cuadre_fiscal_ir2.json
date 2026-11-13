@@ -44,14 +44,22 @@
   "section_liquidacion",
   "beneficio_contable",
   "ingresos_brutos",
+  "exencion_total",
+  "exencion_incentivos",
+  "dividendos_ganados",
   "renta_antes_perdidas",
   "perdidas_compensables",
+  "renta_antes_deduccion",
+  "deduccion_inversion",
   "renta_neta_imponible",
   "tasa_isr",
   "impuesto_liquidado",
   "column_break_liquidacion",
   "anticipos_pagados",
   "retenciones_estado",
+  "credito_inversion_cine",
+  "credito_energia_renovable",
+  "credito_fiscal_cine",
   "otros_creditos",
   "saldo_favor_anterior",
   "diferencia_pagar",
@@ -296,7 +304,7 @@
   {
    "fieldname": "beneficio_contable",
    "fieldtype": "Currency",
-   "label": "Beneficio (pérdida) contable",
+   "label": "Beneficio (pérdida) contable (casilla 1)",
    "options": "Company:company:default_currency"
   },
   {
@@ -307,22 +315,56 @@
    "description": "Para la base de los anticipos del año siguiente"
   },
   {
+   "fieldname": "exencion_total",
+   "fieldtype": "Check",
+   "label": "Exención total del ISR",
+   "description": "Se propone si el perfil tributario tiene un incentivo exento del ISR todo el ejercicio: la exención es toda la renta. Desmárquelo para escribir el monto aprobado."
+  },
+  {
+   "fieldname": "exencion_incentivos",
+   "fieldtype": "Currency",
+   "label": "Exención por ley de incentivos (casilla 3)",
+   "options": "Company:company:default_currency",
+   "read_only_depends_on": "eval:doc.exencion_total",
+   "description": "Monto exento según la ley de incentivos a la que la empresa está acogida y autorizada por la DGII"
+  },
+  {
+   "fieldname": "dividendos_ganados",
+   "fieldtype": "Currency",
+   "label": "Dividendos ganados en otras compañías (casilla 4)",
+   "options": "Company:company:default_currency"
+  },
+  {
    "fieldname": "renta_antes_perdidas",
    "fieldtype": "Currency",
-   "label": "Renta neta antes de pérdidas",
+   "label": "Renta neta antes de pérdidas y de la Ley 392-07 (casilla 7)",
    "options": "Company:company:default_currency",
    "read_only": 1
   },
   {
    "fieldname": "perdidas_compensables",
    "fieldtype": "Currency",
-   "label": "Pérdidas de años anteriores que se compensan",
+   "label": "Pérdidas de años anteriores que se compensan (casilla 8)",
    "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "renta_antes_deduccion",
+   "fieldtype": "Currency",
+   "label": "Renta neta después de pérdidas y antes de la Ley 392-07 (casilla 9)",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "deduccion_inversion",
+   "fieldtype": "Currency",
+   "label": "Deducción por inversión, Ley 392-07 (casilla 10)",
+   "options": "Company:company:default_currency",
+   "description": "Empresas calificadas por Proindustria: monto a deducir por la inversión aprobada"
   },
   {
    "fieldname": "renta_neta_imponible",
    "fieldtype": "Currency",
-   "label": "Renta neta imponible",
+   "label": "Renta neta imponible (casilla 11)",
    "options": "Company:company:default_currency",
    "bold": 1,
    "read_only": 1
@@ -335,7 +377,7 @@
   {
    "fieldname": "impuesto_liquidado",
    "fieldtype": "Currency",
-   "label": "Impuesto liquidado",
+   "label": "Impuesto liquidado (casilla 12)",
    "options": "Company:company:default_currency",
    "bold": 1,
    "read_only": 1
@@ -347,31 +389,50 @@
   {
    "fieldname": "anticipos_pagados",
    "fieldtype": "Currency",
-   "label": "Anticipos del ejercicio",
+   "label": "Anticipos del ejercicio (casilla 13)",
    "options": "Company:company:default_currency"
   },
   {
    "fieldname": "retenciones_estado",
    "fieldtype": "Currency",
-   "label": "Retenciones de entidades del Estado",
+   "label": "Retenciones de entidades del Estado (casilla 14)",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "credito_inversion_cine",
+   "fieldtype": "Currency",
+   "label": "Crédito por inversión, Ley 108-10 art. 34 (casilla 15)",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "credito_energia_renovable",
+   "fieldtype": "Currency",
+   "label": "Crédito por energía renovable, Ley 57-07 (casilla 16)",
+   "options": "Company:company:default_currency",
+   "description": "Aprobado por la DGII: hasta el 40% del costo de la inversión en equipos, como crédito único"
+  },
+  {
+   "fieldname": "credito_fiscal_cine",
+   "fieldtype": "Currency",
+   "label": "Crédito fiscal, Ley 108-10 art. 39 y Ley 253-12 (casilla 20)",
    "options": "Company:company:default_currency"
   },
   {
    "fieldname": "otros_creditos",
    "fieldtype": "Currency",
-   "label": "Otros créditos y compensaciones",
+   "label": "Otros créditos y compensaciones (casillas 17, 18, 19 y 21)",
    "options": "Company:company:default_currency"
   },
   {
    "fieldname": "saldo_favor_anterior",
    "fieldtype": "Currency",
-   "label": "Saldo a favor del ejercicio anterior",
+   "label": "Saldo a favor del ejercicio anterior (casilla 22)",
    "options": "Company:company:default_currency"
   },
   {
    "fieldname": "diferencia_pagar",
    "fieldtype": "Currency",
-   "label": "Diferencia a pagar",
+   "label": "Diferencia a pagar (casilla 23)",
    "options": "Company:company:default_currency",
    "bold": 1,
    "read_only": 1
@@ -379,7 +440,7 @@
   {
    "fieldname": "saldo_favor",
    "fieldtype": "Currency",
-   "label": "Saldo a favor",
+   "label": "Saldo a favor (casilla 24)",
    "options": "Company:company:default_currency",
    "read_only": 1
   },
@@ -395,7 +456,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-18 14:00:00.000000",
+ "modified": "2026-11-12 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Cuadre Fiscal IR2",

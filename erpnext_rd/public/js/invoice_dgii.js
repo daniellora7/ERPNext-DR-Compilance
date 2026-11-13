@@ -46,6 +46,38 @@ const erpnext_rd_invoice = {
 			);
 		}
 
+		// Contingencia (serie B): el e-CF que la reemplaza se envía solo a la DGII (ecf/contingencia.py)
+		if (frm.doctype === "Sales Invoice" && frm.doc.docstatus === 1 && frm.doc.rd_contingencia_ecf) {
+			if (!frm.doc.rd_encf_reemplazo) {
+				frm.add_custom_button(
+					__("Emitir e-CF de reemplazo"),
+					() =>
+						frappe.confirm(
+							__("¿Firmar y enviar a la DGII el e-CF que reemplaza el comprobante {0}?", [frm.doc.rd_ncf]),
+							() =>
+								frappe
+									.call({
+										method: "erpnext_rd.ecf.contingencia.emitir_reemplazo",
+										args: { name: frm.doc.name },
+										freeze: true,
+										freeze_message: __("Firmando el e-CF de reemplazo..."),
+									})
+									.then(({ message }) => {
+										frm.reload_doc();
+										frappe.set_route("Form", "Envio ECF", message);
+									})
+						),
+					__("e-CF")
+				);
+			}
+			frm.add_custom_button(
+				__("Envíos e-CF"),
+				() => frappe.set_route("List", "Envio ECF", { tipo_documento: frm.doctype, documento: frm.doc.name }),
+				__("e-CF")
+			);
+			return;
+		}
+
 		// e-CF: emitir (generar, firmar y enviar según el emisor) y ver sus envíos
 		const electronico = (frm.doc.rd_tipo_comprobante || "").startsWith("E") && frm.doc.rd_ncf;
 		if (frm.doctype === "POS Invoice" || frm.doc.docstatus !== 1 || !electronico) return;

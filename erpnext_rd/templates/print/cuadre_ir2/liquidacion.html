@@ -1,21 +1,40 @@
 <div class="rd-ir2">
 	<h3>Liquidación estimada</h3>
 	<table class="rd-liquidacion">
-		<tr><td>Beneficio (pérdida) contable</td><td class="num">{{ doc.get_formatted("beneficio_contable") }}</td></tr>
-		<tr><td>+ Ajustes positivos</td><td class="num">{{ doc.get_formatted("total_positivos") }}</td></tr>
-		<tr><td>− Ajustes negativos</td><td class="num">{{ doc.get_formatted("total_negativos") }}</td></tr>
-		<tr class="rd-sub"><td>Renta neta antes de pérdidas</td><td class="num">{{ doc.get_formatted("renta_antes_perdidas") }}</td></tr>
-		<tr><td>− Pérdidas de años anteriores que se compensan</td><td class="num">{{ doc.get_formatted("perdidas_compensables") }}</td></tr>
-		<tr class="rd-sub"><td>Renta neta imponible</td><td class="num">{{ doc.get_formatted("renta_neta_imponible") }}</td></tr>
-		<tr class="rd-sub"><td>Impuesto liquidado ({{ doc.get_formatted("tasa_isr") }})</td><td class="num">{{ doc.get_formatted("impuesto_liquidado") }}</td></tr>
-		<tr><td>− Anticipos del ejercicio</td><td class="num">{{ doc.get_formatted("anticipos_pagados") }}</td></tr>
-		<tr><td>− Retenciones de entidades del Estado</td><td class="num">{{ doc.get_formatted("retenciones_estado") }}</td></tr>
-		<tr><td>− Otros créditos y compensaciones</td><td class="num">{{ doc.get_formatted("otros_creditos") }}</td></tr>
-		<tr><td>− Saldo a favor del ejercicio anterior</td><td class="num">{{ doc.get_formatted("saldo_favor_anterior") }}</td></tr>
+		<tr><td>1. Beneficio (pérdida) contable</td><td class="num">{{ doc.get_formatted("beneficio_contable") }}</td></tr>
+		<tr><td>2. + Ajustes positivos</td><td class="num">{{ doc.get_formatted("total_positivos") }}</td></tr>
+		{% if doc.exencion_incentivos %}
+		<tr><td>3. − Exención por ley de incentivos</td><td class="num">{{ doc.get_formatted("exencion_incentivos") }}</td></tr>
+		{% endif %}
+		{% if doc.dividendos_ganados %}
+		<tr><td>4. − Dividendos ganados en otras compañías</td><td class="num">{{ doc.get_formatted("dividendos_ganados") }}</td></tr>
+		{% endif %}
+		<tr><td>5. − Ajustes negativos</td><td class="num">{{ doc.get_formatted("total_negativos") }}</td></tr>
+		<tr class="rd-sub"><td>7. Renta neta antes de pérdidas y de la Ley 392-07</td><td class="num">{{ doc.get_formatted("renta_antes_perdidas") }}</td></tr>
+		<tr><td>8. − Pérdidas de años anteriores que se compensan</td><td class="num">{{ doc.get_formatted("perdidas_compensables") }}</td></tr>
+		{% if doc.deduccion_inversion %}
+		<tr class="rd-sub"><td>9. Renta neta después de pérdidas y antes de la Ley 392-07</td><td class="num">{{ doc.get_formatted("renta_antes_deduccion") }}</td></tr>
+		<tr><td>10. − Deducción por inversión (Ley 392-07)</td><td class="num">{{ doc.get_formatted("deduccion_inversion") }}</td></tr>
+		{% endif %}
+		<tr class="rd-sub"><td>11. Renta neta imponible</td><td class="num">{{ doc.get_formatted("renta_neta_imponible") }}</td></tr>
+		<tr class="rd-sub"><td>12. Impuesto liquidado ({{ doc.get_formatted("tasa_isr") }})</td><td class="num">{{ doc.get_formatted("impuesto_liquidado") }}</td></tr>
+		<tr><td>13. − Anticipos del ejercicio</td><td class="num">{{ doc.get_formatted("anticipos_pagados") }}</td></tr>
+		<tr><td>14. − Retenciones de entidades del Estado</td><td class="num">{{ doc.get_formatted("retenciones_estado") }}</td></tr>
+		{% if doc.credito_inversion_cine %}
+		<tr><td>15. − Crédito por inversión (Ley 108-10, art. 34)</td><td class="num">{{ doc.get_formatted("credito_inversion_cine") }}</td></tr>
+		{% endif %}
+		{% if doc.credito_energia_renovable %}
+		<tr><td>16. − Crédito por energía renovable (Ley 57-07)</td><td class="num">{{ doc.get_formatted("credito_energia_renovable") }}</td></tr>
+		{% endif %}
+		{% if doc.credito_fiscal_cine %}
+		<tr><td>20. − Crédito fiscal (Ley 108-10, art. 39; Ley 253-12)</td><td class="num">{{ doc.get_formatted("credito_fiscal_cine") }}</td></tr>
+		{% endif %}
+		<tr><td>− Otros créditos y compensaciones (17, 18, 19 y 21)</td><td class="num">{{ doc.get_formatted("otros_creditos") }}</td></tr>
+		<tr><td>22. − Saldo a favor del ejercicio anterior</td><td class="num">{{ doc.get_formatted("saldo_favor_anterior") }}</td></tr>
 		{% if doc.saldo_favor %}
-		<tr class="rd-total"><td>Saldo a favor</td><td class="num">{{ doc.get_formatted("saldo_favor") }}</td></tr>
+		<tr class="rd-total"><td>24. Saldo a favor</td><td class="num">{{ doc.get_formatted("saldo_favor") }}</td></tr>
 		{% else %}
-		<tr class="rd-total"><td>Diferencia a pagar</td><td class="num">{{ doc.get_formatted("diferencia_pagar") }}</td></tr>
+		<tr class="rd-total"><td>23. Diferencia a pagar</td><td class="num">{{ doc.get_formatted("diferencia_pagar") }}</td></tr>
 		{% endif %}
 	</table>
 	<table class="rd-firmas">

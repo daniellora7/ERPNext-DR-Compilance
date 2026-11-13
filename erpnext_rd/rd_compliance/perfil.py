@@ -327,7 +327,8 @@ def tipos_de_venta(company: str) -> list[str]:
 	p = perfil(company)
 	serie_e = p.ecf_estado == ECF_EMISOR
 	tipos = ["E31", "E32", "E34"] if serie_e else ["B01", "B02", "B04"]
-	if p.exportador:
+	# Exportadores y zonas francas (estas venden al mercado local con el de exportación, NG 05-2019)
+	if p.exportador or any(i.regimen == "Zona franca (Ley 8-90)" for i in incentivos_vigentes(company)):
 		tipos.append("E46" if serie_e else "B16")
 	return tipos
 
@@ -508,6 +509,26 @@ def _multiplicador(company, p):
 	)
 
 
+@requisito("Exportaciones en el 607 (reembolso del ITBIS)")
+def _exportaciones(company, p):
+	"""El reembolso o la compensación del ITBIS de un exportador se apoya en las facturas de exportación
+	del 607 (B16 / E46): avisa si la empresa exportadora aún no tiene ninguna."""
+	if not cint(p.exportador):
+		return None
+	exporta = frappe.db.exists(
+		"Sales Invoice", {"company": company, "docstatus": 1, "rd_tipo_comprobante": ("in", ("B16", "E46"))}
+	)
+	return _resultado(
+		bool(exporta),
+		_(
+			"Facturas de exportación (B16 / E46) aprobadas: el reporte de soporte junta el saldo a favor del ITBIS."
+		)
+		if exporta
+		else _("Aún no hay facturas de exportación (B16 / E46) aprobadas."),
+		["query-report", "Soporte Reembolso ITBIS Exportadores"],
+	)
+
+
 @requisito("Partes relacionadas marcadas (DIOR)")
 def _partes_relacionadas(company, p):
 	if not cint(p.partes_relacionadas):
@@ -531,8 +552,11 @@ def _partes_relacionadas(company, p):
 
 # Lo que la empresa tiene pero la app aún no cubre (siguientes ramas de la Fase 8)
 PENDIENTES = (
-	(lambda p: cint(p.exportador), "Reembolso o compensación del ITBIS de exportadores", "8.4"),
-	(lambda p: bool(p.incentivos), "Regímenes especiales e incentivos", "8.4 y 8.6"),
+	(
+		lambda p: any(i.regimen == "Proindustria (Ley 392-07)" for i in p.incentivos),
+		"Depreciación acelerada en el IR-2 (anexo D, sección C)",
+		"8.6",
+	),
 	(lambda p: p.regimen == RST, "Régimen simplificado de tributación (RST)", "8.7"),
 	(lambda p: p.tipo_contribuyente == FISICA, "Persona física con negocio (IR-1)", "8.8"),
 )
@@ -568,14 +592,22 @@ def pendientes(company: str, p) -> list[dict]:
 
 def validar_serie_de_venta(doc, tipo):
 	"""Un emisor electrónico vende con comprobantes electrónicos. Las notas de crédito y débito de
-	facturas con NCF de serie B (de antes de ser emisor) siguen en la serie B."""
+	facturas con NCF de serie B (de antes de ser emisor) siguen en la serie B. En una contingencia
+	declarada en el *Emisor ECF* se vende con la serie B (ecf/contingencia.py)."""
+	if getattr(doc, "meta", None) and doc.meta.has_field("rd_contingencia_ecf"):
+		doc.rd_contingencia_ecf = 0
 	if tipo.serie != "B" or doc.is_return or doc.get("is_debit_note"):
 		return
 	if emisor_electronico(doc.company):
+		from erpnext_rd.ecf import contingencia
+
+		if contingencia.permite_serie_b(doc, tipo):
+			return
 		frappe.throw(
 			_(
 				"{0} es emisor electrónico según su perfil tributario: use el comprobante electrónico "
-				"(serie E) en lugar de {1}."
+				"(serie E) en lugar de {1}. Si no puede emitir e-CF, declare la contingencia en la "
+				"Oficina Virtual y regístrela en el Emisor ECF."
 			).format(doc.company, tipo.name),
 			title=_("Comprobante no permitido"),
 		)

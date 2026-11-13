@@ -4,23 +4,49 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 
 ## Sin publicar
 
+## v0.6.0 (2026-11-12)
+
+Monitor de e-CF, portal del empleado, licitaciones del Estado (ofertas y adjudicaciones), ISC, DIOR, zonas francas e incentivos en el IR-2.
+
 ### Nuevo
+- **Portal del empleado** (`/rd-compliance/mi-nomina`, requiere Frappe HR). El empleado con usuario vinculado ve sus volantes de pago aprobados y los descarga en PDF con el formato *Volante de pago RD*, su acumulado del año (salario bruto, AFP, SFS, ISR y neto), el saldo de vacaciones y permisos, y sus solicitudes. Puede solicitar un permiso, que aprueba su supervisor en Frappe HR. Sin roles de contabilidad solo ve su portal.
+- **Monitor de e-CF** en el Panel RD Compliance (`/rd-compliance/ecf`, y *Monitor de e-CF* en el sidebar del escritorio). Por empresa y período: envíos por estado; e-CF en contingencia, rechazados o con error, con el botón para reenviar; entregas al comprador fallidas, con el botón para entregar; facturas con comprobante electrónico sin e-CF y e-CF recibidos con la aprobación comercial pendiente. Avisa si falta el emisor, si el envío está deshabilitado, si el certificado vence en 30 días o menos y si el ambiente es de pruebas.
+- **Soporte del reembolso del ITBIS de los exportadores** (Fase 8.4). Reporte mes a mes con las exportaciones, las ventas locales, el ITBIS adelantado y el saldo a favor, con los mismos cálculos del IT-1 y los requisitos de la DGII para la solicitud. El perfil tributario del exportador lo enlaza.
+- **Incentivos en el cuadre del IR-2** (Fase 8.6). La liquidación sigue las casillas del instructivo de la DGII de marzo de 2026: exención por ley de incentivos, dividendos, deducción por inversión de la Ley 392-07 y los créditos de cine (Ley 108-10) y energías renovables (Ley 57-07). Si el perfil tributario tiene un incentivo exento del ISR todo el ejercicio, propone la exención total; avisa cuando el perfil tiene un incentivo y su casilla está vacía. El formato impreso muestra el número de cada casilla.
 - **Impuesto selectivo al consumo (ISC)** (Fase 8.2). Se clasifica en el artículo: alcohol, tabaco, vapeadores, combustibles, telecomunicaciones, seguros y seguros de vida. Las tasas y montos específicos se configuran con su vigencia; trae los de la DGII de octubre a diciembre de 2026 y el calendario de la Ley 30-26 para los seguros de vida. Se calcula en las ventas, línea por línea; en los bienes el ITBIS se calcula sobre el precio más el ISC. Incluye el resumen mensual (*Resumen ISC DGII*), el recordatorio del día 20 y los requisitos en el perfil tributario. El e-CF lleva el ISC como impuestos adicionales, con los códigos de la DGII; la base del ad valorem del alcohol y el tabaco se elige en cada tasa: el precio al por menor íntegro (Ley 30-26) o el neto con el que valida el formato del e-CF.
 - **Perfil de proveedor del Estado** (Fase 10.2, Licitaciones del Estado). Por empresa: con su RNC se consulta en la DGCP el Registro de Proveedores del Estado (número y estado del RPE, MIPYME, certificación del MICM y rubros UNSPSC registrados), y se actualiza cada semana. Muestra los requisitos para participar en compras públicas y recuerda por correo el vencimiento de las certificaciones de la DGII, la TSS y el MICM.
 - **Procesos de compra del Estado** (Fase 10.3). Cuatro veces al día se descargan de los datos abiertos de la DGCP los procesos con artículos de los rubros de las empresas: institución, modalidad, monto estimado, estado, cronograma, artículos y enlace al Portal Transaccional. Los documentos del proceso se consultan desde el formulario. Vista de calendario hasta el cierre de ofertas.
 - **Ofertas al Estado** (Fase 10.5). Desde el proceso de compra, «Crear oferta» abre una oportunidad de ERPNext con la institución como cliente, los artículos, el estado de la oferta, los documentos a presentar (los del perfil de proveedor se marcan solos) y las garantías calculadas con los porcentajes de la configuración (Ley 47-25 y Decreto 52-26, con las reglas de las MIPYME). No deja marcarla como presentada con documentos pendientes; sigue las enmiendas del cierre y los procesos desiertos o cancelados. La alerta diaria avisa de las ofertas que cierran y las garantías que vencen. Reporte *Ofertas al Estado*.
-- **Operaciones con partes relacionadas (DIOR)** (Fase 8.3). Clientes y proveedores marcados como parte relacionada con su tipo de vinculación, reporte anual de ventas y compras con relacionados por contraparte, requisito en el perfil tributario y recordatorio de la DIOR 180 días después del cierre.
-- **Zonas francas y regímenes especiales** (Fase 8.4). El cliente lleva su régimen especial y su carnet de acreditación. Sus facturas salen con B14 (o E44), sin ITBIS ni ISC, como pide la Norma General 05-2019; sin carnet vigente no se guardan.
+- **Operaciones con partes relacionadas (DIOR)** (Fase 8.3). Clientes y proveedores marcados como parte relacionada con su tipo de vinculación, reporte anual de ventas y compras con relacionados por contraparte, requisito en el perfil tributario y recordatorio de la DIOR 180 días después del cierre. El reporte incluye los asientos con relacionados que no son pagos de facturas (préstamos, anticipos), con sus cargos y abonos, y el cuadre del IR-2 recuerda el ajuste 1.9 de precios de transferencia. El botón *Hoja de Detalle (Excel)* arma las pestañas Empresas y Operaciones de la DIOR versión 6 para pegarlas en la Oficina Virtual, con el supuesto de vinculación del cliente o proveedor y un código de operación propuesto.
+- **Zonas francas y regímenes especiales** (Fase 8.4). El cliente lleva su régimen especial y su carnet de acreditación. Sus facturas salen con B14 (o E44), sin ITBIS ni ISC, como pide la Norma General 05-2019; sin carnet vigente no se guardan. Si la empresa es zona franca industrial (incentivo en su perfil tributario), sus ventas de bienes al mercado local salen con B16 (o E46), sin ITBIS ni ISC. Los recordatorios avisan los lunes de los carnets de clientes por vencer.
 - **Adjudicaciones del Estado** (Fase 10.6). Los procesos con ofertas se siguen hasta la adjudicación: se guardan los contratos de la DGCP y la oferta queda ganada, perdida o no presentada. La oferta ganada pasa a pedido de venta. Precios de referencia de lo que pagó el Estado por los mismos artículos. Aviso opcional (apagado) si la retención de ISR de una institución no coincide con la configuración.
 - **Licitaciones en el Panel RD Compliance.** Para las empresas que venden al Estado: ofertas en curso con sus pendientes, procesos nuevos de sus rubros y garantías por vencer, con avisos arriba cuando una oferta cierra con documentos pendientes.
 - **Alertas de licitaciones** (Fase 10.4). Correo diario por empresa con los procesos nuevos de sus rubros (con filtros de palabras clave y monto) y los que dejan de recibir ofertas pronto.
+- **Contingencia de la facturación electrónica**, según el Instructivo de Contingencia de la DGII y el Decreto 587-24, art. 40.
+  - El monitor de e-CF y el Panel avisan cuando un e-CF firmado sin conexión pasa o se acerca al plazo de 72 horas para enviarlo. La factura impresa lleva la leyenda de contingencia de la DGII.
+  - Si la empresa no puede emitir e-CF, registra en el *Emisor ECF* las fechas de entrada y salida que declaró en la Oficina Virtual. Mientras dura, que es un máximo de 15 días, las facturas salen con la serie B.
+  - Después de la salida, el botón *Emitir e-CF de reemplazo* firma y envía solo a la DGII el e-CF que reemplaza cada comprobante de la serie B. El monitor lista los que faltan, con su plazo de 30 días.
+  - Los plazos se configuran en *Configuracion DGII*.
+
+### Seguridad
+- **Receptor de e-CF.**
+  - El certificado de quien firma un e-CF, una aprobación comercial o la autenticación debe estar vigente.
+  - Si se cargan en *Configuracion DGII* los certificados de las entidades autorizadas por el INDOTEL, el certificado también debe venir de una de ellas.
+  - Cada e-CF recibido se confirma con la DGII. Uno que la DGII rechaza o no encuentra no se puede aprobar. El formulario tiene el botón *Verificar en la DGII*.
+  - Una aprobación comercial solo se acepta del comprador del e-CF y por su monto, y no cambia una ya recibida.
+  - Las rutas públicas `/fe/...` limitan las peticiones por IP y responden 429 si se pasan.
+- **Conservación de los e-CF** (Código Tributario, art. 50). Los e-CF firmados, los recibidos y las anulaciones con su ANECF no se pueden borrar, ni sus XML.
+
+### Rendimiento
+- El 606, el 607 y el IT-1 cargan las facturas por lotes en vez de una por una: de unas 15 consultas por factura a unas pocas por cada 500.
+- Índices en *Envio ECF* y *ECF Recibido* para el monitor, la recepción y las tareas programadas.
 
 ### Corregido
 - La factura y el recibo POS impresos mostraban el ISC sumado al ITBIS y el total de la línea sin el ISC. Ahora el ISC va en su propia columna y fila. Los formatos ya creados se actualizan si sus bloques no se editaron.
 
 ### Mantenimiento
 - Imagen Docker con Frappe v16.56.0, ERPNext v16.54.0 y Frappe HR v16.53.2.
-- Frappe Builder y Frappe Suite salen de la imagen. Suite sigue a Frappe develop (v17) y en v16 fallaba al adjuntar un archivo privado existente (captura de compras); se evalúa de nuevo con Frappe v17.
+- Frappe Builder sale de la imagen.
 - El catálogo DGII se aplica con ERPNext v16.53, que ahora revisa los enlaces al borrar las cuentas y crea la plantilla *Dominican Republic Tax* con la empresa.
 
 ## v0.5.5 (2026-10-29)

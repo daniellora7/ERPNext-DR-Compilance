@@ -14,6 +14,9 @@ class EmisorECF(Document):
 	def validate(self):
 		if not es_empresa_rd(self.company):
 			frappe.throw(_("El emisor electrónico es solo para empresas de República Dominicana."))
+		from erpnext_rd.ecf import contingencia
+
+		contingencia.validar_emisor(self)
 		if not self.certificado:
 			self.titular = self.vigente_desde = self.vigente_hasta = None
 			return
@@ -42,6 +45,11 @@ class EmisorECF(Document):
 			doc.is_private = 1
 			doc.save(ignore_permissions=True)
 			self.certificado = doc.file_url
+
+	def on_update(self):
+		from erpnext_rd.ecf import contingencia
+
+		contingencia.al_cambiar_emisor(self)
 
 	def cargar(self):
 		"""(llave privada, certificado) del .p12 del emisor."""

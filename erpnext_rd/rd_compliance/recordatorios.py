@@ -15,7 +15,7 @@ import frappe
 from frappe import _
 from frappe.utils import add_days, add_months, cint, formatdate, get_url, getdate, today
 
-from erpnext_rd.dgii_fiscal import isc
+from erpnext_rd.dgii_fiscal import isc, regimenes
 from erpnext_rd.dgii_fiscal.ncf import PAIS
 from erpnext_rd.dgii_reportes import anticipos, declaraciones, ir2
 from erpnext_rd.licitaciones import proveedor as proveedor_estado
@@ -196,7 +196,7 @@ def destinatarios() -> list[str]:
 	)
 
 
-def mensaje(company: str, avisos: list[dict], secuencias: list[dict]) -> str:
+def mensaje(company: str, avisos: list[dict], secuencias: list[dict], carnets: list | None = None) -> str:
 	"""Correo en HTML simple, sin colores: se lee igual en cualquier cliente de correo."""
 	partes = [f"<p>{_('Recordatorio de cumplimiento de {0}.').format(frappe.bold(company))}</p>"]
 	if avisos:
@@ -225,6 +225,25 @@ def mensaje(company: str, avisos: list[dict], secuencias: list[dict]) -> str:
 			for s in secuencias
 		)
 		partes.append(f"<p>{_('Secuencias NCF que requieren atención:')}</p><ul>{items}</ul>")
+	if carnets:
+		items = "".join(
+			"<li>{} ({}): {}</li>".format(
+				c.customer_name or c.name,
+				c.rd_carnet_regimen or _("sin número"),
+				_("venció el {0}").format(formatdate(c.rd_carnet_vence))
+				if getdate(c.rd_carnet_vence) < getdate(today())
+				else _("vence el {0}").format(formatdate(c.rd_carnet_vence)),
+			)
+			for c in carnets
+		)
+		partes.append(
+			"<p>{}</p><ul>{}</ul>".format(
+				_(
+					"Carnets de regímenes especiales de clientes por vencer (sin carnet vigente no se les factura sin ITBIS):"
+				),
+				items,
+			)
+		)
 	partes.append(
 		"<p><a href='{}'>{}</a></p>".format(
 			get_url("/desk/rd-compliance/panel-cumplimiento"), _("Abrir el panel de cumplimiento")
@@ -247,13 +266,15 @@ def enviar_recordatorios(hoy: date | None = None) -> int:
 	enviados = 0
 	for company in empresas_rd():
 		avisos = pendientes(company, hoy, dias)
-		secuencias = secuencias_con_aviso(company) if (avisos or hoy.weekday() == 0) else []
-		if not (avisos or secuencias):
+		semanal = avisos or hoy.weekday() == 0
+		secuencias = secuencias_con_aviso(company) if semanal else []
+		carnets = regimenes.carnets_por_vencer(company, hoy) if semanal else []
+		if not (avisos or secuencias or carnets):
 			continue
 		frappe.sendmail(
 			recipients=correos,
 			subject=_("RD Compliance: vencimientos de {0}").format(company),
-			message=mensaje(company, avisos, secuencias),
+			message=mensaje(company, avisos, secuencias, carnets),
 			reference_doctype="Company",
 			reference_name=company,
 		)
@@ -272,8 +293,9 @@ def vista_previa() -> str:
 	for company in empresas_rd():
 		avisos = pendientes(company, hoy, dias)
 		secuencias = secuencias_con_aviso(company)
-		if avisos or secuencias:
-			partes.append(mensaje(company, avisos, secuencias))
+		carnets = regimenes.carnets_por_vencer(company, hoy)
+		if avisos or secuencias or carnets:
+			partes.append(mensaje(company, avisos, secuencias, carnets))
 	proximos = [
 		o
 		for company in empresas_rd()

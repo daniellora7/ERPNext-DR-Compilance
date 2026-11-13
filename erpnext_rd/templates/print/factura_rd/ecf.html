@@ -9,6 +9,7 @@
 				{% if f.codigo_seguridad %}
 				<div><b>Código de seguridad:</b> {{ f.codigo_seguridad }}</div>
 				<div><b>Fecha de firma digital:</b> {{ f.fecha_firma }}</div>
+				{% if f.leyenda_contingencia %}<div><b>{{ f.leyenda_contingencia }}</b></div>{% endif %}
 				{% elif doc.docstatus == 1 %}
 				<div class="rd-muted">Comprobante electrónico pendiente de firma y envío a la DGII.</div>
 				{% endif %}

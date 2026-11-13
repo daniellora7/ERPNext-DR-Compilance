@@ -17,7 +17,7 @@ from frappe.utils import cint, now_datetime
 
 from erpnext_rd.dgii_fiscal.ncf import es_empresa_rd
 from erpnext_rd.dgii_fiscal.validaciones import formatear_ncf
-from erpnext_rd.ecf import datos, esquemas, firma
+from erpnext_rd.ecf import conservacion, datos, esquemas, firma
 from erpnext_rd.ecf.cliente import ClienteDGII, ErrorDGII
 from erpnext_rd.ecf.emision import ENVIO, emisor_de, guardar_xml, leer_xml, mensajes, rnc_empresa
 
@@ -28,6 +28,9 @@ MAXIMO_RANGOS_POR_TIPO = 10000
 
 
 class AnulacionENCF(Document):
+	def on_trash(self):
+		conservacion.no_borrar(self)
+
 	def validate(self):
 		if not es_empresa_rd(self.company):
 			frappe.throw(_("La anulación de e-NCF es solo para empresas de República Dominicana."))

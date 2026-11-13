@@ -33,8 +33,9 @@
 			</template>
 		</MobileShell>
 
-		<!-- Dentro del escritorio la navegación la da el sidebar del escritorio -->
-		<div v-else-if="embebido" class="h-screen overflow-y-auto">
+		<!-- Dentro del escritorio la navegación la da el sidebar del escritorio; el empleado sin roles de
+		     contabilidad solo tiene su portal, sin sidebar -->
+		<div v-else-if="embebido || soloPortal" class="h-screen overflow-y-auto">
 			<RouterView />
 		</div>
 
@@ -50,6 +51,14 @@
 
 					<div class="flex-1 overflow-y-auto px-2 py-2">
 						<SidebarItem :label="__('Panel')" icon="lucide-layout-dashboard" route="/" />
+
+						<SidebarItem :label="__('Monitor de e-CF')" icon="lucide-activity" :route="{ name: 'Ecf' }" />
+						<SidebarItem
+							v-if="conPortal"
+							:label="__('Mi nómina')"
+							icon="lucide-wallet"
+							:route="{ name: 'MiNomina' }"
+						/>
 
 						<SidebarLabel>{{ __("DGII Fiscal") }}</SidebarLabel>
 						<SidebarItem
@@ -111,6 +120,9 @@ import {
 import Logo from "@/components/Logo.vue"
 import { __ } from "@/translation"
 import { embebido, rutaDocumento, rutaReporte } from "@/utils"
+
+const conPortal = Boolean(window.portal)
+const soloPortal = Boolean(window.solo_portal && !window.solo_escanear)
 
 const pestanas = [
 	{ label: __("Escanear"), icono: "lucide-scan-qr-code", ruta: "Escanear" },

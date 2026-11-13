@@ -166,6 +166,10 @@ doc_events = {
 		"on_cancel": "erpnext_rd.ecf.recepcion.desvincular_factura",
 		"on_trash": "erpnext_rd.ecf.recepcion.desvincular_factura",
 	},
+	# Los XML de los e-CF firmados o recibidos se conservan (ecf/conservacion.py)
+	"File": {
+		"on_trash": "erpnext_rd.ecf.conservacion.proteger_archivo",
+	},
 }
 
 # Base de cada línea del tipo de cargo propio «ISC por artículo» (gancho de ERPNext v16)
@@ -200,10 +204,12 @@ scheduler_events = {
 		"15 9 * * *": ["erpnext_rd.licitaciones.alertas.enviar_alertas"],
 		# Resultado de los e-CF enviados a la DGII que siguen en proceso
 		# y reenvío de los que quedaron en contingencia; entrega de los aceptados a sus compradores
+		# y confirmación con la DGII de los e-CF recibidos de proveedores
 		"*/15 * * * *": [
 			"erpnext_rd.ecf.emision.consultar_pendientes",
 			"erpnext_rd.ecf.emision.reintentar_contingencia",
 			"erpnext_rd.ecf.emision.entregar_a_compradores",
+			"erpnext_rd.ecf.recepcion.verificar_recibidos",
 		],
 	},
 	# Extiende la lista "Feriados RD" al año siguiente (idempotente)

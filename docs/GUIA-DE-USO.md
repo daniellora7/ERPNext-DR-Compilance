@@ -4,7 +4,7 @@ Cómo poner a funcionar la localización de República Dominicana en una empresa
 
 La app solo actúa en las empresas con país **Dominican Republic**. Las empresas de otros países del mismo sitio siguen igual.
 
-**Alcance:** hoy la app cubre a la **persona jurídica del régimen ordinario** (comercio, servicios, manufactura). Aún no cubre el impuesto selectivo al consumo (ISC), las operaciones con partes relacionadas (DIOR), las zonas francas, el régimen simplificado (RST), los incentivos de leyes especiales, el impuesto sobre los activos ni a las personas físicas con negocio (IR-1); los sectores regulados (banca, seguros, AFP) quedan fuera. El **perfil tributario** de cada empresa (abajo) ya los registra y los muestra como pendientes; se irán cubriendo por partes.
+**Alcance:** la app cubre a la **persona jurídica del régimen ordinario** (comercio, servicios, manufactura), con el impuesto selectivo al consumo (ISC), las operaciones con partes relacionadas (DIOR), las ventas a zonas francas y de una zona franca, y los incentivos en el cuadre del IR-2. Aún no cubre el régimen simplificado (RST), el impuesto sobre los activos ni a las personas físicas con negocio (IR-1); los sectores regulados (banca, seguros, AFP) quedan fuera. El **perfil tributario** de cada empresa (abajo) los registra y muestra como pendiente lo que falta.
 
 ## 1. Empresa
 
@@ -22,6 +22,9 @@ La app solo actúa en las empresas con país **Dominican Republic**. Las empresa
    Al guardar la factura, la app consulta el NCF en la DGII y avisa si no corresponde al RNC del proveedor o si estaba vencido en la fecha del comprobante; el resultado queda en *NCF en la DGII*. También avisa si el proveedor aparece suspendido, dado de baja o en cese temporal en el padrón. Si la DGII no responde, la factura queda *Sin verificar* y se puede volver a consultar con *DGII → Verificar NCF en la DGII*. En *Configuración DGII* se puede impedir validar facturas con un NCF no válido.
 4. Para anular una factura con NCF, indique antes el *tipo de anulación* del 608.
 5. El panel avisa cuando una secuencia está por agotarse o por vencer.
+6. **Zonas francas y otros regímenes especiales:** en el cliente, indique su *Régimen especial* y el número y vencimiento de su *Carnet de Acreditación de Regímenes Especiales*. Sus facturas salen con B14 (E44 si la empresa es emisora electrónica), sin ITBIS ni ISC, y sin carnet vigente no se guardan. Si un bien no es para su operación, elija otro comprobante a mano. Los recordatorios avisan los lunes de los carnets que vencen en 30 días.
+7. **Si la empresa es zona franca industrial**, registre el incentivo *Zona franca (Ley 8-90)* en su perfil tributario. Sus ventas de bienes al mercado local salen con el comprobante para exportaciones (B16 o E46), sin ITBIS ni ISC, como pide la Norma General 05-2019. Las ventas con servicios no cambian.
+8. **Partes relacionadas:** marque *Parte relacionada* y el tipo de vinculación en los clientes y proveedores vinculados.
 
 Los formatos de impresión **Factura Fiscal RD** y **Recibo POS RD** (80 mm) se pueden editar en el constructor de formatos de Frappe.
 
@@ -34,10 +37,15 @@ En *RD Compliance → Declaraciones DGII*:
 - **606, 607, 608 y 609**: se elige la empresa y el mes, se revisa la columna de observaciones y se descarga el TXT con el nombre que pide la DGII. Antes de enviarlo, conviene pasarlo por la herramienta de pre-validación de la DGII.
 - **IT-1** e **IR-17**: resúmenes con los mismos registros, para llenar los formularios en la Oficina Virtual.
 - **Anticipos del ISR**: cada año, después de presentar el IR-2, registre en *Bases de anticipos ISR* los ingresos brutos y el impuesto liquidado. La app calcula la cuota mensual (art. 314: la doceava parte del impuesto, o el 1.5% de los ingresos si la tasa efectiva no pasa de 1.5%) y el reporte muestra el anticipo de cada mes con su vencimiento (día 15 del mes siguiente). Una empresa exenta se registra con régimen *Exento*.
+- **ISC**: clasifique en el artículo los productos con selectivo (alcohol, tabaco, combustibles, telecomunicaciones, seguros) y revise las tasas con su vigencia en la configuración del ISC. La factura calcula el ISC por línea, y el *Resumen ISC DGII* da los montos del mes.
+- **Reembolso del ITBIS de exportadores** (*Soporte Reembolso ITBIS Exportadores*): mes a mes, las exportaciones, las ventas locales, el ITBIS adelantado y el saldo a favor, con los cálculos del IT-1. Sirve de soporte para la solicitud en la Oficina Virtual (*Devolución y Compensación de ITBIS*). Solo cuentan las exportaciones con el expediente cerrado en la DGA; tenga a mano la certificación de la DGA y los DUA. Si también vende en el país, el monto a pedir lo decide el contador.
+- **DIOR** (*Operaciones Relacionadas DIOR*): ventas, compras y asientos del ejercicio con partes relacionadas, por contraparte. Los asientos (préstamos, anticipos) muestran sus cargos y abonos para clasificarlos. Indique en cada relacionado su *Supuesto de vinculación*. El botón **Hoja de Detalle (Excel)** arma las pestañas Empresas y Operaciones para pegarlas en la DIOR de la Oficina Virtual; revise el código de operación propuesto y complete el código de país, el tipo de persona, la actividad, los préstamos y los datos del estudio de precios. Se presenta a más tardar 60 días después del vencimiento del IR-2.
 - **Cuadre fiscal IR-2**: papel de trabajo para la declaración anual (no la reemplaza). Primero indique en cada *Categoría de activo* su categoría fiscal del art. 287 (1 edificaciones, 2 vehículos livianos, equipo y muebles de oficina y computadoras, 3 lo demás; sin indicar se toma la 3, o terreno si no se deprecia) y marque *Dado en arrendamiento* en los activos alquilados a terceros. Al crear el cuadre de un año, la app toma los activos, la depreciación contable, el resultado del año y los anticipos, y calcula:
   - el **ajuste por inflación** (anexo D-2) con el multiplicador de la DGII para la fecha de cierre (tabla en *Configuración DGII*; agregue el de cada año cuando la DGII lo publique) sobre el menor entre el patrimonio fiscal y los activos no monetarios;
   - la **depreciación fiscal**: edificaciones una por una al 5% (anexo D-1) y las categorías 2 y 3 en una cuenta cada una al 25% y 15%, con la mitad de las compras del año (anexo D);
   - el **cuadre contable-fiscal** (anexo G): la diferencia con la depreciación contable, el ajuste del inventario y las compras con NCF no válido entran solas; agregue los demás ajustes (impuestos no deducibles, provisiones, etc.). Con las pérdidas a compensar, los anticipos y los créditos da la renta neta imponible, el impuesto (27%) y la diferencia a pagar.
+  - los **incentivos** con las casillas del formulario: exención por ley de incentivos (3), dividendos (4), deducción por inversión de la Ley 392-07 (10), créditos de cine (15 y 20) y de energía renovable (16). Si el perfil tributario tiene un incentivo exento del ISR todo el año, se marca *Exención total del ISR* y toda la renta queda exenta; desmárquelo para escribir el monto aprobado. Los demás montos los aprueba la DGII o Proindustria: el cuadre avisa si el perfil tiene el incentivo y la casilla está vacía.
+  - si hubo operaciones con partes relacionadas, un aviso recuerda el ajuste 1.9 de precios de transferencia del anexo G.
 
 - **Anexos A-1 y B-1 (IR-2)**: el balance general al cierre y el estado de resultados del ejercicio, agrupados en las casillas del formulario. Cada cuenta tiene el campo *Casilla del IR-2*: las del catálogo DGII ya lo traen; una cuenta sin casilla toma la de su cuenta padre o, si ninguna la tiene, una según su tipo (el reporte avisa cuáles). El reporte avisa si el balance no cuadra. El cuadre del IR-2 toma de aquí el beneficio antes del ISR (casilla 14) y los ingresos.
 
@@ -45,7 +53,7 @@ En *RD Compliance → Declaraciones DGII*:
 
 **Proporcionalidad del ITBIS (art. 349).** Si la empresa vende con ITBIS y también exento, el ITBIS de los gastos comunes a ambas ventas (alquiler, teléfono, publicidad, asesorías) solo se adelanta en la proporción de las ventas gravadas. Marque *ITBIS sujeto a proporcionalidad* en esos proveedores (o en cada factura de compra): va en esa columna del 606, y el resumen del IT-1 calcula el porcentaje no admitido y lo resta del ITBIS deducible. Las exportaciones de bienes y las ventas a zonas francas (B14) cuentan como gravadas.
 
-El **Panel de cumplimiento** muestra en una pantalla los plazos y los montos del mes.
+El **Panel de cumplimiento** muestra en una pantalla los plazos y los montos del mes, el estado de los e-CF de los últimos 30 días y, si la empresa vende al Estado, sus licitaciones.
 
 Para recibir los vencimientos por correo, active *Enviar recordatorios de vencimientos* en *Configuración DGII*. Cada mañana llega un correo por empresa con lo que vence en los próximos días (3 por defecto) o ese mismo día: IR-17, 606-609, IT-1, el anticipo del ISR, el IR-2 (120 días después del cierre del año fiscal de ERPNext; sin año fiscal, el 31 de diciembre) y, si hay nómina, el pago de la TSS, el IR-3, la regalía y el IR-13. Los lunes incluye las secuencias NCF por agotarse o por vencer. Hace falta una cuenta de correo saliente en Frappe. El botón *Vista previa de recordatorios* muestra lo que se enviaría hoy.
 
@@ -64,13 +72,36 @@ Para recibir los vencimientos por correo, active *Enviar recordatorios de vencim
 - Las facturas de consumo (E32) menores a RD$250,000 se envían además como resumen (RFCE). El monto se configura en el emisor.
 - **Contingencia:** si la DGII no responde, el e-CF queda *En contingencia* y se reenvía solo, cada vez más espaciado. Si la DGII rechaza la solicitud, el envío queda en *Error* y se reenvía con el botón **Enviar a la DGII**, después de corregir.
 - Los e-CF aceptados con un comprador que también es receptor electrónico se le **entregan** solos. Su acuse de recibo y su aprobación o rechazo comercial quedan en el envío.
+- Un e-CF firmado o un e-CF recibido no se puede borrar: la ley pide conservarlos. Un error se corrige con una nota de crédito y los números sin usar se anulan (ver más abajo).
+
+### Si no puede emitir e-CF (contingencia)
+
+La DGII separa dos casos (Instructivo de Contingencia de Facturación Electrónica):
+
+- **Sin conexión.** El e-CF se firma igual y queda *En contingencia*. La factura impresa dice que es un e-CF en contingencia. Hay **72 horas** para enviarlo a la DGII; el monitor avisa cuando un envío se acerca al plazo o lo pasa.
+- **El sistema no puede emitir e-CF.** Siga estos pasos:
+  1. Declare la entrada en la Oficina Virtual: *Facturación Electrónica → Contingencia FE → Declaración Entrada en Contingencia*.
+  2. En *RD Compliance → Emisor e-CF*, sección *Contingencia*, escriba la fecha de entrada y la descripción.
+  3. Mientras dure, las facturas salen con comprobantes de la serie B: B01, B02, B14, B15 o B16. Necesita una secuencia B vigente de cada tipo que use. La contingencia no puede pasar de **15 días**.
+  4. Cuando se resuelva, declare la salida en la Oficina Virtual y escriba su fecha en el emisor.
+  5. En cada factura de la serie B use **e-CF → Emitir e-CF de reemplazo**. El e-CF se envía solo a la DGII, no al cliente; el cliente se queda con el comprobante B. Hay **30 días** desde la salida para enviar los reemplazos, y el monitor lista los que faltan con su plazo.
+
+### Monitor de e-CF
+
+En *RD Compliance → Monitor de e-CF*, por empresa y período:
+
+- Envíos por estado: aceptados, con condiciones, rechazados, con error, en proceso, en contingencia y firmados sin enviar.
+- Lo que pide acción: los e-CF en contingencia o con error (botón **Reenviar**), los rechazados, las entregas al comprador que fallaron (botón **Entregar**), las facturas con comprobante electrónico que aún no tienen e-CF y los e-CF recibidos con la aprobación comercial pendiente.
+- Avisos de emisor sin configurar, envío deshabilitado, certificado que vence en 30 días o menos y ambiente de pruebas.
 
 ### Recibir e-CF de proveedores
 
 1. Registre en el portal de la DGII la URL del sitio (por ejemplo, `https://erp.suempresa.com.do`) como URL de recepción, aprobación comercial y autenticación. La app atiende las rutas del estándar: `/fe/recepcion/api/ecf`, `/fe/aprobacioncomercial/api/ecf` y `/fe/autenticacion/api/...`.
-2. Cada e-CF que llega queda en *RD Compliance → e-CF recibidos*, y el proveedor recibe su acuse de recibo al momento. La app revisa la firma, el esquema, que el comprador sea su empresa y que no esté repetido.
-3. Con **Aprobar** o **Rechazar** (con el motivo), se firma la aprobación comercial y se envía a la DGII y al proveedor.
-4. Al aprobar la factura de compra con ese e-NCF, el e-CF recibido se enlaza solo.
+2. Cada e-CF que llega queda en *RD Compliance → e-CF recibidos*, y el proveedor recibe su acuse de recibo al momento. La app revisa la firma, la vigencia del certificado, el esquema, que el comprador sea su empresa y que no esté repetido.
+3. Después la app confirma el e-CF con la DGII, que puede tardar unos minutos. Su estado en la DGII queda en el e-CF recibido, y el botón **Verificar en la DGII** lo consulta en el momento. Un e-CF que la DGII rechaza o no encuentra no se puede aprobar.
+4. Con **Aprobar** o **Rechazar** (con el motivo), se firma la aprobación comercial y se envía a la DGII y al proveedor.
+5. Al aprobar la factura de compra con ese e-NCF, el e-CF recibido se enlaza solo.
+6. Opcional: en *Configuracion DGII*, sección *e-CF: contingencia y receptor*, pegue los certificados raíz (PEM) de las entidades certificadoras autorizadas por el INDOTEL. Con ellos, la app solo acepta e-CF y aprobaciones firmados con certificados de esas entidades.
 
 ### Anular secuencias que no se usarán
 
@@ -95,7 +126,18 @@ En *RD Compliance → Anulación de e-NCF*, agregue los rangos (la app propone d
 5. **Prestaciones al salir:** el *Gratuity* de Frappe HR usa las reglas "Preaviso RD", "Cesantía RD" y "Regalía RD". Las vacaciones pendientes se pagan con *Leave Encashment*.
 6. **Horas extras:** use el tipo "Horas extras RD" de Frappe HR. Los recargos de ley se aplican solos: 35 %, 100 % sobre 68 horas semanales y en feriados, y 15 % más en la parte nocturna.
 7. **Dependientes adicionales del SFS:** si el trabajador afilió a sus padres, suegros o hijos mayores de 21 años en la TSS, regístrelos en su ficha (*Dependientes adicionales del SFS*) con la fecha desde. Cada recibo descuenta el per cápita más el Fonamat de cada uno (RD$1,970.42 al mes desde octubre 2026; el monto se cambia en la configuración).
-8. **Subsidios de la SISALRIL:** registre cada licencia médica, de maternidad o lactancia en *Nómina RD → Subsidios de la SISALRIL*. La app toma el salario de los recibos de nómina y estima el subsidio: enfermedad común desde el 4.º día (60 % ambulatoria, 40 % hospitalaria, hasta 182 días), maternidad (tres meses de salario cotizable) y lactancia (33 %, 12 % o 6 % del salario por doce meses, hasta tres salarios mínimos). El monto definitivo lo calcula la SISALRIL; anote el estado y lo que se reciba para controlar los reembolsos.
+8. **Portal del empleado:** el empleado con usuario vinculado en su ficha (*Usuario*) entra a `/rd-compliance/mi-nomina`. Ahí ve y descarga sus volantes de pago, su acumulado del año (bruto, AFP, SFS, ISR y neto) y sus días de vacaciones y permisos, y solicita un permiso, que aprueba su supervisor en Frappe HR. Sin roles de contabilidad solo ve su portal.
+9. **Subsidios de la SISALRIL:** registre cada licencia médica, de maternidad o lactancia en *Nómina RD → Subsidios de la SISALRIL*. La app toma el salario de los recibos de nómina y estima el subsidio: enfermedad común desde el 4.º día (60 % ambulatoria, 40 % hospitalaria, hasta 182 días), maternidad (tres meses de salario cotizable) y lactancia (33 %, 12 % o 6 % del salario por doce meses, hasta tres salarios mínimos). El monto definitivo lo calcula la SISALRIL; anote el estado y lo que se reciba para controlar los reembolsos.
+
+## 6. Licitaciones del Estado
+
+Para las empresas que venden al Estado, en *RD Compliance → Licitaciones del Estado*:
+
+1. **Perfil de proveedor:** cree el perfil de la empresa. Con su RNC se consulta en la DGCP el Registro de Proveedores del Estado (RPE), la condición MIPYME y los rubros registrados. Se actualiza cada semana y avisa del vencimiento de las certificaciones de la DGII, la TSS y el MICM. Agregue palabras clave y un rango de monto para las alertas.
+2. **Procesos de compra:** cuatro veces al día se descargan de los datos abiertos de la DGCP los procesos con artículos de sus rubros. Cada proceso tiene la institución, el monto, el cronograma, los artículos, los documentos y el enlace al Portal Transaccional, donde se presenta la oferta.
+3. **Alertas:** cada mañana llega un correo con los procesos nuevos de sus rubros y los que cierran pronto.
+4. **Ofertas:** desde el proceso, **Crear oferta** abre una oportunidad con la institución como cliente, los artículos, los documentos a presentar y las garantías calculadas. No se puede marcar como presentada con documentos pendientes. El reporte *Ofertas al Estado* las reúne.
+5. **Adjudicación:** al cerrar el proceso, la app sigue la adjudicación de la DGCP y marca la oferta como ganada, perdida o no presentada. La ganada pasa a pedido de venta con **Crear → Pedido de venta**. El botón **Precios de referencia** del proceso muestra lo que pagó el Estado por los mismos artículos.
 
 ## Soporte
 

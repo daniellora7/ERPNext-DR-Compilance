@@ -132,9 +132,14 @@ def _serie_de(codigo: str | None) -> str:
 	return (codigo or "")[:1] or frappe.db.get_single_value("Configuracion DGII", "serie_por_defecto") or "B"
 
 
-def serie_por_defecto(company: str) -> str:
-	"""E si la empresa es emisor electrónico según su perfil tributario; si no, la de Configuracion DGII."""
-	return "E" if perfil.emisor_electronico(company) else _serie_de(None)
+def serie_por_defecto(company: str, fecha=None) -> str:
+	"""E si la empresa es emisor electrónico según su perfil tributario (B en una contingencia declarada
+	en su Emisor ECF); si no, la de Configuracion DGII."""
+	if not perfil.emisor_electronico(company):
+		return _serie_de(None)
+	from erpnext_rd.ecf import contingencia
+
+	return "B" if contingencia.declarada(company, fecha) else "E"
 
 
 def es_empresa_rd(company: str | None) -> bool:
@@ -163,14 +168,22 @@ def tipo_por_defecto_venta(doc) -> str:
 		serie = _serie_de(original)
 		return NOTA_CREDITO[serie] if doc.is_return else NOTA_DEBITO[serie]
 
+	serie = serie_por_defecto(doc.company, doc.posting_date)
 	del_cliente = frappe.db.get_value("Customer", doc.customer, "rd_tipo_comprobante")
 	if del_cliente:
-		return del_cliente
+		if del_cliente.startswith("E") and serie == "B" and perfil.emisor_electronico(doc.company):
+			# Contingencia: el tipo del cliente en la serie B (E31 → B01…)
+			from erpnext_rd.ecf.contingencia import EQUIVALENTES
 
-	serie = serie_por_defecto(doc.company)
+			return next((b for b, e in EQUIVALENTES.items() if e == del_cliente), del_cliente)
+		return del_cliente
 	# Zonas francas y otros regímenes especiales: B14 / E44 (Fase 8.4, regimenes.py)
 	if regimenes.regimen_del_cliente(doc.customer).rd_regimen_especial in regimenes.CON_COMPROBANTE_ESPECIAL:
 		return regimenes.tipo_especial(serie)
+	# La empresa es zona franca y transfiere bienes al mercado local: B16 / E46
+	de_zona_franca = regimenes.tipo_zona_franca(doc, serie)
+	if de_zona_franca:
+		return de_zona_franca
 	if tipo_identificacion(doc.tax_id) in ("RNC", "Cédula") and identificacion_valida(doc.tax_id):
 		return f"{serie}{'01' if serie == 'B' else '31'}"
 
