@@ -11,8 +11,10 @@ contraseña. Se implementa con lxml y cryptography (ya incluidas en Frappe), sin
 import base64
 import copy
 import hashlib
+from datetime import date
 
 from cryptography import x509
+from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import pkcs12
@@ -119,6 +121,52 @@ def verificar(xml_firmado: bytes) -> bool:
 	except Exception:
 		return False
 	return True
+
+
+def certificado_firmante(xml_firmado: bytes):
+	"""Certificado X509 que trae la firma (KeyInfo), o None."""
+	try:
+		ruta = "/".join(
+			f"{{{DS}}}{nombre}" for nombre in ("Signature", "KeyInfo", "X509Data", "X509Certificate")
+		)
+		texto = leer(xml_firmado).findtext(ruta)
+		return x509.load_der_x509_certificate(base64.b64decode(texto)) if texto else None
+	except (etree.XMLSyntaxError, TypeError, ValueError):
+		return None
+
+
+def cargar_autorizados(pem: str | None) -> list:
+	"""Certificados (raíz o intermedios) de las entidades autorizadas por el INDOTEL, en PEM."""
+	if not (pem or "").strip():
+		return []
+	return x509.load_pem_x509_certificates(pem.strip().encode())
+
+
+def _emitido_por(certificado, emisor) -> bool:
+	try:
+		certificado.verify_directly_issued_by(emisor)
+	except (ValueError, TypeError, InvalidSignature):
+		return False
+	return True
+
+
+def problema_certificado(certificado, autorizados: list, fecha: date | None = None) -> str | None:
+	"""Por qué el certificado de quien firmó no sirve, o None.
+
+	- «sin_certificado»: la firma no trae certificado.
+	- «vencido»: la fecha de la firma (o hoy) está fuera de su vigencia.
+	- «no_autorizado»: hay entidades configuradas y ninguna lo emitió.
+
+	La DGII pide que el SN del certificado sea el RNC, la cédula o el pasaporte de su *propietario*, que
+	puede ser la persona que representa al contribuyente: por eso no se compara con el RNC del documento."""
+	if certificado is None:
+		return "sin_certificado"
+	fecha = fecha or date.today()
+	if not (certificado.not_valid_before_utc.date() <= fecha <= certificado.not_valid_after_utc.date()):
+		return "vencido"
+	if autorizados and not any(_emitido_por(certificado, a) for a in autorizados):
+		return "no_autorizado"
+	return None
 
 
 def datos_certificado(certificado) -> dict:

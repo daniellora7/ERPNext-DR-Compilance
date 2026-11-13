@@ -7,6 +7,7 @@
 	{% if f.codigo_seguridad %}
 	<div class="c">Código de seguridad: {{ f.codigo_seguridad }}</div>
 	<div class="c">Fecha de firma: {{ f.fecha_firma }}</div>
+	{% if f.leyenda_contingencia %}<div class="c"><b>{{ f.leyenda_contingencia }}</b></div>{% endif %}
 	{% endif %}
 	{% endif %}
 </div>

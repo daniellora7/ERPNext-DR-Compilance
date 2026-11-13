@@ -22,13 +22,31 @@ Monitor de e-CF, portal del empleado, licitaciones del Estado (ofertas y adjudic
 - **Adjudicaciones del Estado** (Fase 10.6). Los procesos con ofertas se siguen hasta la adjudicación: se guardan los contratos de la DGCP y la oferta queda ganada, perdida o no presentada. La oferta ganada pasa a pedido de venta. Precios de referencia de lo que pagó el Estado por los mismos artículos. Aviso opcional (apagado) si la retención de ISR de una institución no coincide con la configuración.
 - **Licitaciones en el Panel RD Compliance.** Para las empresas que venden al Estado: ofertas en curso con sus pendientes, procesos nuevos de sus rubros y garantías por vencer, con avisos arriba cuando una oferta cierra con documentos pendientes.
 - **Alertas de licitaciones** (Fase 10.4). Correo diario por empresa con los procesos nuevos de sus rubros (con filtros de palabras clave y monto) y los que dejan de recibir ofertas pronto.
+- **Contingencia de la facturación electrónica**, según el Instructivo de Contingencia de la DGII y el Decreto 587-24, art. 40.
+  - El monitor de e-CF y el Panel avisan cuando un e-CF firmado sin conexión pasa o se acerca al plazo de 72 horas para enviarlo. La factura impresa lleva la leyenda de contingencia de la DGII.
+  - Si la empresa no puede emitir e-CF, registra en el *Emisor ECF* las fechas de entrada y salida que declaró en la Oficina Virtual. Mientras dura, que es un máximo de 15 días, las facturas salen con la serie B.
+  - Después de la salida, el botón *Emitir e-CF de reemplazo* firma y envía solo a la DGII el e-CF que reemplaza cada comprobante de la serie B. El monitor lista los que faltan, con su plazo de 30 días.
+  - Los plazos se configuran en *Configuracion DGII*.
+
+### Seguridad
+- **Receptor de e-CF.**
+  - El certificado de quien firma un e-CF, una aprobación comercial o la autenticación debe estar vigente.
+  - Si se cargan en *Configuracion DGII* los certificados de las entidades autorizadas por el INDOTEL, el certificado también debe venir de una de ellas.
+  - Cada e-CF recibido se confirma con la DGII. Uno que la DGII rechaza o no encuentra no se puede aprobar. El formulario tiene el botón *Verificar en la DGII*.
+  - Una aprobación comercial solo se acepta del comprador del e-CF y por su monto, y no cambia una ya recibida.
+  - Las rutas públicas `/fe/...` limitan las peticiones por IP y responden 429 si se pasan.
+- **Conservación de los e-CF** (Código Tributario, art. 50). Los e-CF firmados, los recibidos y las anulaciones con su ANECF no se pueden borrar, ni sus XML.
+
+### Rendimiento
+- El 606, el 607 y el IT-1 cargan las facturas por lotes en vez de una por una: de unas 15 consultas por factura a unas pocas por cada 500.
+- Índices en *Envio ECF* y *ECF Recibido* para el monitor, la recepción y las tareas programadas.
 
 ### Corregido
 - La factura y el recibo POS impresos mostraban el ISC sumado al ITBIS y el total de la línea sin el ISC. Ahora el ISC va en su propia columna y fila. Los formatos ya creados se actualizan si sus bloques no se editaron.
 
 ### Mantenimiento
 - Imagen Docker con Frappe v16.56.0, ERPNext v16.54.0 y Frappe HR v16.53.2.
-- Frappe Builder y Frappe Suite salen de la imagen. Suite sigue a Frappe develop (v17) y en v16 fallaba al adjuntar un archivo privado existente (captura de compras); se evalúa de nuevo con Frappe v17.
+- Frappe Builder sale de la imagen.
 - El catálogo DGII se aplica con ERPNext v16.53, que ahora revisa los enlaces al borrar las cuentas y crea la plantilla *Dominican Republic Tax* con la empresa.
 
 ## v0.5.5 (2026-10-29)

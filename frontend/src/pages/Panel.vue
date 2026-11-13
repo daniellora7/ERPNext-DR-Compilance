@@ -560,6 +560,31 @@ const alertas = computed(() => {
 				accion,
 			})
 		}
+		if (ecf.contingencia_vencida) {
+			lista.push({
+				theme: "red",
+				title: __("{0} e-CF en contingencia pasaron el plazo de envío a la DGII", [ecf.contingencia_vencida]),
+				description: __("Los e-CF firmados sin conexión se envían en 72 horas como máximo."),
+				accion,
+			})
+		}
+		if (ecf.contingencia_declarada) {
+			const d = ecf.contingencia_declarada
+			lista.push({
+				theme: d.dias > d.maximo ? "red" : "amber",
+				title: __("Contingencia declarada: día {0} de {1}", [d.dias, d.maximo]),
+				description: __("Las facturas salen con la serie B; al salir hay que enviar sus e-CF de reemplazo."),
+				accion,
+			})
+		}
+		if (ecf.reemplazos) {
+			lista.push({
+				theme: "amber",
+				title: __("{0} comprobantes de contingencia sin e-CF de reemplazo", [ecf.reemplazos]),
+				description: __("Envíe a la DGII el e-CF que reemplaza cada factura de la serie B."),
+				accion,
+			})
+		}
 	}
 
 	if (!r.value.padron.registros) {

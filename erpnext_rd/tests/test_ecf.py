@@ -13,10 +13,10 @@ from erpnext_rd.ecf import datos as d
 from erpnext_rd.ecf import esquemas, firma
 
 
-def certificado_de_prueba(clave: str = "prueba") -> bytes:
-	"""Un .p12 autofirmado, como el que entrega la entidad certificadora (solo para pruebas)."""
+def autoridad_de_prueba():
+	"""(llave, certificado) de una entidad certificadora de prueba, para firmar certificados."""
 	llave = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-	nombre = x509.Name([x509.NameAttribute(x509.NameOID.COMMON_NAME, "EMPRESA DE PRUEBA SRL")])
+	nombre = x509.Name([x509.NameAttribute(x509.NameOID.COMMON_NAME, "ENTIDAD CERTIFICADORA DE PRUEBA")])
 	hoy = datetime.datetime.now(datetime.UTC)
 	cert = (
 		x509.CertificateBuilder()
@@ -24,9 +24,31 @@ def certificado_de_prueba(clave: str = "prueba") -> bytes:
 		.issuer_name(nombre)
 		.public_key(llave.public_key())
 		.serial_number(x509.random_serial_number())
-		.not_valid_before(hoy - datetime.timedelta(days=1))
-		.not_valid_after(hoy + datetime.timedelta(days=365))
+		.not_valid_before(hoy - datetime.timedelta(days=3650))
+		.not_valid_after(hoy + datetime.timedelta(days=3650))
+		.add_extension(x509.BasicConstraints(ca=True, path_length=None), critical=True)
 		.sign(llave, hashes.SHA256())
+	)
+	return llave, cert
+
+
+def certificado_de_prueba(clave: str = "prueba", emisor=None, vence_en_dias: int = 365) -> bytes:
+	"""Un .p12 como el que entrega la entidad certificadora (solo para pruebas): autofirmado o, con
+	`emisor` = (llave, certificado), emitido por esa entidad. Vigente desde hace años, porque los XML
+	de prueba dicen haberse firmado en 2026."""
+	llave = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+	nombre = x509.Name([x509.NameAttribute(x509.NameOID.COMMON_NAME, "EMPRESA DE PRUEBA SRL")])
+	llave_emisor, cert_emisor = emisor or (llave, None)
+	hoy = datetime.datetime.now(datetime.UTC)
+	cert = (
+		x509.CertificateBuilder()
+		.subject_name(nombre)
+		.issuer_name(cert_emisor.subject if cert_emisor else nombre)
+		.public_key(llave.public_key())
+		.serial_number(x509.random_serial_number())
+		.not_valid_before(hoy - datetime.timedelta(days=1825))
+		.not_valid_after(hoy + datetime.timedelta(days=vence_en_dias))
+		.sign(llave_emisor, hashes.SHA256())
 	)
 	return pkcs12.serialize_key_and_certificates(
 		b"prueba", llave, cert, None, serialization.BestAvailableEncryption(clave.encode())

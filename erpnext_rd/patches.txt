@@ -14,3 +14,5 @@ erpnext_rd.patches.v0_5.indice_secuencia_ncf
 erpnext_rd.patches.v0_5.indice_texto_padron
 erpnext_rd.patches.v0_5.isc_en_formatos
 erpnext_rd.patches.v0_6.incentivos_ir2
+erpnext_rd.patches.v0_6.contingencia_ecf
+erpnext_rd.patches.v0_6.estado_dgii_recibidos

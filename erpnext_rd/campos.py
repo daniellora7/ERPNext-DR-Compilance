@@ -194,6 +194,39 @@ def campos_personalizados() -> dict:
 				"no_copy": 1,
 				"depends_on": "eval:(doc.rd_ncf || '').startsWith('E')",
 			},
+			# Contingencia sin poder emitir e-CF: serie B y el e-CF que la reemplaza (ecf/contingencia.py)
+			{
+				"fieldname": "rd_contingencia_ecf",
+				"fieldtype": "Check",
+				"label": "Emitida en contingencia",
+				"insert_after": "rd_fecha_firma",
+				"read_only": 1,
+				"no_copy": 1,
+				"depends_on": "rd_contingencia_ecf",
+				"description": "Comprobante de la serie B de un emisor electrónico en contingencia: hay que "
+				"enviar a la DGII el e-CF que lo reemplaza.",
+			},
+			{
+				"fieldname": "rd_encf_reemplazo",
+				"fieldtype": "Data",
+				"label": "e-NCF de reemplazo",
+				"insert_after": "rd_contingencia_ecf",
+				"read_only": 1,
+				"no_copy": 1,
+				"allow_on_submit": 1,
+				"length": 13,
+				"depends_on": "rd_contingencia_ecf",
+			},
+			{
+				"fieldname": "rd_plazo_reemplazo",
+				"fieldtype": "Date",
+				"label": "Plazo del e-CF de reemplazo",
+				"insert_after": "rd_encf_reemplazo",
+				"read_only": 1,
+				"no_copy": 1,
+				"allow_on_submit": 1,
+				"depends_on": "rd_contingencia_ecf",
+			},
 		]
 		return campos
 

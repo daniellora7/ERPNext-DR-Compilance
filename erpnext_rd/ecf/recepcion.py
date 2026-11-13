@@ -7,11 +7,18 @@
   envía a la DGII y al emisor (su URL de aprobación, del directorio de la DGII).
 - `recibir_aprobacion`: un cliente aprueba o rechaza un e-CF que emitimos; queda en su *Envio ECF*.
 - `vincular_factura`: al aprobar una factura de compra con el e-NCF de un e-CF recibido, se enlazan.
+- `verificar_recibidos`: tarea programada que confirma con la DGII (consulta de estado) que cada e-CF
+  recibido existe y fue aceptado. La firma solo prueba que el XML no cambió; quien lo envía podría
+  firmar con cualquier certificado, así que un e-CF «Rechazado» o «No encontrado» no se aprueba.
+
+Quién firma: el certificado debe estar vigente a la fecha de la firma y, si *Configuracion DGII* tiene
+los certificados de las entidades autorizadas por el INDOTEL, haberlo emitido una de ellas
+(`certificado_aceptable`).
 """
 
 import frappe
 from frappe import _
-from frappe.utils import cint, flt, getdate, now_datetime
+from frappe.utils import add_days, cint, flt, getdate, now_datetime
 from lxml import etree
 
 from erpnext_rd.captura_compras import convertir
@@ -29,14 +36,36 @@ from erpnext_rd.ecf.emision import (
 )
 
 RECIBIDO = "ECF Recibido"
+CONFIG = "Configuracion DGII"
 TIPOS = (31, 32, 33, 34, 41, 43, 44, 45, 46, 47)
 RECIBIDO_OK, NO_RECIBIDO = 0, 1
 ESPECIFICACION, FIRMA, DUPLICADO, RNC_NO_CORRESPONDE = 1, 2, 3, 4
 APROBADO, RECHAZADO = 1, 2
+# Verificación con la DGII de los e-CF recibidos
+POR_VERIFICAR = ("Pendiente", "No encontrado", "Error")
+NO_VALIDOS_DGII = ("Rechazado", "No encontrado")
+DIAS_VERIFICACION = 7
+LOTE_VERIFICACION = 100
 
 
 class ErrorRecepcion(Exception):
 	"""Lo recibido no se puede ni acusar (no es un e-CF, falta el RNC): el servicio responde 400."""
+
+
+def certificado_aceptable(xml: bytes, fecha_firma: str | None = None) -> bool:
+	"""El certificado de quien firmó está vigente a la fecha de la firma («dd-mm-aaaa …», o hoy) y, si
+	*Configuracion DGII* tiene entidades autorizadas, lo emitió una de ellas."""
+	try:
+		autorizados = firma.cargar_autorizados(
+			frappe.db.get_single_value(CONFIG, "certificados_autorizados_ecf")
+		)
+	except ValueError:
+		frappe.log_error(
+			_("Los certificados de las entidades autorizadas (Configuracion DGII) no son PEM válidos")
+		)
+		return False
+	fecha = _fecha((fecha_firma or "")[:10])
+	return firma.problema_certificado(firma.certificado_firmante(xml), autorizados, fecha) is None
 
 
 def _empresa_por_rnc(rnc: str | None) -> str | None:
@@ -86,7 +115,7 @@ def _leer_ecf(xml: bytes):
 
 def _motivo(xml: bytes, empresa: str | None, rnc_emisor: str, encf: str, tipo: int) -> int | None:
 	"""Código del motivo de no recibido, o None si el e-CF se recibe."""
-	if not firma.verificar(xml):
+	if not firma.verificar(xml) or not certificado_aceptable(xml, firma.leer(xml).findtext("FechaHoraFirma")):
 		return FIRMA
 	if tipo not in TIPOS or esquemas.errores(tipo, xml):
 		return ESPECIFICACION
@@ -194,6 +223,7 @@ def _registrar(
 			"aprobacion": "Pendiente",
 			"origen": origen,
 			"estado_conversion": "Ignorado" if motivo else "Pendiente",
+			"estado_dgii": "Sin verificar" if motivo else "Pendiente",
 		}
 	)
 	if not motivo:
@@ -227,6 +257,13 @@ def decidir(doc, aprobado: int = 1, motivo: str | None = None) -> str:
 	motivo = " ".join((motivo or "").split())[:250]
 	if not aprobado and not motivo:
 		frappe.throw(_("Indique el motivo del rechazo."))
+	if aprobado and doc.get("estado_dgii") in NO_VALIDOS_DGII:
+		frappe.throw(
+			_(
+				"La DGII responde «{0}» para el e-CF {1}: no se puede aprobar. Verifíquelo de nuevo o rechácelo."
+			).format(_(doc.estado_dgii), doc.encf),
+			title=_("e-CF no válido en la DGII"),
+		)
 
 	emisor = emisor_de(doc.company)
 	llave, certificado = emisor.cargar()
@@ -321,6 +358,10 @@ def recibir_aprobacion(xml: bytes):
 		raise ErrorRecepcion(_("La aprobación comercial no cumple el esquema: {0}").format(fallas[0]))
 
 	detalle = "DetalleAprobacionComercial/"
+	if not certificado_aceptable(xml, raiz.findtext(detalle + "FechaHoraAprobacionComercial")):
+		raise ErrorRecepcion(
+			_("El certificado de la firma está vencido o no lo emitió una entidad autorizada por el INDOTEL")
+		)
 	empresa = _empresa_por_rnc(datos._rnc(raiz.findtext(detalle + "RNCEmisor")))
 	encf = raiz.findtext(detalle + "eNCF").strip()
 	envio = empresa and frappe.db.get_value(
@@ -330,6 +371,11 @@ def recibir_aprobacion(xml: bytes):
 		raise ErrorRecepcion(_("No hay un e-CF {0} emitido por ese RNC").format(encf))
 
 	doc = frappe.get_doc(ENVIO, envio)
+	_validar_comprador(doc, raiz, detalle)
+	if doc.aprobacion_comercial:
+		raise ErrorRecepcion(
+			_("El e-CF {0} ya tiene la aprobación comercial ({1})").format(encf, _(doc.aprobacion_comercial))
+		)
 	aprobado = raiz.findtext(detalle + "Estado") == str(APROBADO)
 	doc.update(
 		{
@@ -344,6 +390,91 @@ def recibir_aprobacion(xml: bytes):
 	)
 	doc.save(ignore_permissions=True)
 	return doc
+
+
+def _validar_comprador(envio, raiz, detalle: str):
+	"""La aprobación es del comprador del e-CF que emitimos y por su monto total."""
+	from erpnext_rd.ecf.emision import leer_xml
+
+	ecf = firma.leer(leer_xml(envio.xml)) if envio.xml else None
+	esperado = datos._rnc(ecf.findtext("Encabezado/Comprador/RNCComprador")) if ecf is not None else None
+	if not esperado or datos._rnc(raiz.findtext(detalle + "RNCComprador")) != esperado:
+		raise ErrorRecepcion(_("La aprobación no es del comprador del e-CF {0}").format(envio.encf))
+	monto = flt(ecf.findtext("Encabezado/Totales/MontoTotal"), 2)
+	if flt(raiz.findtext(detalle + "MontoTotal"), 2) != monto:
+		raise ErrorRecepcion(_("El monto de la aprobación no es el del e-CF {0}").format(envio.encf))
+
+
+# ---------------------------------------------------------------- verificación con la DGII
+
+
+def verificar_en_dgii(doc) -> str:
+	"""Consulta el estado del e-CF recibido en la DGII (con el certificado de la empresa)."""
+	from erpnext_rd.captura_compras.qr import ESTADOS_DGII
+
+	emisor = frappe.db.get_value(EMISOR, doc.company, "certificado")
+	if not emisor:
+		doc.update(
+			{
+				"estado_dgii": "Sin verificar",
+				"mensaje_dgii": _("La empresa no tiene emisor e-CF con certificado para consultar la DGII."),
+			}
+		)
+		return doc.estado_dgii
+	llave, certificado = emisor_de(doc.company).cargar()
+	try:
+		respuesta = ClienteDGII(rnc_empresa(doc.company), llave, certificado).consultar_estado(
+			doc.encf, rnc_empresa(doc.company), doc.codigo_seguridad, rnc_emisor=doc.rnc_emisor
+		)
+	except (ErrorDGII, OSError) as error:
+		doc.update(
+			{"estado_dgii": "Error", "mensaje_dgii": str(error)[:500], "verificado_en": now_datetime()}
+		)
+		return doc.estado_dgii
+	estado = str(respuesta.get("estado") or "").lower()
+	doc.update(
+		{
+			"estado_dgii": next((e for clave, e in ESTADOS_DGII if clave in estado), "No encontrado"),
+			"mensaje_dgii": str(respuesta.get("mensaje") or respuesta.get("estado") or "")[:500],
+			"verificado_en": now_datetime(),
+		}
+	)
+	return doc.estado_dgii
+
+
+@frappe.whitelist(methods=["POST"])
+def verificar(name: str) -> str:
+	"""Botón «Verificar en la DGII» del e-CF recibido."""
+	doc = frappe.get_doc(RECIBIDO, name)
+	doc.check_permission("write")
+	if doc.estado != "Recibido":
+		frappe.throw(_("Solo se verifican los e-CF recibidos."))
+	verificar_en_dgii(doc)
+	doc.save(ignore_permissions=True)
+	return doc.estado_dgii
+
+
+def verificar_recibidos():
+	"""Tarea programada: verifica en la DGII los e-CF recibidos en los últimos días que siguen sin
+	confirmar. Un e-CF puede llegar antes de que la DGII termine de procesarlo: «No encontrado» se
+	vuelve a consultar hasta `DIAS_VERIFICACION` días después de recibido."""
+	for nombre in frappe.get_all(
+		RECIBIDO,
+		filters={
+			"estado": "Recibido",
+			"estado_dgii": ("in", POR_VERIFICAR),
+			"fecha_recepcion": (">=", add_days(now_datetime(), -DIAS_VERIFICACION)),
+		},
+		order_by="fecha_recepcion asc",
+		pluck="name",
+		limit=LOTE_VERIFICACION,
+	):
+		doc = frappe.get_doc(RECIBIDO, nombre)
+		try:
+			verificar_en_dgii(doc)
+			doc.save(ignore_permissions=True)
+		except Exception:
+			doc.log_error(_("Verificación en la DGII del e-CF recibido"))
 
 
 def vincular_factura(doc, method=None):

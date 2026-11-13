@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 import frappe
 import requests
+from cryptography.hazmat.primitives import serialization
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_to_date, now_datetime
 from lxml import etree
@@ -308,6 +309,81 @@ class TestIntercambioECF(IntegrationTestCase):
 		self.assertRaises(
 			recepcion.ErrorRecepcion, recepcion.recibir_aprobacion, acecf.replace(b"2950", b"2951")
 		)
+		# Ya tiene aprobación: otra no la cambia
+		self.assertRaises(recepcion.ErrorRecepcion, recepcion.recibir_aprobacion, acecf)
+
+	def _acecf(self, encf, comprador="131880738", monto="2950.00"):
+		return firma.firmar(
+			esquemas.construir(
+				"ACECF",
+				{
+					"DetalleAprobacionComercial": {
+						"Version": "1.0",
+						"RNCEmisor": RNC_EMPRESA,
+						"eNCF": encf,
+						"FechaEmision": "15-10-2026",
+						"MontoTotal": monto,
+						"RNCComprador": comprador,
+						"Estado": 2,
+						"DetalleMotivoRechazo": "No reconocida",
+						"FechaHoraAprobacionComercial": "16-10-2026 09:00:00",
+					}
+				},
+			),
+			self.llave_proveedor,
+			self.cert_proveedor,
+		)
+
+	def test_aprobacion_de_quien_no_es_el_comprador(self):
+		envio = self._envio("E310000000054", estado="Aceptado")
+		# Otro contribuyente (o el mismo comprador con otro monto) no rechaza el e-CF
+		for falsa in (self._acecf(envio.encf, comprador="101543231"), self._acecf(envio.encf, monto="10.00")):
+			self.assertRaises(recepcion.ErrorRecepcion, recepcion.recibir_aprobacion, falsa)
+		self.assertFalse(frappe.db.get_value("Envio ECF", envio.name, "aprobacion_comercial"))
+		recepcion.recibir_aprobacion(self._acecf(envio.encf))
+		self.assertEqual(frappe.db.get_value("Envio ECF", envio.name, "aprobacion_comercial"), "Rechazado")
+
+	def test_verificacion_en_la_dgii(self):
+		recepcion.recibir_ecf(ecf_del_proveedor(self.llave_proveedor, self.cert_proveedor, "E310000000081"))
+		nombre = frappe.db.get_value("ECF Recibido", {"encf": "E310000000081"})
+		self.assertEqual(frappe.db.get_value("ECF Recibido", nombre, "estado_dgii"), "Pendiente")
+
+		class NoLoEncuentra(SesionCompleta):
+			def get(self, url, **kw):
+				if "consultaestado" in url:
+					return Respuesta({"estado": "No encontrado", "mensaje": "e-CF no encontrado"})
+				return super().get(url, **kw)
+
+		with patch("erpnext_rd.ecf.cliente.requests.Session", NoLoEncuentra):
+			recepcion.verificar_recibidos()
+		self.assertEqual(frappe.db.get_value("ECF Recibido", nombre, "estado_dgii"), "No encontrado")
+		self.assertRaises(frappe.ValidationError, recepcion.aprobar, nombre, 1)
+
+		with dgii():
+			self.assertEqual(recepcion.verificar(nombre), "Aceptado")
+		consulta = next(kw for _m, u, kw in SesionCompleta.llamadas if "consultaestado" in u)
+		self.assertEqual(consulta["params"]["rncemisor"], RNC_PROVEEDOR)
+		self.assertEqual(consulta["params"]["rnccomprador"], RNC_EMPRESA)
+		with dgii():
+			self.assertEqual(recepcion.aprobar(nombre, 1), "Aprobado")
+
+	def test_recepcion_con_entidades_autorizadas(self):
+		from erpnext_rd.tests.test_ecf import autoridad_de_prueba
+
+		ca = autoridad_de_prueba()
+		frappe.db.set_single_value(
+			"Configuracion DGII",
+			"certificados_autorizados_ecf",
+			ca[1].public_bytes(serialization.Encoding.PEM).decode(),
+		)
+		try:
+			autofirmado = ecf_del_proveedor(self.llave_proveedor, self.cert_proveedor, "E310000000082")
+			self.assertEqual(acuse(recepcion.recibir_ecf(autofirmado)), ("1", "2"))
+			llave, cert = firma.cargar_certificado(certificado_de_prueba(emisor=ca), "prueba")
+			emitido = ecf_del_proveedor(llave, cert, "E310000000083")
+			self.assertEqual(acuse(recepcion.recibir_ecf(emitido)), ("0", None))
+		finally:
+			frappe.db.set_single_value("Configuracion DGII", "certificados_autorizados_ecf", None)
 
 	# ------------------------------------------------------- set de pruebas
 

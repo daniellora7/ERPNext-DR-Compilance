@@ -4,8 +4,9 @@ Solo lee: reúne en una llamada lo que hay que vigilar de la facturación electr
 
 - El emisor: si está configurado y habilitado, el ambiente y el vencimiento del certificado.
 - Los envíos del período por estado (aceptados, condicionales, rechazados, en proceso...).
-- Lo que pide acción: e-CF en contingencia, rechazados o con error, entregas al comprador fallidas y
-  facturas con comprobante electrónico que aún no tienen e-CF.
+- Lo que pide acción: e-CF en contingencia (con su plazo de 72 horas), rechazados o con error,
+  entregas al comprador fallidas, facturas con comprobante electrónico que aún no tienen e-CF y, en una
+  contingencia declarada, las facturas de la serie B sin su e-CF de reemplazo (ecf/contingencia.py).
 - Los e-CF recibidos de proveedores con la aprobación comercial pendiente.
 
 Las acciones (reenviar, entregar al comprador) usan los métodos de `emision`, con sus permisos.
@@ -13,10 +14,11 @@ Las acciones (reenviar, entregar al comprador) usan los métodos de `emision`, c
 
 import frappe
 from frappe import _
-from frappe.utils import add_days, cint, date_diff, getdate, nowdate
+from frappe.utils import add_days, cint, date_diff, getdate, now_datetime, nowdate
 
 from erpnext_rd.dgii_fiscal.ncf import es_empresa_rd
 from erpnext_rd.dgii_reportes.formatos import ROLES
+from erpnext_rd.ecf import contingencia
 from erpnext_rd.ecf.emision import (
 	ACEPTADOS,
 	CONTINGENCIA,
@@ -67,7 +69,10 @@ def resumen(company: str, dias: int = 30) -> dict:
 		"puede_actuar": bool(frappe.has_permission(ENVIO, "write")),
 		"emisor": emisor(company),
 		"conteo": conteo(company, desde),
-		"contingencia": envios(company, {"estado": CONTINGENCIA}, orden="proximo_intento asc"),
+		"contingencia": con_plazo(envios(company, {"estado": CONTINGENCIA}, orden="fecha_firma asc")),
+		"horas_contingencia": contingencia.horas_envio(),
+		"contingencia_declarada": declarada(company),
+		"reemplazos": contingencia.pendientes(company),
 		"con_problemas": envios(company, {"estado": ("in", CON_PROBLEMAS), "creation": (">=", desde)}),
 		"entregas": entregas(company),
 		"sin_emitir": sin_emitir(company, desde),
@@ -85,13 +90,41 @@ def resumen_panel(company: str) -> dict | None:
 	if not datos_emisor["configurado"] and not frappe.db.exists(ENVIO, {"company": company}):
 		return None
 	por_estado = cifras["por_estado"]
+	en_contingencia = con_plazo(envios(company, {"estado": CONTINGENCIA}, orden="fecha_firma asc"))
 	return {
 		"emisor": datos_emisor,
 		"total": cifras["total"],
 		"aceptados": por_estado["Aceptado"] + por_estado["Aceptado condicional"],
 		"rechazados": por_estado["Rechazado"] + por_estado["Error"],
-		"contingencia": frappe.db.count(ENVIO, {"company": company, "estado": CONTINGENCIA}),
+		"contingencia": len(en_contingencia),
+		"contingencia_vencida": sum(1 for e in en_contingencia if e["vencido"]),
+		"contingencia_declarada": declarada(company),
+		"reemplazos": len(contingencia.pendientes(company)),
 		"sin_emitir": len(sin_emitir(company, desde)),
+	}
+
+
+def con_plazo(lista: list[dict]) -> list[dict]:
+	"""Agrega a los e-CF en contingencia (sin conexión) el límite para enviarlos a la DGII."""
+	ahora = now_datetime()
+	for envio in lista:
+		vence = contingencia.vence_envio(envio.get("fecha_firma") or envio.get("creation"))
+		envio["vence"] = vence
+		envio["vencido"] = bool(vence and vence < ahora)
+	return lista
+
+
+def declarada(company: str) -> dict | None:
+	"""Contingencia por imposibilidad de emitir e-CF abierta hoy en el Emisor ECF, con sus días."""
+	abierta = contingencia.declarada(company, nowdate())
+	if not abierta:
+		return None
+	return {
+		"desde": abierta.contingencia_desde,
+		"hasta": abierta.contingencia_hasta,
+		"modalidad": abierta.contingencia_modalidad,
+		"dias": date_diff(nowdate(), abierta.contingencia_desde) + 1,
+		"maximo": contingencia.dias_maximos(),
 	}
 
 
@@ -204,6 +237,7 @@ def recibidos(company: str) -> dict:
 		"monto_total",
 		"fecha_emision",
 		"envio_aprobacion",
+		"estado_dgii",
 	]
 	pendientes = frappe.get_list(
 		"ECF Recibido",

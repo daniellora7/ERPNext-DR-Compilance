@@ -72,6 +72,19 @@ Para recibir los vencimientos por correo, active *Enviar recordatorios de vencim
 - Las facturas de consumo (E32) menores a RD$250,000 se envían además como resumen (RFCE). El monto se configura en el emisor.
 - **Contingencia:** si la DGII no responde, el e-CF queda *En contingencia* y se reenvía solo, cada vez más espaciado. Si la DGII rechaza la solicitud, el envío queda en *Error* y se reenvía con el botón **Enviar a la DGII**, después de corregir.
 - Los e-CF aceptados con un comprador que también es receptor electrónico se le **entregan** solos. Su acuse de recibo y su aprobación o rechazo comercial quedan en el envío.
+- Un e-CF firmado o un e-CF recibido no se puede borrar: la ley pide conservarlos. Un error se corrige con una nota de crédito y los números sin usar se anulan (ver más abajo).
+
+### Si no puede emitir e-CF (contingencia)
+
+La DGII separa dos casos (Instructivo de Contingencia de Facturación Electrónica):
+
+- **Sin conexión.** El e-CF se firma igual y queda *En contingencia*. La factura impresa dice que es un e-CF en contingencia. Hay **72 horas** para enviarlo a la DGII; el monitor avisa cuando un envío se acerca al plazo o lo pasa.
+- **El sistema no puede emitir e-CF.** Siga estos pasos:
+  1. Declare la entrada en la Oficina Virtual: *Facturación Electrónica → Contingencia FE → Declaración Entrada en Contingencia*.
+  2. En *RD Compliance → Emisor e-CF*, sección *Contingencia*, escriba la fecha de entrada y la descripción.
+  3. Mientras dure, las facturas salen con comprobantes de la serie B: B01, B02, B14, B15 o B16. Necesita una secuencia B vigente de cada tipo que use. La contingencia no puede pasar de **15 días**.
+  4. Cuando se resuelva, declare la salida en la Oficina Virtual y escriba su fecha en el emisor.
+  5. En cada factura de la serie B use **e-CF → Emitir e-CF de reemplazo**. El e-CF se envía solo a la DGII, no al cliente; el cliente se queda con el comprobante B. Hay **30 días** desde la salida para enviar los reemplazos, y el monitor lista los que faltan con su plazo.
 
 ### Monitor de e-CF
 
@@ -84,9 +97,11 @@ En *RD Compliance → Monitor de e-CF*, por empresa y período:
 ### Recibir e-CF de proveedores
 
 1. Registre en el portal de la DGII la URL del sitio (por ejemplo, `https://erp.suempresa.com.do`) como URL de recepción, aprobación comercial y autenticación. La app atiende las rutas del estándar: `/fe/recepcion/api/ecf`, `/fe/aprobacioncomercial/api/ecf` y `/fe/autenticacion/api/...`.
-2. Cada e-CF que llega queda en *RD Compliance → e-CF recibidos*, y el proveedor recibe su acuse de recibo al momento. La app revisa la firma, el esquema, que el comprador sea su empresa y que no esté repetido.
-3. Con **Aprobar** o **Rechazar** (con el motivo), se firma la aprobación comercial y se envía a la DGII y al proveedor.
-4. Al aprobar la factura de compra con ese e-NCF, el e-CF recibido se enlaza solo.
+2. Cada e-CF que llega queda en *RD Compliance → e-CF recibidos*, y el proveedor recibe su acuse de recibo al momento. La app revisa la firma, la vigencia del certificado, el esquema, que el comprador sea su empresa y que no esté repetido.
+3. Después la app confirma el e-CF con la DGII, que puede tardar unos minutos. Su estado en la DGII queda en el e-CF recibido, y el botón **Verificar en la DGII** lo consulta en el momento. Un e-CF que la DGII rechaza o no encuentra no se puede aprobar.
+4. Con **Aprobar** o **Rechazar** (con el motivo), se firma la aprobación comercial y se envía a la DGII y al proveedor.
+5. Al aprobar la factura de compra con ese e-NCF, el e-CF recibido se enlaza solo.
+6. Opcional: en *Configuracion DGII*, sección *e-CF: contingencia y receptor*, pegue los certificados raíz (PEM) de las entidades certificadoras autorizadas por el INDOTEL. Con ellos, la app solo acepta e-CF y aprobaciones firmados con certificados de esas entidades.
 
 ### Anular secuencias que no se usarán
 

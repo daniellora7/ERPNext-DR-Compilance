@@ -169,6 +169,7 @@ def rd_datos_fiscales(doc) -> frappe._dict:
 		codigo_seguridad=doc.get("rd_codigo_seguridad"),
 		fecha_firma=format_datetime(doc.rd_fecha_firma) if doc.get("rd_fecha_firma") else None,
 		qr=None,
+		leyenda_contingencia=None,
 		url_timbre=None,
 	)
 
@@ -185,5 +186,18 @@ def rd_datos_fiscales(doc) -> frappe._dict:
 			ambiente=frappe.db.get_single_value("Configuracion DGII", "ambiente_ecf") or "TesteCF",
 		)
 		datos.qr = qr_data_uri(datos.url_timbre)
+		# Firmado sin conexión: la leyenda del Instructivo de Contingencia de la DGII (ecf/contingencia.py)
+		if frappe.db.exists(
+			"Envio ECF",
+			{
+				"tipo_documento": doc.doctype,
+				"documento": doc.name,
+				"estado": "Contingencia",
+				"es_reemplazo": 0,
+			},
+		):
+			from erpnext_rd.ecf.contingencia import LEYENDA_SIN_CONEXION
+
+			datos.leyenda_contingencia = LEYENDA_SIN_CONEXION
 
 	return datos

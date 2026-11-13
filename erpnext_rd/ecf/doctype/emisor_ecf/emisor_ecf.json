@@ -4,7 +4,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "links": [],
- "modified": "2026-10-21 18:00:00",
+ "modified": "2026-11-13 15:08:52.838728",
  "modified_by": "Administrator",
  "module": "ECF",
  "owner": "Administrator",
@@ -115,6 +115,42 @@
    "label": "Vigente hasta",
    "read_only": 1,
    "in_list_view": 1
+  },
+  {
+   "fieldname": "section_contingencia",
+   "fieldtype": "Section Break",
+   "label": "Contingencia (imposibilidad de emitir e-CF)",
+   "collapsible": 1,
+   "description": "Declare la entrada y la salida en la Oficina Virtual (Facturación Electrónica → Contingencia FE) y copie aquí las fechas. Mientras dure, las facturas salen con comprobantes de la serie B; después hay que enviar a la DGII los e-CF que las reemplazan."
+  },
+  {
+   "fieldname": "contingencia_desde",
+   "fieldtype": "Date",
+   "label": "Entrada en contingencia"
+  },
+  {
+   "fieldname": "contingencia_hasta",
+   "fieldtype": "Date",
+   "label": "Salida de contingencia",
+   "depends_on": "contingencia_desde"
+  },
+  {
+   "fieldname": "column_contingencia",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contingencia_modalidad",
+   "fieldtype": "Select",
+   "label": "Modalidad",
+   "options": "Total\nParcial",
+   "default": "Total",
+   "depends_on": "contingencia_desde"
+  },
+  {
+   "fieldname": "contingencia_motivo",
+   "fieldtype": "Small Text",
+   "label": "Descripción declarada en la OFV",
+   "depends_on": "contingencia_desde"
   }
  ],
  "field_order": [
@@ -128,6 +164,12 @@
   "column_break_certificado",
   "titular",
   "vigente_desde",
-  "vigente_hasta"
+  "vigente_hasta",
+  "section_contingencia",
+  "contingencia_desde",
+  "contingencia_hasta",
+  "column_contingencia",
+  "contingencia_modalidad",
+  "contingencia_motivo"
  ]
 }

@@ -592,14 +592,22 @@ def pendientes(company: str, p) -> list[dict]:
 
 def validar_serie_de_venta(doc, tipo):
 	"""Un emisor electrónico vende con comprobantes electrónicos. Las notas de crédito y débito de
-	facturas con NCF de serie B (de antes de ser emisor) siguen en la serie B."""
+	facturas con NCF de serie B (de antes de ser emisor) siguen en la serie B. En una contingencia
+	declarada en el *Emisor ECF* se vende con la serie B (ecf/contingencia.py)."""
+	if getattr(doc, "meta", None) and doc.meta.has_field("rd_contingencia_ecf"):
+		doc.rd_contingencia_ecf = 0
 	if tipo.serie != "B" or doc.is_return or doc.get("is_debit_note"):
 		return
 	if emisor_electronico(doc.company):
+		from erpnext_rd.ecf import contingencia
+
+		if contingencia.permite_serie_b(doc, tipo):
+			return
 		frappe.throw(
 			_(
 				"{0} es emisor electrónico según su perfil tributario: use el comprobante electrónico "
-				"(serie E) en lugar de {1}."
+				"(serie E) en lugar de {1}. Si no puede emitir e-CF, declare la contingencia en la "
+				"Oficina Virtual y regístrela en el Emisor ECF."
 			).format(doc.company, tipo.name),
 			title=_("Comprobante no permitido"),
 		)

@@ -4,7 +4,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "links": [],
- "modified": "2026-10-18 10:00:00.000000",
+ "modified": "2026-11-13 15:08:52.838728",
  "modified_by": "Administrator",
  "module": "ECF",
  "owner": "Administrator",
@@ -81,6 +81,20 @@
    "fieldtype": "Check",
    "label": "Enviado como resumen (RFCE)",
    "read_only": 1
+  },
+  {
+   "fieldname": "es_reemplazo",
+   "fieldtype": "Check",
+   "label": "Reemplaza un comprobante de contingencia",
+   "read_only": 1,
+   "description": "Se envía solo a la DGII, no al comprador."
+  },
+  {
+   "fieldname": "ncf_reemplazado",
+   "fieldtype": "Data",
+   "label": "NCF de la serie B que reemplaza",
+   "read_only": 1,
+   "depends_on": "es_reemplazo"
   },
   {
    "fieldname": "column_break_1",
@@ -263,6 +277,8 @@
   "tipo_ecf",
   "estado",
   "es_rfce",
+  "es_reemplazo",
+  "ncf_reemplazado",
   "column_break_1",
   "company",
   "tipo_documento",

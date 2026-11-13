@@ -67,17 +67,26 @@
 				:titulo="__('En contingencia')"
 				:descripcion="
 					__(
-						'La DGII no respondió. Los e-CF ya firmados son válidos y se reenvían solos, cada vez más espaciado; puede reenviarlos ahora.',
+						'La DGII no respondió. Los e-CF ya firmados se reenvían solos, cada vez más espaciado; puede reenviarlos ahora. Sin conexión, hay {0} horas para enviarlos.',
+						[r.horas_contingencia],
 					)
 				"
 				:filas="r.contingencia"
 			>
 				<template #fila="{ fila }">
 					<FilaEnvio :envio="fila">
-						<span class="text-sm text-ink-gray-5">
+						<span class="text-sm" :class="fila.vencido ? 'text-ink-red-6' : 'text-ink-gray-5'">
 							{{ __("Intentos: {0}", [fila.intentos || 0]) }}
 							<template v-if="fila.proximo_intento">
 								· {{ __("próximo {0}", [formatoFechaHora(fila.proximo_intento)]) }}
+							</template>
+							<template v-if="fila.vence">
+								·
+								{{
+									fila.vencido
+										? __("plazo vencido el {0}", [formatoFechaHora(fila.vence)])
+										: __("enviar antes del {0}", [formatoFechaHora(fila.vence)])
+								}}
 							</template>
 						</span>
 						<template v-if="r.puede_actuar" #accion>
@@ -171,6 +180,34 @@
 			</Lista>
 
 			<Lista
+				v-if="r.reemplazos.length"
+				:titulo="__('Comprobantes de contingencia sin e-CF de reemplazo')"
+				:descripcion="
+					__(
+						'Facturas de la serie B emitidas en contingencia. Después de declarar la salida en la Oficina Virtual, envíe a la DGII el e-CF que reemplaza cada una desde la factura con «e-CF › Emitir e-CF de reemplazo».',
+					)
+				"
+				:filas="r.reemplazos"
+			>
+				<template #fila="{ fila }">
+					<div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-2.5">
+						<a
+							:href="rutaDocumento('Sales Invoice', fila.name)"
+							class="text-base-medium text-ink-gray-8 hover:underline"
+						>
+							{{ fila.rd_ncf || fila.name }}
+						</a>
+						<Badge variant="outline" theme="gray" :label="fila.rd_tipo_comprobante" />
+						<span class="text-sm text-ink-gray-5">{{ formatoFecha(fila.posting_date) }}</span>
+						<span class="text-sm tabular-nums text-ink-gray-6">{{ formatoMoneda(fila.grand_total) }}</span>
+						<span v-if="fila.rd_plazo_reemplazo" class="text-sm" :class="vencida(fila.rd_plazo_reemplazo) ? 'text-ink-red-6' : 'text-ink-amber-8'">
+							{{ __("Plazo: {0}", [formatoFecha(fila.rd_plazo_reemplazo)]) }}
+						</span>
+					</div>
+				</template>
+			</Lista>
+
+			<Lista
 				v-if="recibidosPendientes.length"
 				:titulo="__('e-CF recibidos por aprobar')"
 				:descripcion="
@@ -196,6 +233,12 @@
 							variant="subtle"
 							theme="red"
 							:label="__('Error al enviar la aprobación')"
+						/>
+						<Badge
+							v-if="['Rechazado', 'No encontrado'].includes(fila.estado_dgii)"
+							variant="subtle"
+							theme="red"
+							:label="__('DGII: {0}', [__(fila.estado_dgii)])"
 						/>
 					</div>
 				</template>
@@ -335,6 +378,30 @@ const alertas = computed(() => {
 			description: __("Los e-CF de este ambiente no tienen validez fiscal. Cámbielo a eCF en la Configuración DGII al pasar a producción."),
 		})
 	}
+	const declarada = r.value.contingencia_declarada
+	if (declarada) {
+		const vencida = declarada.dias > declarada.maximo
+		lista.push({
+			theme: vencida ? "red" : "amber",
+			title: __("Contingencia declarada desde el {0} · día {1} de {2}", [
+				formatoFecha(declarada.desde),
+				declarada.dias,
+				declarada.maximo,
+			]),
+			description: vencida
+				? __("La contingencia pasó el máximo de días. Declare la salida en la Oficina Virtual y regístrela en el emisor.")
+				: __("Las facturas salen con la serie B. Al resolverla, declare la salida en la Oficina Virtual y regístrela en el emisor."),
+			accion: { label: __("Abrir emisor"), href: rutaEmisor },
+		})
+	}
+	const vencidos = r.value.contingencia.filter((e) => e.vencido).length
+	if (vencidos) {
+		lista.push({
+			theme: "red",
+			title: __("{0} e-CF en contingencia pasaron el plazo de {1} horas", [vencidos, r.value.horas_contingencia]),
+			description: __("Envíelos a la DGII cuanto antes; se listan abajo, en «En contingencia»."),
+		})
+	}
 	if (r.value.entregas.pendientes) {
 		lista.push({
 			theme: "blue",
@@ -344,6 +411,10 @@ const alertas = computed(() => {
 	}
 	return lista
 })
+
+function vencida(fecha) {
+	return new Date(`${fecha}T23:59:59`) < new Date()
+}
 
 function rutaEnvios(filtros) {
 	const params = new URLSearchParams(Object.entries(filtros).filter(([, v]) => v))

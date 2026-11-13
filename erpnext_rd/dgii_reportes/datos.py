@@ -185,6 +185,36 @@ def _avisos(lista: list[str]) -> str:
 	return "; ".join(a for a in lista if a)
 
 
+TABLAS_FACTURA = ("items", "taxes", "payments")
+LOTE_FACTURAS = 500
+
+
+def documentos(doctype: str, nombres: list[str]):
+	"""Las facturas con las tablas que leen los formatos (items, taxes, payments), en el orden de
+	`nombres` y con pocas consultas por lote. `frappe.get_doc(doctype, name)` hacía unas 15 por factura.
+	Se arman como documentos en memoria (`frappe.get_doc(dict)`, sin leer la base): un `frappe._dict`
+	no sirve, porque `doc.items` sería el método `dict.items`."""
+	meta = frappe.get_meta(doctype)
+	tablas = {campo: meta.get_field(campo).options for campo in TABLAS_FACTURA if meta.get_field(campo)}
+	for inicio in range(0, len(nombres), LOTE_FACTURAS):
+		lote = list(nombres[inicio : inicio + LOTE_FACTURAS])
+		datos = {d.name: d for d in frappe.get_all(doctype, filters={"name": ("in", lote)}, fields=["*"])}
+		for d in datos.values():
+			d.doctype = doctype
+			for campo in tablas:
+				d[campo] = []
+		for campo, hija in tablas.items():
+			for fila in frappe.get_all(
+				hija,
+				filters={"parent": ("in", lote), "parenttype": doctype, "parentfield": campo},
+				fields=["*"],
+				order_by="idx asc",
+			):
+				datos[fila.parent][campo].append(fila)
+		for nombre in lote:
+			yield frappe.get_doc(datos[nombre])
+
+
 # ---------------------------------------------------------------------------
 # 606 — Compras de bienes y servicios
 # ---------------------------------------------------------------------------
@@ -219,10 +249,10 @@ def datos_606(company: str, anio: int, mes: int) -> list[dict]:
 	)
 
 	filas = []
-	for nombre in del_periodo:
-		filas.append(_fila_606(frappe.get_doc("Purchase Invoice", nombre), desde, hasta))
-	for nombre in anteriores:
-		fila = _fila_606(frappe.get_doc("Purchase Invoice", nombre), desde, hasta, solo_retenciones=True)
+	for doc in documentos("Purchase Invoice", del_periodo):
+		filas.append(_fila_606(doc, desde, hasta))
+	for doc in documentos("Purchase Invoice", anteriores):
+		fila = _fila_606(doc, desde, hasta, solo_retenciones=True)
 		if fila:
 			filas.append(fila)
 	return filas
@@ -338,7 +368,7 @@ def datos_607(company: str, anio: int, mes: int) -> list[dict]:
 	desde, hasta = rango(anio, mes)
 	filas = []
 	for doctype in ("Sales Invoice", "POS Invoice"):
-		for nombre in frappe.get_all(
+		nombres = frappe.get_all(
 			doctype,
 			filters={
 				"company": company,
@@ -348,8 +378,9 @@ def datos_607(company: str, anio: int, mes: int) -> list[dict]:
 			},
 			pluck="name",
 			order_by="posting_date, name",
-		):
-			filas.append(_fila_607(frappe.get_doc(doctype, nombre), hasta))
+		)
+		for doc in documentos(doctype, nombres):
+			filas.append(_fila_607(doc, hasta))
 
 	si = frappe.qb.DocType("Sales Invoice")
 	ple = frappe.qb.DocType("Payment Ledger Entry")
@@ -372,8 +403,8 @@ def datos_607(company: str, anio: int, mes: int) -> list[dict]:
 			& ple.posting_date[desde:hasta]
 		)
 	).run(pluck=True)
-	for nombre in anteriores:
-		fila = _fila_607(frappe.get_doc("Sales Invoice", nombre), hasta, desde_retencion=desde)
+	for doc in documentos("Sales Invoice", anteriores):
+		fila = _fila_607(doc, hasta, desde_retencion=desde)
 		if fila:
 			filas.append(fila)
 	return filas

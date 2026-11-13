@@ -16,7 +16,7 @@ Proyecto en `D:\Code Projects 2\ERPNext`. Git 2.56 y Docker 29.8 instalados.
 
 | Fase | Estado |
 |---|---|
-| 0 — Entorno y descarga | ✅ Hecho. Versiones verificadas: frappe v16.56.0, erpnext v16.54.0, hrms v16.53.2 (actualizadas el 2026-11-10). Frappe Suite se probó y se quitó el 2026-11-11: sigue a Frappe develop (v17) y rompe en v16; se evalúa de nuevo con Frappe v17. Se usa Docker local (imagen propia) en lugar de devcontainer. |
+| 0 — Entorno y descarga | ✅ Hecho. Versiones verificadas: frappe v16.56.0, erpnext v16.54.0, hrms v16.53.2 (actualizadas el 2026-11-10). Se usa Docker local (imagen propia) en lugar de devcontainer. |
 | 1 — Despliegue | 🟡 Repo público en GitHub (https://github.com/daniellora7/ERPNext-DR-Compilance) con CI en cada PR (`ci.yml`: ruff + tests con la misma imagen y compose, también en un sitio sin HRMS, vía `deploy/ci/run-tests.sh`) y `build-image.yml` (imagen a GHCR en `main` y tags `v*`). Local: `deploy/Containerfile` + `deploy/compose.yaml`, sitio `erp.localhost` en http://localhost:8090 con las 4 apps en una sola base MariaDB. Respaldo diario automático (servicio `backup`, `docs/RESPALDOS.md`, restauración probada) y guía de despliegue (`docs/DOKPLOY.md`). **Pendiente (usuario):** servidor Dokploy y dominio. |
 | 2 — Base fiscal DGII | 🟡 Implementado en `feature/dgii-fiscal`: tipos de comprobante (21), Secuencia NCF con bloqueo, NCF en ventas/compras, RNC/Cédula, padrón (793 985 registros), 16 tests. NCF en POS (modo Sales Invoice y POS Invoice, tipo por defecto en Perfil de POS), formatos de impresión *Factura Fiscal RD* y *Recibo POS RD* (80 mm) con QR e-CF listo para la Fase 4, 19 tests. **Catálogo de cuentas DGII** (214 cuentas, NIIF PYMES; activos por categoría de depreciación fiscal; gastos agrupados por tipo 606, ingresos por tipo 607; cuentas de impuestos con concepto fiscal; plantillas ITBIS 18%/16%, propina y retenciones; retenciones de ISR a personas físicas al 15% y servicios técnicos al 3% según la Ley 30-26, vigente desde el 1/7/2026), aplicado por empresa solo a las de país República Dominicana sin movimientos, 28 tests. Prueba de punta a punta de un mes completo (`test_punta_a_punta.py`: ventas, nota de crédito, anulada, compras con retenciones, exterior y nómina; formatos y declaraciones cuadran con el mayor y sin avisos). **Pendiente (usuario):** revisar con facturas reales. |
 | 3 — Reportes DGII | 🟡 Script Reports *Formato 606/607/608/609 DGII* con descarga del TXT oficial (`DGII_F_<formato>_<RNC>_<AAAAMM>.TXT`), columnas según los instructivos vigentes de la DGII, retenciones informadas en el mes de pago, facturas de consumo < RD$250,000 fuera del TXT con su resumen para la OFV, columna de observaciones. Toda la lógica fiscal (NCF, validación RNC, reportes) aplica solo a empresas con país República Dominicana. Reportes de apoyo *Resumen IT-1 DGII* (ingresos gravados por tasa, exentos, exportaciones, formas de cobro, liquidación del ITBIS con saldo a favor, retenciones por terceros y Norma 08-04, ITBIS retenido a terceros, vencimiento día 20) y *Resumen IR-17 DGII* (ISR retenido a terceros por tipo de retención y pagos al exterior, en el mes de pago, vencimiento día 10), calculados con los mismos registros del 606/607/609. 45 tests. **Pendiente:** pre-validar los TXT con la herramienta de la DGII usando datos reales. |
@@ -128,6 +128,17 @@ Script reports + exportación TXT en el formato oficial:
 - Print format con **código de seguridad** y **QR** con la URL de timbre.
 - Endpoints públicos (`@frappe.whitelist(allow_guest=True)` con validación de firma) para **recepción de e-CF** de proveedores y **aprobación comercial**.
 - Contingencia: cola de reintentos si la DGII no responde.
+- ✅ (2026-11-13) Contingencia según el Instructivo de Contingencia de FE de la DGII (octubre de 2026) y el Decreto 587-24, art. 40:
+  - Plazo de 72 horas sin conexión, con aviso en el monitor y el Panel y la leyenda en la representación impresa.
+  - Serie B durante una contingencia declarada en la OFV (máximo 15 días), con las fechas registradas en el *Emisor ECF*.
+  - e-CF de reemplazo con `CodigoModificacion` 4, enviado solo a la DGII, con plazo de 30 días desde la salida.
+  - **Falta:** el reemplazo de las *POS Invoice* y la representación impresa del comprobante B de contingencia (modelo de RI de la DGII, pág. 17). **Confirmar con el contador:** si los reemplazos E32 menores al monto van como RFCE y si el 607 informa el NCF B o el e-NCF de reemplazo.
+- ✅ (2026-11-13) Seguridad del receptor y conservación (evaluación del 2026-11-13, `docs/EVALUACION-2026-11.md`):
+  - Certificado del firmante vigente y, si se configuran, emitido por una entidad del INDOTEL.
+  - Confirmación de cada e-CF recibido con la DGII y aprobación comercial solo del comprador y por el monto del e-CF.
+  - Límite de peticiones en `/fe/...`.
+  - e-CF firmados y recibidos y sus XML que no se pueden borrar.
+  - **Pendiente (usuario):** cargar en *Configuracion DGII* los certificados raíz de las entidades autorizadas por el INDOTEL que usan los proveedores.
 - Proceso de certificación DGII: el set de pruebas que exige la DGII se correrá en CerteCF antes de pasar a producción (esto lo gestiona el usuario con la DGII; el código deja herramientas para generarlo).
 
 ## Fase 5 — Nómina RD (módulo `nomina_rd`, sobre HRMS)
