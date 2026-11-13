@@ -1341,7 +1341,7 @@ msgid "Income Tax"
 msgstr "Impuesto sobre la renta"
 
 msgid "Income Tax Slab: "
-msgstr "Losa de impuesto sobre la renta: "
+msgstr "Escala del impuesto sobre la renta: "
 
 msgid "Interview Type Name"
 msgstr "Nombre del tipo de entrevista"
