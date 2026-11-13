@@ -104,3 +104,14 @@ class TestMonitorECF(IntegrationTestCase):
 			self.skipTest("no hay empresas de otro país")
 		with self.assertRaises(frappe.ValidationError):
 			monitor.resumen(otra[0])
+
+	def test_bloque_del_panel(self):
+		# Sin emisor ni envíos la empresa no factura en electrónico: el panel no muestra el bloque
+		self.assertIsNone(monitor.resumen_panel(EMPRESA))
+		self._envio("E310000000001", "Aceptado")
+		self._envio("E310000000002", "Aceptado condicional")
+		self._envio("E310000000003", "Error")
+		self._envio("E310000000004", "Contingencia")
+		r = monitor.resumen_panel(EMPRESA)
+		self.assertEqual((r["total"], r["aceptados"], r["rechazados"], r["contingencia"]), (4, 2, 1, 1))
+		self.assertFalse(r["emisor"]["configurado"])

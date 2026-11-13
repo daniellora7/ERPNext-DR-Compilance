@@ -74,6 +74,25 @@ def resumen(company: str, dias: int = 30) -> dict:
 	}
 
 
+def resumen_panel(company: str) -> dict | None:
+	"""Bloque del Panel de cumplimiento: los últimos 30 días y lo que pide acción. None si la empresa no
+	tiene emisor e-CF ni envíos (no factura en electrónico)."""
+	datos_emisor = emisor(company)
+	desde = add_days(nowdate(), -30)
+	cifras = conteo(company, desde)
+	if not datos_emisor["configurado"] and not frappe.db.exists(ENVIO, {"company": company}):
+		return None
+	por_estado = cifras["por_estado"]
+	return {
+		"emisor": datos_emisor,
+		"total": cifras["total"],
+		"aceptados": por_estado["Aceptado"] + por_estado["Aceptado condicional"],
+		"rechazados": por_estado["Rechazado"] + por_estado["Error"],
+		"contingencia": frappe.db.count(ENVIO, {"company": company, "estado": CONTINGENCIA}),
+		"sin_emitir": len(sin_emitir(company, desde)),
+	}
+
+
 def emisor(company: str) -> dict:
 	datos = frappe.db.get_value(
 		EMISOR, company, ["habilitado", "envio_automatico", "vigente_hasta", "titular"], as_dict=True
