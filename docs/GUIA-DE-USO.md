@@ -121,7 +121,7 @@ Para las empresas que venden al Estado, en *RD Compliance → Licitaciones del E
 2. **Procesos de compra:** cuatro veces al día se descargan de los datos abiertos de la DGCP los procesos con artículos de sus rubros. Cada proceso tiene la institución, el monto, el cronograma, los artículos, los documentos y el enlace al Portal Transaccional, donde se presenta la oferta.
 3. **Alertas:** cada mañana llega un correo con los procesos nuevos de sus rubros y los que cierran pronto.
 4. **Ofertas:** desde el proceso, **Crear oferta** abre una oportunidad con la institución como cliente, los artículos, los documentos a presentar y las garantías calculadas. No se puede marcar como presentada con documentos pendientes. El reporte *Ofertas al Estado* las reúne.
-5. **Adjudicación:** al cerrar el proceso, la app sigue la adjudicación de la DGCP y marca la oferta como ganada, perdida o no presentada. La ganada pasa a pedido de venta con **Licitación → Pedido de venta**. El botón **Precios de referencia** del proceso muestra lo que pagó el Estado por los mismos artículos.
+5. **Adjudicación:** al cerrar el proceso, la app sigue la adjudicación de la DGCP y marca la oferta como ganada, perdida o no presentada. La ganada pasa a pedido de venta con **Crear → Pedido de venta**. El botón **Precios de referencia** del proceso muestra lo que pagó el Estado por los mismos artículos.
 
 ## Soporte
 
