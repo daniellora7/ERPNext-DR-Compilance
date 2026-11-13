@@ -92,3 +92,14 @@ class TestPortalEmpleado(IntegrationTestCase):
 		self.assertEqual(portal.proximo_aniversario("2025-01-01", date(2026, 11, 12)), date(2027, 1, 1))
 		self.assertEqual(portal.proximo_aniversario("2025-12-01", date(2026, 11, 12)), date(2026, 12, 1))
 		self.assertIsNone(portal.proximo_aniversario(None, date(2026, 11, 12)))
+
+	def test_volante_propio(self):
+		from unittest.mock import patch
+
+		from erpnext_rd.nomina_rd import portal
+
+		frappe.set_user(USUARIO)
+		with patch.object(frappe, "get_print", return_value=b"%PDF") as imprimir:
+			portal.volante(self.recibo.name)
+		imprimir.assert_called_once()
+		self.assertEqual(frappe.local.response.filename, f"{self.recibo.name}.pdf")

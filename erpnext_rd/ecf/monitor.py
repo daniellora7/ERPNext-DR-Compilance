@@ -63,6 +63,8 @@ def resumen(company: str, dias: int = 30) -> dict:
 	return {
 		"dias": dias,
 		"ambiente": frappe.db.get_single_value("Configuracion DGII", "ambiente_ecf") or "TesteCF",
+		# Reenviar y entregar piden escribir en el envío (Accounts Manager); los demás solo ven
+		"puede_actuar": bool(frappe.has_permission(ENVIO, "write")),
 		"emisor": emisor(company),
 		"conteo": conteo(company, desde),
 		"contingencia": envios(company, {"estado": CONTINGENCIA}, orden="proximo_intento asc"),

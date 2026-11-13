@@ -63,6 +63,7 @@ def resumen() -> dict:
 		order_by="end_date desc",
 		limit=MAXIMO_VOLANTES,
 	)
+	saldos = permisos(e.name, hoy)
 	return {
 		"empleado": {
 			"nombre": e.employee_name,
@@ -76,7 +77,7 @@ def resumen() -> dict:
 		},
 		"volantes": volantes,
 		"acumulado": acumulado(e.name, hoy.year),
-		"permisos": permisos(e.name, hoy),
+		"permisos": saldos,
 		"solicitudes": frappe.get_all(
 			"Leave Application",
 			filters={"employee": e.name, "docstatus": ("<", 2)},
@@ -84,7 +85,7 @@ def resumen() -> dict:
 			order_by="from_date desc",
 			limit=MAXIMO_SOLICITUDES,
 		),
-		"tipos_permiso": [{"value": t, "label": _(t)} for t in permisos(e.name, hoy, solo_tipos=True)],
+		"tipos_permiso": [{"value": p["tipo"], "label": p["etiqueta"]} for p in saldos],
 	}
 
 
@@ -185,7 +186,8 @@ def permisos(employee: str, hoy, solo_tipos: bool = False):
 def volante(name: str):
 	"""PDF del volante de pago, solo si es del empleado de la sesión y está aprobado."""
 	e = empleado_de_la_sesion()
-	if frappe.db.get_value("Salary Slip", name, ["employee", "docstatus"]) != (e.name, 1):
+	recibo = frappe.db.get_value("Salary Slip", name, ["employee", "docstatus"], as_dict=True)
+	if not recibo or recibo.employee != e.name or recibo.docstatus != 1:
 		frappe.throw(_("Volante no encontrado."), frappe.PermissionError)
 	formato = volante_rd.FORMATO if frappe.db.exists("Print Format", volante_rd.FORMATO) else None
 	frappe.local.response.filename = f"{name}.pdf"

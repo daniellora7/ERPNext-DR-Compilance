@@ -80,7 +80,7 @@
 								· {{ __("próximo {0}", [formatoFechaHora(fila.proximo_intento)]) }}
 							</template>
 						</span>
-						<template #accion>
+						<template v-if="r.puede_actuar" #accion>
 							<Button
 								size="sm"
 								:label="__('Reenviar')"
@@ -105,7 +105,7 @@
 				<template #fila="{ fila }">
 					<FilaEnvio :envio="fila">
 						<p v-if="fila.mensajes" class="line-clamp-2 text-p-sm text-ink-gray-6">{{ fila.mensajes }}</p>
-						<template v-if="fila.estado === 'Error'" #accion>
+						<template v-if="r.puede_actuar && fila.estado === 'Error'" #accion>
 							<Button
 								size="sm"
 								:label="__('Reenviar')"
@@ -133,7 +133,7 @@
 						<span class="text-sm text-ink-amber-8">
 							{{ __(fila.estado_comprador) }} · {{ __("Intentos: {0}", [fila.intentos_comprador || 0]) }}
 						</span>
-						<template #accion>
+						<template v-if="r.puede_actuar" #accion>
 							<Button
 								size="sm"
 								:label="__('Entregar')"
