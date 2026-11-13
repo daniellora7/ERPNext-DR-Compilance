@@ -186,13 +186,14 @@ Base: Código Tributario, título IV, con los cambios de la Ley 30-26 (arts. 40 
 - Falta: la declaración semanal de los combustibles y el formulario exacto de la declaración, que hay que confirmar con la DGII.
 
 ### 8.3 Precios de transferencia (DIOR) 🟡
-Base (página de Precios de Transferencia de la DGII, 2026-11-11): presentan la DIOR quienes operan con partes relacionadas residentes o del exterior, o con jurisdicciones de baja o nula tributación (Código Tributario arts. 281 a 281 quáter, Reglamento 78-14); cada año, a más tardar 180 días después del cierre, también sin operaciones. No se encontró umbral de monto. El instructivo con los campos de cada operación dio 404.
+Base (página de Precios de Transferencia de la DGII, 2026-11-11, e instructivo de envío de la DIOR de 2017 en adelante, DGII, mayo de 2026): presentan la DIOR quienes operan con partes relacionadas residentes o del exterior, o con jurisdicciones de baja o nula tributación (Código Tributario arts. 281 a 281 quáter, Reglamento 78-14); cada año, a más tardar 60 días después del vencimiento del IR-2, también sin operaciones. No se encontró umbral de monto.
 - ✅ Marca de parte relacionada y tipo de vinculación en clientes y proveedores.
 - ✅ Reporte *Operaciones Relacionadas DIOR*: ventas y compras del ejercicio con relacionados, por contraparte, sin ITBIS.
 - ✅ Requisito en el perfil (partes relacionadas marcadas) y recordatorio 180 días después del cierre.
 - ✅ (2026-11-12) Asientos con partes relacionadas que no pagan ni cruzan facturas (préstamos, anticipos y otras operaciones), con sus cargos y abonos por contraparte, en el mismo reporte.
 - ✅ (2026-11-12) El cuadre IR-2 avisa del ajuste 1.9 del anexo G (precios de transferencia) si hubo operaciones con relacionados y no se registró. El monto sale del estudio de precios: la app no lo calcula.
-- Falta: los campos exactos de la DIOR versión 6 (el instructivo dio 404).
+- ✅ (2026-11-13) Hoja de Detalle de la DIOR versión 6 en Excel (pestañas Empresas y Operaciones con las columnas y los códigos del instructivo de envío de la DGII, mayo de 2026), para pegar en la Oficina Virtual. Campo *Supuesto de vinculación* (16 códigos del art. 281) en clientes y proveedores. Código de operación propuesto por tipo de documento y de artículo (venta de bienes, servicios, activos, exportación, compras, importaciones, notas de crédito y débito); el contador lo confirma. Plazo corregido: 60 días después del vencimiento del IR-2 (art. 281, según el instructivo), que para un cierre al 31 de diciembre coincide con los 180 días.
+- Falta (a mano): el código de país de la DGII (su propia lista, no ISO; la del instructivo no se pudo emparejar sin riesgo), el tipo de persona (el instructivo no deja leer los códigos), la actividad, los préstamos (309, 401) y los datos del estudio de precios (método, cuartiles, ajustes).
 
 ### 8.4 Zonas francas y exportadores 🟡
 Base confirmada (2026-11-11): guía de la DGII de la Norma General 05-2019 (vigente desde el 8/4/2019), consultas DGII G. L. 2817XXX (2022) y 4398XXX (2024). Detalle en `dgii_fiscal/regimenes.py`.

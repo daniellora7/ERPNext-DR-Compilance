@@ -141,3 +141,51 @@ class TestDIOR(IntegrationTestCase):
 		)
 		cuadre.traer_datos()
 		self.assertNotIn(ir2.AJUSTE_PRECIOS_TRANSFERENCIA, cuadre.avisos or "")
+
+	def test_codigos_de_operacion(self):
+		c = dior.codigo_operacion
+		self.assertEqual(c(True, False, False, True, False), dior.VENTA_BIENES)
+		self.assertEqual(c(True, False, False, True, True), dior.EXPORTACION)
+		self.assertEqual(c(True, False, False, False, False), dior.VENTA_SERVICIOS)
+		self.assertEqual(c(True, True, False, True, False), "131")
+		self.assertEqual(c(False, False, True, False, True), dior.IMPORTACION_ACTIVOS)
+		self.assertEqual(c(False, False, False, True, False), dior.COMPRA_BIENES)
+		self.assertEqual(c(False, False, False, False, True), dior.COMPRA_SERVICIOS)
+		self.assertEqual(c(False, True, False, False, False), "225")
+
+	def test_hoja_de_detalle(self):
+		frappe.db.set_value(
+			"Customer",
+			CLIENTE,
+			{
+				"rd_parte_relacionada": 1,
+				"rd_vinculacion": "Mismo accionista",
+				"rd_supuesto_vinculacion": dior.SUPUESTOS_VINCULACION[1],
+			},
+		)
+		self._venta(1000)
+		self._venta(500)
+		hoja = dior.hoja_detalle(EMPRESA, "2026-01-01", "2026-12-31")
+
+		self.assertEqual(len(hoja["empresas"]), 1)
+		empresa = hoja["empresas"][0]
+		self.assertEqual(len(empresa), len(dior.COLUMNAS_EMPRESAS))
+		self.assertEqual(empresa[-1], "2", "solo el código del supuesto")
+
+		self.assertEqual(len(hoja["operaciones"]), 1)
+		operacion = hoja["operaciones"][0]
+		self.assertEqual(len(operacion), len(dior.COLUMNAS_OPERACIONES))
+		self.assertEqual(operacion[0], empresa[0], "el nombre coincide con el de la pestaña Empresas")
+		# Servicio vendido en pesos: valor original = monto, tasa 1
+		self.assertEqual(
+			operacion[1:7], [dior.VENTA_SERVICIOS, "Prestacion de servicios", 1500, "DOP", 1.0, 1500]
+		)
+
+		from io import BytesIO
+
+		from openpyxl import load_workbook
+
+		dior.descargar_hoja_detalle(EMPRESA, "2026-01-01", "2026-12-31")
+		libro = load_workbook(BytesIO(frappe.response["filecontent"]))
+		self.assertEqual(libro.sheetnames, ["Empresas", "Operaciones"])
+		self.assertEqual(libro["Operaciones"]["B2"].value, dior.VENTA_SERVICIOS)
