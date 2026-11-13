@@ -313,11 +313,13 @@ def base_isc(calc, item, tax) -> float:
 
 def aplicar(doc, method=None):
 	"""doc_events before_validate (ventas): ISC de cada línea y la fila del ISC en los impuestos."""
+	from erpnext_rd.dgii_fiscal import regimenes
 	from erpnext_rd.dgii_fiscal.ncf import _no_aplica
 
 	if _no_aplica(doc):
 		return
-	categorias = categorias_de(doc.company)
+	# Venta a un régimen especial con B14 / E44: sin ISC (Norma General 05-2019)
+	categorias = set() if regimenes.es_venta_exenta(doc) else categorias_de(doc.company)
 	fila = _fila_isc(doc)
 	if not categorias and not fila:
 		return

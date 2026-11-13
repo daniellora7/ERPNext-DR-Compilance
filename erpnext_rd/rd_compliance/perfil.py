@@ -508,9 +508,29 @@ def _multiplicador(company, p):
 	)
 
 
+@requisito("Partes relacionadas marcadas (DIOR)")
+def _partes_relacionadas(company, p):
+	if not cint(p.partes_relacionadas):
+		return None
+	from erpnext_rd.dgii_reportes import dior
+
+	partes = dior.relacionados()
+	total = len(partes["Customer"]) + len(partes["Supplier"])
+	return _resultado(
+		bool(total),
+		_("{0} clientes y {1} proveedores marcados como parte relacionada.").format(
+			len(partes["Customer"]), len(partes["Supplier"])
+		)
+		if total
+		else _(
+			"Marque «Parte relacionada» en los clientes y proveedores vinculados para el resumen de la DIOR."
+		),
+		["query-report", "Operaciones Relacionadas DIOR"],
+	)
+
+
 # Lo que la empresa tiene pero la app aún no cubre (siguientes ramas de la Fase 8)
 PENDIENTES = (
-	(lambda p: cint(p.partes_relacionadas), "Operaciones con partes relacionadas (DIOR)", "8.3"),
 	(lambda p: cint(p.exportador), "Reembolso o compensación del ITBIS de exportadores", "8.4"),
 	(lambda p: bool(p.incentivos), "Regímenes especiales e incentivos", "8.4 y 8.6"),
 	(lambda p: p.regimen == RST, "Régimen simplificado de tributación (RST)", "8.7"),

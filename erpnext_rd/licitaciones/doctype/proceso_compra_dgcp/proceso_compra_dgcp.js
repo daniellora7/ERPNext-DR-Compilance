@@ -16,6 +16,19 @@ frappe.ui.form.on("Proceso Compra DGCP", {
 				})
 				.then(({ message }) => erpnext_rd_documentos_proceso(message || []))
 		);
+		if ((frm.doc.articulos || []).some((a) => a.subclase_unspsc)) {
+			frm.add_custom_button(__("Precios de referencia"), () =>
+				frappe
+					.call({
+						method: "erpnext_rd.licitaciones.adjudicaciones.precios_referencia",
+						args: { codigo_proceso: frm.doc.name },
+						type: "GET",
+						freeze: true,
+						freeze_message: __("Consultando los contratos de la DGCP..."),
+					})
+					.then(({ message }) => erpnext_rd_precios_referencia(message || []))
+			);
+		}
 		erpnext_rd_ofertas_proceso(frm);
 		const cierre = frm.doc.fecha_fin_recepcion_ofertas;
 		if (cierre && frm.doc.estado_proceso === "Proceso publicado" && frappe.datetime.str_to_obj(cierre) > new Date()) {
@@ -67,6 +80,42 @@ function erpnext_rd_crear_oferta(frm, empresas) {
 		__("Crear oferta"),
 		__("Crear")
 	);
+}
+
+// Fase 10.6: lo que pagó el Estado por las mismas subclases UNSPSC
+function erpnext_rd_precios_referencia(grupos) {
+	const e = frappe.utils.escape_html;
+	const celda = "padding: 6px 8px; border-bottom: 1px solid var(--outline-gray-1); vertical-align: top";
+	const gris = "color: var(--ink-gray-5)";
+	const dinero = (v) => format_number(v, null, 2);
+	const bloques = grupos.map((g) => {
+		const resumen = g.resumen
+			.map(
+				(r) =>
+					`<span style="margin-right: 16px">${e(r.unidad || __("Sin unidad"))}: ${__("{0} contratos", [r.contratos])} · ${__("mínimo")} ${dinero(r.minimo)} · ${__("mediana")} ${dinero(r.mediana)} · ${__("máximo")} ${dinero(r.maximo)}</span>`
+			)
+			.join("");
+		const filas = g.filas
+			.slice(0, 20)
+			.map(
+				(f) => `<tr>
+					<td style="${celda}">${e(f.descripcion)}<div style="${gris}">${e(f.proceso || "")}${f.adjudicatario ? " · " + e(f.adjudicatario) : ""}</div></td>
+					<td style="${celda}; text-align: right; white-space: nowrap">${frappe.format(f.cantidad, { fieldtype: "Float" })} ${e(f.unidad || "")}</td>
+					<td style="${celda}; text-align: right; white-space: nowrap">${dinero(f.precio_unitario)}</td>
+					<td style="${celda}; ${gris}; white-space: nowrap">${f.fecha ? frappe.datetime.str_to_user(f.fecha).split(" ")[0] : ""}</td>
+				</tr>`
+			)
+			.join("");
+		return `<h5 style="margin: 16px 0 4px">${e(g.subclase)} · ${e(g.descripcion || "")}</h5>
+			<p style="${gris}; margin-bottom: 8px">${resumen || __("Sin contratos con precio.")}</p>
+			<table style="width: 100%; border-collapse: collapse"><tbody>${filas}</tbody></table>`;
+	});
+	const dialogo = new frappe.ui.Dialog({ title: __("Precios de referencia"), size: "extra-large" });
+	dialogo.$body.html(
+		(grupos.length ? bloques.join("") : `<p style="${gris}">${__("No hay contratos de estas subclases.")}</p>`) +
+			`<p style="${gris}; margin-top: 12px">${__("Últimos contratos del Estado con las subclases UNSPSC del proceso, de los datos abiertos de la DGCP.")}</p>`
+	);
+	dialogo.show();
 }
 
 function erpnext_rd_documentos_proceso(documentos) {

@@ -218,7 +218,7 @@ def mis_capturas(limit: int = 20) -> list:
 		filters={"owner": frappe.session.user},
 		fields=CAMPOS_LISTA,
 		order_by="creation desc",
-		limit_page_length=min(cint(limit) or 20, 100),
+		limit=min(cint(limit) or 20, 100),
 	)
 
 

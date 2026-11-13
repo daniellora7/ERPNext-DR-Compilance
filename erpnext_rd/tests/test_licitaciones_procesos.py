@@ -162,7 +162,7 @@ class TestProcesosCompraDGCP(IntegrationTestCase):
 		api = ApiSimulada()
 		api.detalle[NUEVO] = api.detalle[NUEVO] | {"estado_proceso": "Sobres abiertos o aperturados"}
 		resultado, api = self._sincronizar(api)
-		self.assertEqual(resultado, {"nuevos": 0, "actualizados": 2})
+		self.assertEqual(resultado, {"nuevos": 0, "actualizados": 2, "adjudicaciones": 0})
 		self.assertEqual(
 			frappe.db.get_value(procesos.DOCTYPE, ABIERTO, "estado_proceso"), "Proceso adjudicado y celebrado"
 		)

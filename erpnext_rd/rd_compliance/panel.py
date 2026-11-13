@@ -12,6 +12,7 @@ from frappe.utils import add_days, add_months, cint, flt, getdate, nowdate
 from erpnext_rd.dgii_fiscal.ncf import PAIS, es_empresa_rd
 from erpnext_rd.dgii_reportes import declaraciones
 from erpnext_rd.dgii_reportes.formatos import ROLES, obtener
+from erpnext_rd.licitaciones import panel as panel_licitaciones
 
 DIA_VENCE_FORMATOS = 15  # 606, 607, 608 y 609: día 15 del mes siguiente
 MAX_AVISOS = 50
@@ -78,6 +79,7 @@ def resumen(company: str, anio: int, mes: int) -> dict:
 		},
 		"avisos": _avisos(filas),
 		"padron": _padron(),
+		"licitaciones": panel_licitaciones.resumen(company),
 	}
 
 

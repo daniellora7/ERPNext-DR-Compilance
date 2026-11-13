@@ -19,6 +19,7 @@ from erpnext_rd.dgii_fiscal.catalogos import (
 	TIPOS_SERVICIO_EXTERIOR,
 )
 from erpnext_rd.dgii_fiscal.consulta_ncf import ESTADOS as ESTADOS_NCF_DGII
+from erpnext_rd.dgii_fiscal.regimenes import REGIMENES as REGIMENES_ESPECIALES
 from erpnext_rd.dgii_reportes import casillas_ir2
 from erpnext_rd.dgii_reportes.ir2 import CATEGORIAS as CATEGORIAS_FISCALES
 from erpnext_rd.nomina_rd import hrms_instalado
@@ -372,6 +373,53 @@ def campos_personalizados() -> dict:
 			tipo_identificacion,
 			tipo_comprobante_defecto("rd_tipo_identificacion"),
 			{
+				"fieldname": "rd_parte_relacionada",
+				"fieldtype": "Check",
+				"label": "Parte relacionada (DIOR)",
+				"insert_after": "rd_tipo_comprobante",
+				"description": "Art. 281 del Código Tributario. Sus ventas van en el resumen de la DIOR.",
+			},
+			{
+				"fieldname": "rd_vinculacion",
+				"fieldtype": "Data",
+				"label": "Tipo de vinculación",
+				"insert_after": "rd_parte_relacionada",
+				"depends_on": "rd_parte_relacionada",
+				"description": "Por qué es parte relacionada (art. 281, párrafo IV): accionista, misma casa matriz...",
+			},
+			{
+				"fieldname": "rd_regimen_especial",
+				"fieldtype": "Select",
+				"label": "Régimen especial",
+				"options": _opciones(REGIMENES_ESPECIALES),
+				"insert_after": "rd_tipo_comprobante",
+				"description": "Zona franca u otro régimen especial: sus facturas salen con B14 / E44, sin ITBIS ni ISC "
+				"(Norma General 05-2019). Las zonas francas comerciales no cambian el comprobante: la venta de "
+				"mercancías se trata como exportación con la licencia de la DGA y el Formulario Único de Exportación.",
+			},
+			{
+				"fieldname": "rd_carnet_regimen",
+				"fieldtype": "Data",
+				"label": "Carnet de Acreditación de Regímenes Especiales",
+				"insert_after": "rd_regimen_especial",
+				"depends_on": "eval:['Zona franca (Ley 8-90)', 'Otro régimen especial'].includes(doc.rd_regimen_especial)",
+				"description": "Número del carnet, o de la resolución o contrato que avala la exención",
+			},
+			{
+				"fieldname": "rd_carnet_vence",
+				"fieldtype": "Date",
+				"label": "Carnet vigente hasta",
+				"insert_after": "rd_carnet_regimen",
+				"depends_on": "eval:['Zona franca (Ley 8-90)', 'Otro régimen especial'].includes(doc.rd_regimen_especial)",
+			},
+			{
+				"fieldname": "rd_licencia_dga",
+				"fieldtype": "Data",
+				"label": "Licencia de zona franca comercial (DGA)",
+				"insert_after": "rd_carnet_vence",
+				"depends_on": "eval:doc.rd_regimen_especial == 'Zona franca comercial'",
+			},
+			{
 				"fieldname": "rd_unidad_compra_dgcp",
 				"fieldtype": "Int",
 				"label": "Unidad de compra (DGCP)",
@@ -383,6 +431,18 @@ def campos_personalizados() -> dict:
 			},
 		],
 		"Opportunity": campos_oferta_estado(),
+		"Sales Order": [
+			{
+				"fieldname": "rd_proceso_dgcp",
+				"fieldtype": "Link",
+				"label": "Proceso de compra del Estado",
+				"options": "Proceso Compra DGCP",
+				"insert_after": "po_date",
+				"read_only": 1,
+				"no_copy": 1,
+				"depends_on": "rd_proceso_dgcp",
+			},
+		],
 		"Supplier": [
 			tipo_identificacion,
 			tipo_comprobante_defecto("rd_tipo_identificacion"),
@@ -394,14 +454,23 @@ def campos_personalizados() -> dict:
 			{
 				"fieldname": "rd_parte_relacionada",
 				"fieldtype": "Check",
-				"label": "Parte relacionada (609)",
+				"label": "Parte relacionada",
 				"insert_after": "rd_tipo_bienes_servicios",
-				"description": "Art. 281 del Código Tributario. Solo aplica a proveedores del exterior.",
+				"description": "Art. 281 del Código Tributario. Va en el 609 (proveedores del exterior) y en el "
+				"resumen de la DIOR.",
+			},
+			{
+				"fieldname": "rd_vinculacion",
+				"fieldtype": "Data",
+				"label": "Tipo de vinculación",
+				"insert_after": "rd_parte_relacionada",
+				"depends_on": "rd_parte_relacionada",
+				"description": "Por qué es parte relacionada (art. 281, párrafo IV): accionista, misma casa matriz...",
 			},
 			{
 				**proporcionalidad,
 				"label": "ITBIS sujeto a proporcionalidad por defecto (art. 349)",
-				"insert_after": "rd_parte_relacionada",
+				"insert_after": "rd_vinculacion",
 			},
 		],
 		"Salary Component": [

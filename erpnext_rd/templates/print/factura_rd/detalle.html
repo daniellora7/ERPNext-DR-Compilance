@@ -8,6 +8,7 @@
 				<th>Descripción</th>
 				<th class="num">Precio</th>
 				<th class="num">Descuento</th>
+				{% if f.isc %}<th class="num">ISC</th>{% endif %}
 				<th class="num">ITBIS</th>
 				<th class="num">Valor</th>
 			</tr>
@@ -19,6 +20,7 @@
 				<td>{{ l.descripcion }}</td>
 				<td class="num">{{ frappe.utils.fmt_money(l.precio, currency=m) }}</td>
 				<td class="num">{{ frappe.utils.fmt_money(l.descuento, currency=m) if l.descuento else "" }}</td>
+				{% if f.isc %}<td class="num">{{ frappe.utils.fmt_money(l.isc, currency=m) if l.isc else "" }}</td>{% endif %}
 				<td class="num">{{ frappe.utils.fmt_money(l.itbis, currency=m) if l.itbis else "E" }}</td>
 				<td class="num">{{ frappe.utils.fmt_money(l.total, currency=m) }}</td>
 			</tr>

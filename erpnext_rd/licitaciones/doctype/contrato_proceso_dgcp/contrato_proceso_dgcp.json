@@ -1,0 +1,104 @@
+{
+ "actions": [],
+ "creation": "2026-11-11 16:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 0,
+ "engine": "InnoDB",
+ "field_order": [
+  "codigo_contrato",
+  "razon_social",
+  "rpe",
+  "valor_contratado",
+  "divisa",
+  "estado_contrato",
+  "estado_adjudicacion",
+  "fecha_adjudicacion",
+  "metodo_pago",
+  "plazo_pago_factura",
+  "url_contrato"
+ ],
+ "fields": [
+  {
+   "fieldname": "codigo_contrato",
+   "fieldtype": "Data",
+   "label": "Contrato",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "razon_social",
+   "fieldtype": "Data",
+   "label": "Adjudicatario",
+   "in_list_view": 1,
+   "columns": 3
+  },
+  {
+   "fieldname": "rpe",
+   "fieldtype": "Data",
+   "label": "RPE",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "valor_contratado",
+   "fieldtype": "Currency",
+   "label": "Valor",
+   "options": "divisa",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "divisa",
+   "fieldtype": "Link",
+   "label": "Moneda",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "estado_contrato",
+   "fieldtype": "Data",
+   "label": "Estado del contrato",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "estado_adjudicacion",
+   "fieldtype": "Data",
+   "label": "Estado de la adjudicación"
+  },
+  {
+   "fieldname": "fecha_adjudicacion",
+   "fieldtype": "Datetime",
+   "label": "Adjudicado el",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "metodo_pago",
+   "fieldtype": "Data",
+   "label": "Forma de pago"
+  },
+  {
+   "fieldname": "plazo_pago_factura",
+   "fieldtype": "Data",
+   "label": "Plazo de pago"
+  },
+  {
+   "fieldname": "url_contrato",
+   "fieldtype": "Data",
+   "label": "Contrato en el Portal",
+   "options": "URL"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-11 16:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Licitaciones",
+ "name": "Contrato Proceso DGCP",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

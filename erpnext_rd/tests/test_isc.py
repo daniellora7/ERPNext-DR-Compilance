@@ -163,6 +163,49 @@ class TestISC(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			isc.validar_ecf(si)
 
+	def test_isc_en_la_factura_impresa(self):
+		"""La factura y el recibo llevan el ISC aparte del ITBIS, y la línea suma los dos."""
+		from erpnext_rd import formatos
+		from erpnext_rd.dgii_fiscal.impresion import rd_datos_fiscales
+
+		si = _venta(CERVEZA, 2, 2000)
+		f = rd_datos_fiscales(si)
+		itbis = si.taxes[1].tax_amount
+		self.assertEqual((flt(f.isc, 2), flt(f.itbis, 2)), (1134.89, itbis))
+		self.assertEqual(flt(f.lineas[0].total, 2), flt(4000 + 1134.89 + itbis, 2))
+		self.assertEqual(flt(f.subtotal + f.isc + f.itbis, 2), flt(si.grand_total, 2))
+
+		for formato in formatos.FISCALES[:2]:
+			for archivo in ("detalle", "totales"):
+				if (formato["carpeta"], archivo) == ("recibo_pos_rd", "detalle"):
+					continue
+				html = frappe.render_template(
+					formatos._leer(formato["carpeta"], f"{archivo}.html"),
+					{"doc": si, "rd_datos_fiscales": rd_datos_fiscales},
+				)
+				self.assertIn("ISC", html, (formato["name"], archivo))
+
+	def test_bloques_viejos_se_actualizan_y_los_editados_no(self):
+		from erpnext_rd import formatos
+		from erpnext_rd.patches.v0_5 import isc_en_formatos
+
+		factura = formatos.FISCALES[0]
+		viejo = "<div>{{ rd_datos_fiscales(doc).itbis }}</div>"
+		editado = "<div>Editado por el usuario</div>"
+		datos = formatos.disenio(factura)
+		campos = [s["columns"][0]["fields"][0] for s in datos["sections"]]
+		campos[2]["html"], campos[3]["html"] = viejo, editado  # detalle y totales
+		frappe.db.set_value("Print Format", factura["name"], "format_data", frappe.as_json(datos))
+		anteriores = {
+			"detalle": {formatos.huella(viejo)},
+			"totales": isc_en_formatos.ANTERIORES[factura["name"]]["totales"],
+		}
+		self.assertTrue(formatos.actualizar_bloques(factura, anteriores))
+		guardado = frappe.parse_json(frappe.db.get_value("Print Format", factura["name"], "format_data"))
+		html = [s["columns"][0]["fields"][0]["html"] for s in guardado["sections"]]
+		self.assertIn("f.isc", html[2])
+		self.assertEqual(html[3], editado)
+
 	def _ecf(self, si, tipo: int = 31) -> dict:
 		si.rd_tipo_comprobante = f"E{tipo}"
 		si.rd_ncf = f"E{tipo}0000000001"
