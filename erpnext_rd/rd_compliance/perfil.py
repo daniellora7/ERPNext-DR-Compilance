@@ -509,6 +509,26 @@ def _multiplicador(company, p):
 	)
 
 
+@requisito("Exportaciones en el 607 (reembolso del ITBIS)")
+def _exportaciones(company, p):
+	"""El reembolso o la compensación del ITBIS de un exportador se apoya en las facturas de exportación
+	del 607 (B16 / E46): avisa si la empresa exportadora aún no tiene ninguna."""
+	if not cint(p.exportador):
+		return None
+	exporta = frappe.db.exists(
+		"Sales Invoice", {"company": company, "docstatus": 1, "rd_tipo_comprobante": ("in", ("B16", "E46"))}
+	)
+	return _resultado(
+		bool(exporta),
+		_(
+			"Facturas de exportación (B16 / E46) aprobadas: el reporte de soporte junta el saldo a favor del ITBIS."
+		)
+		if exporta
+		else _("Aún no hay facturas de exportación (B16 / E46) aprobadas."),
+		["query-report", "Soporte Reembolso ITBIS Exportadores"],
+	)
+
+
 @requisito("Partes relacionadas marcadas (DIOR)")
 def _partes_relacionadas(company, p):
 	if not cint(p.partes_relacionadas):
@@ -532,7 +552,6 @@ def _partes_relacionadas(company, p):
 
 # Lo que la empresa tiene pero la app aún no cubre (siguientes ramas de la Fase 8)
 PENDIENTES = (
-	(lambda p: cint(p.exportador), "Reembolso o compensación del ITBIS de exportadores", "8.4"),
 	(
 		lambda p: any(i.regimen == "Proindustria (Ley 392-07)" for i in p.incentivos),
 		"Activos de la Ley 392-07 en el IR-2 (anexo D, sección C)",
