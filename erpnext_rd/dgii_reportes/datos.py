@@ -98,17 +98,69 @@ def pagos(doctype: str, nombre: str, hasta) -> frappe._dict:
 	Devuelve: lista de pagos (fecha, forma, monto, comprobante), fecha en que quedó saldada
 	(None si aún debe algo a esa fecha) y retenciones hechas en las entradas de pago.
 	"""
-	filas = frappe.get_all(
-		"Payment Ledger Entry",
-		filters={
-			"against_voucher_type": doctype,
-			"against_voucher_no": nombre,
-			"delinked": 0,
-			"posting_date": ("<=", hasta),
-		},
-		fields=["voucher_type", "voucher_no", "posting_date", "amount"],
-		order_by="posting_date, creation",
-	)
+	return pagos_por_lote(doctype, [nombre], hasta)[nombre]
+
+
+def pagos_por_lote(doctype: str, nombres: list[str], hasta) -> dict[str, frappe._dict]:
+	"""`pagos` de varias facturas, con cinco consultas por cada lote de `LOTE_FACTURAS`."""
+	resultado = {}
+	for inicio in range(0, len(nombres), LOTE_FACTURAS):
+		lote = list(nombres[inicio : inicio + LOTE_FACTURAS])
+		filas = frappe.get_all(
+			"Payment Ledger Entry",
+			filters={
+				"against_voucher_type": doctype,
+				"against_voucher_no": ("in", lote),
+				"delinked": 0,
+				"posting_date": ("<=", hasta),
+			},
+			fields=["against_voucher_no", "voucher_type", "voucher_no", "posting_date", "amount"],
+			order_by="posting_date, creation",
+		)
+		entradas = _entradas_de_pago({f.voucher_no for f in filas if f.voucher_type == "Payment Entry"})
+		por_factura = _agrupar(filas, "against_voucher_no")
+		for nombre in lote:
+			resultado[nombre] = _estado_de_pago(doctype, nombre, por_factura.get(nombre, []), entradas)
+	return resultado
+
+
+def _agrupar(filas: list, campo: str) -> dict[str, list]:
+	grupos = {}
+	for f in filas:
+		grupos.setdefault(f[campo], []).append(f)
+	return grupos
+
+
+def _entradas_de_pago(nombres: set[str]) -> dict[str, frappe._dict]:
+	"""Forma de pago, deducciones y referencias de cada Entrada de Pago."""
+	if not nombres:
+		return {}
+	lista = list(nombres)
+	entradas = {
+		e.name: frappe._dict(modo=e.mode_of_payment, deducciones=[], referencias=[])
+		for e in frappe.get_all(
+			"Payment Entry", filters={"name": ("in", lista)}, fields=["name", "mode_of_payment"]
+		)
+	}
+	for d in frappe.get_all(
+		"Payment Entry Deduction",
+		filters={"parent": ("in", lista), "parenttype": "Payment Entry"},
+		fields=["parent", "account", "amount"],
+		order_by="idx asc",
+	):
+		entradas[d.parent].deducciones.append(d)
+	con_deducciones = [n for n, e in entradas.items() if e.deducciones]
+	if con_deducciones:
+		for r in frappe.get_all(
+			"Payment Entry Reference",
+			filters={"parent": ("in", con_deducciones), "parenttype": "Payment Entry"},
+			fields=["parent", "reference_doctype", "reference_name", "allocated_amount"],
+		):
+			entradas[r.parent].referencias.append(r)
+	return entradas
+
+
+def _estado_de_pago(doctype: str, nombre: str, filas: list, entradas: dict) -> frappe._dict:
 	saldo = sum(flt(f.amount) for f in filas)
 	lista, retenciones = [], frappe._dict(itbis=0.0, isr=0.0, fecha=None)
 
@@ -117,8 +169,9 @@ def pagos(doctype: str, nombre: str, hasta) -> frappe._dict:
 			continue
 		monto = abs(flt(f.amount))
 		if f.voucher_type == "Payment Entry":
-			forma = _forma_de_modo(frappe.db.get_value("Payment Entry", f.voucher_no, "mode_of_payment"))
-			_retenciones_de_pago(f.voucher_no, doctype, nombre, retenciones, f.posting_date)
+			entrada = entradas.get(f.voucher_no) or frappe._dict(modo=None, deducciones=[], referencias=[])
+			forma = _forma_de_modo(entrada.modo)
+			_retenciones_de_pago(entrada, doctype, nombre, retenciones, f.posting_date)
 		elif f.voucher_type in ("Sales Invoice", "Purchase Invoice"):
 			forma = FORMA_NOTA_CREDITO
 		else:
@@ -133,22 +186,14 @@ def pagos(doctype: str, nombre: str, hasta) -> frappe._dict:
 	)
 
 
-def _retenciones_de_pago(pago: str, doctype: str, factura: str, acumulado, fecha):
+def _retenciones_de_pago(entrada, doctype: str, factura: str, acumulado, fecha):
 	"""Retenciones (deducciones) de una Entrada de Pago, prorrateadas a la factura."""
-	deducciones = frappe.get_all(
-		"Payment Entry Deduction", filters={"parent": pago}, fields=["account", "amount"]
-	)
-	if not deducciones:
+	if not entrada.deducciones:
 		return
-	referencias = frappe.get_all(
-		"Payment Entry Reference",
-		filters={"parent": pago},
-		fields=["reference_doctype", "reference_name", "allocated_amount"],
-	)
-	total = sum(flt(r.allocated_amount) for r in referencias)
+	total = sum(flt(r.allocated_amount) for r in entrada.referencias)
 	propio = sum(
 		flt(r.allocated_amount)
-		for r in referencias
+		for r in entrada.referencias
 		if r.reference_doctype == doctype and r.reference_name == factura
 	)
 	if not total or not propio:
@@ -156,7 +201,7 @@ def _retenciones_de_pago(pago: str, doctype: str, factura: str, acumulado, fecha
 	proporcion = propio / total
 	de_terceros = doctype in ("Sales Invoice", "POS Invoice")
 
-	for d in deducciones:
+	for d in entrada.deducciones:
 		concepto = concepto_de_cuenta(d.account, retencion=True, de_terceros=de_terceros)
 		monto = abs(flt(d.amount)) * proporcion
 		if concepto in (cat.ITBIS_RETENIDO, cat.ITBIS_RETENIDO_POR_TERCEROS):
@@ -235,32 +280,42 @@ def datos_606(company: str, anio: int, mes: int) -> list[dict]:
 	)
 	# Comprobantes de meses anteriores con retenciones pagadas en este período: se informan
 	# de nuevo con la fecha de pago y los montos retenidos.
-	anteriores = frappe.db.sql_list(
-		"""
-		SELECT DISTINCT pi.name
-		FROM `tabPurchase Invoice` pi
-		JOIN `tabPayment Ledger Entry` ple
-			ON ple.against_voucher_type = 'Purchase Invoice' AND ple.against_voucher_no = pi.name
-			AND ple.voucher_no != pi.name AND ple.delinked = 0
-		WHERE pi.company = %(company)s AND pi.docstatus = 1 AND IFNULL(pi.rd_ncf, '') != ''
-			AND pi.posting_date < %(desde)s AND ple.posting_date BETWEEN %(desde)s AND %(hasta)s
-		""",
-		{"company": company, "desde": desde, "hasta": hasta},
-	)
+	pi = frappe.qb.DocType("Purchase Invoice")
+	ple = frappe.qb.DocType("Payment Ledger Entry")
+	anteriores = (
+		frappe.qb.from_(pi)
+		.join(ple)
+		.on(
+			(ple.against_voucher_type == "Purchase Invoice")
+			& (ple.against_voucher_no == pi.name)
+			& (ple.voucher_no != pi.name)
+			& (ple.delinked == 0)
+		)
+		.select(pi.name)
+		.distinct()
+		.where(
+			(pi.company == company)
+			& (pi.docstatus == 1)
+			& (IfNull(pi.rd_ncf, "") != "")
+			& (pi.posting_date < desde)
+			& ple.posting_date[desde:hasta]
+		)
+	).run(pluck=True)
 
+	estados = pagos_por_lote("Purchase Invoice", del_periodo + anteriores, hasta)
 	filas = []
 	for doc in documentos("Purchase Invoice", del_periodo):
-		filas.append(_fila_606(doc, desde, hasta))
+		filas.append(_fila_606(doc, desde, hasta, estado_pago=estados[doc.name]))
 	for doc in documentos("Purchase Invoice", anteriores):
-		fila = _fila_606(doc, desde, hasta, solo_retenciones=True)
+		fila = _fila_606(doc, desde, hasta, solo_retenciones=True, estado_pago=estados[doc.name])
 		if fila:
 			filas.append(fila)
 	return filas
 
 
-def _fila_606(doc, desde, hasta, solo_retenciones=False) -> dict | None:
+def _fila_606(doc, desde, hasta, solo_retenciones=False, estado_pago=None) -> dict | None:
 	impuestos = montos_impuestos(doc)
-	estado_pago = pagos(doc.doctype, doc.name, hasta)
+	estado_pago = estado_pago or pagos(doc.doctype, doc.name, hasta)
 	retenido_itbis = impuestos.itbis_retenido + estado_pago.retenciones.itbis
 	retenido_isr = impuestos.isr_retenido + estado_pago.retenciones.isr
 
@@ -379,8 +434,9 @@ def datos_607(company: str, anio: int, mes: int) -> list[dict]:
 			pluck="name",
 			order_by="posting_date, name",
 		)
+		estados = pagos_por_lote(doctype, nombres, hasta) if doctype == "Sales Invoice" else {}
 		for doc in documentos(doctype, nombres):
-			filas.append(_fila_607(doc, hasta))
+			filas.append(_fila_607(doc, hasta, estado_pago=estados.get(doc.name)))
 
 	si = frappe.qb.DocType("Sales Invoice")
 	ple = frappe.qb.DocType("Payment Ledger Entry")
@@ -403,16 +459,18 @@ def datos_607(company: str, anio: int, mes: int) -> list[dict]:
 			& ple.posting_date[desde:hasta]
 		)
 	).run(pluck=True)
+	estados = pagos_por_lote("Sales Invoice", anteriores, hasta)
 	for doc in documentos("Sales Invoice", anteriores):
-		fila = _fila_607(doc, hasta, desde_retencion=desde)
+		fila = _fila_607(doc, hasta, desde_retencion=desde, estado_pago=estados[doc.name])
 		if fila:
 			filas.append(fila)
 	return filas
 
 
-def _fila_607(doc, hasta, desde_retencion=None) -> dict | None:
+def _fila_607(doc, hasta, desde_retencion=None, estado_pago=None) -> dict | None:
 	impuestos = montos_impuestos(doc)
-	estado_pago = pagos(doc.doctype, doc.name, hasta) if doc.doctype == "Sales Invoice" else None
+	if estado_pago is None and doc.doctype == "Sales Invoice":
+		estado_pago = pagos(doc.doctype, doc.name, hasta)
 	retenciones = estado_pago.retenciones if estado_pago else frappe._dict(itbis=0.0, isr=0.0, fecha=None)
 
 	if desde_retencion and not (
@@ -603,15 +661,19 @@ def datos_609(company: str, anio: int, mes: int) -> list[dict]:
 		.orderby(pi.posting_date)
 		.orderby(pi.name)
 	).run(pluck=True)
-	return [_fila_609(frappe.get_doc("Purchase Invoice", nombre), hasta) for nombre in facturas]
+	estados = pagos_por_lote("Purchase Invoice", facturas, hasta)
+	return [
+		_fila_609(doc, hasta, estado_pago=estados[doc.name])
+		for doc in documentos("Purchase Invoice", facturas)
+	]
 
 
-def _fila_609(doc, hasta) -> dict:
+def _fila_609(doc, hasta, estado_pago=None) -> dict:
 	proveedor = frappe.get_cached_value(
 		"Supplier", doc.supplier, ["supplier_type", "country", "tax_id", "rd_parte_relacionada"], as_dict=True
 	)
 	impuestos = montos_impuestos(doc)
-	estado_pago = pagos(doc.doctype, doc.name, hasta)
+	estado_pago = estado_pago or pagos(doc.doctype, doc.name, hasta)
 	isr = impuestos.isr_retenido + estado_pago.retenciones.isr
 	fecha_retencion = doc.posting_date if cint(doc.is_paid) else estado_pago.fecha_saldo
 	codigo_pais = frappe.get_cached_value("Country", proveedor.country, "code") or ""

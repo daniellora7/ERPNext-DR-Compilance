@@ -400,6 +400,28 @@ class TestReportesDGII(IntegrationTestCase):
 		self.assertAlmostEqual(fila["venta_credito"], 0)
 		self.assertTrue(fila["_en_txt"])
 
+	def test_pagos_por_lote_igual_que_uno_por_uno(self):
+		hasta = getdate("2026-09-30")
+		casos = {
+			"Sales Invoice": [self.venta.name, self.consumo.name],
+			"Purchase Invoice": [self.compra.name, self.exterior.name],
+		}
+		lotes = {}
+		for doctype, nombres in casos.items():
+			lotes[doctype] = datos.pagos_por_lote(doctype, nombres, hasta)
+			for nombre in nombres:
+				self.assertEqual(lotes[doctype][nombre], datos.pagos(doctype, nombre, hasta), nombre)
+
+		venta = lotes["Sales Invoice"][self.venta.name]
+		self.assertAlmostEqual(venta.retenciones.itbis, 540)
+		self.assertEqual(venta.retenciones.fecha, getdate("2026-09-25"))
+		self.assertEqual([p.comprobante for p in venta.lista], [self.cobro.name])
+		compra = lotes["Purchase Invoice"]
+		self.assertEqual(compra[self.compra.name].fecha_saldo, getdate("2026-09-20"))
+		self.assertIsNone(compra[self.exterior.name].fecha_saldo)
+		self.assertEqual(compra[self.exterior.name].lista, [])
+		self.assertEqual(datos.pagos_por_lote("Sales Invoice", [], hasta), {})
+
 	def test_607_consumo_menor_al_umbral_va_al_resumen(self):
 		filas = datos.datos_607(EMPRESA, *SEPTIEMBRE)
 		fila = next(f for f in filas if f["_documento"] == self.consumo.name)
