@@ -30,6 +30,8 @@
   "padron_version_dgii",
   "section_anticipos",
   "anticipo_tasa_minima",
+  "anticipo_cuotas_pequenas",
+  "anticipo_ley_30_26_desde",
   "section_ir2",
   "tasa_isr_juridicas",
   "depreciacion_categoria_1",
@@ -225,6 +227,20 @@
    "description": "Art. 314 del Código Tributario: si la tasa efectiva de tributación del año declarado no pasa de esta tasa, el anticipo se calcula con ella sobre los ingresos brutos; si la pasa, es la doceava parte del impuesto liquidado."
   },
   {
+   "fieldname": "anticipo_cuotas_pequenas",
+   "fieldtype": "Data",
+   "label": "Cuotas de las pequeñas empresas",
+   "default": "6:50, 9:30, 12:20",
+   "description": "Mes del ejercicio y porcentaje del impuesto liquidado de cada cuota (Código Tributario art. 314, párrafo II, según la Ley 30-26). Vence el último día de ese mes (fuentes secundarias: confirmar con la DGII)."
+  },
+  {
+   "fieldname": "anticipo_ley_30_26_desde",
+   "fieldtype": "Int",
+   "label": "Primer año declarado con los anticipos de la Ley 30-26",
+   "default": "2026",
+   "description": "El IR-2 de ese año es la base de los anticipos de 2027 (calendario de implementación de la DGII, art. 23)"
+  },
+  {
    "fieldname": "section_ir2",
    "fieldtype": "Section Break",
    "label": "Declaración jurada IR-2",
@@ -397,7 +413,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-11-16 15:00:00.000000",
+ "modified": "2026-11-16 16:00:00.000000",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Configuracion DGII",
