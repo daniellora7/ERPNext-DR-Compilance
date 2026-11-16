@@ -55,6 +55,10 @@ MEDIANA = "Mediana (51 a 150 empleados)"
 GRANDE = "Grande (más de 150 empleados)"
 TAMANOS = (MICRO, PEQUENA, MEDIANA, GRANDE)
 SIN_SECTOR_REGULADO = "No aplica"
+# Impuesto sobre los activos (Código Tributario arts. 402, 403 y 406, párrafo IV)
+ACTIVOS_GENERAL = "General"
+ACTIVOS_AGROPECUARIO = "Agropecuario"
+ACTIVOS_FIJOS_NETOS = "Financiero o eléctrico"
 ECF_NO_OBLIGADA = "No obligada aún"
 ECF_CERTIFICACION = "En certificación"
 ECF_EMISOR = "Emisor electrónico"
@@ -87,6 +91,7 @@ def perfil(company: str) -> frappe._dict:
 		ecf_estado=ECF_NO_OBLIGADA,
 		ecf_obligada_desde=None,
 		sector_regulado=SIN_SECTOR_REGULADO,
+		sector_activos=ACTIVOS_GENERAL,
 		incentivos=[],
 		existe=False,
 		**{c: 0 for c in ACTIVIDADES},
@@ -234,6 +239,7 @@ def guardar(company: str, valores: str | dict) -> str:
 		"tamano",
 		"cierre_fiscal",
 		"sector_regulado",
+		"sector_activos",
 		"ecf_estado",
 		"ecf_obligada_desde",
 		*ACTIVIDADES,

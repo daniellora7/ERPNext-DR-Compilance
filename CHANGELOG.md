@@ -4,6 +4,9 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 
 ## Sin publicar
 
+### Nuevo
+- **Impuesto sobre los activos** (Fase 8.5) en el cuadre del IR-2, con las casillas del formulario IR-2-c2 de la DGII. La base sale del anexo A-1: el total de activos menos los exentos (edificaciones agropecuarias, terrenos rurales, acciones e impuesto diferido o anticipado). La tasa (1%) está en *Configuración DGII*. El ISR liquidado se acredita y la diferencia se paga en dos cuotas. El perfil tributario indica el sector: general, agropecuario (exento según la Ley 30-26, art. 32) o financiero o eléctrico (sobre los activos fijos netos). Las empresas exentas del ISR por completo también quedan exentas. El formato impreso del cuadre trae la sección nueva.
+
 ### Corregido
 - Las *POS Invoice* (modo POS Invoice del Perfil de POS) con comprobante electrónico no emitían su e-CF. Ahora lo emiten al aprobarse, como la factura, con el botón «e-CF › Emitir e-CF» y en el monitor de e-CF. La venta POS en contingencia también tiene su e-CF de reemplazo.
 - Pruebas de la representación impresa del comprobante B de contingencia: es la de un comprobante no electrónico (NCF B y su vencimiento, sin QR ni leyenda), como el modelo 4.2 de la DGII, también después del e-CF de reemplazo.

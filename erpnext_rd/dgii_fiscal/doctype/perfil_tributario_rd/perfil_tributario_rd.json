@@ -29,6 +29,7 @@
   "exportador",
   "agente_retencion",
   "sector_regulado",
+  "sector_activos",
   "section_incentivos",
   "incentivos",
   "section_ecf",
@@ -200,6 +201,14 @@
    "default": "No aplica"
   },
   {
+   "fieldname": "sector_activos",
+   "fieldtype": "Select",
+   "label": "Sector para el impuesto sobre los activos",
+   "options": "General\nAgropecuario\nFinanciero o eléctrico",
+   "default": "General",
+   "description": "Agropecuario: exento (Código Tributario art. 406, párrafo IV, Ley 30-26). Financiero o eléctrico: paga sobre los activos fijos netos (art. 403)."
+  },
+  {
    "fieldname": "section_incentivos",
    "fieldtype": "Section Break",
    "label": "Regímenes especiales e incentivos",
@@ -237,7 +246,7 @@
   }
  ],
  "links": [],
- "modified": "2026-11-03 12:00:00",
+ "modified": "2026-11-16 15:00:00.000000",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Perfil Tributario RD",

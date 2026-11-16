@@ -37,6 +37,27 @@
 		<tr class="rd-total"><td>23. Diferencia a pagar</td><td class="num">{{ doc.get_formatted("diferencia_pagar") }}</td></tr>
 		{% endif %}
 	</table>
+	<h3>Impuesto sobre los activos (IR-2-c2)</h3>
+	{% if doc.activos_exento %}
+	<p>Exenta del impuesto sobre los activos (Código Tributario, art. 406).</p>
+	{% else %}
+	<table class="rd-liquidacion">
+		<tr><td>1. Total de activos</td><td class="num">{{ doc.get_formatted("activos_totales") }}</td></tr>
+		{% if doc.activos_exentos %}
+		<tr><td>6. − Activos exentos</td><td class="num">{{ doc.get_formatted("activos_exentos") }}</td></tr>
+		{% endif %}
+		{% if doc.activos_depreciacion_exentos %}
+		<tr><td>7. + Depreciación de las edificaciones agropecuarias</td><td class="num">{{ doc.get_formatted("activos_depreciacion_exentos") }}</td></tr>
+		{% endif %}
+		<tr class="rd-sub"><td>32. Activos imponibles</td><td class="num">{{ doc.get_formatted("activos_imponibles") }}</td></tr>
+		<tr class="rd-sub"><td>33. Impuesto sobre los activos ({{ doc.get_formatted("tasa_activos") }})</td><td class="num">{{ doc.get_formatted("impuesto_activos") }}</td></tr>
+		<tr><td>34. − ISR liquidado</td><td class="num">{{ doc.get_formatted("credito_isr_activos") }}</td></tr>
+		{% if doc.activos_pagos %}
+		<tr><td>36 y 37. − Pagos a cuenta y créditos autorizados</td><td class="num">{{ doc.get_formatted("activos_pagos") }}</td></tr>
+		{% endif %}
+		<tr class="rd-total"><td>38. A pagar (dos cuotas de {{ doc.get_formatted("activos_cuota") }})</td><td class="num">{{ doc.get_formatted("activos_pagar") }}</td></tr>
+	</table>
+	{% endif %}
 	<table class="rd-firmas">
 		<tr>
 			<td><div class="rd-linea">Preparado por</div></td>

@@ -77,6 +77,7 @@ class CuadreFiscalIR2(Document):
 		self.anticipos_pagados = ir2.anticipos_del_ejercicio(self.company, self.desde, self.hasta)
 		avisos += self._traer_incentivos()
 		avisos += self._avisar_relacionados()
+		avisos += self._traer_activos()
 
 		activos = ir2.activos(self.company, self.desde, self.hasta)
 		contable = ir2.depreciacion_contable(self.company, self.desde, self.hasta)
@@ -158,6 +159,28 @@ class CuadreFiscalIR2(Document):
 				"mercado según el estudio de precios de transferencia, agregue el ajuste «{1}»."
 			).format(sum(cint(o.documentos) for o in operaciones), ir2.AJUSTE_PRECIOS_TRANSFERENCIA)
 		]
+
+	def _traer_activos(self) -> list[str]:
+		"""Casillas 1, 6 y 7 del impuesto sobre los activos desde el anexo A-1, según el sector del perfil.
+		Exentas: el sector agropecuario (art. 406, párrafo IV, agregado por la Ley 30-26, art. 32) y la
+		exención total del ISR (art. 406)."""
+		self.sector_activos = perfil.perfil(self.company).sector_activos or perfil.ACTIVOS_GENERAL
+		self.tasa_activos = ir2.tasa("tasa_impuesto_activos")
+		if self.sector_activos == perfil.ACTIVOS_AGROPECUARIO:
+			self.activos_totales = self.activos_exentos = self.activos_depreciacion_exentos = 0
+			return []
+		base = ir2.base_activos(self.company, self.desde, self.hasta, self.sector_activos)
+		self.activos_totales = base.total
+		self.activos_exentos = base.exentos
+		self.activos_depreciacion_exentos = base.depreciacion_exentos
+		if perfil.perfil(self.company).sector_regulado == "Banca":
+			return [
+				_(
+					"Las entidades financieras declaran los activos fijos del anexo A2: revise el total de "
+					"activos del impuesto sobre los activos."
+				)
+			]
+		return []
 
 	def _traer_incentivos(self) -> list[str]:
 		"""Casillas 3, 10, 15, 16 y 20 desde los incentivos del perfil tributario. Un incentivo exento
@@ -422,6 +445,21 @@ class CuadreFiscalIR2(Document):
 				dividendos=self.dividendos_ganados,
 				deduccion_inversion=self.deduccion_inversion,
 			)
+		)
+		self._calcular_activos()
+
+	def _calcular_activos(self):
+		if self.tasa_activos is None or self.tasa_activos == "":
+			self.tasa_activos = ir2.tasa("tasa_impuesto_activos")
+		# Exentas: el sector agropecuario y las exentas del ISR por completo (art. 406)
+		self.activos_exento = (
+			1 if self.sector_activos == perfil.ACTIVOS_AGROPECUARIO or cint(self.exencion_total) else 0
+		)
+		base = [self.activos_totales, self.activos_exentos, self.activos_depreciacion_exentos]
+		if self.activos_exento:
+			base = [0, 0, 0]
+		self.update(
+			ir2.liquidar_activos(*base, self.tasa_activos, self.impuesto_liquidado, self.activos_pagos)
 		)
 
 	def _calcular_edificaciones(self, ajuste_total: float):

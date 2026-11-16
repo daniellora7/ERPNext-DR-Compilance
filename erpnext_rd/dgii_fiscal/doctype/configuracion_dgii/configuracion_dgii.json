@@ -36,6 +36,7 @@
   "depreciacion_categoria_2",
   "depreciacion_categoria_3",
   "limite_reparaciones_categoria_1",
+  "tasa_impuesto_activos",
   "column_break_ir2",
   "depreciacion_arrendamiento_2",
   "depreciacion_arrendamiento_3",
@@ -262,6 +263,13 @@
    "description": "Porcentaje del costo fiscal ajustado de cada edificación; el exceso se capitaliza"
   },
   {
+   "fieldname": "tasa_impuesto_activos",
+   "fieldtype": "Percent",
+   "label": "Tasa del impuesto sobre los activos",
+   "default": "1",
+   "description": "Código Tributario, art. 404"
+  },
+  {
    "fieldname": "column_break_ir2",
    "fieldtype": "Column Break"
   },
@@ -389,7 +397,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-11-13 15:08:52.838728",
+ "modified": "2026-11-16 15:00:00.000000",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Configuracion DGII",

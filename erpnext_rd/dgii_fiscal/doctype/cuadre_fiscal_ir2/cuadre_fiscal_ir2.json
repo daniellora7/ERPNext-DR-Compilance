@@ -64,6 +64,20 @@
   "saldo_favor_anterior",
   "diferencia_pagar",
   "saldo_favor",
+  "section_activos",
+  "sector_activos",
+  "activos_exento",
+  "activos_totales",
+  "activos_exentos",
+  "activos_depreciacion_exentos",
+  "column_break_activos",
+  "activos_imponibles",
+  "tasa_activos",
+  "impuesto_activos",
+  "credito_isr_activos",
+  "activos_pagos",
+  "activos_pagar",
+  "activos_cuota",
   "amended_from"
  ],
  "fields": [
@@ -445,6 +459,99 @@
    "read_only": 1
   },
   {
+   "fieldname": "section_activos",
+   "fieldtype": "Section Break",
+   "label": "Impuesto sobre los activos (IR-2-c2)",
+   "description": "Código Tributario, arts. 401 a 407. Los montos salen del anexo A-1 con «Traer datos de la contabilidad» y se pueden corregir."
+  },
+  {
+   "fieldname": "sector_activos",
+   "fieldtype": "Data",
+   "label": "Sector",
+   "read_only": 1
+  },
+  {
+   "fieldname": "activos_exento",
+   "fieldtype": "Check",
+   "label": "Exenta del impuesto sobre los activos",
+   "description": "Sector agropecuario o exención total del ISR (art. 406)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "activos_totales",
+   "fieldtype": "Currency",
+   "label": "Total de activos (casilla 1)",
+   "options": "Company:company:default_currency",
+   "description": "Casilla 6 del anexo A-1. En el sector financiero o eléctrico, los activos fijos netos de depreciación."
+  },
+  {
+   "fieldname": "activos_exentos",
+   "fieldtype": "Currency",
+   "label": "− Activos exentos (casilla 6)",
+   "options": "Company:company:default_currency",
+   "description": "Edificaciones agropecuarias, terrenos rurales, acciones e impuesto diferido o anticipado (A-1: 2.2, 2.6, 3.2 y 4.2)"
+  },
+  {
+   "fieldname": "activos_depreciacion_exentos",
+   "fieldtype": "Currency",
+   "label": "+ Depreciación de las edificaciones agropecuarias (casilla 7)",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "column_break_activos",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "activos_imponibles",
+   "fieldtype": "Currency",
+   "label": "Activos imponibles (casilla 32)",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tasa_activos",
+   "fieldtype": "Percent",
+   "label": "Tasa del impuesto sobre los activos"
+  },
+  {
+   "fieldname": "impuesto_activos",
+   "fieldtype": "Currency",
+   "label": "Impuesto sobre los activos (casilla 33)",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "credito_isr_activos",
+   "fieldtype": "Currency",
+   "label": "− ISR liquidado (casilla 34)",
+   "options": "Company:company:default_currency",
+   "read_only": 1,
+   "description": "El impuesto liquidado del IR-2 es crédito contra el de los activos (art. 407)"
+  },
+  {
+   "fieldname": "activos_pagos",
+   "fieldtype": "Currency",
+   "label": "− Pagos a cuenta y créditos autorizados (casillas 36 y 37)",
+   "options": "Company:company:default_currency",
+   "description": "Incluye el saldo a favor de los anticipos que se compense (art. 314, párrafo V, según la Ley 30-26)"
+  },
+  {
+   "fieldname": "activos_pagar",
+   "fieldtype": "Currency",
+   "label": "Impuesto sobre los activos a pagar (casilla 38)",
+   "options": "Company:company:default_currency",
+   "bold": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "activos_cuota",
+   "fieldtype": "Currency",
+   "label": "Cada una de las dos cuotas",
+   "options": "Company:company:default_currency",
+   "read_only": 1,
+   "description": "La primera vence con el IR-2 y la segunda seis meses después (arts. 405 y 407)"
+  },
+  {
    "fieldname": "amended_from",
    "fieldtype": "Link",
    "label": "Amended From",
@@ -456,7 +563,7 @@
   }
  ],
  "links": [],
- "modified": "2026-11-12 12:00:00.000000",
+ "modified": "2026-11-16 15:00:00.000000",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Cuadre Fiscal IR2",
