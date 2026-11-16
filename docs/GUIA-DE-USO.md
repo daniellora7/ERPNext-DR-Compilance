@@ -23,7 +23,7 @@ La app solo actúa en las empresas con país **Dominican Republic**. Las empresa
 4. Para anular una factura con NCF, indique antes el *tipo de anulación* del 608.
 5. El panel avisa cuando una secuencia está por agotarse o por vencer.
 6. **Zonas francas y otros regímenes especiales:** en el cliente, indique su *Régimen especial* y el número y vencimiento de su *Carnet de Acreditación de Regímenes Especiales*. Sus facturas salen con B14 (E44 si la empresa es emisora electrónica), sin ITBIS ni ISC, y sin carnet vigente no se guardan. Si un bien no es para su operación, elija otro comprobante a mano. Los recordatorios avisan los lunes de los carnets que vencen en 30 días.
-7. **Si la empresa es zona franca industrial**, registre el incentivo *Zona franca (Ley 8-90)* en su perfil tributario. Sus ventas de bienes al mercado local salen con el comprobante para exportaciones (B16 o E46), sin ITBIS ni ISC, como pide la Norma General 05-2019. Las ventas con servicios no cambian.
+7. **Si la empresa es zona franca industrial**, registre el incentivo *Zona franca (Ley 8-90)* en su perfil tributario. Sus ventas de bienes al mercado local salen con el comprobante para exportaciones (B16 o E46), sin ITBIS ni ISC, como pide la Norma General 05-2019. Las ventas con servicios no cambian. Cada mes, el reporte *Resumen RZF-01 DGII* da las casillas 1 a 3 del RZF-01 (ventas a zonas francas, ventas en el mercado local y el 3.5% de ISR), que vence el 15; las exportaciones (clientes con dirección en otro país) no van.
 8. **Partes relacionadas:** marque *Parte relacionada* y el tipo de vinculación en los clientes y proveedores vinculados.
 
 Los formatos de impresión **Factura Fiscal RD** y **Recibo POS RD** (80 mm) se pueden editar en el constructor de formatos de Frappe.

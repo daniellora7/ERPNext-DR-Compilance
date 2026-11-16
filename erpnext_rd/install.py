@@ -12,7 +12,7 @@ from erpnext_rd.campos import DOCTYPES_HRMS, MODULO, crear_campos_personalizados
 from erpnext_rd.dgii_fiscal import catalogo_cuentas, cheque, isc
 from erpnext_rd.dgii_fiscal import catalogos as cat
 from erpnext_rd.dgii_fiscal.catalogos import TIPOS_COMPROBANTE
-from erpnext_rd.dgii_reportes import estados_ir2, ir2
+from erpnext_rd.dgii_reportes import anticipos, estados_ir2, ir2, rzf
 from erpnext_rd.licitaciones import ofertas
 from erpnext_rd.navegacion import asegurar_navegacion, dock_nomina, quitar_dock_nomina
 from erpnext_rd.nomina_rd import hrms_instalado, salario, volante
@@ -70,6 +70,9 @@ def inicializar_configuracion():
 		("recordatorios_dias", 3),
 		("consultar_ncf_dgii", 1),
 		("anticipo_tasa_minima", 1.5),
+		("anticipo_cuotas_pequenas", anticipos.CUOTAS_PEQUENAS_POR_DEFECTO),
+		("anticipo_ley_30_26_desde", anticipos.LEY_30_26_DESDE),
+		("tasa_rzf", rzf.TASA_POR_DEFECTO),
 		*ir2.TASAS_POR_DEFECTO.items(),
 	):
 		if not frappe.db.exists("Singles", {"doctype": "Configuracion DGII", "field": campo}):

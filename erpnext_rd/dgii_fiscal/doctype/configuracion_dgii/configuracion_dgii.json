@@ -43,6 +43,8 @@
   "depreciacion_arrendamiento_2",
   "depreciacion_arrendamiento_3",
   "multiplicadores_inflacion",
+  "section_zonas_francas",
+  "tasa_rzf",
   "section_isc",
   "tasas_isc",
   "section_tasa_bcrd",
@@ -308,6 +310,18 @@
    "options": "Multiplicador Inflacion DGII"
   },
   {
+   "fieldname": "section_zonas_francas",
+   "fieldtype": "Section Break",
+   "label": "Zonas francas"
+  },
+  {
+   "fieldname": "tasa_rzf",
+   "fieldtype": "Percent",
+   "label": "ISR sobre las ventas al mercado local (RZF-01)",
+   "default": "3.5",
+   "description": "Ventas de una zona franca industrial al mercado local (formulario RZF-01, según la Ley 253-12)"
+  },
+  {
    "fieldname": "section_isc",
    "fieldtype": "Section Break",
    "label": "Impuesto selectivo al consumo (ISC)",
@@ -413,7 +427,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-11-16 16:00:00.000000",
+ "modified": "2026-11-16 16:30:00.000000",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Configuracion DGII",

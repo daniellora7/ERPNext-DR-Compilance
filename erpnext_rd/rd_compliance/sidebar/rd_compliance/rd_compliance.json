@@ -273,6 +273,22 @@
    "open_in_new_tab": 0,
    "show_arrow": 0,
    "link_type": "Report",
+   "label": "RZF-01 (zona franca, mercado local)",
+   "link_to": "Resumen RZF-01 DGII",
+   "type": "Link"
+  },
+  {
+   "added": 0,
+   "child": 1,
+   "collapsible": 1,
+   "hidden": 0,
+   "icon": "",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "link_type": "Report",
    "label": "DIOR (partes relacionadas)",
    "link_to": "Operaciones Relacionadas DIOR",
    "type": "Link"
