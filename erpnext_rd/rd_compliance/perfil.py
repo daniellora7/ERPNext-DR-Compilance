@@ -110,6 +110,12 @@ def declara_ir2(company: str) -> bool:
 	return p.tipo_contribuyente == JURIDICA and p.regimen == ORDINARIO
 
 
+def es_agropecuaria(company: str) -> bool:
+	"""Sector agropecuario: exenta del impuesto sobre los activos (art. 406, párrafo IV) y de la retención
+	del 5% en los pagos del Estado (art. 309, literal e), según la Ley 30-26 (arts. 32 y 17)."""
+	return perfil(company).sector_activos == ACTIVOS_AGROPECUARIO
+
+
 def emisor_electronico(company: str) -> bool:
 	return perfil(company).ecf_estado == ECF_EMISOR
 

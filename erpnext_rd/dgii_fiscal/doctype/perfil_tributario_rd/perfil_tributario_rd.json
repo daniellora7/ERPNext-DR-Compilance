@@ -203,10 +203,10 @@
   {
    "fieldname": "sector_activos",
    "fieldtype": "Select",
-   "label": "Sector para el impuesto sobre los activos",
+   "label": "Sector económico",
    "options": "General\nAgropecuario\nFinanciero o eléctrico",
    "default": "General",
-   "description": "Agropecuario: exento (Código Tributario art. 406, párrafo IV, Ley 30-26). Financiero o eléctrico: paga sobre los activos fijos netos (art. 403)."
+   "description": "Agropecuario: exento del impuesto sobre los activos (Código Tributario art. 406, párrafo IV) y de la retención del 5% en los pagos del Estado (art. 309, literal e), según la Ley 30-26. Financiero o eléctrico: impuesto sobre los activos fijos netos (art. 403)."
   },
   {
    "fieldname": "section_incentivos",

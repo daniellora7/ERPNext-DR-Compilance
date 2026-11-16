@@ -278,7 +278,12 @@ def _factura(nombre: str):
 
 
 def isr_esperado(doc, conf) -> float:
-	"""ISR que debió retener la entidad sobre las facturas que cobra la Entrada de Pago."""
+	"""ISR que debió retener la entidad sobre las facturas que cobra la Entrada de Pago. El sector
+	agropecuario no lleva esta retención (Código Tributario art. 309, literal e, según la Ley 30-26, art. 17)."""
+	from erpnext_rd.rd_compliance import perfil
+
+	if perfil.es_agropecuaria(doc.company):
+		return 0.0
 	esperado = 0.0
 	for ref in doc.references:
 		if ref.reference_doctype != "Sales Invoice" or not flt(ref.allocated_amount):

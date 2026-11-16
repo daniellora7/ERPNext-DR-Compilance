@@ -140,12 +140,14 @@ function erpnext_rd_asistente_perfil(company) {
 				},
 				{
 					fieldname: "sector_activos",
-					label: __("Sector para el impuesto sobre los activos"),
+					label: __("Sector económico"),
 					fieldtype: "Select",
 					options: ["General", "Agropecuario", "Financiero o eléctrico"],
 					default: "General",
 					reqd: 1,
-					description: __("Agropecuario: exento. Financiero o eléctrico: paga sobre los activos fijos netos."),
+					description: __(
+						"Agropecuario: exento del impuesto sobre los activos y de la retención del 5% del Estado. Financiero o eléctrico: impuesto sobre los activos fijos netos."
+					),
 				},
 			],
 		},
