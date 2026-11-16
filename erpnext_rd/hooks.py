@@ -151,6 +151,7 @@ doc_events = {
 		],
 		"validate": "erpnext_rd.dgii_fiscal.ncf.validar_venta",
 		"before_submit": "erpnext_rd.dgii_fiscal.ncf.asignar_ncf_venta",
+		"on_submit": "erpnext_rd.ecf.emision.al_aprobar",
 		"before_cancel": "erpnext_rd.dgii_fiscal.ncf.antes_de_cancelar_venta",
 	},
 	"Purchase Invoice": {

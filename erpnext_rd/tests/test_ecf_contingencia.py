@@ -41,6 +41,74 @@ def _venta(**otros):
 	return si.insert()
 
 
+def _venta_pos(**otros):
+	"""POS Invoice de contado (modo POS Invoice del Perfil de POS), con su apertura de caja."""
+	frappe.db.set_single_value("POS Settings", "invoice_type", "POS Invoice")
+	empresa = frappe.get_cached_doc("Company", EMPRESA)
+	perfil_pos = frappe.db.get_value("POS Profile", {"company": EMPRESA})
+	if not perfil_pos:
+		efectivo = frappe.get_doc("Mode of Payment", "Cash")
+		if not any(c.company == EMPRESA for c in efectivo.accounts):
+			efectivo.append("accounts", {"company": EMPRESA, "default_account": empresa.default_cash_account})
+			efectivo.save()
+		perfil_pos = (
+			frappe.get_doc(
+				{
+					"doctype": "POS Profile",
+					"name": "_Test POS Contingencia",
+					"company": EMPRESA,
+					"currency": empresa.default_currency,
+					"warehouse": frappe.db.get_value("Warehouse", {"company": EMPRESA, "is_group": 0}),
+					"cost_center": empresa.cost_center,
+					"write_off_account": empresa.write_off_account,
+					"write_off_cost_center": empresa.cost_center,
+					"selling_price_list": frappe.db.get_value("Price List", {"selling": 1}),
+					"payments": [{"mode_of_payment": "Cash", "default": 1}],
+				}
+			)
+			.insert()
+			.name
+		)
+	if not frappe.db.exists(
+		"POS Opening Entry", {"pos_profile": perfil_pos, "status": "Open", "docstatus": 1}
+	):
+		frappe.get_doc(
+			{
+				"doctype": "POS Opening Entry",
+				"pos_profile": perfil_pos,
+				"company": EMPRESA,
+				"user": frappe.session.user,
+				"period_start_date": now_datetime(),
+				"balance_details": [{"mode_of_payment": "Cash", "opening_amount": 0}],
+			}
+		).submit()
+	pos = frappe.new_doc("POS Invoice")
+	pos.update(
+		{
+			"company": EMPRESA,
+			"pos_profile": perfil_pos,
+			"customer": "_Test Cliente ISC",
+			"is_pos": 1,
+			"set_posting_time": 1,
+			"posting_date": FECHA,
+			"items": [{"item_code": SERVICIO, "qty": 1, "rate": 1000}],
+			"company_address_display": "Av. 27 de Febrero 1, Santo Domingo",
+			**otros,
+		}
+	)
+	pos.taxes_and_charges = frappe.db.get_value(
+		"Sales Taxes and Charges Template", {"company": EMPRESA, "title": "ITBIS 18%"}
+	)
+	from erpnext.controllers.accounts_controller import get_taxes_and_charges
+
+	pos.set("taxes", get_taxes_and_charges("Sales Taxes and Charges Template", pos.taxes_and_charges))
+	pos.set_missing_values()
+	pos.calculate_taxes_and_totals()
+	pos.set("payments", [])
+	pos.append("payments", {"mode_of_payment": "Cash", "amount": pos.rounded_total or pos.grand_total})
+	return pos.insert()
+
+
 class TestContingencia(IntegrationTestCase):
 	@classmethod
 	def setUpClass(cls):
@@ -114,6 +182,78 @@ class TestContingencia(IntegrationTestCase):
 		# Va solo a la DGII: no se entrega al comprador
 		envio.db_set("estado", "Aceptado")
 		self.assertRaises(frappe.ValidationError, emision.entregar, envio.name)
+
+	def test_venta_pos_emite_su_ecf(self):
+		frappe.get_doc(
+			{
+				"doctype": "Secuencia NCF",
+				"company": EMPRESA,
+				"tipo_comprobante": "E32",
+				"desde": 1,
+				"hasta": 100,
+				"fecha_vencimiento": "2027-12-31",
+			}
+		).insert()
+		pos = _venta_pos()
+		pos.submit()
+		self.assertTrue(pos.rd_ncf.startswith(pos.rd_tipo_comprobante))
+		self.assertIn(pos.name, [f["name"] for f in monitor.sin_emitir(EMPRESA, FECHA)])
+
+		envio = frappe.get_doc("Envio ECF", emision.emitir("POS Invoice", pos.name))
+		self.assertEqual(
+			(envio.tipo_documento, envio.documento, envio.encf), ("POS Invoice", pos.name, pos.rd_ncf)
+		)
+		self.assertEqual(esquemas.errores(int(pos.rd_tipo_comprobante[1:]), emision.leer_xml(envio.xml)), [])
+		self.assertTrue(frappe.db.get_value("POS Invoice", pos.name, "rd_codigo_seguridad"))
+		self.assertNotIn(pos.name, [f["name"] for f in monitor.sin_emitir(EMPRESA, FECHA)])
+
+		# Una secuencia ya usada en una venta POS no se anula
+		secuencia = frappe.db.get_value(
+			"Secuencia NCF", {"company": EMPRESA, "tipo_comprobante": pos.rd_tipo_comprobante}
+		)
+		numero = int(pos.rd_ncf[3:])
+		anulacion = frappe.get_doc(
+			{
+				"doctype": "Anulacion ENCF",
+				"company": EMPRESA,
+				"rangos": [{"secuencia": secuencia, "desde": numero, "hasta": numero}],
+			}
+		)
+		self.assertRaises(frappe.ValidationError, anulacion.insert)
+
+	def test_venta_pos_en_contingencia_y_su_reemplazo(self):
+		for tipo in ("E32", "B02"):
+			frappe.get_doc(
+				{
+					"doctype": "Secuencia NCF",
+					"company": EMPRESA,
+					"tipo_comprobante": tipo,
+					"desde": 1,
+					"hasta": 100,
+					"fecha_vencimiento": "2027-12-31",
+				}
+			).insert()
+		self._declarar(add_days(FECHA, -1))
+		pos = _venta_pos()
+		self.assertEqual(pos.rd_contingencia_ecf, 1)
+		self.assertTrue(pos.rd_tipo_comprobante.startswith("B"))
+		pos.submit()
+		self.assertEqual(
+			[(p.doctype, p.name) for p in contingencia.pendientes(EMPRESA)], [("POS Invoice", pos.name)]
+		)
+		self._declarar(add_days(FECHA, -1), FECHA)
+		self.assertEqual(
+			str(frappe.db.get_value("POS Invoice", pos.name, "rd_plazo_reemplazo")), add_days(FECHA, 30)
+		)
+
+		envio = frappe.get_doc("Envio ECF", contingencia.emitir_reemplazo(pos.name, "POS Invoice"))
+		self.assertEqual(
+			(envio.tipo_documento, envio.es_reemplazo, envio.ncf_reemplazado), ("POS Invoice", 1, pos.rd_ncf)
+		)
+		self.assertEqual(contingencia.EQUIVALENTES[pos.rd_tipo_comprobante], envio.tipo_ecf)
+		self.assertEqual(frappe.db.get_value("POS Invoice", pos.name, "rd_encf_reemplazo"), envio.encf)
+		self.assertEqual(contingencia.pendientes(EMPRESA), [])
+		self.assertRaises(frappe.ValidationError, contingencia.emitir_reemplazo, pos.name, "Purchase Invoice")
 
 	def test_contingencia_de_mas_de_15_dias(self):
 		self._declarar(add_days(FECHA, -20))

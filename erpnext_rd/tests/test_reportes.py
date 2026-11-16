@@ -1,5 +1,7 @@
 """Reportes DGII 606 / 607 / 608 / 609 con facturas reales en una empresa de prueba (rollback)."""
 
+from unittest.mock import patch
+
 import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import getdate, nowdate
@@ -400,6 +402,28 @@ class TestReportesDGII(IntegrationTestCase):
 		self.assertAlmostEqual(fila["venta_credito"], 0)
 		self.assertTrue(fila["_en_txt"])
 
+	def test_pagos_por_lote_igual_que_uno_por_uno(self):
+		hasta = getdate("2026-09-30")
+		casos = {
+			"Sales Invoice": [self.venta.name, self.consumo.name],
+			"Purchase Invoice": [self.compra.name, self.exterior.name],
+		}
+		lotes = {}
+		for doctype, nombres in casos.items():
+			lotes[doctype] = datos.pagos_por_lote(doctype, nombres, hasta)
+			for nombre in nombres:
+				self.assertEqual(lotes[doctype][nombre], datos.pagos(doctype, nombre, hasta), nombre)
+
+		venta = lotes["Sales Invoice"][self.venta.name]
+		self.assertAlmostEqual(venta.retenciones.itbis, 540)
+		self.assertEqual(venta.retenciones.fecha, getdate("2026-09-25"))
+		self.assertEqual([p.comprobante for p in venta.lista], [self.cobro.name])
+		compra = lotes["Purchase Invoice"]
+		self.assertEqual(compra[self.compra.name].fecha_saldo, getdate("2026-09-20"))
+		self.assertIsNone(compra[self.exterior.name].fecha_saldo)
+		self.assertEqual(compra[self.exterior.name].lista, [])
+		self.assertEqual(datos.pagos_por_lote("Sales Invoice", [], hasta), {})
+
 	def test_607_consumo_menor_al_umbral_va_al_resumen(self):
 		filas = datos.datos_607(EMPRESA, *SEPTIEMBRE)
 		fila = next(f for f in filas if f["_documento"] == self.consumo.name)
@@ -470,6 +494,47 @@ class TestReportesDGII(IntegrationTestCase):
 	def test_txt_sin_registros(self):
 		with self.assertRaises(frappe.ValidationError):
 			formatos.generar_txt("608", EMPRESA, 2026, 1)
+
+	def test_preparar_txt_en_linea(self):
+		resultado = formatos.preparar_txt("606", EMPRESA, *SEPTIEMBRE)
+		nombre, contenido = formatos.generar_txt("606", EMPRESA, *SEPTIEMBRE)
+		self.assertEqual(resultado, {"en_cola": False, "nombre": nombre, "contenido": contenido})
+		self.assertEqual(formatos.facturas_del_periodo("608", EMPRESA, *SEPTIEMBRE), 0)
+
+	def test_txt_de_periodo_grande_va_a_la_cola(self):
+		with (
+			patch.object(formatos, "FACTURAS_EN_LINEA", 0),
+			patch("erpnext_rd.dgii_reportes.formatos.frappe.enqueue") as enqueue,
+		):
+			self.assertEqual(formatos.preparar_txt("607", EMPRESA, *SEPTIEMBRE), {"en_cola": True})
+		args = enqueue.call_args.kwargs
+		self.assertEqual(args["queue"], "long")
+		self.assertTrue(args["deduplicate"])
+		self.assertEqual((args["formato"], args["anio"], args["mes"]), ("607", *SEPTIEMBRE))
+
+		nombre, contenido = formatos.generar_txt("607", EMPRESA, *SEPTIEMBRE)
+		for _vez in range(2):  # la segunda reemplaza el archivo, no lo duplica
+			formatos.generar_txt_en_cola("607", EMPRESA, *SEPTIEMBRE, usuario="Administrator")
+		archivos = formatos.archivos_txt(EMPRESA, nombre)
+		self.assertEqual(len(archivos), 1)
+		archivo = frappe.get_doc("File", archivos[0])
+		self.addCleanup(frappe.delete_doc, "File", archivo.name, ignore_permissions=True)
+		self.assertTrue(archivo.is_private)
+		guardado = archivo.get_content()
+		self.assertEqual(guardado.decode() if isinstance(guardado, bytes) else guardado, contenido)
+		self.assertTrue(
+			frappe.db.exists(
+				"Notification Log",
+				{"for_user": "Administrator", "document_type": "File", "document_name": archivo.name},
+			)
+		)
+
+		formatos.generar_txt_en_cola("608", EMPRESA, 2026, 1, usuario="Administrator")
+		self.assertTrue(
+			frappe.db.exists(
+				"Notification Log", {"for_user": "Administrator", "subject": "No se generó el TXT del 608"}
+			)
+		)
 
 	def test_empresa_de_otro_pais(self):
 		with self.assertRaises(frappe.ValidationError):

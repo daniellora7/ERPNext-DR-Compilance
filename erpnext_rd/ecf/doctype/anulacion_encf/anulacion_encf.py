@@ -72,7 +72,7 @@ class AnulacionENCF(Document):
 		fila.cantidad = cint(fila.hasta) - cint(fila.desde) + 1
 
 		entre = [["rd_ncf", ">=", fila.encf_desde], ["rd_ncf", "<=", fila.encf_hasta]]
-		for doctype in ("Sales Invoice", "Purchase Invoice"):
+		for doctype in ("Sales Invoice", "POS Invoice", "Purchase Invoice"):
 			if usado := frappe.get_all(
 				doctype,
 				filters=[*entre, ["company", "=", self.company], ["docstatus", "=", 1]],

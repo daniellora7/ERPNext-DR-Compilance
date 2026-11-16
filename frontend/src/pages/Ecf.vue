@@ -192,7 +192,7 @@
 				<template #fila="{ fila }">
 					<div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-2.5">
 						<a
-							:href="rutaDocumento('Sales Invoice', fila.name)"
+							:href="rutaDocumento(fila.doctype, fila.name)"
 							class="text-base-medium text-ink-gray-8 hover:underline"
 						>
 							{{ fila.rd_ncf || fila.name }}

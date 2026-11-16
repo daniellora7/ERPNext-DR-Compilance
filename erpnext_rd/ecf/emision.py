@@ -25,7 +25,9 @@ from erpnext_rd.ecf.cliente import ClienteDGII, ClienteReceptor, ErrorDGII
 
 EMISOR = "Emisor ECF"
 ENVIO = "Envio ECF"
-DOCTYPES = ("Sales Invoice", "Purchase Invoice")
+# Ventas: la factura y la POS Invoice (modo POS Invoice del Perfil de POS; la factura consolidada del
+# cierre de caja no lleva NCF). Compras: E41, E43 y E47.
+DOCTYPES = ("Sales Invoice", "POS Invoice", "Purchase Invoice")
 ESTADOS_FINALES = ("Aceptado", "Aceptado condicional", "Rechazado")
 ACEPTADOS = ("Aceptado", "Aceptado condicional")
 CONTINGENCIA = "Contingencia"

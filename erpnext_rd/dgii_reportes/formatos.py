@@ -7,7 +7,7 @@ AAAAMMDD y campos sin dato vacíos. Nombre: DGII_F_<formato>_<RNC>_<AAAAMM>.TXT.
 
 import frappe
 from frappe import _
-from frappe.utils import cint, flt
+from frappe.utils import cint, escape_html, flt
 
 from erpnext_rd.dgii_fiscal.ncf import es_empresa_rd
 from erpnext_rd.dgii_reportes import datos
@@ -181,6 +181,114 @@ def descargar_txt(formato: str, company: str, anio: int, mes: int):
 	frappe.response["filename"] = nombre
 	frappe.response["filecontent"] = contenido.encode("utf-8")
 	frappe.response["type"] = "download"
+
+
+# Unos 4 ms por factura (EVALUACION-2026-11): por encima de esto el TXT se genera en la cola
+# `long` para no tener un worker web ocupado más de unos 8 segundos.
+FACTURAS_EN_LINEA = 2000
+DOCTYPES_DEL_FORMATO = {
+	"606": ("Purchase Invoice",),
+	"607": ("Sales Invoice", "POS Invoice"),
+	"609": ("Purchase Invoice",),
+}
+
+
+def facturas_del_periodo(formato: str, company: str, anio, mes) -> int:
+	"""El 608 no abre las facturas: siempre es rápido."""
+	desde, hasta = datos.rango(cint(anio), cint(mes))
+	filtros = {"company": company, "docstatus": 1, "posting_date": ("between", (desde, hasta))}
+	return sum(frappe.db.count(doctype, filtros) for doctype in DOCTYPES_DEL_FORMATO.get(formato, ()))
+
+
+@frappe.whitelist(methods=["POST"])
+def preparar_txt(formato: str, company: str, anio: int, mes: int) -> dict:
+	"""Con pocas facturas devuelve el archivo (`nombre` y `contenido`). Con muchas, encola la
+	generación y avisa al usuario cuando el archivo está listo."""
+	frappe.only_for(ROLES)
+	frappe.has_permission("Company", doc=company, throw=True)
+	if formato not in GENERADORES:
+		frappe.throw(_("Formato desconocido: {0}").format(formato))
+	if facturas_del_periodo(formato, company, anio, mes) <= FACTURAS_EN_LINEA:
+		nombre, contenido = generar_txt(formato, company, anio, mes)
+		return {"en_cola": False, "nombre": nombre, "contenido": contenido}
+
+	frappe.enqueue(
+		"erpnext_rd.dgii_reportes.formatos.generar_txt_en_cola",
+		queue="long",
+		timeout=1500,
+		job_id=f"txt-dgii-{formato}-{company}-{cint(anio)}-{cint(mes)}",
+		deduplicate=True,
+		formato=formato,
+		company=company,
+		anio=cint(anio),
+		mes=cint(mes),
+		usuario=frappe.session.user,
+	)
+	return {"en_cola": True}
+
+
+def generar_txt_en_cola(formato: str, company: str, anio: int, mes: int, usuario: str):
+	"""Guarda el TXT como archivo privado de la empresa (reemplaza el del mismo período) y lo
+	avisa con una notificación y un mensaje en pantalla."""
+	try:
+		nombre, contenido = generar_txt(formato, company, anio, mes)
+	except frappe.ValidationError as e:
+		_avisar(usuario, _("No se generó el TXT del {0}").format(formato), str(e))
+		return
+
+	for anterior in archivos_txt(company, nombre):
+		frappe.delete_doc("File", anterior, ignore_permissions=True)
+	archivo = frappe.get_doc(
+		{
+			"doctype": "File",
+			"file_name": nombre,
+			"content": contenido,
+			"is_private": 1,
+			"attached_to_doctype": "Company",
+			"attached_to_name": company,
+		}
+	).insert(ignore_permissions=True)
+
+	# El nombre guardado puede llevar sufijo; el del atributo es el oficial de la DGII.
+	enlace = '<a href="{0}" download="{1}">{1}</a>'.format(escape_html(archivo.file_url), escape_html(nombre))
+	_avisar(
+		usuario,
+		_("TXT del {0} listo").format(formato),
+		_("Descargue {0}. También queda en los adjuntos de la empresa {1}.").format(
+			enlace, escape_html(company)
+		),
+		archivo.name,
+	)
+
+
+def archivos_txt(company: str, nombre: str) -> list[str]:
+	"""Frappe le agrega un sufijo al nombre si ya hay un archivo igual en el disco (otra empresa
+	con el mismo RNC y período, o uno huérfano), por eso se busca por el comienzo del nombre."""
+	base = nombre.removesuffix(".TXT")
+	return frappe.get_all(
+		"File",
+		filters={
+			"attached_to_doctype": "Company",
+			"attached_to_name": company,
+			"file_name": ("like", f"{base}%.TXT"),
+		},
+		pluck="name",
+	)
+
+
+def _avisar(usuario: str, asunto: str, mensaje: str, archivo: str | None = None):
+	frappe.get_doc(
+		{
+			"doctype": "Notification Log",
+			"for_user": usuario,
+			"type": "Alert",
+			"subject": asunto,
+			"email_content": mensaje,
+			"document_type": "File" if archivo else None,
+			"document_name": archivo,
+		}
+	).insert(ignore_permissions=True)
+	frappe.publish_realtime("msgprint", {"title": asunto, "message": mensaje}, user=usuario)
 
 
 # ---------------------------------------------------------------------------

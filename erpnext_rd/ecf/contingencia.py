@@ -28,7 +28,8 @@ from erpnext_rd.dgii_fiscal import isc, ncf
 from erpnext_rd.ecf import datos, emision
 
 CONFIG = "Configuracion DGII"
-FACTURA = "Sales Invoice"
+# Ventas que pueden salir con la serie B en contingencia (la factura y la POS Invoice)
+VENTAS = ("Sales Invoice", "POS Invoice")
 REEMPLAZO_CONTINGENCIA = 4
 # Serie B que puede salir en contingencia → su e-CF de reemplazo. Las notas de crédito y débito de
 # facturas de la serie B ya siguen en la serie B (perfil.validar_serie_de_venta).
@@ -111,18 +112,19 @@ def al_cambiar_emisor(emisor):
 	if not (emisor.contingencia_desde and emisor.contingencia_hasta):
 		return
 	plazo = add_days(emisor.contingencia_hasta, dias_reemplazo())
-	si = DocType(FACTURA)
-	(
-		frappe.qb.update(si)
-		.set(si.rd_plazo_reemplazo, plazo)
-		.where(
-			(si.company == emisor.company)
-			& (si.docstatus == 1)
-			& (si.rd_contingencia_ecf == 1)
-			& (si.rd_encf_reemplazo.isnull() | (si.rd_encf_reemplazo == ""))
-			& si.posting_date[emisor.contingencia_desde : emisor.contingencia_hasta]
-		)
-	).run()
+	for doctype in VENTAS:
+		venta = DocType(doctype)
+		(
+			frappe.qb.update(venta)
+			.set(venta.rd_plazo_reemplazo, plazo)
+			.where(
+				(venta.company == emisor.company)
+				& (venta.docstatus == 1)
+				& (venta.rd_contingencia_ecf == 1)
+				& (venta.rd_encf_reemplazo.isnull() | (venta.rd_encf_reemplazo == ""))
+				& venta.posting_date[emisor.contingencia_desde : emisor.contingencia_hasta]
+			)
+		).run()
 
 
 def validar_emisor(emisor):
@@ -147,26 +149,41 @@ def validar_emisor(emisor):
 
 
 def pendientes(company: str, limite: int = 50) -> list[dict]:
-	"""Facturas de la serie B emitidas en contingencia sin su e-CF de reemplazo."""
-	return frappe.get_list(
-		FACTURA,
-		filters={
-			"company": company,
-			"docstatus": 1,
-			"rd_contingencia_ecf": 1,
-			"rd_encf_reemplazo": ("is", "not set"),
-		},
-		fields=["name", "rd_ncf", "rd_tipo_comprobante", "posting_date", "grand_total", "rd_plazo_reemplazo"],
-		order_by="posting_date asc",
-		limit=limite,
-	)
+	"""Ventas de la serie B emitidas en contingencia sin su e-CF de reemplazo, las más antiguas primero."""
+	filas = []
+	for doctype in VENTAS:
+		filas += [
+			frappe._dict(f, doctype=doctype)
+			for f in frappe.get_list(
+				doctype,
+				filters={
+					"company": company,
+					"docstatus": 1,
+					"rd_contingencia_ecf": 1,
+					"rd_encf_reemplazo": ("is", "not set"),
+				},
+				fields=[
+					"name",
+					"rd_ncf",
+					"rd_tipo_comprobante",
+					"posting_date",
+					"grand_total",
+					"rd_plazo_reemplazo",
+				],
+				order_by="posting_date asc",
+				limit=limite,
+			)
+		]
+	return sorted(filas, key=lambda f: (f.posting_date, f.name))[:limite]
 
 
 @frappe.whitelist(methods=["POST"])
-def emitir_reemplazo(name: str) -> str:
+def emitir_reemplazo(name: str, doctype: str = "Sales Invoice") -> str:
 	"""Firma (y envía a la DGII, si el emisor está habilitado) el e-CF que reemplaza el comprobante de
-	la serie B de una factura emitida en contingencia. Devuelve el *Envio ECF*."""
-	doc = frappe.get_doc(FACTURA, name)
+	la serie B de una venta emitida en contingencia. Devuelve el *Envio ECF*."""
+	if doctype not in VENTAS:
+		frappe.throw(_("Tipo de documento no válido para un e-CF de reemplazo: {0}").format(doctype))
+	doc = frappe.get_doc(doctype, name)
 	doc.check_permission("submit")
 	if doc.docstatus != 1 or not cint(doc.get("rd_contingencia_ecf")):
 		frappe.throw(_("La factura no se emitió en contingencia con un comprobante de la serie B."))
@@ -194,7 +211,7 @@ def emitir_reemplazo(name: str) -> str:
 		int(tipo[1:]),
 		contenido,
 		{
-			"tipo_documento": FACTURA,
+			"tipo_documento": doctype,
 			"documento": name,
 			"fecha_firma": fecha_firma,
 			"es_reemplazo": 1,
@@ -202,7 +219,7 @@ def emitir_reemplazo(name: str) -> str:
 		},
 		es_rfce=tipo == "E32" and flt(doc.grand_total) < flt(emisor.monto_rfce),
 	)
-	frappe.db.set_value(FACTURA, name, "rd_encf_reemplazo", envio.encf, update_modified=False)
+	frappe.db.set_value(doctype, name, "rd_encf_reemplazo", envio.encf, update_modified=False)
 	if emisor.habilitado:
 		emision.enviar_a_dgii(envio, emisor)
 	return envio.name

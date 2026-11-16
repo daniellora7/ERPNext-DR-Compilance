@@ -114,7 +114,7 @@ Las notas entre paréntesis son las de después de las correcciones del 2026-11-
 - Antes: el 607 tardaba unos 10 ms y hacía 15 consultas por factura. En la primera corrida, con la caché fría, fueron 81 ms por factura.
 - Después de la carga por lotes: 3.9 ms por factura en el 607 y 5.0 ms en el 606.
 - Para 10,000 facturas son unos 40 segundos, contra unos 100 antes.
-- Lo que queda es la consulta de pagos de cada factura.
+- **2026-11-16:** los pagos también se cargan por lotes. Con la caché caliente, en los 3 períodos del sitio, el 606 bajó de 93 ms a 33 ms y el 607 de 68 ms a 44 ms, con los mismos resultados.
 
 | Aspecto | Nota | Hallazgos |
 |---|---|---|
@@ -134,4 +134,4 @@ Las notas entre paréntesis son las de después de las correcciones del 2026-11-
 4. ✅ **Índices** de *Envio ECF* y *ECF Recibido*. El 606, el 607 y el IT-1 cargan las facturas por lotes. (Índices 6 → 8; reportes 6 → 7: los pagos de cada factura todavía se consultan uno por uno.)
 5. **Certificación real** ante la DGII con el .p12 (lo hace el usuario).
 6. **IR-1 y RST** cuando salgan el instructivo y el reglamento (abren el mercado de personas físicas y pymes).
-7. Los pagos del 606 y el 607 en una consulta por lote, y *prepared report* para los períodos muy grandes.
+7. ✅ Los pagos del 606, el 607 y el 609 en consultas por lote (2026-11-16). Los períodos grandes (2026-11-16): la vista pasa sola a *prepared report* después de 15 s (Frappe) y el TXT de más de 2,000 facturas se genera en la cola `long`.
