@@ -2,7 +2,7 @@
 
 Se arma un dict con todos los datos posibles; `esquemas.construir` emite solo los que acepta el tipo.
 
-- Ventas (*Sales Invoice*): E31 crédito fiscal, E32 consumo, E33 nota de débito, E34 nota de crédito,
+- Ventas (*Sales Invoice* y *POS Invoice*): E31 crédito fiscal, E32 consumo, E33 nota de débito, E34 nota de crédito,
   E44 regímenes especiales, E45 gubernamental, E46 exportaciones.
 - Compras (*Purchase Invoice*): E41 compras, E43 gastos menores, E47 pagos al exterior. La empresa es
   el emisor y el proveedor va como comprador.
@@ -289,7 +289,7 @@ def datos_ecf(doc, fecha_firma=None) -> dict:
 	}
 	referencia = _referencia(doc)
 
-	if doc.doctype == "Sales Invoice":
+	if doc.doctype in ("Sales Invoice", "POS Invoice"):
 		tipo_pago = _tipo_pago(doc)
 		encabezado["IdDoc"].update(
 			{

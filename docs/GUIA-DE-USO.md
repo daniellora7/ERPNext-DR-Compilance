@@ -68,7 +68,7 @@ Para recibir los vencimientos por correo, active *Enviar recordatorios de vencim
 
 ### Emitir
 
-- En una factura aprobada con tipo electrónico, use **e-CF → Emitir e-CF**. Se crea un **Envío e-CF** con el XML firmado, el código de seguridad y la respuesta de la DGII. El resultado se consulta solo cada 15 minutos.
+- En una factura o una venta POS aprobada con tipo electrónico, use **e-CF → Emitir e-CF**. Se crea un **Envío e-CF** con el XML firmado, el código de seguridad y la respuesta de la DGII. El resultado se consulta solo cada 15 minutos.
 - Las facturas de consumo (E32) menores a RD$250,000 se envían además como resumen (RFCE). El monto se configura en el emisor.
 - **Contingencia:** si la DGII no responde, el e-CF queda *En contingencia* y se reenvía solo, cada vez más espaciado. Si la DGII rechaza la solicitud, el envío queda en *Error* y se reenvía con el botón **Enviar a la DGII**, después de corregir.
 - Los e-CF aceptados con un comprador que también es receptor electrónico se le **entregan** solos. Su acuse de recibo y su aprobación o rechazo comercial quedan en el envío.
@@ -84,7 +84,7 @@ La DGII separa dos casos (Instructivo de Contingencia de Facturación Electróni
   2. En *RD Compliance → Emisor e-CF*, sección *Contingencia*, escriba la fecha de entrada y la descripción.
   3. Mientras dure, las facturas salen con comprobantes de la serie B: B01, B02, B14, B15 o B16. Necesita una secuencia B vigente de cada tipo que use. La contingencia no puede pasar de **15 días**.
   4. Cuando se resuelva, declare la salida en la Oficina Virtual y escriba su fecha en el emisor.
-  5. En cada factura de la serie B use **e-CF → Emitir e-CF de reemplazo**. El e-CF se envía solo a la DGII, no al cliente; el cliente se queda con el comprobante B. Hay **30 días** desde la salida para enviar los reemplazos, y el monitor lista los que faltan con su plazo.
+  5. En cada factura o venta POS de la serie B use **e-CF → Emitir e-CF de reemplazo**. El e-CF se envía solo a la DGII, no al cliente; el cliente se queda con el comprobante B. Hay **30 días** desde la salida para enviar los reemplazos, y el monitor lista los que faltan con su plazo.
 
 ### Monitor de e-CF
 

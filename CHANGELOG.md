@@ -4,6 +4,10 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 
 ## Sin publicar
 
+### Corregido
+- Las *POS Invoice* (modo POS Invoice del Perfil de POS) con comprobante electrónico no emitían su e-CF. Ahora lo emiten al aprobarse, como la factura, con el botón «e-CF › Emitir e-CF» y en el monitor de e-CF. La venta POS en contingencia también tiene su e-CF de reemplazo.
+- La *Anulacion ENCF* no revisaba las *POS Invoice*: se podía anular un e-NCF ya usado en una venta POS.
+
 ### Rendimiento
 - El 606, el 607 y el 609 cargan los pagos de las facturas por lotes (Payment Ledger, entradas de pago, deducciones y referencias), en vez de cuatro consultas por factura. En el sitio local, con la caché caliente, el 606 es unas 2.8 veces más rápido y el 607 unas 1.5 veces. El 609 también carga las facturas por lotes.
 - La consulta de las compras de meses anteriores con retenciones pagadas en el período (606) usa `frappe.qb` en vez de SQL crudo.
