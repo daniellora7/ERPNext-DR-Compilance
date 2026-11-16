@@ -231,7 +231,7 @@
    "fieldtype": "Data",
    "label": "Cuotas de las pequeñas empresas",
    "default": "6:50, 9:30, 12:20",
-   "description": "Mes del ejercicio y porcentaje del impuesto liquidado de cada cuota (Código Tributario art. 314, párrafo II, según la Ley 30-26). Vence el último día de ese mes (fuentes secundarias: confirmar con la DGII)."
+   "description": "Mes del ejercicio y porcentaje del impuesto liquidado de cada cuota (Código Tributario art. 314, párrafo II, según la Ley 30-26). Vence el último día de ese mes (Guía del Contribuyente No. 12 de la DGII, julio de 2026)."
   },
   {
    "fieldname": "anticipo_ley_30_26_desde",

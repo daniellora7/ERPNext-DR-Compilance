@@ -13,9 +13,10 @@ pago con la base nueva es el del 15 de mayo.
 Ley 30-26 (art. 23, que modifica el art. 314), desde la base del ejercicio 2026 (anticipos de 2027,
 calendario de implementación de la DGII):
 - Medianas y grandes: igual que antes, mensual.
-- Pequeñas (párrafo II): el 100% del impuesto liquidado en tres cuotas, en el sexto, noveno y
+- Pequeñas y personas físicas (párrafo II): el 100% del impuesto liquidado en tres cuotas, en el sexto, noveno y
   duodécimo mes del ejercicio (50%, 30% y 20%, en *Configuracion DGII*). Cada cuota vence el último
-  día de su mes (fuentes secundarias; la ley dice «pagados en los meses»).
+  día de su mes: 30 de junio, 30 de septiembre y 31 de diciembre con cierre al 31 de diciembre
+  (Guía del Contribuyente No. 12 de la DGII, julio de 2026).
 - Microempresas (párrafo III): exentas.
 El régimen se propone con el tamaño del perfil tributario; la clasificación final es de la DGII.
 """
@@ -113,10 +114,11 @@ def regimen_por_perfil(company: str, ejercicio: int) -> tuple[str, str | None]:
 
 	if cint(ejercicio) < desde_ejercicio():
 		return MENSUAL, None
-	tamano = perfil.perfil(company).tamano
-	if tamano == perfil.MICRO:
+	p = perfil.perfil(company)
+	if p.tamano == perfil.MICRO:
 		return EXENTO, _("Microempresa (Código Tributario art. 314, párrafo III, según la Ley 30-26)")
-	if tamano == perfil.PEQUENA:
+	# Párrafo II: pequeñas empresas y personas físicas
+	if p.tamano == perfil.PEQUENA or p.tipo_contribuyente == perfil.FISICA:
 		return TRES_CUOTAS, None
 	return MENSUAL, None
 

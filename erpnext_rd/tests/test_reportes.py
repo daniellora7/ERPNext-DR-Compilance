@@ -826,6 +826,10 @@ class TestReportesDGII(IntegrationTestCase):
 			self.assertEqual((b.regimen, b.cuota_mensual), (anticipos.EXENTO, 0))
 			self.assertIn("Microempresa", b.motivo_exencion)
 			self.assertIsNone(anticipos.anticipo(EMPRESA, 2027, 6))
+			# Persona física con negocio: tres cuotas aunque no sea pequeña
+			perfil.guardar(EMPRESA, {"tamano": perfil.MEDIANA, "tipo_contribuyente": perfil.FISICA})
+			frappe.clear_document_cache(perfil.DOCTYPE, EMPRESA)
+			self.assertEqual(anticipos.regimen_por_perfil(EMPRESA, 2026)[0], anticipos.TRES_CUOTAS)
 		finally:
 			frappe.db.rollback(save_point="anticipos_30_26")
 			frappe.clear_document_cache(perfil.DOCTYPE, EMPRESA)
