@@ -34,7 +34,7 @@ Para los pagos con cheque está el formato **Cheque RD** del *Payment Entry* (En
 
 En *RD Compliance → Declaraciones DGII*:
 
-- **606, 607, 608 y 609**: se elige la empresa y el mes, se revisa la columna de observaciones y se descarga el TXT con el nombre que pide la DGII. Antes de enviarlo, conviene pasarlo por la herramienta de pre-validación de la DGII.
+- **606, 607, 608 y 609**: se elige la empresa y el mes, se revisa la columna de observaciones y se descarga el TXT con el nombre que pide la DGII. Si el mes tiene más de 2,000 facturas, el TXT se prepara en segundo plano: llega una notificación con el enlace y el archivo queda en los adjuntos de la empresa. Antes de enviarlo, conviene pasarlo por la herramienta de pre-validación de la DGII.
 - **IT-1** e **IR-17**: resúmenes con los mismos registros, para llenar los formularios en la Oficina Virtual.
 - **Anticipos del ISR**: cada año, después de presentar el IR-2, registre en *Bases de anticipos ISR* los ingresos brutos y el impuesto liquidado. La app calcula la cuota mensual (art. 314: la doceava parte del impuesto, o el 1.5% de los ingresos si la tasa efectiva no pasa de 1.5%) y el reporte muestra el anticipo de cada mes con su vencimiento (día 15 del mes siguiente). Una empresa exenta se registra con régimen *Exento*.
 - **ISC**: clasifique en el artículo los productos con selectivo (alcohol, tabaco, combustibles, telecomunicaciones, seguros) y revise las tasas con su vigencia en la configuración del ISC. La factura calcula el ISC por línea, y el *Resumen ISC DGII* da los montos del mes.

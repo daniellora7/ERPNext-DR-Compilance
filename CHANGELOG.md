@@ -10,6 +10,7 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 
 ### Rendimiento
 - El 606, el 607 y el 609 cargan los pagos de las facturas por lotes (Payment Ledger, entradas de pago, deducciones y referencias), en vez de cuatro consultas por factura. En el sitio local, con la caché caliente, el 606 es unas 2.8 veces más rápido y el 607 unas 1.5 veces. El 609 también carga las facturas por lotes.
+- El TXT del 606, el 607 y el 609 de un período con más de 2,000 facturas se genera en la cola `long`. Al terminar llega una notificación con el enlace, y el archivo queda en los adjuntos de la empresa. Con menos facturas se descarga como antes, sin abrir otra pestaña, y un error se muestra en el escritorio. La vista del reporte ya pasa sola a *prepared report* cuando tarda más de 15 segundos (lo hace Frappe).
 - La consulta de las compras de meses anteriores con retenciones pagadas en el período (606) usa `frappe.qb` en vez de SQL crudo.
 
 ## v0.6.0 (2026-11-12)

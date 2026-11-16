@@ -134,4 +134,4 @@ Las notas entre paréntesis son las de después de las correcciones del 2026-11-
 4. ✅ **Índices** de *Envio ECF* y *ECF Recibido*. El 606, el 607 y el IT-1 cargan las facturas por lotes. (Índices 6 → 8; reportes 6 → 7: los pagos de cada factura todavía se consultan uno por uno.)
 5. **Certificación real** ante la DGII con el .p12 (lo hace el usuario).
 6. **IR-1 y RST** cuando salgan el instructivo y el reglamento (abren el mercado de personas físicas y pymes).
-7. ✅ Los pagos del 606, el 607 y el 609 en consultas por lote (2026-11-16). Queda *prepared report* para los períodos muy grandes.
+7. ✅ Los pagos del 606, el 607 y el 609 en consultas por lote (2026-11-16). Los períodos grandes (2026-11-16): la vista pasa sola a *prepared report* después de 15 s (Frappe) y el TXT de más de 2,000 facturas se genera en la cola `long`.

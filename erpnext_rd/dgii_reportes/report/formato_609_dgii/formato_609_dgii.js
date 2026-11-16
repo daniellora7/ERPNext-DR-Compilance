@@ -38,8 +38,24 @@ frappe.query_reports["Formato 609 DGII"] = {
 		report.page.add_inner_button(__("Descargar TXT DGII"), () => {
 			const f = report.get_values();
 			if (!f) return;
-			const params = new URLSearchParams({ formato: "609", company: f.company, anio: f.anio, mes: f.mes });
-			window.open(`/api/method/erpnext_rd.dgii_reportes.formatos.descargar_txt?${params}`);
+			const args = { formato: "609", company: f.company, anio: f.anio, mes: f.mes };
+			// Con muchas facturas el TXT se genera en segundo plano y llega como notificación.
+			frappe.call({ method: "erpnext_rd.dgii_reportes.formatos.preparar_txt", args }).then(({ message }) => {
+				if (message.en_cola) {
+					frappe.show_alert({
+						message: __("El período tiene muchas facturas: el TXT se genera en segundo plano y le avisaremos al terminar."),
+						indicator: "blue",
+					});
+					return;
+				}
+				const blob = new Blob([message.contenido], { type: "text/plain;charset=utf-8" });
+				const enlace = Object.assign(document.createElement("a"), {
+					href: URL.createObjectURL(blob),
+					download: message.nombre,
+				});
+				enlace.click();
+				URL.revokeObjectURL(enlace.href);
+			});
 		});
 	},
 };
