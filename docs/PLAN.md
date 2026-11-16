@@ -132,7 +132,7 @@ Script reports + exportación TXT en el formato oficial:
   - Plazo de 72 horas sin conexión, con aviso en el monitor y el Panel y la leyenda en la representación impresa.
   - Serie B durante una contingencia declarada en la OFV (máximo 15 días), con las fechas registradas en el *Emisor ECF*.
   - e-CF de reemplazo con `CodigoModificacion` 4, enviado solo a la DGII, con plazo de 30 días desde la salida.
-  - **Falta:** el reemplazo de las *POS Invoice* y la representación impresa del comprobante B de contingencia (modelo de RI de la DGII, pág. 17). **Confirmar con el contador:** si los reemplazos E32 menores al monto van como RFCE y si el 607 informa el NCF B o el e-NCF de reemplazo.
+  - ✅ (2026-11-16) Reemplazo de las *POS Invoice* y representación impresa del comprobante B (modelo 4.2 de los *Modelos ilustrativos de RI* de la DGII: comprobante no electrónico sin QR ni leyenda). **Confirmar con el contador:** si los reemplazos E32 menores al monto van como RFCE y si el 607 informa el NCF B o el e-NCF de reemplazo.
 - ✅ (2026-11-13) Seguridad del receptor y conservación (evaluación del 2026-11-13, `docs/EVALUACION-2026-11.md`):
   - Certificado del firmante vigente y, si se configuran, emitido por una entidad del INDOTEL.
   - Confirmación de cada e-CF recibido con la DGII y aprobación comercial solo del comprador y por el monto del e-CF.

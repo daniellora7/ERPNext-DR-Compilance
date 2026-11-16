@@ -6,6 +6,7 @@ Versiones con [versionado semántico](https://semver.org/lang/es/). La rama `ver
 
 ### Corregido
 - Las *POS Invoice* (modo POS Invoice del Perfil de POS) con comprobante electrónico no emitían su e-CF. Ahora lo emiten al aprobarse, como la factura, con el botón «e-CF › Emitir e-CF» y en el monitor de e-CF. La venta POS en contingencia también tiene su e-CF de reemplazo.
+- Pruebas de la representación impresa del comprobante B de contingencia: es la de un comprobante no electrónico (NCF B y su vencimiento, sin QR ni leyenda), como el modelo 4.2 de la DGII, también después del e-CF de reemplazo.
 - La *Anulacion ENCF* no revisaba las *POS Invoice*: se podía anular un e-NCF ya usado en una venta POS.
 
 ### Rendimiento

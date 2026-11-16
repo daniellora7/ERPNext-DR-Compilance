@@ -8,6 +8,7 @@ from cryptography.hazmat.primitives import serialization
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, add_to_date, now_datetime
 
+from erpnext_rd.dgii_fiscal.impresion import rd_datos_fiscales
 from erpnext_rd.ecf import conservacion, contingencia, emision, esquemas, firma, monitor, receptor
 from erpnext_rd.rd_compliance import perfil
 from erpnext_rd.tests import test_isc
@@ -159,6 +160,7 @@ class TestContingencia(IntegrationTestCase):
 		si.submit()
 		self.assertTrue(si.rd_ncf.startswith("B01"))
 		self.assertEqual([p.name for p in contingencia.pendientes(EMPRESA)], [si.name])
+		self._assert_ri_serie_b(si)
 
 		# La salida de la contingencia da el plazo de 30 días para el reemplazo
 		self._declarar(add_days(FECHA, -1), FECHA)
@@ -182,6 +184,21 @@ class TestContingencia(IntegrationTestCase):
 		# Va solo a la DGII: no se entrega al comprador
 		envio.db_set("estado", "Aceptado")
 		self.assertRaises(frappe.ValidationError, emision.entregar, envio.name)
+
+		# El comprador recibe el comprobante B también después del reemplazo
+		frappe.local.request_cache.clear()
+		self._assert_ri_serie_b(frappe.get_doc("Sales Invoice", si.name))
+
+	def _assert_ri_serie_b(self, doc):
+		"""RI del comprobante B de contingencia: la de un comprobante no electrónico, con su NCF y su
+		vencimiento, sin QR, código de seguridad ni leyenda (Representación Impresa, modelos
+		ilustrativos de la DGII, 4.2)."""
+		ri = rd_datos_fiscales(doc)
+		self.assertFalse(ri.es_electronico)
+		self.assertEqual((ri.tipo, ri.ncf), ("B01", doc.rd_ncf))
+		self.assertEqual(ri.titulo, "FACTURA DE CRÉDITO FISCAL")
+		self.assertTrue(ri.ncf_vencimiento)
+		self.assertEqual((ri.qr, ri.url_timbre, ri.leyenda_contingencia), (None, None, None))
 
 	def test_venta_pos_emite_su_ecf(self):
 		frappe.get_doc(
