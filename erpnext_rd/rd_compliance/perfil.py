@@ -110,6 +110,12 @@ def declara_ir2(company: str) -> bool:
 	return p.tipo_contribuyente == JURIDICA and p.regimen == ORDINARIO
 
 
+def declara_ir1(company: str) -> bool:
+	"""Persona física con negocio del régimen ordinario: IR-1 y su cuadre."""
+	p = perfil(company)
+	return p.tipo_contribuyente == FISICA and p.regimen == ORDINARIO
+
+
 def es_agropecuaria(company: str) -> bool:
 	"""Sector agropecuario: exenta del impuesto sobre los activos (art. 406, párrafo IV) y de la retención
 	del 5% en los pagos del Estado (art. 309, literal e), según la Ley 30-26 (arts. 32 y 17)."""
@@ -570,7 +576,6 @@ PENDIENTES = (
 		"8.6",
 	),
 	(lambda p: p.regimen == RST, "Régimen simplificado de tributación (RST)", "8.7"),
-	(lambda p: p.tipo_contribuyente == FISICA, "Persona física con negocio (IR-1)", "8.8"),
 )
 
 

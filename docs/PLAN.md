@@ -233,7 +233,9 @@ Base confirmada (2026-11-12): instructivo oficial del IR-2 y sus anexos (DGII, m
 - Modalidades (por ingresos o por compras) y límites de la Ley 30-26.
 - Su declaración y cuotas, y qué formatos y declaraciones del régimen ordinario no aplican.
 
-### 8.8 Persona física con negocio (IR-1)
+### 8.8 Persona física con negocio (IR-1) ✅
+- ✅ (2026-11-16) *Cuadre Fiscal IR1* con las casillas 1 a 17 del instructivo de llenado del IR-1 (DGII, revisado en marzo de 2026): ingresos y beneficio antes del ISR desde la contabilidad (como el anexo B-1), gastos no admitidos (las compras con NCF no válido se proponen), ingresos exentos, dividendos, exención contributiva (solo sin costos ni gastos: el tramo exento de la escala del año), gastos en educación con sus topes (10% y 25%), ganancias de capital, impuesto con la escala de personas físicas del año (2026, o la de la Ley 30-26 desde 2027), anticipos, retenciones, otros pagos y saldo a favor. Base de anticipos en tres cuotas sobre el impuesto no retenido (art. 314, párrafos II y IV) y recordatorio del 31 de marzo. Solo para el perfil de persona física del régimen ordinario.
+- No cubre: el anexo A (detalle de retenciones por agente) ni las rentas que no son del negocio (alquileres, salarios de otro empleador): se escriben en las casillas.
 - Investigado el 2026-11-11: el IR-1 vence el 31 de marzo de cada año (página de la DGII). Las fuentes secundarias no coinciden en el calendario de los anticipos de las personas físicas con negocio (art. 314) ni traen la escala 2026; la escala 2027 ya está en la app (Ley 30-26, mínimo exento RD$480,000). Confirmar con el instructivo del IR-1 de la DGII.
 - Perfil de persona física: declaración IR-1 (escala de personas físicas) en lugar del IR-2, sus anticipos y la cédula como identificación fiscal.
 

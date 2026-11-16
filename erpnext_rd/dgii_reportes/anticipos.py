@@ -112,13 +112,16 @@ def regimen_por_perfil(company: str, ejercicio: int) -> tuple[str, str | None]:
 	"""Régimen que corresponde según el tamaño del perfil (Ley 30-26), con el motivo si es exento."""
 	from erpnext_rd.rd_compliance import perfil
 
+	p = perfil.perfil(company)
+	# Las personas físicas ya pagaban en tres cuotas antes de la Ley 30-26
+	if p.tipo_contribuyente == perfil.FISICA:
+		return TRES_CUOTAS, None
 	if cint(ejercicio) < desde_ejercicio():
 		return MENSUAL, None
-	p = perfil.perfil(company)
 	if p.tamano == perfil.MICRO:
 		return EXENTO, _("Microempresa (Código Tributario art. 314, párrafo III, según la Ley 30-26)")
-	# Párrafo II: pequeñas empresas y personas físicas
-	if p.tamano == perfil.PEQUENA or p.tipo_contribuyente == perfil.FISICA:
+	# Párrafo II: pequeñas empresas
+	if p.tamano == perfil.PEQUENA:
 		return TRES_CUOTAS, None
 	return MENSUAL, None
 
