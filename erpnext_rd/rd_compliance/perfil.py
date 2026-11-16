@@ -55,6 +55,10 @@ MEDIANA = "Mediana (51 a 150 empleados)"
 GRANDE = "Grande (más de 150 empleados)"
 TAMANOS = (MICRO, PEQUENA, MEDIANA, GRANDE)
 SIN_SECTOR_REGULADO = "No aplica"
+# Impuesto sobre los activos (Código Tributario arts. 402, 403 y 406, párrafo IV)
+ACTIVOS_GENERAL = "General"
+ACTIVOS_AGROPECUARIO = "Agropecuario"
+ACTIVOS_FIJOS_NETOS = "Financiero o eléctrico"
 ECF_NO_OBLIGADA = "No obligada aún"
 ECF_CERTIFICACION = "En certificación"
 ECF_EMISOR = "Emisor electrónico"
@@ -87,6 +91,7 @@ def perfil(company: str) -> frappe._dict:
 		ecf_estado=ECF_NO_OBLIGADA,
 		ecf_obligada_desde=None,
 		sector_regulado=SIN_SECTOR_REGULADO,
+		sector_activos=ACTIVOS_GENERAL,
 		incentivos=[],
 		existe=False,
 		**{c: 0 for c in ACTIVIDADES},
@@ -103,6 +108,18 @@ def declara_ir2(company: str) -> bool:
 	"""Persona jurídica del régimen ordinario: IR-2, su cuadre, anexos y anticipos de sociedades."""
 	p = perfil(company)
 	return p.tipo_contribuyente == JURIDICA and p.regimen == ORDINARIO
+
+
+def declara_ir1(company: str) -> bool:
+	"""Persona física con negocio del régimen ordinario: IR-1 y su cuadre."""
+	p = perfil(company)
+	return p.tipo_contribuyente == FISICA and p.regimen == ORDINARIO
+
+
+def es_agropecuaria(company: str) -> bool:
+	"""Sector agropecuario: exenta del impuesto sobre los activos (art. 406, párrafo IV) y de la retención
+	del 5% en los pagos del Estado (art. 309, literal e), según la Ley 30-26 (arts. 32 y 17)."""
+	return perfil(company).sector_activos == ACTIVOS_AGROPECUARIO
 
 
 def emisor_electronico(company: str) -> bool:
@@ -234,6 +251,7 @@ def guardar(company: str, valores: str | dict) -> str:
 		"tamano",
 		"cierre_fiscal",
 		"sector_regulado",
+		"sector_activos",
 		"ecf_estado",
 		"ecf_obligada_desde",
 		*ACTIVIDADES,
@@ -558,7 +576,6 @@ PENDIENTES = (
 		"8.6",
 	),
 	(lambda p: p.regimen == RST, "Régimen simplificado de tributación (RST)", "8.7"),
-	(lambda p: p.tipo_contribuyente == FISICA, "Persona física con negocio (IR-1)", "8.8"),
 )
 
 

@@ -17,7 +17,7 @@ from frappe.utils import add_days, add_months, cint, formatdate, get_url, getdat
 
 from erpnext_rd.dgii_fiscal import isc, regimenes
 from erpnext_rd.dgii_fiscal.ncf import PAIS
-from erpnext_rd.dgii_reportes import anticipos, declaraciones, ir2
+from erpnext_rd.dgii_reportes import anticipos, declaraciones, ir1, ir2, rzf
 from erpnext_rd.licitaciones import proveedor as proveedor_estado
 from erpnext_rd.nomina_rd import feriados, hrms_instalado
 from erpnext_rd.rd_compliance import panel, perfil
@@ -93,6 +93,10 @@ def obligaciones(company: str, anio: int, mes: int) -> list[dict]:
 				"vence": feriados.dia_habil(declaraciones.vencimiento(anio, mes, isc.DIA_VENCE)),
 			}
 		)
+	if o := rzf.obligacion(company, anio, mes):
+		lista.append(o)
+	if o := ir1.obligacion(company, anio, mes):
+		lista.append(o)
 	if a := anticipos.anticipo(company, anio, mes):
 		lista.append({"obligacion": _("Anticipo del ISR de {0}").format(periodo), "vence": a.vence})
 	if perfil.declara_ir2(company) and (cierre := ir2.cierre_fiscal(company, anio, mes)):
@@ -160,6 +164,12 @@ def pendientes(company: str, hoy: date, dias: int) -> list[dict]:
 		faltan = (getdate(o["vence"]) - hoy).days
 		if faltan in (dias, 0) and o["obligacion"] not in vistos:
 			vistos.add(o["obligacion"])
+			resultado.append(o | {"faltan": faltan})
+	# Hidrocarburos (HID-01): cada jueves, para quien importa o refina combustibles
+	if o := isc.declaracion_hidrocarburos(company, hoy):
+		o["vence"] = feriados.dia_habil(o["vence"])
+		faltan = (o["vence"] - hoy).days
+		if faltan in (dias, 0):
 			resultado.append(o | {"faltan": faltan})
 	# Certificaciones del perfil de proveedor del Estado (licitaciones)
 	for o in proveedor_estado.vencimientos(company):

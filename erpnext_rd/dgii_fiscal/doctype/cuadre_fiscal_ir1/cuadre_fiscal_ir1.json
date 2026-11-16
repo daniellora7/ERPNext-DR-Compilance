@@ -1,0 +1,301 @@
+{
+ "actions": [],
+ "creation": "2026-11-16 17:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "links": [],
+ "modified": "2026-11-16 17:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "DGII Fiscal",
+ "name": "Cuadre Fiscal IR1",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts User",
+   "read": 1,
+   "report": 1,
+   "print": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "ejercicio",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "format:IR1-{ejercicio}-{###}",
+ "naming_rule": "Expression",
+ "is_submittable": 1,
+ "title_field": "company",
+ "track_changes": 1,
+ "description": "Papel de trabajo del IR-1 de la persona física con negocio: renta neta imponible y liquidación con la escala del año. No es la declaración.",
+ "field_order": [
+  "company",
+  "ejercicio",
+  "column_break_periodo",
+  "desde",
+  "hasta",
+  "column_break_avisos",
+  "avisos",
+  "section_renta",
+  "ingresos",
+  "beneficio_contable",
+  "gastos_no_admitidos",
+  "ingresos_exentos",
+  "dividendos",
+  "renta_neta",
+  "sin_contabilidad",
+  "exencion_contributiva",
+  "column_break_renta",
+  "gastos_educacion",
+  "ganancia_acciones",
+  "ganancia_inmuebles",
+  "renta_imponible",
+  "section_liquidacion",
+  "impuesto_liquidado",
+  "anticipos_pagados",
+  "retenciones",
+  "column_break_liquidacion",
+  "otros_pagos",
+  "saldo_favor_anterior",
+  "diferencia_pagar",
+  "saldo_favor",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Empresa",
+   "options": "Company",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "ejercicio",
+   "fieldtype": "Int",
+   "label": "Ejercicio",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "non_negative": 1,
+   "description": "Año calendario: las personas físicas cierran el 31 de diciembre"
+  },
+  {
+   "fieldname": "column_break_periodo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "desde",
+   "fieldtype": "Date",
+   "label": "Desde",
+   "read_only": 1
+  },
+  {
+   "fieldname": "hasta",
+   "fieldtype": "Date",
+   "label": "Hasta",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_avisos",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "avisos",
+   "fieldtype": "Small Text",
+   "label": "Avisos",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_renta",
+   "fieldtype": "Section Break",
+   "label": "Renta neta imponible",
+   "description": "Casillas del IR-1 según su instructivo de llenado (DGII). Los ingresos y el beneficio salen de la contabilidad con «Traer datos de la contabilidad»."
+  },
+  {
+   "fieldname": "ingresos",
+   "fieldtype": "Currency",
+   "label": "A. Ingresos del ejercicio",
+   "options": "Company:company:default_currency",
+   "description": "Total de ingresos (anexo B)"
+  },
+  {
+   "fieldname": "beneficio_contable",
+   "fieldtype": "Currency",
+   "label": "1. Beneficio (pérdida) antes del ISR",
+   "options": "Company:company:default_currency",
+   "description": "Ingresos menos costos y gastos del ejercicio (anexo B)"
+  },
+  {
+   "fieldname": "gastos_no_admitidos",
+   "fieldtype": "Currency",
+   "label": "2. + Gastos no admitidos",
+   "options": "Company:company:default_currency",
+   "description": "Gastos personales, retiros del dueño, ISR, multas, gastos sin comprobante válido... (Código Tributario art. 288). Las compras con NCF no válido en la DGII se proponen solas."
+  },
+  {
+   "fieldname": "ingresos_exentos",
+   "fieldtype": "Currency",
+   "label": "3. − Ingresos exentos",
+   "options": "Company:company:default_currency",
+   "description": "Con certificación (incluye aportes a la TSS y salario 13 de un salario recibido)"
+  },
+  {
+   "fieldname": "dividendos",
+   "fieldtype": "Currency",
+   "label": "4. − Ingresos por dividendos",
+   "options": "Company:company:default_currency",
+   "description": "Ya pagaron el impuesto por retención"
+  },
+  {
+   "fieldname": "renta_neta",
+   "fieldtype": "Currency",
+   "label": "5. Renta neta (casillas 1 + 2 − 3 − 4)",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sin_contabilidad",
+   "fieldtype": "Check",
+   "label": "No reporta costos ni gastos",
+   "description": "Solo así aplica la exención contributiva (casilla 6)"
+  },
+  {
+   "fieldname": "exencion_contributiva",
+   "fieldtype": "Currency",
+   "label": "6. − Exención contributiva",
+   "options": "Company:company:default_currency",
+   "read_only": 1,
+   "description": "El primer tramo exento de la escala del año, solo si no reporta costos ni gastos"
+  },
+  {
+   "fieldname": "column_break_renta",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "gastos_educacion",
+   "fieldtype": "Currency",
+   "label": "7. − Gastos en educación (Ley 179-09)",
+   "options": "Company:company:default_currency",
+   "description": "Registrados en el panel de gastos educativos de la Oficina Virtual. Tope: 10% de las casillas 5 − 6 y 25% de la exención contributiva."
+  },
+  {
+   "fieldname": "ganancia_acciones",
+   "fieldtype": "Currency",
+   "label": "8. + Ganancia de capital por venta de acciones",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "ganancia_inmuebles",
+   "fieldtype": "Currency",
+   "label": "9. + Ganancia de capital por venta o aporte de inmuebles",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "renta_imponible",
+   "fieldtype": "Currency",
+   "label": "10. Renta neta imponible (casillas 5 − 6 − 7 + 8 + 9)",
+   "options": "Company:company:default_currency",
+   "bold": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_liquidacion",
+   "fieldtype": "Section Break",
+   "label": "Liquidación"
+  },
+  {
+   "fieldname": "impuesto_liquidado",
+   "fieldtype": "Currency",
+   "label": "11. Impuesto liquidado",
+   "options": "Company:company:default_currency",
+   "bold": 1,
+   "read_only": 1,
+   "description": "Escala de personas físicas del año (Configuración Nómina RD)"
+  },
+  {
+   "fieldname": "anticipos_pagados",
+   "fieldtype": "Currency",
+   "label": "12. − Anticipos pagados",
+   "options": "Company:company:default_currency",
+   "description": "Los que vencen en el ejercicio, según las bases de anticipos"
+  },
+  {
+   "fieldname": "retenciones",
+   "fieldtype": "Currency",
+   "label": "13. − Retenciones (anexo A)",
+   "options": "Company:company:default_currency",
+   "description": "ISR que le retuvieron terceros, con sus certificaciones"
+  },
+  {
+   "fieldname": "column_break_liquidacion",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "otros_pagos",
+   "fieldtype": "Currency",
+   "label": "14. − Otros pagos",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "saldo_favor_anterior",
+   "fieldtype": "Currency",
+   "label": "15. − Saldo a favor anterior",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "diferencia_pagar",
+   "fieldtype": "Currency",
+   "label": "16. Diferencia a pagar",
+   "options": "Company:company:default_currency",
+   "bold": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "saldo_favor",
+   "fieldtype": "Currency",
+   "label": "17. Saldo a favor",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "Cuadre Fiscal IR1",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  }
+ ]
+}

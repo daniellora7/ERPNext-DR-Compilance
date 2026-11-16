@@ -769,6 +769,71 @@ class TestReportesDGII(IntegrationTestCase):
 		base.save()
 		self.assertIsNone(anticipos.anticipo(EMPRESA, 2026, 9))
 
+	def test_anticipos_ley_30_26(self):
+		"""Art. 314 según la Ley 30-26 (art. 23): pequeñas en tres cuotas, microempresas exentas."""
+		from erpnext_rd.dgii_reportes import anticipos
+		from erpnext_rd.rd_compliance import perfil
+
+		frappe.db.savepoint("anticipos_30_26")
+		try:
+			self.assertEqual(anticipos.leer_cuotas("6:50, 9:30, 12:20"), {6: 50, 9: 30, 12: 20})
+			self.assertRaises(frappe.ValidationError, anticipos.leer_cuotas, "6:50, 9:30")
+			self.assertRaises(frappe.ValidationError, anticipos.leer_cuotas, "13:100")
+
+			def base(ejercicio):
+				return frappe.get_doc(
+					{
+						"doctype": "Base Anticipo ISR",
+						"company": EMPRESA,
+						"ejercicio": ejercicio,
+						"ingresos_brutos": 5_000_000,
+						"impuesto_liquidado": 100_000,
+					}
+				).insert()
+
+			frappe.db.delete("Base Anticipo ISR", {"company": EMPRESA})
+			perfil.guardar(EMPRESA, {"tamano": perfil.PEQUENA})
+			frappe.clear_document_cache(perfil.DOCTYPE, EMPRESA)
+			# Antes de la ley sigue mensual; desde la base de 2026, tres cuotas
+			self.assertEqual(base(2025).regimen, anticipos.MENSUAL)
+			b = base(2026)
+			self.assertEqual((b.regimen, b.cuota_mensual), (anticipos.TRES_CUOTAS, 100_000))
+			cuotas = {m: anticipos.anticipo(EMPRESA, 2027, m) for m in range(1, 13)}
+			self.assertEqual(
+				{m: (a.cuota, str(a.vence)) for m, a in cuotas.items() if a and a.base == b.name},
+				{6: (50_000, "2027-06-30"), 9: (30_000, "2027-09-30"), 12: (20_000, "2027-12-31")},
+			)
+			# Enero a abril de 2027 siguen con la base mensual de 2025
+			self.assertEqual(cuotas[1].base, frappe.db.get_value("Base Anticipo ISR", {"ejercicio": 2025}))
+			self.assertIsNone(cuotas[7])
+			self.assertRaises(
+				frappe.ValidationError,
+				frappe.get_doc(
+					{
+						"doctype": "Base Anticipo ISR",
+						"company": EMPRESA,
+						"ejercicio": 2024,
+						"regimen": anticipos.TRES_CUOTAS,
+						"impuesto_liquidado": 1,
+					}
+				).insert,
+			)
+
+			frappe.db.delete("Base Anticipo ISR", {"company": EMPRESA, "ejercicio": 2026})
+			perfil.guardar(EMPRESA, {"tamano": perfil.MICRO})
+			frappe.clear_document_cache(perfil.DOCTYPE, EMPRESA)
+			b = base(2026)
+			self.assertEqual((b.regimen, b.cuota_mensual), (anticipos.EXENTO, 0))
+			self.assertIn("Microempresa", b.motivo_exencion)
+			self.assertIsNone(anticipos.anticipo(EMPRESA, 2027, 6))
+			# Persona física con negocio: tres cuotas aunque no sea pequeña
+			perfil.guardar(EMPRESA, {"tamano": perfil.MEDIANA, "tipo_contribuyente": perfil.FISICA})
+			frappe.clear_document_cache(perfil.DOCTYPE, EMPRESA)
+			self.assertEqual(anticipos.regimen_por_perfil(EMPRESA, 2026)[0], anticipos.TRES_CUOTAS)
+		finally:
+			frappe.db.rollback(save_point="anticipos_30_26")
+			frappe.clear_document_cache(perfil.DOCTYPE, EMPRESA)
+
 	# ------------------------------------------------------------------ NCF del proveedor en la DGII
 
 	def test_verificacion_ncf_proveedor(self):

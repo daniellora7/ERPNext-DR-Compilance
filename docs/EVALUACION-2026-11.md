@@ -37,14 +37,14 @@ Las notas van del 1 al 10. Salen de leer el código de la rama `feature/monitor-
 | DIOR (precios de transferencia) | Instructivo de la DIOR (mayo de 2026) | Sí. Los códigos de país, tipo de persona y estudio de precios van a mano | 7 |
 | Nómina: TSS (AM y NV), IR-3, IR-13, regalía, bonificación, SIRLA (DGT-3 y DGT-4) | TSS, DGII, Ministerio de Trabajo | Sí | 9 |
 | Padrón RNC y validación de NCF del proveedor | DGII | Sí (descarga cada noche) | 9 |
-| Persona física con negocio (IR-1) y régimen simplificado (RST) | Ley 30-26 | **No** (8.7 y 8.8 en espera) | 3 |
-| Impuesto sobre los activos | Código Tributario, título V | **No** (8.5 en espera de la Ley 30-26) | 3 |
+| Persona física con negocio (IR-1) y régimen simplificado (RST) | Ley 30-26; instructivo del IR-1 (DGII, marzo de 2026) | IR-1 sí desde el 2026-11-16 (cuadre con las casillas 1 a 17 y anticipos en tres cuotas). El RST, **no**: espera el reglamento de la Ley 30-26 | 6 |
+| Impuesto sobre los activos | Código Tributario, título V; formulario IR-2-c2; Ley 30-26, art. 32 | Desde el 2026-11-16, en el cuadre del IR-2: base desde el anexo A-1, exentos del art. 402, activos fijos netos del art. 403, exención agropecuaria y crédito del ISR liquidado. Las entidades financieras (anexo A2) se revisan a mano | 8 |
 
 **Conclusión de cumplimiento:**
 - Para una **persona jurídica del régimen ordinario**, que es el caso de Dynamics Plastics, la app cubre los requisitos fundamentales. **Nota: 8/10 el 2026-11-13 por la mañana; 8.5/10 después de las correcciones de ese mismo día.**
 - La contingencia y la conservación quedaron resueltas el mismo día.
 - La falta que bloquea es la certificación real ante la DGII (falta el .p12).
-- Para personas físicas, el RST y las empresas que pagan el impuesto sobre los activos, la app **todavía no sirve**.
+- Para el RST la app **todavía no sirve** (espera el reglamento). La persona física con negocio tiene el cuadre del IR-1 desde el 2026-11-16. El impuesto sobre los activos está en el cuadre del IR-2 desde el 2026-11-16.
 
 ### Comparación con el mercado
 

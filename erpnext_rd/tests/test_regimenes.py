@@ -156,6 +156,92 @@ class TestEmpresaZonaFranca(IntegrationTestCase):
 		frappe.clear_document_cache(perfil.DOCTYPE, EMPRESA)
 		self.assertEqual(_venta("_Test Cliente ISC").rd_tipo_comprobante, "B01")
 
+	def test_rzf_01(self):
+		"""RZF-01: ventas a zonas francas (casilla 1), mercado local (casilla 2) y 3.5% de la casilla 2."""
+		from erpnext_rd.dgii_reportes import rzf
+		from erpnext_rd.rd_compliance import recordatorios
+
+		self.assertEqual(rzf.clasificar(regimenes.ZONA_FRANCA, None), rzf.A_ZONAS_FRANCAS)
+		self.assertEqual(rzf.clasificar(None, "United States"), rzf.EXPORTACION)
+		self.assertEqual(rzf.clasificar(None, "Dominican Republic"), rzf.MERCADO_LOCAL)
+		self.assertEqual(rzf.liquidar(1000, 10_000, 3.5).casilla_3, 350)
+		self.assertEqual(rzf.liquidar(0, -500, 3.5).casilla_3, 0)
+
+		for tipo in ("B14", "B16"):
+			if not frappe.db.exists("Secuencia NCF", {"company": EMPRESA, "tipo_comprobante": tipo}):
+				frappe.get_doc(
+					{
+						"doctype": "Secuencia NCF",
+						"company": EMPRESA,
+						"tipo_comprobante": tipo,
+						"desde": 1,
+						"hasta": 100,
+						"fecha_vencimiento": "2030-12-31",
+					}
+				).insert()
+		_venta("_Test Cliente ISC").submit()
+		frappe.get_doc(
+			{
+				"doctype": "Customer",
+				"customer_name": ZONA_FRANCA,
+				"tax_id": RNC_ZONA_FRANCA,
+				"rd_regimen_especial": regimenes.ZONA_FRANCA,
+				"rd_carnet_regimen": "ZF-0001",
+				"rd_carnet_vence": add_days(FECHA, 30),
+			}
+		).insert()
+		_venta(ZONA_FRANCA).submit()
+		fecha = frappe.utils.getdate(FECHA)
+		columnas, filas, mensaje, _grafico, resumen = rzf.reporte(
+			{"company": EMPRESA, "anio": fecha.year, "mes": fecha.month}
+		)
+		valores = {r["label"]: r["value"] for r in resumen}
+		local = sum(f.monto for f in filas if f.customer == "_Test Cliente ISC")
+		self.assertEqual(valores["2. Ventas en el mercado local"], local)
+		self.assertGreaterEqual(local, 4000)
+		self.assertEqual(
+			valores["1. Ventas a zonas francas"], sum(f.monto for f in filas if f.customer == ZONA_FRANCA)
+		)
+		self.assertEqual(valores["3. Impuesto (3.5%)"], round(local * 3.5 / 100, 2))
+		# Vence el 15 del mes siguiente y entra en los recordatorios
+		obligaciones = recordatorios.obligaciones(EMPRESA, fecha.year, fecha.month)
+		self.assertTrue(any(o["obligacion"].startswith("RZF-01") for o in obligaciones))
+
+	def test_rzf_01_sin_zona_franca(self):
+		from erpnext_rd.dgii_reportes import rzf
+
+		doc = frappe.get_doc(perfil.DOCTYPE, EMPRESA)
+		doc.incentivos = []
+		doc.save()
+		frappe.clear_document_cache(perfil.DOCTYPE, EMPRESA)
+		fecha = frappe.utils.getdate(FECHA)
+		self.assertEqual(rzf.reporte({"company": EMPRESA, "anio": fecha.year, "mes": fecha.month})[1], [])
+		self.assertIsNone(rzf.obligacion(EMPRESA, fecha.year, fecha.month))
+
+
+class TestHidrocarburos(IntegrationTestCase):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		test_isc.TestISC.setUpClass()
+
+	def setUp(self):
+		frappe.db.savepoint("hidrocarburos")
+
+	def tearDown(self):
+		frappe.db.rollback(save_point="hidrocarburos")
+		frappe.clear_document_cache(perfil.DOCTYPE, EMPRESA)
+
+	def test_hid_01_cada_jueves(self):
+		perfil.guardar(EMPRESA, {"isc_combustibles": 0})
+		frappe.clear_document_cache(perfil.DOCTYPE, EMPRESA)
+		self.assertIsNone(isc.declaracion_hidrocarburos(EMPRESA, "2026-11-16"))
+		perfil.guardar(EMPRESA, {"isc_combustibles": 1})
+		frappe.clear_document_cache(perfil.DOCTYPE, EMPRESA)
+		# Lunes 16 → jueves 19; el jueves vence el mismo día
+		self.assertEqual(str(isc.declaracion_hidrocarburos(EMPRESA, "2026-11-16")["vence"]), "2026-11-19")
+		self.assertEqual(str(isc.declaracion_hidrocarburos(EMPRESA, "2026-11-19")["vence"]), "2026-11-19")
+
 
 def _cuenta_itbis():
 	from erpnext_rd.dgii_fiscal import catalogos as cat

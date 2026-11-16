@@ -33,6 +33,10 @@ from erpnext_rd.dgii_fiscal import catalogos as cat
 TIPO_CARGO = "ISC por artículo"
 DESCRIPCION = "Impuesto selectivo al consumo (ISC)"
 DIA_VENCE = 20
+# Hidrocarburos: formulario HID-01, presentación y pago a más tardar el jueves de cada semana (Norma
+# 01-2010, folleto del ISC de la DGII). Lo presentan los agentes de retención: quienes importan o
+# refinan combustibles (Decreto 274-16); quien solo los revende no lo presenta.
+JUEVES = 3
 
 ALCOHOL = "Alcohol"
 TABACO = "Tabaco"
@@ -666,3 +670,19 @@ def isc_de_articulo(
 	if not datos:
 		return None
 	return {"categoria": datos.categoria, "unitario": flt(datos.get("unitario")), "tasa": datos.tasa}
+
+
+def declaracion_hidrocarburos(company: str, hoy) -> dict | None:
+	"""Recordatorio semanal del HID-01 para las empresas que marcan combustibles en su perfil."""
+	from frappe.utils import add_days
+
+	from erpnext_rd.rd_compliance import perfil
+
+	if not cint(perfil.perfil(company).isc_combustibles):
+		return None
+	hoy = getdate(hoy)
+	jueves = add_days(hoy, (JUEVES - hoy.weekday()) % 7)
+	return {
+		"obligacion": _("HID-01 (ISC de hidrocarburos) de la semana, si importa o refina combustibles"),
+		"vence": jueves,
+	}

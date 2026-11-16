@@ -44,10 +44,10 @@
    "fieldname": "regimen",
    "fieldtype": "Select",
    "label": "Régimen",
-   "options": "Mensual\nExento",
+   "options": "Mensual\nTres cuotas\nExento",
    "default": "Mensual",
    "in_list_view": 1,
-   "description": "Exento: microempresas (Ley 30-26, desde 2027), sector agropecuario o exención aprobada por la DGII (art. 314, párrafo IV)."
+   "description": "Desde el ejercicio 2026 (anticipos de 2027), según el tamaño del perfil tributario (Código Tributario art. 314, según la Ley 30-26, art. 23): medianas y grandes, mensual; pequeñas, tres cuotas del impuesto liquidado (párrafo II); microempresas, exentas (párrafo III). Exento también por el sector agropecuario o una exención aprobada por la DGII."
   },
   {
    "fieldname": "column_break_vigencia",
@@ -105,7 +105,7 @@
   {
    "fieldname": "cuota_mensual",
    "fieldtype": "Currency",
-   "label": "Anticipo mensual",
+   "label": "Anticipo mensual o total de las cuotas",
    "options": "Company:company:default_currency",
    "read_only": 1,
    "in_list_view": 1,
@@ -113,7 +113,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-16 20:00:00.000000",
+ "modified": "2026-11-16 16:00:00.000000",
  "modified_by": "Administrator",
  "module": "DGII Fiscal",
  "name": "Base Anticipo ISR",

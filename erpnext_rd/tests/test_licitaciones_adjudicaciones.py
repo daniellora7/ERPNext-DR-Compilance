@@ -189,6 +189,9 @@ class TestAdjudicaciones(IntegrationTestCase):
 			conf.base_retencion_isr = "Con ITBIS"
 			# Con ITBIS: 5 % de 1,180 y la mitad de F2 (cobro parcial)
 			self.assertAlmostEqual(adjudicaciones.isr_esperado(pago, conf), 59 + 29.5)
+			# Sector agropecuario: sin retención (art. 309, literal e, según la Ley 30-26)
+			with patch("erpnext_rd.rd_compliance.perfil.es_agropecuaria", return_value=True):
+				self.assertEqual(adjudicaciones.isr_esperado(pago, conf), 0)
 
 	def test_aviso_apagado_por_defecto(self):
 		self.assertFalse(frappe.utils.cint(ofertas.configuracion().avisar_retenciones))

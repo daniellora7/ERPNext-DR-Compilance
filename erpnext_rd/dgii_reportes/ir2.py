@@ -104,6 +104,7 @@ TASAS_POR_DEFECTO = {
 	"depreciacion_arrendamiento_3": 30,
 	"tasa_isr_juridicas": 27,
 	"limite_reparaciones_categoria_1": 10,
+	"tasa_impuesto_activos": 1,
 }
 CUENTAS = (
 	(CATEGORIA_2, PROPIO),
@@ -291,6 +292,55 @@ def liquidar(
 		impuesto_liquidado=impuesto,
 		diferencia_pagar=max(diferencia, 0),
 		saldo_favor=max(-diferencia, 0),
+	)
+
+
+def liquidar_activos(
+	total: float,
+	exentos: float,
+	depreciacion_exentos: float,
+	tasa: float,
+	isr_liquidado: float,
+	pagos: float = 0,
+) -> frappe._dict:
+	"""Impuesto sobre los activos (formulario IR-2-c2 de la DGII; Código Tributario arts. 402 a 407):
+	32 = 1 - 6 + 7; 33 = 32 x tasa; 35 = 33 - 34 (ISR liquidado, crédito del art. 407), sin bajar de 0;
+	38 = 35 - 36 - 37, que se paga en dos cuotas iguales (arts. 405 y 407, párrafo II)."""
+	imponibles = flt(max(flt(total) - flt(exentos) + flt(depreciacion_exentos), 0), 2)
+	impuesto = flt(imponibles * flt(tasa) / 100, 2)
+	diferencia = max(flt(impuesto - flt(isr_liquidado), 2), 0)
+	pagar = max(flt(diferencia - flt(pagos), 2), 0)
+	return frappe._dict(
+		activos_imponibles=imponibles,
+		impuesto_activos=impuesto,
+		credito_isr_activos=flt(isr_liquidado, 2),
+		activos_pagar=pagar,
+		activos_cuota=flt(pagar / 2, 2),
+	)
+
+
+def base_activos(company: str, desde, hasta, sector: str) -> frappe._dict:
+	"""Casillas 1, 6 y 7 del IR-2-c2 desde el anexo A-1 al cierre (`estados_ir2.calcular`).
+
+	- General (manufactura, comercio, servicios, hoteles; también seguros): total de activos (casilla 6
+	  del A-1, neto de depreciación y provisiones) menos los exentos del art. 402 (2.2 edificaciones
+	  agropecuarias, 2.6 terrenos rurales, 3.2 acciones, 4.2 impuesto diferido o anticipado) más la
+	  depreciación de las edificaciones agropecuarias (5.2), que ya se había restado del total.
+	- Financiero o eléctrico (art. 403): activos fijos netos de depreciación (2.1, 2.3, 2.4 y 2.5 menos
+	  5.1, 5.3 y 5.4, como las instituciones eléctricas del formulario)."""
+	from erpnext_rd.dgii_reportes import estados_ir2
+	from erpnext_rd.rd_compliance import perfil
+
+	a1 = estados_ir2.calcular(company, desde, hasta)
+	casilla = a1.a1.get
+	if sector == perfil.ACTIVOS_FIJOS_NETOS:
+		fijos = sum(flt(casilla(c, 0)) for c in ("2.1", "2.3", "2.4", "2.5"))
+		depreciacion = sum(flt(casilla(c, 0)) for c in ("5.1", "5.3", "5.4"))
+		return frappe._dict(total=flt(fijos - depreciacion, 2), exentos=0, depreciacion_exentos=0)
+	return frappe._dict(
+		total=flt(a1.totales_a1["6"], 2),
+		exentos=flt(sum(flt(casilla(c, 0)) for c in ("2.2", "2.6", "3.2", "4.2")), 2),
+		depreciacion_exentos=flt(casilla("5.2", 0), 2),
 	)
 
 
