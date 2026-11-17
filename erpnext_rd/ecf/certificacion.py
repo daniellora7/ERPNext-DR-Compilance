@@ -6,6 +6,12 @@ XSD; las que se repiten llevan el número entre corchetes (`NombreItem[1]`, `For
 índices si hay dos niveles repetidos). Aquí cada fila se convierte en los datos del e-CF recorriendo el
 XSD de su tipo (la columna dice el elemento; el XSD, dónde va), se firma, se valida y queda un
 *Envio ECF* del set; las facturas de consumo menores al monto del emisor llevan su resumen (RFCE).
+
+Set de aprobaciones comerciales (paso 3 de la guía *Proceso de Certificación para ser Emisor
+Electrónico*, DGII, julio de 2025): otro Excel con las aprobaciones o rechazos comerciales de los e-CF
+del paso 2. Cada fila se convierte en una ACECF con el mismo método (columnas con los nombres del XSD
+de la ACECF), se firma con el certificado del emisor, se valida y queda en la tabla del set; luego se
+envía al servicio de aprobación comercial de la DGII, que responde «OK» o «Error».
 """
 
 import datetime
@@ -16,11 +22,24 @@ import frappe
 from frappe import _
 from frappe.utils import cint, flt, now_datetime
 
-from erpnext_rd.ecf import datos, esquemas
-from erpnext_rd.ecf.emision import ENVIO, emisor_de, enviar_a_dgii, registrar
+from erpnext_rd.ecf import datos, esquemas, firma
+from erpnext_rd.ecf.cliente import ClienteDGII, ErrorDGII
+from erpnext_rd.ecf.emision import (
+	ENVIO,
+	emisor_de,
+	enviar_a_dgii,
+	leer_xml,
+	mensajes,
+	registrar,
+	rnc_empresa,
+)
 
 XS = esquemas.XS
 SET = "Set Pruebas ECF"
+APROBACIONES = "Aprobaciones comerciales"
+FILA_APROBACION = "Aprobacion Set ECF"
+ACECF = "ACECF"
+APROBADO = "1"
 TIPOS = (31, 32, 33, 34, 41, 43, 44, 45, 46, 47)
 VACIOS = ("", "#e", "#E")
 COLUMNA = re.compile(r"\s*([A-Za-z][A-Za-z0-9]*)((?:\[\d+\])*)\s*")
@@ -161,11 +180,97 @@ def _envios(nombre: str, estados=None) -> list:
 	return frappe.get_all(ENVIO, filters=filtros, fields=["name", "encf", "estado"], order_by="creation")
 
 
+def acecf_de_fila(fila: dict, rnc_comprador: str, ahora) -> dict:
+	"""Datos de la ACECF de una fila del set. Lo que el archivo no traiga se completa: la versión, el RNC
+	del comprador (la empresa) y la fecha y hora de la aprobación."""
+	contenido = datos_de_fila(ACECF, fila)
+	detalle = contenido.setdefault("DetalleAprobacionComercial", {})
+	detalle.setdefault("Version", datos.VERSION)
+	detalle.setdefault("RNCComprador", rnc_comprador)
+	detalle.setdefault("FechaHoraAprobacionComercial", datos.fecha_hora(ahora))
+	return contenido
+
+
+def _guardar_xml(doc, nombre: str, contenido: bytes) -> str:
+	"""XML como archivo privado adjunto al set (la fila guarda su enlace)."""
+	archivo = frappe.get_doc(
+		{
+			"doctype": "File",
+			"file_name": nombre,
+			"content": contenido,
+			"is_private": 1,
+			"attached_to_doctype": SET,
+			"attached_to_name": doc.name,
+		}
+	).insert(ignore_permissions=True)
+	return archivo.file_url
+
+
+def _generar_aprobaciones(doc) -> dict:
+	emisor = emisor_de(doc.company)
+	llave, certificado = emisor.cargar()
+	rnc = rnc_empresa(doc.company)
+	hechos = {(a.rnc_emisor, a.encf) for a in doc.aprobaciones}
+	errores = []
+	for numero, fila in enumerate(leer_filas(doc.archivo), start=2):
+		encf = str(fila.get("eNCF") or "").strip()
+		try:
+			contenido = acecf_de_fila(fila, rnc, now_datetime())
+			detalle = contenido["DetalleAprobacionComercial"]
+			clave = (detalle.get("RNCEmisor"), detalle.get("eNCF"))
+			if clave in hechos:
+				continue
+			xml = firma.firmar(esquemas.construir(ACECF, contenido), llave, certificado)
+			esquemas.validar(ACECF, xml)
+			doc.append(
+				"aprobaciones",
+				{
+					"encf": detalle.get("eNCF"),
+					"rnc_emisor": detalle.get("RNCEmisor"),
+					"estado": "Aprobado" if str(detalle.get("Estado")) == APROBADO else "Rechazado",
+					"envio": "Firmada",
+					"xml": _guardar_xml(doc, f"{rnc}{detalle.get('eNCF')}_ACECF.xml", xml),
+				},
+			)
+			hechos.add(clave)
+		except Exception as error:
+			errores.append(f"{_('Fila')} {numero} ({encf or '?'}): {frappe.utils.strip_html(str(error))}")
+	frappe.local.message_log = []
+	doc.generados = len(doc.aprobaciones)
+	doc.resultado = "\n".join(errores)
+	doc.estado = "Con errores" if errores else "Firmado"
+	doc.save()
+	return {"generados": doc.generados, "errores": len(errores)}
+
+
+def _enviar_aprobaciones(doc, emisor, sesion=None) -> dict:
+	llave, certificado = emisor.cargar()
+	rnc = rnc_empresa(doc.company)
+	cliente = ClienteDGII(rnc, llave, certificado, sesion=sesion)
+	for fila in doc.aprobaciones:
+		if fila.envio == "Enviada":
+			continue
+		try:
+			respuesta = cliente.enviar_aprobacion(leer_xml(fila.xml), f"{rnc}{fila.encf}.xml")
+			fila.envio = "Enviada"
+			fila.mensajes = mensajes(respuesta) or str(respuesta)[:500]
+		except (ErrorDGII, OSError) as error:
+			fila.envio = "Error"
+			fila.mensajes = str(error)[:500]
+	doc.enviados = len([f for f in doc.aprobaciones if f.envio == "Enviada"])
+	con_error = any(f.envio == "Error" for f in doc.aprobaciones)
+	doc.estado = "Con errores" if (doc.resultado or con_error) else "Enviado"
+	doc.save()
+	return {"enviados": doc.enviados}
+
+
 @frappe.whitelist(methods=["POST"])
 def generar(name: str) -> dict:
-	"""Firma los e-CF del set que todavía no tienen envío."""
+	"""Firma los e-CF (o las aprobaciones comerciales) del set que todavía no se firmaron."""
 	doc = frappe.get_doc(SET, name)
 	doc.check_permission("write")
+	if doc.tipo_set == APROBACIONES:
+		return _generar_aprobaciones(doc)
 	emisor = emisor_de(doc.company)
 	hechos = {e.encf for e in _envios(name)}
 	errores = []
@@ -201,13 +306,15 @@ def generar(name: str) -> dict:
 
 @frappe.whitelist(methods=["POST"])
 def enviar(name: str) -> dict:
-	"""Envía a la DGII los e-CF firmados del set (y reintenta los que dieron error)."""
+	"""Envía a la DGII los e-CF o las aprobaciones firmadas del set (y reintenta las que dieron error)."""
 	doc = frappe.get_doc(SET, name)
 	doc.check_permission("write")
 	ambiente = frappe.db.get_single_value("Configuracion DGII", "ambiente_ecf") or "TesteCF"
 	if ambiente == "eCF":
 		frappe.throw(_("El set de pruebas no se envía en producción: cambie el ambiente a CerteCF."))
 	emisor = emisor_de(doc.company)
+	if doc.tipo_set == APROBACIONES:
+		return _enviar_aprobaciones(doc, emisor)
 	for fila in _envios(name, ("Firmado", "Error", "Contingencia")):
 		enviar_a_dgii(frappe.get_doc(ENVIO, fila.name), emisor)
 	doc.enviados = len([e for e in _envios(name) if e.estado != "Firmado"])

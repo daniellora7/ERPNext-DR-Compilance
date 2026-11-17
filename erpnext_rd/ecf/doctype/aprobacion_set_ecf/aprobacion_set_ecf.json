@@ -1,0 +1,72 @@
+{
+ "actions": [],
+ "creation": "2026-11-17 12:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 0,
+ "engine": "InnoDB",
+ "field_order": [
+  "encf",
+  "rnc_emisor",
+  "estado",
+  "envio",
+  "xml",
+  "mensajes"
+ ],
+ "fields": [
+  {
+   "fieldname": "encf",
+   "fieldtype": "Data",
+   "label": "e-NCF",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "rnc_emisor",
+   "fieldtype": "Data",
+   "label": "RNC del emisor",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "estado",
+   "fieldtype": "Select",
+   "label": "Aprobación",
+   "options": "Aprobado\nRechazado",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "envio",
+   "fieldtype": "Select",
+   "label": "Envío",
+   "options": "Firmada\nEnviada\nError",
+   "default": "Firmada",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "xml",
+   "fieldtype": "Attach",
+   "label": "XML firmado (ACECF)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "mensajes",
+   "fieldtype": "Small Text",
+   "label": "Respuesta de la DGII",
+   "read_only": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-17 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "ECF",
+ "name": "Aprobacion Set ECF",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "ASC",
+ "states": []
+}

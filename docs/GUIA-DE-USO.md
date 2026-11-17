@@ -112,9 +112,12 @@ En *RD Compliance → Anulación de e-NCF*, agregue los rangos (la app propone d
 ### Certificación (CerteCF)
 
 1. Cambie el ambiente a **CerteCF**.
-2. En *Configuración → Set de pruebas e-CF*, suba el archivo que entrega la DGII en el portal de certificación, en Excel o CSV.
+2. En *Configuración → Set de pruebas e-CF*, cree un set con el tipo **e-CF** y suba el archivo que entrega la DGII en el portal de certificación (pruebas de datos, paso 2), en Excel o CSV.
 3. Use **Firmar los e-CF**. Cada fila queda como un envío firmado, y las filas con errores se listan con su motivo.
 4. Use **Enviar a la DGII** y siga el resultado en **Ver envíos**.
+5. Para el paso 3 (aprobaciones o rechazos comerciales), cree otro set con el tipo **Aprobaciones comerciales** y suba el segundo archivo de la DGII. Use **Firmar las aprobaciones** y luego **Enviar a la DGII**. La tabla del set muestra cada aprobación con su XML firmado y la respuesta de la DGII.
+
+Los demás pasos del portal (simulación, representación impresa, pruebas de comunicación con su receptor, URL y declaración jurada) siguen la guía *Proceso de Certificación para ser Emisor Electrónico* de la DGII. Para las pruebas de comunicación, el sitio debe estar publicado con HTTPS.
 
 ## 5. Nómina RD (con Frappe HR)
 

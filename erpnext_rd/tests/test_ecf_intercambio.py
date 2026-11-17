@@ -456,6 +456,54 @@ class TestIntercambioECF(IntegrationTestCase):
 		with dgii():
 			self.assertEqual(certificacion.enviar(prueba.name), {"enviados": 2})
 
+	def test_set_de_aprobaciones_comerciales(self):
+		"""Paso 3 del portal de certificación: aprobaciones o rechazos comerciales desde el Excel."""
+		columnas = ["RNCEmisor", "eNCF", "FechaEmision", "MontoTotal", "RNCComprador", "Estado"]
+		filas = [
+			[RNC_PROVEEDOR, "E310000000101", "15-10-2026", "2950", RNC_EMPRESA, "1", ""],
+			[RNC_PROVEEDOR, "E310000000102", "15-10-2026", "1180.5", RNC_EMPRESA, "2", "Precio distinto"],
+			[RNC_PROVEEDOR, "E310000000103", "15-10-2026", "100", RNC_EMPRESA, "9", ""],
+		]
+		csv = "\n".join(",".join(f) for f in ([*columnas, "DetalleMotivoRechazo"], *(fila for fila in filas)))
+		archivo = frappe.get_doc(
+			{"doctype": "File", "file_name": "aprobaciones.csv", "content": csv.encode(), "is_private": 1}
+		).insert()
+		prueba = frappe.get_doc(
+			{
+				"doctype": "Set Pruebas ECF",
+				"company": EMPRESA,
+				"tipo_set": certificacion.APROBACIONES,
+				"archivo": archivo.file_url,
+			}
+		).insert()
+
+		# Estado 9 no existe en el XSD de la ACECF: esa fila queda con su error
+		self.assertEqual(certificacion.generar(prueba.name), {"generados": 2, "errores": 1})
+		prueba.reload()
+		self.assertIn("E310000000103", prueba.resultado)
+		self.assertEqual(
+			[(a.encf, a.estado, a.envio) for a in prueba.aprobaciones],
+			[("E310000000101", "Aprobado", "Firmada"), ("E310000000102", "Rechazado", "Firmada")],
+		)
+		xml = emision.leer_xml(prueba.aprobaciones[1].xml)
+		self.assertTrue(firma.verificar(xml))
+		self.assertEqual(esquemas.errores("ACECF", xml), [])
+		detalle = firma.leer(xml).find("DetalleAprobacionComercial")
+		self.assertEqual(detalle.findtext("MontoTotal"), "1180.50")
+		self.assertEqual(detalle.findtext("DetalleMotivoRechazo"), "Precio distinto")
+		self.assertEqual(detalle.findtext("Version"), "1.0")
+		# Volver a firmar no duplica
+		self.assertEqual(certificacion.generar(prueba.name)["generados"], 2)
+
+		SesionCompleta.llamadas = []
+		with dgii():
+			self.assertEqual(certificacion.enviar(prueba.name), {"enviados": 2})
+		self.assertEqual(
+			len([u for m, u, _kw in SesionCompleta.llamadas if m == "POST" and "aprobacioncomercial" in u]), 2
+		)
+		prueba.reload()
+		self.assertEqual({a.envio for a in prueba.aprobaciones}, {"Enviada"})
+
 
 class TestServiciosReceptor(IntegrationTestCase):
 	"""Las rutas públicas /fe/... en el servidor web del sitio (sin escribir en la base)."""
