@@ -4,7 +4,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "links": [],
- "modified": "2026-10-21 18:00:00",
+ "modified": "2026-11-17 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "ECF",
  "owner": "Administrator",
@@ -16,7 +16,7 @@
  "autoname": "SET-ECF-.#####",
  "naming_rule": "Expression (old style)",
  "track_changes": 1,
- "description": "Set de pruebas de la certificación e-CF (CerteCF): firma los e-CF del archivo de la DGII y los envía.",
+ "description": "Set de pruebas de la certificación e-CF (CerteCF): firma los e-CF o las aprobaciones comerciales del archivo de la DGII y los envía.",
  "permissions": [
   {
    "role": "System Manager",
@@ -50,11 +50,21 @@
    "in_list_view": 1
   },
   {
+   "fieldname": "tipo_set",
+   "fieldtype": "Select",
+   "label": "Tipo de set",
+   "options": "e-CF\nAprobaciones comerciales",
+   "default": "e-CF",
+   "reqd": 1,
+   "in_list_view": 1,
+   "description": "Pruebas de datos del portal de certificación: el set de e-CF (paso 2) o el de aprobaciones o rechazos comerciales de esos e-CF (paso 3)."
+  },
+  {
    "fieldname": "archivo",
    "fieldtype": "Attach",
    "label": "Set de pruebas de la DGII (Excel o CSV)",
    "reqd": 1,
-   "description": "El archivo que la DGII entrega en el portal de certificación: una fila por e-CF y una columna por elemento del XML (las repetidas con [1], [2]…)."
+   "description": "El archivo que la DGII entrega en el portal de certificación: una fila por documento y una columna por elemento del XML (las repetidas con [1], [2]…)."
   },
   {
    "fieldname": "column_break_1",
@@ -72,13 +82,13 @@
   {
    "fieldname": "generados",
    "fieldtype": "Int",
-   "label": "e-CF firmados",
+   "label": "Documentos firmados",
    "read_only": 1
   },
   {
    "fieldname": "enviados",
    "fieldtype": "Int",
-   "label": "e-CF enviados",
+   "label": "Documentos enviados",
    "read_only": 1
   },
   {
@@ -91,16 +101,32 @@
    "fieldtype": "Small Text",
    "label": "Filas con errores",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_aprobaciones",
+   "fieldtype": "Section Break",
+   "label": "Aprobaciones comerciales",
+   "depends_on": "eval:doc.tipo_set == 'Aprobaciones comerciales'"
+  },
+  {
+   "fieldname": "aprobaciones",
+   "fieldtype": "Table",
+   "label": "Aprobaciones comerciales",
+   "options": "Aprobacion Set ECF",
+   "read_only": 1
   }
  ],
  "field_order": [
   "company",
+  "tipo_set",
   "archivo",
   "column_break_1",
   "estado",
   "generados",
   "enviados",
   "section_resultado",
-  "resultado"
+  "resultado",
+  "section_aprobaciones",
+  "aprobaciones"
  ]
 }
