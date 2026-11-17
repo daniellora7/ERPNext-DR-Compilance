@@ -110,7 +110,7 @@ Para los proveedores que envían el XML por correo:
 ### 1.5 Interfaz
 
 - Sección **Compras recibidas** en el sidebar de RD Compliance: *ECF Recibido*, *Configuracion Captura Compras*.
-- Panel RD Compliance: tarjeta con los e-CF recibidos sin factura, los que requieren revisión y las aprobaciones comerciales pendientes. **Pendiente**: va con la PWA en v0.5.4 (mismo build del frontend).
+- ✅ (2026-11-17) Panel RD Compliance: tarjeta *Compras recibidas* con los e-CF recibidos sin factura, las facturas en borrador por revisar, las aprobaciones comerciales pendientes, los errores de conversión y las capturas del celular sin factura (`captura_compras/panel.py`).
 - Configurar (documentado, sin código) una *Assignment Rule* sobre *Purchase Invoice* en borrador para el rol del contador.
 
 ### 1.6 Pruebas (`tests/test_captura_compras.py`)
