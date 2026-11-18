@@ -21,9 +21,11 @@ def resumen(company: str) -> dict | None:
 	"""None si el usuario no ve los e-CF recibidos o la empresa no recibe compras por la app."""
 	if not frappe.has_permission(RECIBIDO, "read"):
 		return None
-	ve_capturas = bool(frappe.has_permission(CAPTURA, "read"))
+	capturas = None
+	if frappe.has_permission(CAPTURA, "read"):
+		capturas = frappe.db.count(CAPTURA, {"company": company, "estado": ("in", CAPTURA_ABIERTA)})
 	if not frappe.db.exists(RECIBIDO, {"company": company}) and not (
-		ve_capturas and frappe.db.exists(CAPTURA, {"company": company})
+		capturas is not None and frappe.db.exists(CAPTURA, {"company": company})
 	):
 		return None
 
@@ -33,11 +35,7 @@ def resumen(company: str) -> dict | None:
 		"con_error": frappe.db.count(RECIBIDO, {**base, "estado_conversion": "Error"}),
 		"en_borrador": en_borrador(company),
 		"por_aprobar": frappe.db.count(RECIBIDO, {**base, "aprobacion": "Pendiente"}),
-		"capturas": (
-			frappe.db.count(CAPTURA, {"company": company, "estado": ("in", CAPTURA_ABIERTA)})
-			if ve_capturas
-			else None
-		),
+		"capturas": capturas,
 	}
 
 
