@@ -55,7 +55,7 @@ En *RD Compliance → Declaraciones DGII*:
 
 **Proporcionalidad del ITBIS (art. 349).** Si la empresa vende con ITBIS y también exento, el ITBIS de los gastos comunes a ambas ventas (alquiler, teléfono, publicidad, asesorías) solo se adelanta en la proporción de las ventas gravadas. Marque *ITBIS sujeto a proporcionalidad* en esos proveedores (o en cada factura de compra): va en esa columna del 606, y el resumen del IT-1 calcula el porcentaje no admitido y lo resta del ITBIS deducible. Las exportaciones de bienes y las ventas a zonas francas (B14) cuentan como gravadas.
 
-El **Panel de cumplimiento** muestra en una pantalla los plazos y los montos del mes, el estado de los e-CF de los últimos 30 días y, si la empresa vende al Estado, sus licitaciones.
+El **Panel de cumplimiento** muestra en una pantalla los plazos y los montos del mes, el estado de los e-CF de los últimos 30 días, las compras recibidas (e-CF de proveedores sin factura o con la factura en borrador, aprobaciones comerciales pendientes y capturas del celular) y, si la empresa vende al Estado, sus licitaciones.
 
 Para recibir los vencimientos por correo, active *Enviar recordatorios de vencimientos* en *Configuración DGII*. Cada mañana llega un correo por empresa con lo que vence en los próximos días (3 por defecto) o ese mismo día: IR-17, 606-609, IT-1, el anticipo del ISR, el IR-2 (120 días después del cierre del año fiscal de ERPNext; sin año fiscal, el 31 de diciembre) y, si hay nómina, el pago de la TSS, el IR-3, la regalía y el IR-13. Los lunes incluye las secuencias NCF por agotarse o por vencer. Hace falta una cuenta de correo saliente en Frappe. El botón *Vista previa de recordatorios* muestra lo que se enviaría hoy.
 

@@ -9,6 +9,7 @@ import frappe
 from frappe import _
 from frappe.utils import add_days, add_months, cint, flt, getdate, nowdate
 
+from erpnext_rd.captura_compras import panel as panel_compras
 from erpnext_rd.dgii_fiscal.ncf import PAIS, es_empresa_rd
 from erpnext_rd.dgii_reportes import declaraciones
 from erpnext_rd.dgii_reportes.formatos import ROLES, obtener
@@ -82,6 +83,7 @@ def resumen(company: str, anio: int, mes: int) -> dict:
 		"padron": _padron(),
 		"licitaciones": panel_licitaciones.resumen(company),
 		"ecf": monitor_ecf.resumen_panel(company),
+		"compras": panel_compras.resumen(company),
 	}
 
 

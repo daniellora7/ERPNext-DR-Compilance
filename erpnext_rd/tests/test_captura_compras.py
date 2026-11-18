@@ -10,6 +10,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import flt
 
 from erpnext_rd.captura_compras import convertir
+from erpnext_rd.captura_compras import panel as panel_compras
 from erpnext_rd.dgii_fiscal.validaciones import es_rnc_valido
 from erpnext_rd.ecf import esquemas, firma, recepcion
 from erpnext_rd.tests.test_ecf import certificado_de_prueba, datos_e31
@@ -329,3 +330,35 @@ class TestCapturaCompras(BaseCaptura):
 		recibido = self.recibir(self.xml("E310000001011", [self.linea(1, "Envase", 2500)]))
 		with patch("erpnext_rd.captura_compras.convertir.es_empresa_rd", return_value=False):
 			self.assertIsNone(convertir.convertir(recibido))
+
+	def test_bloque_del_panel(self):
+		antes = panel_compras.resumen(EMPRESA) or {}
+
+		def cambio(clave):
+			return panel_compras.resumen(EMPRESA)[clave] - antes.get(clave, 0)
+
+		recibido = self.recibir(self.xml("E310000001012", [self.linea(1, "Envase", 2500, codigo=CODIGO)]))
+		self.assertEqual(cambio("sin_factura"), 1)
+		self.assertEqual(cambio("por_aprobar"), 1)
+		self.assertEqual(cambio("en_borrador"), 0)
+
+		recibido, factura = self.convertir(recibido)
+		self.assertEqual(factura.docstatus, 0)
+		self.assertEqual(cambio("sin_factura"), 0)
+		self.assertEqual(cambio("en_borrador"), 1)
+
+		# Sin conversión posible: cuenta como error y como sin factura
+		otro = self.recibir(self.xml("E310000001013", [self.linea(1, "Envase", 2500)]))
+		otro.db_set("tipo_ecf", "E46")
+		self.convertir(otro)
+		self.assertEqual(cambio("con_error"), 1)
+		self.assertEqual(cambio("sin_factura"), 1)
+
+		# Ignorado: ya no pide factura
+		convertir.ignorar(otro.name)
+		self.assertEqual(cambio("sin_factura"), 0)
+		self.assertEqual(cambio("con_error"), 0)
+
+		# Sin permiso de lectura de los e-CF recibidos, el Panel no muestra el bloque
+		with patch("frappe.has_permission", return_value=False):
+			self.assertIsNone(panel_compras.resumen(EMPRESA))

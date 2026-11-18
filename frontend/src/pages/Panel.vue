@@ -125,6 +125,16 @@
 						:enlace="RUTA_MONITOR"
 						:texto-enlace="__('Abrir monitor')"
 					/>
+					<Tarjeta
+						v-if="r.compras"
+						:titulo="__('Compras recibidas')"
+						:subtitulo="__('e-CF de proveedores')"
+						:valor="formatoNumero(r.compras.sin_factura)"
+						:etiqueta-valor="__('sin factura de compra')"
+						:detalle="detalleCompras"
+						:enlace="rutaRecibidos({ estado_conversion: 'Pendiente' })"
+						:texto-enlace="__('Ver e-CF recibidos')"
+					/>
 				</div>
 			</section>
 
@@ -388,6 +398,41 @@ const API = "/api/v2/method/erpnext_rd.rd_compliance.panel"
 // El monitor es otra pantalla de esta app (en el escritorio, la página monitor-ecf)
 const RUTA_MONITOR = embebido ? "/desk/monitor-ecf" : "/rd-compliance/ecf"
 
+function rutaRecibidos(filtros) {
+	const params = new URLSearchParams({ company: empresa.value, estado: "Recibido", ...filtros })
+	return `${rutaDocumento("ECF Recibido")}?${params}`
+}
+
+const detalleCompras = computed(() => {
+	const c = r.value?.compras
+	if (!c) return []
+	const filas = [
+		{
+			label: __("Facturas en borrador por revisar"),
+			valor: formatoNumero(c.en_borrador),
+			clase: c.en_borrador ? "text-ink-amber-8" : "text-ink-gray-8",
+		},
+		{
+			label: __("Aprobaciones comerciales pendientes"),
+			valor: formatoNumero(c.por_aprobar),
+			clase: c.por_aprobar ? "text-ink-amber-8" : "text-ink-gray-8",
+		},
+		{
+			label: __("Errores al crear la factura"),
+			valor: formatoNumero(c.con_error),
+			clase: c.con_error ? "text-ink-red-6" : "text-ink-gray-8",
+		},
+	]
+	if (c.capturas !== null) {
+		filas.push({
+			label: __("Capturas del celular sin factura"),
+			valor: formatoNumero(c.capturas),
+			clase: c.capturas ? "text-ink-amber-8" : "text-ink-gray-8",
+		})
+	}
+	return filas
+})
+
 const SUBTITULOS = {
 	606: __("Compras"),
 	607: __("Ventas"),
@@ -532,6 +577,16 @@ const alertas = computed(() => {
 				description: __("Renueve las garantías antes de su vencimiento o confirme su devolución."),
 			})
 		}
+	}
+
+	const compras = r.value.compras
+	if (compras?.con_error) {
+		lista.push({
+			theme: "amber",
+			title: __("{0} e-CF recibidos no pudieron pasar a factura de compra", [compras.con_error]),
+			description: __("Revise el mensaje de cada e-CF recibido y cree la factura de nuevo o a mano."),
+			accion: { label: __("Ver e-CF recibidos"), href: rutaRecibidos({ estado_conversion: "Error" }) },
+		})
 	}
 
 	const ecf = r.value.ecf
