@@ -130,7 +130,7 @@ ERPNext y Frappe HR ya están en el registro (`erpnext`, `hrms`). Las localizaci
 
 1. Subir `__version__` (p. ej. `0.4.0`), pasar «Sin publicar» del `CHANGELOG.md` a esa versión, fusionar `develop` en `main` y llevar `main` a `version-16`. Crear el tag `v0.x.y` (publica la imagen en GHCR).
 2. Esperar a que «Assets precompilados» termine en `version-16` y publique `erpnext_rd-<commit>.tar.gz` en el release `assets-version-16`.
-3. Con `gh`, en el fork `daniellora7/marketplace` (se crea la primera vez y se sincroniza con `frappe/marketplace` antes de cada versión): rama `erpnext_rd-<versión>`; la primera vez, la entrada en `apps.json` (orden alfabético) y `apps/erpnext_rd.json` (borradores arriba); después, solo la versión nueva al principio de `releases`, con el SHA completo del commit de `version-16`. Abrir el PR contra `frappe/marketplace` (con confirmación del usuario).
+3. Con `gh`, en el fork `daniellora7/marketplace` (se crea la primera vez y se sincroniza con `frappe/marketplace` antes de cada versión): rama `erpnext_rd-<versión>`; la primera vez, la entrada en `apps.json` (orden alfabético) y `apps/erpnext_rd.json` (borradores arriba); después, solo la versión nueva al principio de `releases`, con el SHA completo del commit de `version-16`. Abrir el PR contra `frappe/marketplace` (con confirmación del usuario). Desde que la app está en el registro, un PR que solo agrega una versión se fusiona solo cuando pasa el chequeo (reglas de auto-merge del registro). Si el PR choca con `apps.json`, fusionar `main` del registro en la rama y agregar solo la entrada propia, sin reformatear las demás. Al fusionarse, borrar la rama del fork.
 4. Revisar el comentario del CI en el PR. Corregir lo que bloquee y comentar `/rereview`.
 
 ## 2. Ficha y textos (Frappe Cloud y Marketplace de Frappe)
@@ -192,7 +192,7 @@ Opcionales para más adelante: formato 606 y envío e-CF aceptado (con el certif
 - [x] Rama `version-16` (Frappe Cloud y el registro instalan por rama): ya existe en GitHub.
 - [x] Tag `v0.3.0` (primera versión, en `version-16`). `v0.4.0` (2026-10-21) es la primera que cumple lo del registro; `v0.5.1` (2026-10-22), la primera que se publica en él.
 - [x] Lo que exige el registro `frappe/marketplace` en el repo (sección 1): `pyproject.toml`, assets precompilados y Semgrep sin hallazgos y en el CI.
-- [ ] Publicar la primera versión en el registro (`0.5.1`): PR [frappe/marketplace#75](https://github.com/frappe/marketplace/pull/75) desde el fork `daniellora7/marketplace`, en revisión.
+- [x] Publicar la primera versión en el registro: PR [frappe/marketplace#75](https://github.com/frappe/marketplace/pull/75) desde el fork `daniellora7/marketplace`, fusionado el 2026-11-18 con la `0.5.5`, la `0.5.2` y la `0.5.1`.
 - [x] CI público en verde en cada PR.
 - [x] Capturas en tema oscuro con datos ficticios (`docs/capturas/`).
 - [x] Enlace de soporte (issues de GitHub con plantillas) y documentación de uso (`docs/GUIA-DE-USO.md`).
