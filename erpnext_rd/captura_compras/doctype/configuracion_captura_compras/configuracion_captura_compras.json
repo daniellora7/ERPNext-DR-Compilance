@@ -4,7 +4,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "links": [],
- "modified": "2026-10-28 10:00:00.000000",
+ "modified": "2026-11-19 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Captura Compras",
  "owner": "Administrator",
@@ -41,6 +41,13 @@
    "fieldtype": "Check",
    "label": "Aprobar el e-CF al validar la factura",
    "description": "Envía la aprobación comercial (ACECF) al emisor y a la DGII."
+  },
+  {
+   "fieldname": "cuenta_correo",
+   "fieldtype": "Link",
+   "label": "Cuenta de correo de facturas",
+   "options": "Email Account",
+   "description": "Los adjuntos .xml de los correos que llegan a esta cuenta se registran como e-CF recibidos, con las mismas validaciones de «Cargar XML». La cuenta debe tener activada la recepción de correos."
   },
   {
    "fieldname": "column_break_1",
@@ -123,6 +130,7 @@
   "crear_borrador_automatico",
   "crear_proveedor",
   "aprobar_al_validar",
+  "cuenta_correo",
   "column_break_1",
   "grupo_proveedor",
   "tolerancia_redondeo",

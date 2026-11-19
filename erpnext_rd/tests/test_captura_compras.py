@@ -9,7 +9,7 @@ import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import flt
 
-from erpnext_rd.captura_compras import convertir
+from erpnext_rd.captura_compras import convertir, correo
 from erpnext_rd.captura_compras import panel as panel_compras
 from erpnext_rd.dgii_fiscal.validaciones import es_rnc_valido
 from erpnext_rd.ecf import esquemas, firma, recepcion
@@ -362,3 +362,104 @@ class TestCapturaCompras(BaseCaptura):
 		# Sin permiso de lectura de los e-CF recibidos, el Panel no muestra el bloque
 		with patch("frappe.has_permission", return_value=False):
 			self.assertIsNone(panel_compras.resumen(EMPRESA))
+
+	# ------------------------------------------------------------ e-CF por correo
+
+	def cuenta_correo(self) -> str:
+		nombre = "_Test Facturas RD"
+		if not frappe.db.exists("Email Account", nombre):
+			frappe.get_doc(
+				{
+					"doctype": "Email Account",
+					"email_account_name": nombre,
+					"email_id": "facturas-rd@example.com",
+					"enable_incoming": 0,
+					"enable_outgoing": 0,
+					"awaiting_password": 0,
+					"no_smtp_authentication": 1,
+				}
+			).insert(ignore_permissions=True)
+		return nombre
+
+	def correo_con(self, contenido: bytes, nombre="factura.xml", cuenta=None, recibido=True):
+		"""Correo recibido con un adjunto; devuelve el archivo y los argumentos encolados."""
+		comunicacion = frappe.get_doc(
+			{
+				"doctype": "Communication",
+				"communication_type": "Communication",
+				"communication_medium": "Email",
+				"sent_or_received": "Received" if recibido else "Sent",
+				"email_account": cuenta,
+				"subject": "Factura",
+				"content": "Adjunto la factura",
+			}
+		).insert(ignore_permissions=True)
+		with patch("frappe.enqueue") as encolar:
+			archivo = frappe.get_doc(
+				{
+					"doctype": "File",
+					"file_name": nombre,
+					"content": contenido,
+					"is_private": 1,
+					"attached_to_doctype": "Communication",
+					"attached_to_name": comunicacion.name,
+				}
+			).insert(ignore_permissions=True)
+		return archivo, encolar
+
+	def comentarios(self, archivo) -> list[str]:
+		return frappe.get_all(
+			"Comment",
+			filters={
+				"reference_doctype": "Communication",
+				"reference_name": archivo.attached_to_name,
+				"comment_type": "Comment",
+			},
+			pluck="content",
+		)
+
+	def test_ecf_por_correo(self):
+		cuenta = self.cuenta_correo()
+		frappe.db.set_value(convertir.CONFIG, EMPRESA, "cuenta_correo", cuenta)
+		self.addCleanup(frappe.db.set_value, convertir.CONFIG, EMPRESA, "cuenta_correo", None)
+		xml = self.xml("E310000001014", [self.linea(1, "Envase", 2500, codigo=CODIGO)])
+
+		archivo, encolar = self.correo_con(xml, cuenta=cuenta)
+		encolar.assert_called_once()
+		self.assertEqual(encolar.call_args.kwargs["archivo"], archivo.name)
+		nombre = correo.registrar(archivo.name)
+		recibido = frappe.get_doc(recepcion.RECIBIDO, nombre)
+		self.assertEqual(recibido.company, EMPRESA)
+		self.assertEqual(recibido.origen, correo.ORIGEN)
+		self.assertEqual(recibido.comunicacion, archivo.attached_to_name)
+		self.assertEqual(recibido.estado, "Recibido")
+		self.assertFalse(recibido.acuse)
+		self.assertIn(nombre, self.comentarios(archivo)[0])
+
+		# El mismo e-CF en otro correo: duplicado, con el motivo en el correo
+		otro, _encolar = self.correo_con(xml, cuenta=cuenta)
+		self.assertIsNone(correo.registrar(otro.name))
+		self.assertIn("no se registró", self.comentarios(otro)[0])
+
+		# Un XML que no es un e-CF
+		basura, _encolar = self.correo_con(b"<Factura/>", cuenta=cuenta)
+		self.assertIsNone(correo.registrar(basura.name))
+		self.assertIn("no es un e-CF", self.comentarios(basura)[0])
+
+	def test_correo_que_no_aplica(self):
+		cuenta = self.cuenta_correo()
+		xml = self.xml("E310000001015", [self.linea(1, "Envase", 2500)])
+		# La cuenta no está en la configuración de ninguna empresa
+		archivo, _encolar = self.correo_con(xml, cuenta=cuenta)
+		self.assertIsNone(correo.registrar(archivo.name))
+		self.assertFalse(self.comentarios(archivo))
+
+		frappe.db.set_value(convertir.CONFIG, EMPRESA, "cuenta_correo", cuenta)
+		self.addCleanup(frappe.db.set_value, convertir.CONFIG, EMPRESA, "cuenta_correo", None)
+		# Correo enviado, no recibido
+		enviado, _encolar = self.correo_con(xml, cuenta=cuenta, recibido=False)
+		self.assertIsNone(correo.registrar(enviado.name))
+		# Adjuntos que no son .xml no se encolan
+		_texto, encolar = self.correo_con(b"Gracias por su compra", nombre="nota.txt", cuenta=cuenta)
+		encolar.assert_not_called()
+		self.assertFalse(frappe.db.exists(recepcion.RECIBIDO, {"company": EMPRESA, "encf": "E310000001015"}))

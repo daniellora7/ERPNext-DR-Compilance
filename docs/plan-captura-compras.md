@@ -105,7 +105,7 @@ Disparadores:
 
 Para los proveedores que envían el XML por correo:
 - Botón **Cargar XML** en la lista de *ECF Recibido* (y en el panel): pasa por las mismas validaciones (firma, XSD, RNC del comprador, duplicado) sin enviar el ARECF, con `origen = Carga manual`.
-- Tentativo: leer los adjuntos `.xml` de una *Email Account* de Frappe (cuenta tipo `facturas@empresa`) con el mismo proceso.
+- ✅ (2026-11-19) Adjuntos `.xml` de una *Email Account* de Frappe (cuenta tipo `facturas@empresa`), elegida en la configuración de cada empresa, con el mismo proceso (`captura_compras/correo.py`).
 
 ### 1.5 Interfaz
 

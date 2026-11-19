@@ -170,6 +170,8 @@ doc_events = {
 	# Los XML de los e-CF firmados o recibidos se conservan (ecf/conservacion.py)
 	"File": {
 		"on_trash": "erpnext_rd.ecf.conservacion.proteger_archivo",
+		# XML de e-CF que los proveedores envían a la cuenta de correo de facturas
+		"after_insert": "erpnext_rd.captura_compras.correo.al_adjuntar",
 	},
 }
 

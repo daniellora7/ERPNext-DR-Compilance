@@ -103,7 +103,12 @@ En *RD Compliance → Monitor de e-CF*, por empresa y período:
 3. Después la app confirma el e-CF con la DGII, que puede tardar unos minutos. Su estado en la DGII queda en el e-CF recibido, y el botón **Verificar en la DGII** lo consulta en el momento. Un e-CF que la DGII rechaza o no encuentra no se puede aprobar.
 4. Con **Aprobar** o **Rechazar** (con el motivo), se firma la aprobación comercial y se envía a la DGII y al proveedor.
 5. Al aprobar la factura de compra con ese e-NCF, el e-CF recibido se enlaza solo.
-6. Opcional: en *Configuracion DGII*, sección *e-CF: contingencia y receptor*, pegue los certificados raíz (PEM) de las entidades certificadoras autorizadas por el INDOTEL. Con ellos, la app solo acepta e-CF y aprobaciones firmados con certificados de esas entidades.
+6. **Proveedores que envían el XML por correo:**
+   - En *Email Account* de Frappe, cree la cuenta de facturas (por ejemplo, `facturas@suempresa.com.do`) con la recepción de correos activada.
+   - En la *Configuración de captura de compras* de la empresa, elíjala en **Cuenta de correo de facturas**.
+   - Cada adjunto `.xml` de un correo que llega a esa cuenta pasa por las mismas revisiones de **Cargar XML** y queda en *e-CF recibidos* con el origen *Correo electrónico*, sin acuse de recibo.
+   - El resultado de cada adjunto, registrado o no y por qué, queda como comentario en el correo.
+7. Opcional: en *Configuracion DGII*, sección *e-CF: contingencia y receptor*, pegue los certificados raíz (PEM) de las entidades certificadoras autorizadas por el INDOTEL. Con ellos, la app solo acepta e-CF y aprobaciones firmados con certificados de esas entidades.
 
 ### Anular secuencias que no se usarán
 

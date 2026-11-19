@@ -167,6 +167,14 @@ def cargar_xml(file_url: str) -> str:
 	from erpnext_rd.ecf.emision import leer_xml
 
 	xml = leer_xml(file_url)
+	empresa, raiz = validar_archivo(xml)
+	frappe.has_permission("Company", doc=empresa, throw=True)
+	return registrar_archivo(empresa, raiz, xml, "Carga manual").name
+
+
+def validar_archivo(xml: bytes, empresas: list[str] | None = None) -> tuple:
+	"""(empresa, raíz) de un e-CF que no llegó por el servicio de recepción. Lanza ValidationError si no
+	se puede registrar. Con `empresas`, el comprador tiene que ser una de ellas."""
 	try:
 		raiz, rnc_emisor, rnc_comprador, encf, tipo = _leer_ecf(xml)
 	except ErrorRecepcion as error:
@@ -175,14 +183,20 @@ def cargar_xml(file_url: str) -> str:
 		(
 			e
 			for e in frappe.get_all("Company", filters={"tax_id": rnc_comprador}, pluck="name")
-			if es_empresa_rd(e)
+			if es_empresa_rd(e) and (empresas is None or e in empresas)
 		),
 		None,
 	)
 	if motivo := _motivo(xml, empresa, rnc_emisor, encf, tipo):
 		frappe.throw(_("El e-CF no se puede registrar: {0}").format(_(MOTIVOS_NO_RECIBIDO.get(motivo))))
-	frappe.has_permission("Company", doc=empresa, throw=True)
-	return _registrar(empresa, raiz, xml, None, None, now_datetime(), origen="Carga manual").name
+	return empresa, raiz
+
+
+def registrar_archivo(empresa: str, raiz, xml: bytes, origen: str, comunicacion: str | None = None):
+	"""Registra sin acuse de recibo un e-CF ya validado con `validar_archivo`."""
+	return _registrar(
+		empresa, raiz, xml, None, None, now_datetime(), origen=origen, comunicacion=comunicacion
+	)
 
 
 def _registrar(
@@ -193,6 +207,7 @@ def _registrar(
 	motivo: int | None,
 	ahora,
 	origen: str = "Recepción electrónica",
+	comunicacion: str | None = None,
 ):
 	rnc_emisor = datos._rnc(raiz.findtext("Encabezado/Emisor/RNCEmisor"))
 	encf = raiz.findtext("Encabezado/IdDoc/eNCF").strip()
@@ -222,6 +237,7 @@ def _registrar(
 			"codigo_seguridad": None if motivo == FIRMA else firma.codigo_seguridad(xml),
 			"aprobacion": "Pendiente",
 			"origen": origen,
+			"comunicacion": comunicacion,
 			"estado_conversion": "Ignorado" if motivo else "Pendiente",
 			"estado_dgii": "Sin verificar" if motivo else "Pendiente",
 		}
