@@ -146,5 +146,5 @@ Para las empresas que venden al Estado, en *RD Compliance → Licitaciones del E
 
 ## Soporte
 
-- Errores y sugerencias: [issues de GitHub](https://github.com/daniellora7/ERPNext-DR-Compilance/issues). Indique las versiones de Frappe, ERPNext y Frappe HR y los pasos para reproducirlo. Nunca adjunte certificados, contraseñas ni datos reales de clientes.
+- Errores y sugerencias: [issues de GitHub](https://github.com/daniellora7/ERPNext-DR-Compliance/issues). Indique las versiones de Frappe, ERPNext y Frappe HR y los pasos para reproducirlo. Nunca adjunte certificados, contraseñas ni datos reales de clientes.
 - Detalles técnicos de cada módulo: [NOTAS-TECNICAS.md](NOTAS-TECNICAS.md).

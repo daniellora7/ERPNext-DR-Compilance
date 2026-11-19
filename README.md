@@ -61,7 +61,7 @@ Próximamente en el [Marketplace de Frappe](https://github.com/frappe/marketplac
 ### Bench
 
 ```bash
-bench get-app https://github.com/daniellora7/ERPNext-DR-Compilance --branch develop
+bench get-app https://github.com/daniellora7/ERPNext-DR-Compliance --branch develop
 bench --site <sitio> install-app erpnext_rd
 ```
 
@@ -108,7 +108,7 @@ DEV=1 deploy/ci/run-tests.sh
 
 ## Soporte
 
-Errores y sugerencias en las [issues de GitHub](https://github.com/daniellora7/ERPNext-DR-Compilance/issues). No adjunte certificados, contraseñas ni datos reales.
+Errores y sugerencias en las [issues de GitHub](https://github.com/daniellora7/ERPNext-DR-Compliance/issues). No adjunte certificados, contraseñas ni datos reales.
 
 ## Licencia
 
