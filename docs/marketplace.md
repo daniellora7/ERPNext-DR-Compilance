@@ -95,10 +95,10 @@ docker run --rm -v "$PWD:/src" -w /src semgrep/semgrep:1.140.0 sh -c 'semgrep sc
   "name": "erpnext_rd",
   "title": "RD Compliance",
   "description": "Localización de República Dominicana para ERPNext y Frappe HR: NCF y e-CF, reportes DGII, padrón RNC y nómina RD",
-  "repo": "https://github.com/daniellora7/ERPNext-DR-Compilance",
-  "logo_url": "https://raw.githubusercontent.com/daniellora7/ERPNext-DR-Compilance/main/erpnext_rd/public/images/erpnext_rd_logo.svg",
-  "website": "https://github.com/daniellora7/ERPNext-DR-Compilance",
-  "documentation": "https://github.com/daniellora7/ERPNext-DR-Compilance/blob/main/docs/GUIA-DE-USO.md",
+  "repo": "https://github.com/daniellora7/ERPNext-DR-Compliance",
+  "logo_url": "https://raw.githubusercontent.com/daniellora7/ERPNext-DR-Compliance/main/erpnext_rd/public/images/erpnext_rd_logo.svg",
+  "website": "https://github.com/daniellora7/ERPNext-DR-Compliance",
+  "documentation": "https://github.com/daniellora7/ERPNext-DR-Compliance/blob/main/docs/GUIA-DE-USO.md",
   "categories": ["Localization", "Compliance", "HR & Payroll"],
   "category": "Compliance",
   "stars": 0,
@@ -157,11 +157,11 @@ Cubre a las personas jurídicas del régimen ordinario; los regímenes e impuest
 
 **Categorías:** Localization, Accounting, HR & Payroll (en el registro de Frappe: `category` = `Compliance`).
 
-**Licencia:** GPL-3.0. **Código:** https://github.com/daniellora7/ERPNext-DR-Compilance
+**Licencia:** GPL-3.0. **Código:** https://github.com/daniellora7/ERPNext-DR-Compliance
 
-**Documentación:** https://github.com/daniellora7/ERPNext-DR-Compilance/blob/main/docs/GUIA-DE-USO.md
+**Documentación:** https://github.com/daniellora7/ERPNext-DR-Compliance/blob/main/docs/GUIA-DE-USO.md
 
-**Soporte:** https://github.com/daniellora7/ERPNext-DR-Compilance/issues (plantillas de error y de sugerencia en `.github/ISSUE_TEMPLATE/`).
+**Soporte:** https://github.com/daniellora7/ERPNext-DR-Compliance/issues (plantillas de error y de sugerencia en `.github/ISSUE_TEMPLATE/`).
 
 ### Capturas (tema oscuro, 1440 × 900)
 

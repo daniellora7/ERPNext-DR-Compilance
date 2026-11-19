@@ -22,7 +22,7 @@ Todo corre en contenedores detrás del Traefik de Dokploy, así que el mismo ser
 
 1. En Dokploy, cree un proyecto y dentro un servicio **Compose**.
 2. Use estos datos para el origen:
-   - *Provider*: GitHub, repositorio `daniellora7/ERPNext-DR-Compilance`.
+   - *Provider*: GitHub, repositorio `daniellora7/ERPNext-DR-Compliance`.
    - *Branch*: `main`.
    - *Compose Path*: `./deploy/compose.yaml`.
 3. En *Advanced*, active **Isolated Deployments**. Así todos los servicios del stack quedan en su propia red junto al proxy de Dokploy, y el `frontend` sigue viendo al `backend` y al `websocket`.
